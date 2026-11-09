@@ -1,0 +1,203 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACS and MI, Step by Step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Heart attacks, one decision at a time</h1>
+    <p class="lede">The Point of Care Medicine ACS and MI template, rebuilt step by step and checked against the Australian ACS guideline. Eight short steps. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> Reperfusion timing, aspirin, P2Y12 choices and doses, anticoagulants, oxygen, NSTEACS timing and secondary prevention come from the NHFA/CSANZ Australian ACS guideline (MJA 2016), which may have been updated since. STEMI criteria, morphine, complications and the P2Y12 timing note come from the US template. Check eTG and your cardiology unit's protocol.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: 'Is it a STEMI?', body: function () { return '<p class="say">The ECG within 10 minutes decides the next hour. Know the criteria cold.</p>' +
+      '<div class="rx stop"><h3>STEMI criteria (US page)</h3><ul class="tight"><li>ST elevation of 1 mm or more in two contiguous leads</li><li>In V2-V3: 2 mm or more in men, 1.5 mm or more in women</li><li>Also activate for: ST depression in V1-V4 (posterior MI), widespread ST depression with ST elevation in aVR, new LBBB with symptoms</li></ul></div>' +
+      '<div class="rx"><h3>Inferior STEMI</h3><p>Always record a right-sided ECG (V4R). RV involvement means low BP with clear lungs: give fluid, and avoid GTN.</p></div>'; } },
+    { h: 'Reperfusion: PCI or lysis?', body: function () { return '<p class="say">Australia has long distances, so this choice matters more here than in the US template.</p>' +
+      '<div class="rx"><h3>Australian STEMI rules (ACS guideline 2016)</h3><ul class="tight"><li>Within <b>12 hours</b> of onset: emergency reperfusion.</li><li><b>Primary PCI</b> if it can happen within <b>90 minutes</b> of first medical contact.</li><li>Otherwise <b>fibrinolysis</b>, if there are no contraindications.</li><li>After lysis: if ST elevation has fallen by 50% or less at 60-90 minutes, or the patient is unstable, transfer at once for <b>rescue PCI</b>.</li><li>After successful lysis outside a PCI hospital: angiography within 24 hours.</li></ul></div>' +
+      '<div class="rx warn"><h3>Beyond 12 hours</h3><p>The US page lists exceptions for shock, sustained VT, ongoing pain or persistent ST elevation. Discuss with cardiology.</p></div>'; } },
+    { h: 'Drugs at the door', body: function () { return '<div class="scroll"><table><thead><tr><th>Drug</th><th>Australia (ACS guideline 2016)</th></tr></thead><tbody>' +
+      '<tr><td>Aspirin</td><td><b>300 mg</b> chewed or dissolved, then 100-150 mg daily</td></tr>' +
+      '<tr><td>P2Y12 inhibitor</td><td><b>Ticagrelor</b> 180 mg then 90 mg twice daily, or <b>prasugrel</b> 60 mg then 10 mg daily (not if over 75, under 60 kg, or previous stroke or TIA). <b>Clopidogrel</b> 300-600 mg then 75 mg daily with fibrinolysis, with oral anticoagulation, or if the others cannot be used. Avoid ticagrelor with high-grade AV block, asthma or COPD.</td></tr>' +
+      '<tr><td>Anticoagulant</td><td>Unfractionated heparin or enoxaparin (enoxaparin may be preferred). Do not switch between them.</td></tr>' +
+      '<tr><td>Oxygen</td><td>Only if saturations are below 93% (88-92% in COPD)</td></tr>' +
+      '<tr><td>GTN</td><td>For pain, unless low BP, RV infarct or a recent PDE-5 inhibitor</td></tr></tbody></table></div>' +
+      '<div class="rx warn"><h3>Timing of the P2Y12 load</h3><p>The US page holds it until after angiography in NSTEMI, in case CABG is needed. Practice differs between Australian units: follow your cardiology team.</p></div>' +
+      '<p class="hint">Morphine (4 mg IV, repeat as needed) is from the US page; it relieves pain but does not improve survival.</p>'; } },
+    { h: 'NSTEACS: how soon to the cath lab?', body: function () { return '<div class="scroll"><table><thead><tr><th>Risk</th><th>Features</th><th>Angiography</th></tr></thead><tbody>' +
+      '<tr><td>Very high</td><td>Unstable, ongoing pain, shock, arrhythmia, heart failure</td><td>Within 2 hours</td></tr>' +
+      '<tr><td>High</td><td>GRACE over 140, dynamic ST or T changes, troponin rise or fall</td><td>Within 24 hours</td></tr>' +
+      '<tr><td>Intermediate</td><td>GRACE 109-140 and other risk features</td><td>Within 72 hours</td></tr>' +
+      '<tr><td>Low</td><td>None of the above</td><td>Selective, guided by testing</td></tr></tbody></table></div>' +
+      '<p class="hint">Australian ACS guideline 2016, which matches the US page.</p>'; } },
+    { h: 'Type 1, type 2, or injury?', body: function () { return '<div class="rx"><h3>Definitions</h3><ul class="tight"><li><b>Myocardial injury:</b> troponin above the 99th percentile.</li><li><b>Infarction:</b> injury plus evidence of ischaemia (symptoms, ECG, imaging).</li><li><b>Type 1:</b> plaque rupture. Treat as ACS.</li><li><b>Type 2:</b> supply and demand mismatch: sepsis, fast AF, anaemia, hypotension, PE. Treat the cause; many still have coronary disease.</li></ul></div>' +
+      '<div class="rx"><h3>Troponin timing</h3><p>Rises over 3-12 hours, peaks at 24-48 hours, and stays up for days. A rise or fall (over 20% in one Australian review) separates acute from chronic.</p></div>'; } },
+    { h: 'Complications in the first days', body: function () { return '<div class="scroll"><table><thead><tr><th>Complication</th><th>Clue</th><th>Do</th></tr></thead><tbody>' +
+      '<tr><td>Cardiogenic shock</td><td>Cold, low BP, confused</td><td>ICU, cardiology</td></tr>' +
+      '<tr><td>Arrhythmia</td><td>VT, VF, heart block (inferior MI)</td><td>Monitor, ALS, pacing</td></tr>' +
+      '<tr><td>Papillary muscle rupture</td><td>New murmur, sudden pulmonary oedema</td><td>Urgent echo, surgery</td></tr>' +
+      '<tr><td>Ventricular septal rupture</td><td>New loud pansystolic murmur, shock</td><td>Urgent echo, surgery</td></tr>' +
+      '<tr><td>Free wall rupture</td><td>Sudden tamponade, PEA</td><td>Echo, pericardiocentesis, surgery</td></tr>' +
+      '<tr><td>RV infarct</td><td>Low BP, raised JVP, clear lungs</td><td>Fluid; avoid GTN</td></tr>' +
+      '<tr><td>Pericarditis</td><td>Pleuritic pain, rub</td><td>Aspirin and colchicine; avoid other NSAIDs early</td></tr>' +
+      '<tr><td>Groin or retroperitoneal bleed</td><td>Low BP after angiography, back or flank pain</td><td>Fluid, Hb, CT, call cardiology</td></tr></tbody></table></div>'; } },
+    { h: 'Before they go home', body: function () { return '<div class="rx"><h3>Australian secondary prevention</h3><ul class="tight"><li>Aspirin indefinitely; <b>DAPT up to 12 months</b> whether or not they were stented.</li><li><b>Highest tolerated statin</b>; suggested LDL target under 1.8 mmol/L.</li><li>Beta-blocker if <b>EF 40% or less</b> (the US page gives it to everyone).</li><li>ACE inhibitor or ARB with heart failure, LV dysfunction, diabetes, anterior MI or hypertension.</li><li><b>Cardiac rehabilitation for everyone</b> hospitalised with ACS.</li><li>Needs oral anticoagulation (for example AF): use clopidogrel rather than ticagrelor or prasugrel, and keep triple therapy short.</li><li>No NSAIDs.</li></ul></div>'; } },
+    { h: 'US template vs Australia', body: function () { return '<div class="scroll"><table><thead><tr><th>Topic</th><th>US template</th><th>Australia</th></tr></thead><tbody>' +
+      '<tr><td>Aspirin</td><td>325 mg, then 81 mg</td><td class="aus">300 mg, then 100-150 mg</td></tr>' +
+      '<tr><td>Reperfusion</td><td>Cath lab within 60 minutes of arrival</td><td class="aus">PCI within 90 minutes of first contact, otherwise fibrinolysis</td></tr>' +
+      '<tr><td>P2Y12 choice</td><td>Clopidogrel, ticagrelor or prasugrel</td><td>Ticagrelor or prasugrel preferred; clopidogrel with lysis or anticoagulation</td></tr>' +
+      '<tr><td>Prasugrel limits</td><td>Under 75, no stroke or TIA</td><td>Also avoid under 60 kg</td></tr>' +
+      '<tr><td>Oxygen</td><td>Not stated</td><td>Only if saturations under 93%</td></tr>' +
+      '<tr><td>Beta-blocker</td><td>Everyone within 24 hours</td><td>EF 40% or less</td></tr>' +
+      '<tr><td>Rehab and lipids</td><td>Rehab; atorvastatin 80 mg</td><td>Rehab for all; highest tolerated statin, LDL under 1.8</td></tr></tbody></table></div>'; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [['pci', 'Primary PCI'], ['lysis', 'Fibrinolysis'], ['rescue', 'Transfer for rescue PCI'], ['fluid', 'Fluid; no GTN'], ['ang24', 'Angiography within 24 hours'], ['echo', 'Urgent echo and cardiothoracic surgery'], ['clop', 'Clopidogrel rather than ticagrelor']];
+  var ITEMS = [
+    { t: 'Anterior STEMI, 2 hours of pain, city hospital with a cath lab 15 minutes away.', a: 'pci', why: 'PCI within 90 minutes of first contact is achievable: primary PCI.' },
+    { t: 'Inferior STEMI in a rural hospital; nearest PCI centre is 3 hours away; no contraindications.', a: 'lysis', why: 'PCI cannot happen within 90 minutes: fibrinolysis, with clopidogrel rather than ticagrelor.' },
+    { t: '75 minutes after fibrinolysis: ST elevation has fallen by only 30% and pain continues.', a: 'rescue', why: '50% or less ST resolution at 60-90 minutes: transfer for rescue PCI.' },
+    { t: 'Inferior STEMI, BP 84/56, clear lungs, raised JVP, ST elevation in V4R.', a: 'fluid', why: 'RV infarct: preload-dependent. Fluid, and no GTN.' },
+    { t: 'NSTEMI with rising troponin and dynamic ST depression, pain settled, stable.', a: 'ang24', why: 'High risk (dynamic changes, troponin rise): angiography within 24 hours.' },
+    { t: 'Day 3 after MI: sudden breathlessness, pulmonary oedema and a new loud pansystolic murmur.', a: 'echo', why: 'Papillary muscle or septal rupture: urgent echo and surgery.' },
+    { t: 'NSTEMI in a man on apixaban for AF who is going for PCI.', a: 'clop', why: 'With oral anticoagulation, use clopidogrel and keep triple therapy short.' },
+    { t: 'Inferior STEMI, 4 hours of pain, cath lab available in 40 minutes.', a: 'pci', why: 'Within 12 hours and PCI within 90 minutes: primary PCI. Check V4R before GTN.' }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>

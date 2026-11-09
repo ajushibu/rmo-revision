@@ -2,6 +2,113 @@
    p = priority (1 must know, 2 good to know, 3 detail), s = source: p = the Point of Care page,
    a = ANZCOR 11.9 (Australia), b = both. sg = suggestions you can add. */
 window.RECALL = {
+"chest-pain": { items: [
+{id:"cp1",p:1,s:"a",t:"First 10 minutes",k:"ECG within 10 minutes of first contact, BP in both arms, IV access, troponin, chest X-ray. ST elevation: STEMI pathway. Suspected ACS: aspirin 300 mg."},
+{id:"cp2",p:1,s:"p",t:"The six that kill",k:"ACS, aortic dissection, PE, tension pneumothorax, tamponade, oesophageal rupture."},
+{id:"cp3",p:1,s:"a",t:"Accelerated rule-out",k:"Serial troponin in a validated protocol: ADAPT is 0 and 2 hours with TIMI 0 and no ischaemic ECG changes; 1-2 hour high-sensitivity algorithms per your hospital."},
+{id:"cp4",p:1,s:"a",t:"Australian low-risk definition",k:"Under 40, atypical symptoms, no known CAD, normal troponin and ECG, symptom-free: no further coronary testing."},
+{id:"cp5",p:1,s:"p",t:"Dissection clues",k:"Sudden tearing pain to the back, maximal at onset, arm BP difference over 20 mmHg, pulse deficit, new AR murmur. CT aortogram before antithrombotics."},
+{id:"cp6",p:1,s:"p",t:"History cannot rule out ACS",k:"Atypical presentations in women, older people and diabetes. GTN response does not prove cardiac pain."},
+{id:"cp7",p:2,s:"a",t:"Intermediate risk plan",k:"Non-invasive testing ideally within 7 days, acceptable up to 14."},
+{id:"cp8",p:2,s:"b",t:"When not to give GTN",k:"Low BP, inferior MI with RV involvement (do V4R), recent PDE-5 inhibitor (sildenafil 24 hours; tadalafil longer)."},
+{id:"cp9",p:2,s:"a",t:"Oxygen in chest pain",k:"Only if saturations are under 93% (88-92% target in COPD)."},
+{id:"cp10",p:2,s:"p",t:"Features that raise the chance of ACS",k:"Pressure, exertional, eased by rest, radiation to both arms (LR about 2.6), sweating, over 20 minutes."},
+{id:"cp11",p:2,s:"p",t:"Troponin is not the same as MI",k:"Injury is above the 99th percentile; MI needs ischaemia too. Type 2 MI: supply and demand mismatch. Look at the rise and fall."},
+{id:"cp12",p:3,s:"p",t:"Non-cardiac causes and treatments",k:"Costochondritis (analgesia), reflux (PPI), pill oesophagitis, shingles (antiviral), biliary colic (ultrasound, LFTs), panic (exclusion)."},
+{id:"cp13",p:3,s:"p",t:"Stress test contraindications",k:"Acute MI or unstable angina, uncontrolled arrhythmia, PE, severe aortic stenosis, myocarditis or pericarditis, dissection."}
+], sg: [
+{id:"cps1",p:2,s:"p",t:"HEART score components",k:"History, ECG, Age, Risk factors, Troponin, each 0-2. Low (0-3), moderate (4-6), high (7-10). (My suggestion from standard teaching.)"},
+{id:"cps2",p:3,s:"p",t:"Boerhaave syndrome",k:"Pain after forceful vomiting, sometimes surgical emphysema; CT, nil by mouth, surgical review. (My suggestion.)"}
+]},
+
+"acs-and-mi": { items: [
+{id:"mi1",p:1,s:"p",t:"STEMI criteria",k:"ST elevation 1 mm or more in two contiguous leads; V2-V3 2 mm men, 1.5 mm women. Also posterior (ST depression V1-V4), aVR elevation with widespread depression, new LBBB with symptoms."},
+{id:"mi2",p:1,s:"a",t:"PCI or fibrinolysis",k:"Within 12 hours: primary PCI if within 90 minutes of first medical contact, otherwise fibrinolysis if no contraindications."},
+{id:"mi3",p:1,s:"a",t:"Failed lysis",k:"ST resolution 50% or less at 60-90 minutes, or instability: transfer for rescue PCI. After successful lysis: angiography within 24 hours."},
+{id:"mi4",p:1,s:"a",t:"Aspirin dose",k:"300 mg chewed or dissolved, then 100-150 mg daily. (US page: 325 then 81.)"},
+{id:"mi5",p:1,s:"a",t:"P2Y12 choice",k:"Ticagrelor 180 then 90 twice daily, or prasugrel 60 then 10 daily (not over 75, under 60 kg, prior stroke or TIA). Clopidogrel 300-600 then 75 with lysis or oral anticoagulation."},
+{id:"mi6",p:1,s:"p",t:"RV infarct",k:"Inferior STEMI with low BP, raised JVP, clear lungs; ST elevation in V4R. Fluid, avoid GTN."},
+{id:"mi7",p:1,s:"a",t:"NSTEACS angiography timing",k:"Very high risk within 2 hours; high (GRACE over 140, dynamic changes, troponin rise) within 24 hours; intermediate (GRACE 109-140) within 72 hours."},
+{id:"mi8",p:1,s:"p",t:"Mechanical complications",k:"New murmur with pulmonary oedema or shock: papillary muscle or septal rupture. Sudden tamponade: free wall rupture. Urgent echo and surgery."},
+{id:"mi9",p:2,s:"a",t:"Anticoagulation",k:"Unfractionated heparin or enoxaparin (enoxaparin may be preferred). Do not switch between them."},
+{id:"mi10",p:2,s:"a",t:"Oxygen",k:"Only if saturations are under 93%."},
+{id:"mi11",p:2,s:"a",t:"Secondary prevention",k:"Aspirin indefinitely, DAPT up to 12 months, highest tolerated statin (LDL under 1.8), beta-blocker if EF 40% or less, ACE inhibitor where indicated, cardiac rehab for all."},
+{id:"mi12",p:2,s:"a",t:"ACS with atrial fibrillation",k:"Clopidogrel with the oral anticoagulant; keep triple therapy short."},
+{id:"mi13",p:2,s:"p",t:"Type 1 vs type 2 MI",k:"Type 1: plaque rupture. Type 2: supply and demand mismatch (sepsis, fast AF, anaemia, PE). Treat the cause."},
+{id:"mi14",p:3,s:"p",t:"Post-MI pericarditis",k:"Aspirin and colchicine; avoid other NSAIDs early after MI."},
+{id:"mi15",p:3,s:"p",t:"Post-angiography low BP",k:"Think bleeding (groin or retroperitoneal), re-infarction, tamponade, arrhythmia. Fluid, ECG, Hb, bedside echo, call cardiology."}
+], sg: [
+{id:"mis1",p:2,s:"p",t:"Contraindications to fibrinolysis",k:"Any prior intracranial haemorrhage, ischaemic stroke within 3 months, active bleeding, suspected dissection, recent head trauma or neurosurgery. (My suggestion from standard teaching; check your protocol.)"},
+{id:"mis2",p:3,s:"p",t:"CABG over PCI",k:"Left main, three-vessel, or two-vessel disease including the proximal LAD."}
+]},
+
+"pericarditis": { items: [
+{id:"pc1",p:1,s:"p",t:"Diagnosis: two of four",k:"Pleuritic pain better leaning forward, friction rub, widespread concave ST elevation with PR depression, new or worse effusion (ESC criteria)."},
+{id:"pc2",p:1,s:"p",t:"Pericarditis vs STEMI on ECG",k:"Pericarditis: widespread, concave, PR depression, reciprocal change only in aVR. STEMI: territorial, reciprocal depression, Q waves. In doubt: treat as STEMI."},
+{id:"pc3",p:1,s:"p",t:"High-risk features (admit)",k:"Fever, high white cells, effusion over 2 cm, tamponade signs, raised troponin, immunocompromised, anticoagulated, trauma, NSAID failure."},
+{id:"pc4",p:1,s:"a",t:"Colchicine dose and duration",k:"0.5 mg twice daily for 3 months (Australian tablets are 0.5 mg; once daily if under 70 kg). Halves recurrence."},
+{id:"pc5",p:1,s:"b",t:"NSAID choice",k:"Ibuprofen with food at the lowest effective dose (Australian review: 400 mg three times daily; US page 600-800 mg), tapered once symptoms and CRP settle. Aspirin instead after MI or with CAD."},
+{id:"pc6",p:1,s:"p",t:"Early post-MI pericarditis",k:"Aspirin plus colchicine. Avoid other NSAIDs and steroids early after MI."},
+{id:"pc7",p:2,s:"p",t:"Steroids",k:"Second line: NSAID failure or contraindication, autoimmune, uraemic. They increase recurrence. Never in bacterial pericarditis."},
+{id:"pc8",p:2,s:"a",t:"Return to sport",k:"No strenuous exercise until symptoms resolve and ECG and CRP normalise; competitive athletes at least 3 months."},
+{id:"pc9",p:2,s:"a",t:"PPI cover",k:"Over 65, previous ulcer, or on aspirin, steroids or anticoagulants."},
+{id:"pc10",p:2,s:"p",t:"ECG stages",k:"1 ST elevation, 2 back to baseline in about a week, 3 T inversion, 4 normal over weeks to months."},
+{id:"pc11",p:2,s:"p",t:"Dressler syndrome",k:"Autoimmune pericarditis weeks to months after MI or cardiac surgery."},
+{id:"pc12",p:3,s:"p",t:"Commonest cause",k:"Viral (coxsackie B). Usually self-limiting."}
+], sg: [
+{id:"pcs1",p:2,s:"p",t:"Colchicine interactions",k:"Clarithromycin, some azoles, verapamil, ciclosporin; reduce in kidney impairment. (My suggestion from standard teaching.)"},
+{id:"pcs2",p:3,s:"p",t:"Myopericarditis",k:"Pericarditis with raised troponin: admit, echo, cardiology, longer exercise restriction."}
+]},
+
+"pericardial-effusion-and-tamponade": { items: [
+{id:"tm1",p:1,s:"p",t:"Speed over size",k:"A small effusion that collects fast (after a procedure) can cause tamponade; a large slow one may not."},
+{id:"tm2",p:1,s:"p",t:"Most useful signs",k:"Breathlessness, tachycardia, raised JVP, pulsus paradoxus over 10 mmHg. Low BP and Beck triad are late and insensitive."},
+{id:"tm3",p:1,s:"p",t:"Echo signs",k:"Effusion, RV diastolic collapse, RA systolic collapse, plethoric IVC, swinging heart."},
+{id:"tm4",p:1,s:"p",t:"The only fix",k:"Pericardiocentesis. Do not delay it in an unstable patient."},
+{id:"tm5",p:1,s:"p",t:"What to avoid",k:"Diuretics, vasodilators, and intubation if at all possible (positive pressure lowers venous return)."},
+{id:"tm6",p:1,s:"p",t:"Blood in the sac",k:"Dissection, free wall rupture or trauma: cardiothoracic surgery, not just a needle."},
+{id:"tm7",p:2,s:"p",t:"Measuring pulsus with a cuff",k:"Pressure where sounds appear only in expiration minus pressure where they are heard throughout. Over 10 mmHg is pulsus; under 10 makes tamponade very unlikely."},
+{id:"tm8",p:2,s:"p",t:"Causes",k:"Procedures, pericarditis, cancer (lung, breast, lymphoma), uraemia, hypothyroidism, autoimmune, radiation, blood."},
+{id:"tm9",p:2,s:"p",t:"Fluid tests",k:"Cell count, protein, LDH, Gram stain and culture, TB tests, cytology."},
+{id:"tm10",p:2,s:"p",t:"After cardiac surgery",k:"Drains suddenly stop, BP falls, CVP rises: clot tamponade. Call the surgeon; re-opening may be needed."},
+{id:"tm11",p:3,s:"p",t:"ECG and X-ray",k:"Electrical alternans (16-21%), low voltage. Big globular heart on X-ray."}
+], sg: [
+{id:"tms1",p:2,s:"p",t:"Recurrent malignant effusion",k:"Consider a pericardial window, matched to goals of care."}
+]},
+
+"hypertensive-urgency-and-emergency": { items: [
+{id:"ht1",p:1,s:"p",t:"Urgency vs emergency",k:"Both usually over 180/120. Emergency = organ damage (brain, eyes, heart, aorta, kidneys, blood). Urgency = none; mild headache allowed."},
+{id:"ht2",p:1,s:"p",t:"The ward BP call",k:"See the patient, re-measure properly, look for organ damage, treat pain, retention, anxiety and missed tablets. No IV drugs for a well patient."},
+{id:"ht3",p:1,s:"p",t:"How fast in an emergency",k:"No more than 25% in the first hour, then about 160/100 over 2-5 hours, then normal over days. Too fast causes stroke and kidney injury."},
+{id:"ht4",p:1,s:"p",t:"Dissection target",k:"Beta-blocker first (labetalol or esmolol); systolic under 120 and heart rate under 60 within an hour. Never a vasodilator alone."},
+{id:"ht5",p:1,s:"p",t:"ACS and pulmonary oedema",k:"GTN; systolic under 140 within an hour. Avoid beta-blockers in pulmonary oedema or shock."},
+{id:"ht6",p:1,s:"p",t:"Stimulant toxicity",k:"Benzodiazepines first; avoid a beta-blocker alone. Call the Poisons Information Centre 13 11 26."},
+{id:"ht7",p:1,s:"p",t:"Pregnancy",k:"Over 20 weeks or postpartum with high BP: pre-eclampsia until proven otherwise. Call obstetrics."},
+{id:"ht8",p:2,s:"p",t:"Organ damage work-up",k:"ECG, troponin, creatinine, urinalysis, FBC and film (MAHA), chest X-ray, fundoscopy, CT head if neurological, CT aortogram if dissection suspected."},
+{id:"ht9",p:2,s:"p",t:"Urgency targets",k:"Under 160/100 over hours, then under 130/90 over days, with oral drugs and GP follow-up."},
+{id:"ht10",p:2,s:"p",t:"IV options and cautions",k:"Labetalol (bolus or infusion), GTN infusion, hydralazine (unpredictable). Nicardipine is not stocked everywhere in Australia: check your formulary."},
+{id:"ht11",p:2,s:"p",t:"Secondary causes",k:"Drugs (NSAIDs, steroids, pill, stimulants), sleep apnoea, renal artery stenosis, primary aldosteronism, phaeochromocytoma, thyroid, Cushing, coarctation."},
+{id:"ht12",p:3,s:"p",t:"PRES",k:"Headache, seizures, confusion, visual loss; MRI shows parieto-occipital oedema."}
+], sg: [
+{id:"hts1",p:2,s:"p",t:"Why not sublingual nifedipine",k:"Unpredictable, sometimes severe BP drops. (My suggestion from standard teaching.)"}
+]},
+
+"syncope-and-loss-of-consciousness": { items: [
+{id:"sy1",p:1,s:"p",t:"Definition and mimics",k:"Brief LOC from low brain blood flow with fast full recovery. Exclude hypoglycaemia, hypoxia, intoxication, seizure, stroke."},
+{id:"sy2",p:1,s:"p",t:"Red flags for cardiac syncope",k:"Exertional or supine, no warning, palpitations, chest pain, breathlessness, heart disease, abnormal ECG, family history of sudden death."},
+{id:"sy3",p:1,s:"p",t:"ECG hunt",k:"Heart block or pauses, long QT, delta wave (WPW), Brugada, HCM voltages, ARVC epsilon wave, ischaemia, new arrhythmia."},
+{id:"sy4",p:1,s:"p",t:"Three kinds",k:"Reflex (about 60%), orthostatic (15%), cardiac (15%). If reflex or orthostatic is not clear: think cardiac."},
+{id:"sy5",p:1,s:"a",t:"Driving (Austroads, private)",k:"Typical vasovagal unlikely while driving: fit. Single blackout of uncertain cause: 6 months. Two or more over 24 hours apart: 12 months. Licensing authority decides."},
+{id:"sy6",p:1,s:"p",t:"Lying and standing BP",k:"Lying, immediately on standing, and at 3 minutes. Fall of 20 systolic or 10 diastolic is orthostatic hypotension."},
+{id:"sy7",p:2,s:"p",t:"Tests for everyone",k:"ECG, glucose, FBC, electrolytes, troponin; telemetry if admitted. Pregnancy test in women of child-bearing age."},
+{id:"sy8",p:2,s:"p",t:"When to image",k:"Echo for a murmur, heart disease or abnormal ECG. CT head for head strike with anticoagulants or focal signs. Carotid Doppler rarely helps."},
+{id:"sy9",p:2,s:"p",t:"Orthostatic causes",k:"Diuretics, vasodilators, alpha-blockers, beta-blockers, dehydration, autonomic failure (Parkinson disease, diabetes, amyloid)."},
+{id:"sy10",p:2,s:"p",t:"Treatment by type",k:"Reflex: education, counter-pressure. Orthostatic: stop culprit drugs, fluids, stockings; midodrine or fludrocortisone by specialist. Cardiac: treat the cause."},
+{id:"sy11",p:3,s:"p",t:"Seizure vs syncope",k:"Prolonged confusion afterwards suggests seizure. Tongue biting and incontinence occur in both."}
+], sg: [
+{id:"sys1",p:2,s:"p",t:"Bleeding as a cause",k:"Melaena, ruptured AAA, ectopic pregnancy can present as syncope. (My suggestion.)"}
+]},
+
 "acute-decompensated-heart-failure": { items: [
 {id:"hf1",p:1,s:"b",t:"Spotting cardiogenic shock",k:"Systolic under 90 for over 30 minutes, cold and clammy, narrow pulse pressure, confusion, rising lactate, poor urine. Call your senior and ICU; stop the beta-blocker and vasodilators."},
 {id:"hf2",p:1,s:"b",t:"Acute pulmonary oedema: first steps",k:"Sit up, oxygen if hypoxic, CPAP or NIV if oxygen is not enough or CO2 rises, GTN if BP allows (infusion from about 5-10 mcg/min), IV furosemide. Avoid morphine."},

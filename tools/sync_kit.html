@@ -1,0 +1,192 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Syncope, Step by Step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Syncope, one decision at a time</h1>
+    <p class="lede">The Point of Care Medicine syncope template, rebuilt step by step, with Australian driving rules. Eight short steps. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> Driving rules come from Austroads Assessing Fitness to Drive (blackouts section). Everything else is from the US template and standard teaching; I did not find an Australian syncope guideline to compare with.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: 'Was it syncope?', body: function () { return '<p class="say">Syncope is a short loss of consciousness from <b>too little blood to the brain</b>, with a fast and complete recovery. Not every collapse is syncope.</p>' +
+      '<div class="rx"><h3>Exclude first</h3><ul class="tight"><li>Low glucose, low oxygen, intoxication</li><li>Seizure (prolonged confusion afterwards, lateral tongue bite)</li><li>Stroke or TIA, head injury</li><li>A fall without loss of consciousness</li></ul></div>' +
+      '<div class="rx warn"><h3>Tongue biting and incontinence</h3><p>Both happen in syncope too. They do not reliably separate seizure from syncope.</p></div>'; } },
+    { h: 'Three kinds of syncope', body: function () { return '<div class="scroll"><table><thead><tr><th>Kind</th><th>How common</th><th>Clues</th></tr></thead><tbody>' +
+      '<tr><td>Reflex (vasovagal, situational)</td><td>About 60%</td><td>Trigger (standing long, pain, needles, urinating, coughing), warning feelings, sweaty, quick recovery</td></tr>' +
+      '<tr><td>Orthostatic</td><td>About 15%</td><td>On standing; new BP drugs, diuretics, dehydration, Parkinson disease, diabetes</td></tr>' +
+      '<tr><td>Cardiac</td><td>About 15%</td><td>Exertion, lying down, no warning, palpitations, chest pain, heart disease, abnormal ECG</td></tr></tbody></table></div>' +
+      '<div class="rx"><h3>If reflex and orthostatic are not clearly the cause</h3><p>Think cardiac. It is the type that kills.</p></div>'; } },
+    { h: 'Red flags', body: function () { return '<div class="rx stop"><h3>Admit or monitor if</h3><ul class="tight"><li>During exertion, or lying down</li><li>No warning at all</li><li>Palpitations, chest pain or breathlessness</li><li>Known heart disease or heart failure</li><li>Abnormal ECG, new arrhythmia</li><li>Low BP, anaemia or bleeding</li><li>Family history of sudden death under 40 (standard teaching)</li></ul></div>' +
+      '<div class="rx"><h3>Can\'t miss</h3><p>Arrhythmia, aortic stenosis, PE, bleeding (GI, ruptured AAA, ectopic pregnancy), seizure, stroke.</p></div>'; } },
+    { h: 'The ECG: what to hunt for', body: function () { return '<div class="scroll"><table><thead><tr><th>Finding</th><th>Why it matters</th></tr></thead><tbody>' +
+      '<tr><td>Mobitz II, complete heart block, long pauses</td><td>Needs pacing</td></tr>' +
+      '<tr><td>Long QT</td><td>Torsades</td></tr>' +
+      '<tr><td>Short PR with a delta wave</td><td>WPW</td></tr>' +
+      '<tr><td>Coved ST elevation V1-V2</td><td>Brugada</td></tr>' +
+      '<tr><td>Very large voltages, deep T inversion</td><td>Hypertrophic cardiomyopathy</td></tr>' +
+      '<tr><td>Epsilon wave, T inversion V1-V3</td><td>ARVC</td></tr>' +
+      '<tr><td>Ischaemia, new arrhythmia</td><td>ACS, AF, VT</td></tr></tbody></table></div>'; } },
+    { h: 'Tests that help', body: function () { return '<div class="rx"><h3>Everyone (US page)</h3><p>ECG, telemetry, full blood count, electrolytes, glucose, troponin, NT-proBNP. Lying and standing BP.</p></div>' +
+      '<div class="rx"><h3>Lying and standing BP</h3><p>Measure lying, immediately on standing, and at 3 minutes. A fall of <b>20 systolic or 10 diastolic</b> is orthostatic hypotension. Give the nurse clear instructions.</p></div>' +
+      '<div class="rx"><h3>Only if indicated</h3><ul class="tight"><li>Echo: a murmur, heart disease, abnormal ECG (moderate-severe aortic stenosis nearly always has a murmur)</li><li>CT head: head strike, anticoagulants, focal signs</li><li>CTPA: when PE fits the picture</li><li>Ambulatory monitoring (Holter, patch, loop recorder) when arrhythmia is suspected</li><li>Carotid Doppler: rarely useful without focal signs</li></ul></div>'; } },
+    { h: 'Treatment', body: function () { return '<div class="rx"><h3>Reflex</h3><p>Explain, avoid triggers, sit or lie at the first warning, counter-pressure manoeuvres (crossing legs, gripping hands).</p></div>' +
+      '<div class="rx"><h3>Orthostatic</h3><p>Stop or reduce culprit drugs (diuretics, vasodilators, alpha-blockers), fluids, rise slowly, compression stockings. Midodrine or fludrocortisone by a specialist.</p></div>' +
+      '<div class="rx"><h3>Cardiac</h3><p>Treat the cause: pacing, ablation, valve surgery, ICD. Cardiology.</p></div>'; } },
+    { h: 'Driving in Australia', body: function () { return '<p class="say">Driving advice is part of every syncope discharge. Document it.</p>' +
+      '<div class="rx"><h3>Private drivers (Austroads, Assessing Fitness to Drive)</h3><ul class="tight"><li><b>Vasovagal syncope</b> with a clear trigger, unlikely to happen while driving: fit to drive.</li><li><b>Blackout of uncertain cause, single</b>: do not drive for <b>6 months</b>.</li><li><b>Two or more blackouts</b> more than 24 hours apart: <b>12 months</b>.</li><li>Cardiac causes follow the cardiovascular section, often after treatment and specialist review.</li><li>Commercial drivers have much longer periods.</li></ul><p class="hint">The licensing authority makes the final decision. Tell the patient their legal duty to report.</p></div>'; } },
+    { h: 'US template vs Australia', body: function () { return '<div class="scroll"><table><thead><tr><th>Topic</th><th>US template</th><th>Australia</th></tr></thead><tbody>' +
+      '<tr><td>Driving</td><td>Not covered</td><td class="aus">Austroads: unexplained single blackout 6 months, recurrent 12 months; typical vasovagal fit to drive</td></tr>' +
+      '<tr><td>Routine tests</td><td>ECG, troponin, NT-proBNP, telemetry for all inpatients</td><td>No Australian guideline found to compare; follow your hospital pathway</td></tr>' +
+      '<tr><td>Midodrine, droxidopa</td><td>Listed</td><td>Specialist use; droxidopa is not standard in Australia (check availability)</td></tr></tbody></table></div>'; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [['reflex', 'Reflex syncope: reassure, advise'], ['ortho', 'Orthostatic: review drugs and fluids'], ['cardiac', 'Possible cardiac syncope: admit and monitor'], ['seizure', 'Probably not syncope: think seizure'], ['drive6', 'No driving for 6 months'], ['bleed', 'Look for bleeding']];
+  var ITEMS = [
+    { t: '19-year-old fainted while having blood taken, felt hot and sweaty first, recovered in seconds, normal ECG.', a: 'reflex', why: 'Classic vasovagal with a trigger and warning: reassure and advise.' },
+    { t: '78-year-old on a new alpha-blocker and furosemide fainted on standing; BP drops 34 systolic.', a: 'ortho', why: 'Orthostatic hypotension: review the drugs, fluids, and stand slowly.' },
+    { t: '64-year-old collapsed while climbing stairs, no warning, ejection systolic murmur.', a: 'cardiac', why: 'Exertional syncope with a murmur: possible aortic stenosis. Admit, monitor, echo.' },
+    { t: 'Collapsed, then 20 minutes of confusion, tongue bitten on the side.', a: 'seizure', why: 'Prolonged confusion afterwards points to seizure rather than syncope.' },
+    { t: 'Single blackout, full work-up normal, no cause found. Private driver.', a: 'drive6', why: 'Austroads: blackout of uncertain cause, single: no driving for 6 months.' },
+    { t: '58-year-old collapsed after passing black stools; heart rate 118.', a: 'bleed', why: 'Syncope with melaena and tachycardia: GI bleed until proven otherwise.' },
+    { t: 'Syncope lying in bed; ECG shows QTc 540 ms.', a: 'cardiac', why: 'Supine syncope with a long QT: arrhythmia risk. Admit to telemetry.' }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>
