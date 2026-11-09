@@ -45,6 +45,12 @@
     out.sort(function (a, b) { return b.n.late - a.n.late; });
     return out;
   }
+  function revCan(st, k) {
+    k = +k; var i = INT.indexOf(k); if (!st.studied || i < 0) return false;
+    if (st.rev[k]) { for (var j = i + 1; j < INT.length; j++) if (st.rev[INT[j]]) return false; return true; } // only the latest tick can be undone
+    for (var m = 0; m < i; m++) if (!st.rev[INT[m]]) return false; // earlier reviews first
+    return diff(today(), addDays(st.studied, k)) >= 0; // and only once it is due
+  }
   var STATUS = { 'new': 'Not started', learning: 'Learning', done: 'Done' };
 
   /* ---------- recall items ---------- */
@@ -66,10 +72,21 @@
     if (!s) return { k: 'new' };
     return { k: diff(today(), s.due) >= 0 ? 'due' : 'ok', s: s };
   }
+  var undo = null;
   function rate(id, how) {
+    var st = itState(id);
+    if (how === 'got' && st.k === 'ok') return false; // not due yet: cannot be marked known early
     var s = S.items[id] || { step: 0 }, n = how === 'got' ? Math.min((s.step || 0) + 1, INT.length - 1) : 0;
+    undo = { id: id, prev: S.items[id] ? JSON.parse(JSON.stringify(S.items[id])) : null, how: how, at: Date.now() };
     S.items[id] = { step: n, due: addDays(today(), INT[n]), last: today(), r: how, t: Date.now() };
     save();
+    return true;
+  }
+  function undoRate() {
+    if (!undo) return;
+    if (undo.prev) { undo.prev.t = Date.now(); S.items[undo.id] = undo.prev; }
+    else { delete S.items[undo.id]; S.dead[undo.id] = Date.now(); }
+    undo = null; save();
   }
   function queue() {
     var due = [], fresh = [];
@@ -90,6 +107,8 @@
     return '<span class="tag">Next ' + nice(st.s.due) + '</span>';
   }
   function rateButtons(id) {
+    var st = itState(id);
+    if (st.k === 'ok') return '<p class="src">Next review ' + nice(st.s.due) + '. You can mark it known again on that day, so the spacing stays honest.</p><button class="link" data-rate="shaky" data-it="' + id + '">I have forgotten this: bring it back tomorrow</button>';
     return '<div class="rate"><button class="b got" data-rate="got" data-it="' + id + '">Got it</button><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky</button></div>';
   }
 
@@ -102,7 +121,7 @@
     function newer(x, y) { if (!x) return y; if (!y) return x; return (y.t || 0) > (x.t || 0) ? y : x; }
     ['topics', 'items'].forEach(function (f) {
       var A = a[f] || {}, B = b[f] || {};
-      Object.keys(A).concat(Object.keys(B)).forEach(function (k) { var v = newer(A[k], B[k]); if ((v.t || 0) >= r || !r) out[f][k] = v; });
+      Object.keys(A).concat(Object.keys(B)).forEach(function (k) { var v = newer(A[k], B[k]); if (f === 'items' && out.dead[k] && (v.t || 0) <= out.dead[k]) return; if ((v.t || 0) >= r || !r) out[f][k] = v; });
     });
     function idTime(id) { var n = Number(String(id).replace(/^u/, '')); return isNaN(n) ? 0 : n; }
     var seen = {};
@@ -227,7 +246,12 @@
     function tab(href, label, on, c) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + '</a>'; }
     return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home') + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n) + tab('#/log', 'Error log', cur.page === 'log') + '</nav>';
   }
-  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main" id="main">' + inner + '</main>' + tabbar(cur) + '</div>'; }
+  function undoBar() {
+    if (!undo || Date.now() - undo.at > 8000) return '';
+    var it = S.items[undo.id];
+    return '<div class="undo" role="status"><span>Marked ' + (undo.how === 'got' ? 'Got it' : 'Shaky') + (it ? '. Next review ' + nice(it.due) : '') + '.</span><button class="link" data-act="undo">Undo</button></div>';
+  }
+  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main" id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
   function row(href, title, right, sub) {
     return '<li><a class="row" href="' + href + '"><span class="t"><span>' + title + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + (right || '') + '</a></li>';
   }
@@ -306,9 +330,9 @@
     if (!st.studied) h += '<p class="meta">Press this when you finish studying. It schedules re-reads at 1, 3, 7, 14 and 28 days and puts this topic\'s checklist into Revise.</p><p><button class="btn primary" data-act="studied">Studied today</button></p>';
     else {
       h += '<p class="meta">First studied ' + nice(st.studied) + '. Tick each re-read when you have done it.</p><div class="sched">' + INT.map(function (k) {
-        var due = addDays(st.studied, k), isDone = !!st.rev[k], late = diff(today(), due);
+        var due = addDays(st.studied, k), isDone = !!st.rev[k], late = diff(today(), due), can = revCan(st, k);
         var cls = isDone ? 'ok' : (late >= 0 && n && n.k === k ? 'due' : '');
-        return '<label class="' + cls + '"><input type="checkbox" data-rev="' + k + '"' + (isDone ? ' checked' : '') + '><span><b>Day ' + k + '</b><small>' + nice(due) + (isDone ? ', done' : late >= 0 ? ', due' : '') + '</small></span></label>';
+        return '<label class="' + cls + (can ? '' : ' locked') + '"><input type="checkbox" data-rev="' + k + '"' + (isDone ? ' checked' : '') + (can ? '' : ' disabled') + '><span><b>Day ' + k + '</b><small>' + nice(due) + (isDone ? ', done' : late >= 0 ? (n && n.k === k ? ', due' : ', after the earlier one') : ', not yet') + '</small></span></label>';
       }).join('') + '</div><p class="btns"><button class="btn small" data-act="restudy">Studied again today</button><button class="btn small" data-act="unstudy">Clear schedule</button></p>';
     }
 
@@ -429,10 +453,12 @@
     });
   }
 
+  var lockUntil = 0;
   app.addEventListener('click', function (e) {
     var el;
-    if ((el = e.target.closest('[data-rv]'))) { var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); rate(iid, el.getAttribute('data-rate')); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
+    if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-del]'))) { var id = el.getAttribute('data-del'); S.errors = S.errors.filter(function (x) { return x.id !== id; }); S.dead[id] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -449,7 +475,8 @@
         .catch(function (err) { m.textContent = err.status === 429 ? 'Too many emails sent. Wait a few minutes and try again.' : 'Could not send: ' + err.message; });
       return;
     }
-    if (a === 'reveal') { revealed = true; keepScroll = true; render(); }
+    if (a === 'undo') { undoRate(); keepScroll = true; render(); return; }
+    if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'export') {
@@ -463,8 +490,10 @@
   });
   app.addEventListener('change', function (e) {
     var c = e.target.closest('[data-rev]'); if (!c) return;
-    var t = ts(topicId()), k = c.getAttribute('data-rev'); t.t = Date.now();
-    if (c.checked) t.rev[k] = true; else delete t.rev[k];
+    var t = ts(topicId()), k = c.getAttribute('data-rev');
+    if (!revCan(t, k)) { c.checked = !c.checked; return; }
+    t.t = Date.now();
+    if (c.checked) t.rev[k] = true; else { delete t.rev[k]; if (t.status === 'done') t.status = 'learning'; }
     if (INT.every(function (x) { return t.rev[x]; })) t.status = 'done';
     save(); keepScroll = true; render();
   });
