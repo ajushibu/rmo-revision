@@ -1,0 +1,370 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>Atrial Fibrillation Study Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+--a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+--diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+--diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+--diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+</head><body><main>
+<header>
+<h1>Atrial Fibrillation Study Kit</h1>
+<p class="lede">The Point of Care Medicine AF template, checked against Australian guidance, then turned into things you can click. Start on the first tab. A study aid, not a clinical decision tool.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="Study tools">
+<button role="tab" id="t-aus" aria-controls="p-aus" data-tab="aus">Australia first</button>
+<button role="tab" id="t-risk" aria-controls="p-risk" data-tab="risk">Anticoagulate?</button>
+<button role="tab" id="t-dose" aria-controls="p-dose" data-tab="dose">Which DOAC, what dose</button>
+<button role="tab" id="t-drill" aria-controls="p-drill" data-tab="drill">Shock or drug</button>
+<button role="tab" id="t-cv" aria-controls="p-cv" data-tab="cv">Before cardioversion</button>
+</nav>
+<section class="panel" id="p-aus" role="tabpanel" aria-labelledby="t-aus">
+<div class="card">
+<h2>Where Australia differs from the template</h2>
+<p class="hint" style="margin-bottom:10px">The template is US-based. Learn the right-hand column. Amber cells are the ones that would change what you do or write.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>Topic</th><th>US template</th><th>Australia (NHFA/CSANZ 2018)</th></tr></thead>
+<tbody>
+<tr><td>Stroke risk score</td><td>CHA₂DS₂-VASc. Anticoagulate at 2 or more in men, 3 or more in women.</td><td class="aus">CHA₂DS₂-VA: female sex is not scored. Score 2 or more: anticoagulate. Score 1: consider. Score 0: do not.</td></tr>
+<tr><td>Bleeding score</td><td>HAS-BLED, but not in isolation.</td><td class="aus">Do not use bleeding scores to withhold anticoagulation. Find and fix modifiable risks: uncontrolled hypertension, alcohol, NSAIDs, antiplatelets, anaemia, labile INR.</td></tr>
+<tr><td>Choice of anticoagulant</td><td>DOAC first line; edoxaban listed; apixaban "best choice" in CKD/ESRD.</td><td class="aus">Apixaban, dabigatran or rivaroxaban in preference to warfarin. If CrCl is under 30 mL/min use warfarin. Warfarin also for moderate-severe mitral stenosis and mechanical valves. Cirrhosis: DOACs contraindicated. Edoxaban is not in the guideline.</td></tr>
+<tr><td>Apixaban dose reduction</td><td>2 of: age 80+, weight 60 kg or less, creatinine 1.5 mg/dL.</td><td class="aus">2.5 mg twice daily if 2 of: age 80+, weight 60 kg or less, creatinine 133 µmol/L or more. (Same rule, Australian units.)</td></tr>
+<tr><td>Rivaroxaban reduction</td><td>15 mg if CrCl 15-50.</td><td class="aus">15 mg daily if CrCl 30-49 mL/min (and below 30 means warfarin).</td></tr>
+<tr><td>Dabigatran reduction</td><td>110 mg twice daily if over 80 or high bleeding risk.</td><td class="aus">110 mg twice daily if age 75+ and/or CrCl 30-50 and/or increased major bleeding risk.</td></tr>
+<tr><td>Aspirin</td><td>Not for stroke prevention.</td><td>Same. After ACS or stent, stop antiplatelets at 12 months and continue the anticoagulant.</td></tr>
+<tr><td>Rate control drugs</td><td>Beta-blocker or diltiazem/verapamil; digoxin second line.</td><td>Same order. No diltiazem or verapamil with LV systolic dysfunction. IV verapamil with extreme caution. Amiodarone when reserve is marginal or in heart failure. Digoxin level aim under 1.2 ng/mL.</td></tr>
+<tr><td>Unstable AF</td><td>Synchronised shock; 100 J biphasic.</td><td>Urgent electrical cardioversion. Queensland ambulance protocol uses 100, 150, then 200 J. Follow your hospital's device and sedation protocol.</td></tr>
+<tr><td>Drug cardioversion</td><td>Flecainide, propafenone, amiodarone, dofetilide, ibutilide.</td><td>Flecainide or amiodarone. Flecainide only without LV dysfunction, significant LVH or coronary disease, and give an AV-nodal blocker first.</td></tr>
+<tr><td>After cardioversion</td><td>Anticoagulate "at least 10 days".</td><td class="aus">I could not retrieve the Australian figure. Standard teaching is at least 4 weeks, then continue by CHA₂DS₂-VA. Check eTG before you rely on either number.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="flag"><b>How far to trust this tab.</b> Scores, drug choice, dose-reduction rules and the 48-hour rule come from the 2018 NHFA/CSANZ guideline and its clinical fact sheet. The shock energies come from a Queensland Ambulance protocol, not a hospital guideline. I did not find a newer Australian AF guideline, but one may exist. Check eTG and your hospital's guideline before acting on any number.</div>
+</section>
+<section class="panel" id="p-risk" role="tabpanel" aria-labelledby="t-risk" hidden>
+<div class="split">
+<div class="card">
+<h2>Score the patient</h2>
+<p class="hint">Tick what applies. Both scores update, so you can see where the US and Australian rules disagree.</p>
+<ul class="checks" id="cha-list"></ul>
+</div>
+<div class="stack">
+<div class="card">
+<h2>Australian score: CHA₂DS₂-VA</h2>
+<div class="result" id="va-result"></div>
+<p class="hint" style="margin-top:10px">Score 0 and not anticoagulated: re-score every year. Age and new illness change it.</p>
+</div>
+<div class="card">
+<h2>US template: CHA₂DS₂-VASc</h2>
+<div class="result" id="vasc-result"></div>
+<p class="hint" style="margin-top:10px">The US rule counts female sex as 1 point and asks for 3 in women. Learn it so you understand US sources, but chart the Australian rule.</p>
+</div>
+<p class="hint">Before you decide against anticoagulation for bleeding risk: a bleeding score alone is not a reason in the Australian guideline. List what you can fix first.</p>
+</div>
+</div>
+</section>
+<section class="panel" id="p-dose" role="tabpanel" aria-labelledby="t-dose" hidden>
+<div class="split">
+<div class="card">
+<h2>Patient details</h2>
+<p class="hint">Example values. Change them. Creatinine in µmol/L, as your lab reports it.</p>
+<div class="fields">
+<label for="d-age">Age (years)<input id="d-age" type="number" min="18" max="110" value="82"></label>
+<label for="d-wt">Weight (kg)<input id="d-wt" type="number" min="30" max="200" value="58"></label>
+<label for="d-cr">Creatinine (µmol/L)<input id="d-cr" type="number" min="30" max="900" value="125"></label>
+<label for="d-sex">Sex<select id="d-sex"><option value="m">Male</option><option value="f" selected>Female</option></select></label>
+</div>
+<ul class="checks" style="margin-top:14px">
+<li><label><input type="checkbox" id="d-ms"><span>Moderate-severe mitral stenosis or a mechanical valve</span></label></li>
+<li><label><input type="checkbox" id="d-cir"><span>Cirrhosis</span></label></li>
+<li><label><input type="checkbox" id="d-dapt"><span>Needs dual antiplatelet therapy as well</span></label></li>
+</ul>
+<p class="hint" style="margin-top:10px">Cockcroft-Gault: (140 − age) × weight × 1.23 (male) or 1.04 (female) ÷ creatinine in µmol/L. Confirm how your hospital calculates CrCl.</p>
+</div>
+<div class="stack">
+<div class="card">
+<h2>Result</h2>
+<div class="result" id="crcl"></div>
+<div class="result" id="choice" style="margin-top:8px"></div>
+<div id="doses" class="stack" style="margin-top:10px"></div>
+</div>
+<p class="hint">Doses are from the 2018 Australian fact sheet. Check the current product information and your hospital formulary. This tool does not replace pharmacist review.</p>
+</div>
+</div>
+</section>
+<section class="panel" id="p-drill" role="tabpanel" aria-labelledby="t-drill" hidden>
+<div class="card">
+<h2>What is your first move?</h2>
+<p class="hint">Eight short scenarios. Wrong ones come back in a second round.</p>
+<div class="drill" id="drill-box" aria-live="polite" style="margin-top:14px"></div>
+</div>
+</section>
+<section class="panel" id="p-cv" role="tabpanel" aria-labelledby="t-cv" hidden>
+<figure class="card">
+<div class="scroll">
+<svg viewBox="0 0 820 330" role="img" aria-label="Decision paths before cardioversion. Unstable patient: shock now without waiting. Stable AF under 48 hours: cardioversion can go ahead with anticoagulation as per local practice. Stable AF over 48 hours or unknown: exclude left atrial thrombus with transoesophageal echo, or anticoagulate for weeks first. After successful cardioversion: continue anticoagulation for at least 4 weeks, then follow the stroke score.">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="m-n" points="0,0 10,5 0,10"/></marker></defs>
+<rect class="box" x="20" y="130" width="150" height="70" rx="4"/>
+<text x="95" y="160" text-anchor="middle">AF needing</text><text x="95" y="177" text-anchor="middle">rhythm control</text>
+<path class="ln" d="M172 150 H228 V50 H258" marker-end="url(#ah)"/>
+<path class="ln" d="M172 165 H258" marker-end="url(#ah)"/>
+<path class="ln" d="M172 180 H228 V280 H258" marker-end="url(#ah)"/>
+<rect class="stop" x="260" y="16" width="220" height="68" rx="4"/>
+<text x="370" y="40" text-anchor="middle">Unstable</text>
+<text class="sm" x="370" y="58" text-anchor="middle">Shock now. Do not wait for</text><text class="sm" x="370" y="72" text-anchor="middle">TOE or anticoagulation.</text>
+<rect class="go" x="260" y="126" width="220" height="78" rx="4"/>
+<text x="370" y="150" text-anchor="middle">Stable, onset under 48 h</text>
+<text class="sm" x="370" y="168" text-anchor="middle">Cardioversion can proceed.</text><text class="sm" x="370" y="182" text-anchor="middle">Mild symptoms: rate control and</text><text class="sm" x="370" y="196" text-anchor="middle">watching is also acceptable.</text>
+<rect class="step" x="260" y="240" width="220" height="78" rx="4"/>
+<text x="370" y="264" text-anchor="middle">Stable, over 48 h or unknown</text>
+<text class="sm" x="370" y="282" text-anchor="middle">Exclude left atrial thrombus</text><text class="sm" x="370" y="296" text-anchor="middle">with TOE first, or anticoagulate</text><text class="sm" x="370" y="310" text-anchor="middle">for weeks (confirm locally).</text>
+<path class="ln" d="M482 50 H540 V165 H578" marker-end="url(#ah)"/>
+<path class="ln" d="M482 165 H578" marker-end="url(#ah)"/>
+<path class="ln" d="M482 280 H540 V165" />
+<rect class="box" x="580" y="116" width="220" height="98" rx="4"/>
+<text x="690" y="142" text-anchor="middle">After conversion</text>
+<text class="sm" x="690" y="162" text-anchor="middle">Anticoagulate at least 4 weeks</text><text class="sm" x="690" y="176" text-anchor="middle">(standard teaching; confirm in eTG),</text><text class="sm" x="690" y="190" text-anchor="middle">then keep going if CHA₂DS₂-VA says so.</text><text class="sm" x="690" y="204" text-anchor="middle">Sinus rhythm does not remove the risk.</text>
+</svg>
+</div>
+<figcaption>The template says anticoagulate "at least 10 days" after conversion and that recurrence is as high as 50% a year. The second point is the one that matters: keep the anticoagulant going if the stroke score says so, whatever the rhythm. Anticoagulation after ablation follows the score too, not the rhythm.</figcaption>
+</figure>
+<div class="card">
+<h2>Why it matters</h2>
+<p style="margin:0">Cardioversion can restart organised atrial contraction and dislodge a clot sitting in the left atrial appendage, where about 90% of AF thrombi form. Without anticoagulation the stroke risk around cardioversion is quoted at 1-7%. That is why duration of AF decides the path.</p>
+</div>
+</section>
+<section class="card" aria-labelledby="skip-h">
+<h2 id="skip-h">Left out on purpose</h2>
+<p class="hint" style="margin-bottom:10px">Parts of the template that did not earn a picture or a drill, and why.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>Part of the template</th><th>Why it is not here</th></tr></thead>
+<tbody>
+<tr><td>All the trials (AFFIRM, RACE II, EAST-AFNET 4, CASTLE-AF, CABANA, ARISTOTLE, ROCKET-AF, AUGUSTUS, AFIRE)</td><td>Journal-club detail. The conclusions you need are already in the tabs: DOACs over warfarin, early rhythm control is reasonable, drop aspirin after PCI.</td></tr>
+<tr><td>Epidemiology, genetics, Framingham figures, wearables and loop recorder yields</td><td>Interesting, but it does not change a decision on the ward.</td></tr>
+<tr><td>Pathophysiology of remodelling, "AF begets AF"</td><td>Understanding, not first-hour action. Read it as text once.</td></tr>
+<tr><td>Ablation success rates, left atrial appendage occlusion, AF stages 1-4</td><td>Specialist decisions made by cardiology.</td></tr>
+<tr><td>Class Ic, dofetilide, ibutilide, dronedarone, doses and "pill in the pocket"</td><td>Mostly cardiology or US practice. The Australian guideline names flecainide and amiodarone for acute conversion.</td></tr>
+<tr><td>Vasopressor advice in unstable AF with rapid rate (phenylephrine first, avoid adrenaline and dobutamine)</td><td>One author's opinion that I could not match to an Australian source. Ask your senior and ICU. Treating the cause and shocking if unstable is the part to learn.</td></tr>
+<tr><td>Mnemonics for causes (H PIRATES, PARASITE)</td><td>Fine to read once. In practice you look for sepsis, ischaemia, thyroid, alcohol, electrolytes, PE and heart failure.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<aside class="foot">
+<p>Sources: Point of Care Medicine, Atrial Fibrillation template (published 3/11/2025); National Heart Foundation of Australia and Cardiac Society of Australia and New Zealand guidelines for AF (Brieger et al, 2018) and the Heart Foundation's clinical fact sheet on stroke prevention in AF; Queensland Ambulance Service synchronised cardioversion protocol. Educational use only. Confirm every number against eTG and your hospital guideline.</p>
+</aside>
+</main>
+<script>
+(function () {
+var $ = function (s) { return document.querySelector(s); };
+var TABS = ['aus', 'risk', 'dose', 'drill', 'cv'];
+function show(name) {
+if (TABS.indexOf(name) < 0) name = 'aus';
+TABS.forEach(function (t) {
+$('#p-' + t).hidden = t !== name;
+var b = $('#t-' + t);
+b.setAttribute('aria-selected', String(t === name));
+b.tabIndex = t === name ? 0 : -1;
+});
+}
+document.querySelectorAll('[data-tab]').forEach(function (b) {
+b.addEventListener('click', function () {
+var n = b.getAttribute('data-tab');
+if (location.hash.slice(1) === n) show(n); else location.hash = n;
+});
+});
+window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1));
+var CHA = [
+['Heart failure or LV dysfunction', 1, 'ok'], ['Hypertension', 1, 'ok'], ['Age 75 or over', 2, 'ok'], ['Age 65-74', 1, 'ok'],
+['Diabetes', 1, 'ok'], ['Previous stroke, TIA or systemic embolism', 2, 'ok'], ['Vascular disease (MI, PAD, aortic plaque)', 1, 'ok'], ['Female sex', 1, 'sex']
+];
+$('#cha-list').innerHTML = CHA.map(function (c, i) {
+return '<li><label><input type="checkbox" data-i="' + i + '"' + (i === 1 || i === 7 ? ' checked' : '') + '><span>' + c[0] + (c[2] === 'sex' ? ' <span class="hint">(US score only)</span>' : '') + '</span><span class="pts">+' + c[1] + '</span></label></li>';
+}).join('');
+function setR(el, t, cls) { el.textContent = t; el.className = 'result' + (cls ? ' ' + cls : ''); }
+function age() {
+var a = document.querySelector('#cha-list input[data-i="2"]'), b = document.querySelector('#cha-list input[data-i="3"]');
+return [a, b];
+}
+function score() {
+var va = 0, sex = 0, boxes = document.querySelectorAll('#cha-list input');
+var ab = age();
+if (ab[0].checked && ab[1].checked) { ab[1].checked = false; }
+boxes.forEach(function (c) {
+if (!c.checked) return;
+var it = CHA[Number(c.getAttribute('data-i'))];
+if (it[2] === 'sex') sex = it[1]; else va += it[1];
+});
+var vasc = va + sex;
+var vaText = 'Score ' + va + ': ' + (va >= 2 ? 'anticoagulation recommended.' : va === 1 ? 'consider anticoagulation (discuss with the patient).' : 'anticoagulation not recommended; re-score yearly.');
+setR($('#va-result'), vaText, va >= 2 ? 'go' : va === 1 ? 'diff' : 'ok');
+var female = sex === 1;
+var need = female ? 3 : 2;
+var vt = 'Score ' + vasc + ': ' + (vasc >= need ? 'anticoagulate' : vasc === need - 1 ? 'consider' : 'no anticoagulation') + ' (threshold ' + need + (female ? ' for a woman' : ' for a man') + ').';
+setR($('#vasc-result'), vt, '');
+var usYes = vasc >= need, auYes = va >= 2;
+if (usYes !== auYes) $('#vasc-result').textContent += ' The two rules disagree here: chart the Australian one.';
+}
+document.querySelectorAll('#cha-list input').forEach(function (c) { c.addEventListener('change', score); });
+score();
+function dose() {
+var age = parseFloat($('#d-age').value), wt = parseFloat($('#d-wt').value), cr = parseFloat($('#d-cr').value), f = $('#d-sex').value === 'f';
+var ms = $('#d-ms').checked, cir = $('#d-cir').checked, dapt = $('#d-dapt').checked;
+if (isNaN(age) || isNaN(wt) || isNaN(cr) || cr <= 0) { setR($('#crcl'), 'Enter age, weight and creatinine.'); $('#choice').textContent = ''; $('#doses').innerHTML = ''; return; }
+var crcl = Math.round((140 - age) * wt * (f ? 1.04 : 1.23) / cr);
+setR($('#crcl'), 'Estimated CrCl ' + crcl + ' mL/min.');
+var choice, cls = '', html = '';
+if (ms) { choice = 'Warfarin (moderate-severe mitral stenosis or mechanical valve). DOACs are not the answer here.'; cls = 'diff'; }
+else if (cir) { choice = 'Cirrhosis: DOACs are contraindicated in the Australian guideline. Discuss with a senior or hepatology.'; cls = 'diff'; }
+else if (crcl < 30) { choice = 'CrCl under 30: use warfarin (the Australian fact sheet). The US template prefers apixaban in ESRD, which is a different answer.'; cls = 'diff'; }
+else {
+choice = 'A DOAC is preferred over warfarin. Doses below.'; cls = 'ok';
+var crit = 0, why = [];
+if (age >= 80) { crit++; why.push('age 80+'); }
+if (wt <= 60) { crit++; why.push('weight 60 kg or less'); }
+if (cr >= 133) { crit++; why.push('creatinine 133 µmol/L or more'); }
+var ap = crit >= 2 ? '2.5 mg twice daily' : '5 mg twice daily';
+var rv = (crcl >= 30 && crcl <= 49) || dapt ? '15 mg once daily' : '20 mg once daily (with food)';
+var db = (age >= 75 || (crcl >= 30 && crcl <= 50) || dapt) ? '110 mg twice daily' : '150 mg twice daily';
+html = row('Apixaban', ap, crit + ' of 3 reduction criteria' + (why.length ? ' (' + why.join(', ') + ')' : '')) +
+row('Rivaroxaban', rv, 'reduce if CrCl 30-49 and/or on DAPT') +
+row('Dabigatran', db, 'reduce if age 75+, CrCl 30-50, or higher bleeding risk');
+}
+setR($('#choice'), choice, cls);
+$('#doses').innerHTML = html;
+}
+function row(n, d, w) { return '<div><b>' + n + ':</b> ' + d + '<div class="hint">' + w + '</div></div>'; }
+['#d-age', '#d-wt', '#d-cr', '#d-sex', '#d-ms', '#d-cir', '#d-dapt'].forEach(function (s) { $(s).addEventListener('input', dose); $(s).addEventListener('change', dose); });
+dose();
+var OPTS = [
+['shock', 'Shock now'], ['bbccb', 'Beta-blocker or diltiazem'], ['amio', 'Amiodarone'], ['noav', 'No AV-nodal blocker'], ['toe', 'TOE or anticoagulate first']
+];
+var ITEMS = [
+{ t: 'AF at 150, BP 70/40, chest pain, confused.', a: 'shock', why: 'Unstable AF needs urgent synchronised electrical cardioversion. Do not wait for anticoagulation or a TOE.' },
+{ t: 'AF at 130, BP 130/80, mild palpitations, normal LV function.', a: 'bbccb', why: 'Stable with good function: IV beta-blocker or diltiazem in careful aliquots. Verapamil IV only with extreme caution.' },
+{ t: 'AF at 125, known severe LV dysfunction and mild pulmonary oedema, BP 118/72.', a: 'amio', why: 'No diltiazem or verapamil with LV systolic dysfunction. Amiodarone is favoured when reserve is marginal or in heart failure.' },
+{ t: 'Irregular wide-complex tachycardia at 220 in a young man whose old ECG shows a delta wave.', a: 'noav', why: 'Pre-excited AF: AV-nodal blockers (adenosine, beta-blockers, calcium blockers, digoxin) can speed conduction down the accessory pathway and trigger VF. Seek urgent senior help. I did not find this point in the Australian sources I read, but it is standard teaching.' },
+{ t: 'Stable AF for three days, you want sinus rhythm. Patient is not anticoagulated.', a: 'toe', why: 'Over 48 hours or unknown duration: do not cardiovert unless left atrial thrombus is excluded by TOE (or weeks of anticoagulation have been given).' },
+{ t: 'AF at 160, systolic BP 78, ischaemic ST depression and chest pain.', a: 'shock', why: 'Hypotension with ischaemia from the rate is an unstable feature. Shock.' },
+{ t: 'AF began six hours ago, rate 115, mildly symptomatic, no heart failure.', a: 'bbccb', why: 'New-onset AF under 48 hours often reverts spontaneously. Rate control and watching is acceptable.' },
+{ t: 'AF at 135 with thyrotoxic symptoms, BP 124/76, normal LV function.', a: 'bbccb', why: 'Beta-blockers are favoured in hyperthyroidism. Treat the thyroid too.' }
+];
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+var order = [], pos = 0, firstCorrect = 0, missed = [], answered = null, total = 0;
+function startD(list) { order = shuffle(list.slice()); pos = 0; firstCorrect = 0; missed = []; answered = null; total = order.length; draw(); }
+function draw() {
+var box = $('#drill-box');
+if (pos >= order.length) {
+var h = '<div class="item">' + firstCorrect + ' of ' + total + ' right first time</div>';
+if (missed.length) h += '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>';
+else h += '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>';
+box.innerHTML = h; return;
+}
+var it = order[pos];
+var btns = OPTS.map(function (o) {
+var c = '';
+if (answered) { if (o[0] === it.a) c = ' right'; else if (o[0] === answered) c = ' wrong'; }
+return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (answered ? ' disabled' : '') + '>' + o[1] + '</button>';
+}).join('');
+box.innerHTML = '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="bar" aria-hidden="true"><i style="width:' + (pos / order.length * 100) + '%"></i></div>' +
+'<div class="item">' + it.t + '</div><div class="btns">' + btns + '</div>' +
+(answered ? '<div class="fb ' + (answered === it.a ? 'good' : 'bad') + '">' + (answered === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '');
+}
+$('#drill-box').addEventListener('click', function (e) {
+var b = e.target.closest('button'); if (!b) return;
+if (b.hasAttribute('data-ans') && !answered) {
+var it = order[pos], pick = b.getAttribute('data-ans');
+if (pick === it.a) { if (missed.indexOf(it) < 0) firstCorrect++; } else if (missed.indexOf(it) < 0) missed.push(it);
+answered = pick; draw();
+} else if (b.getAttribute('data-act') === 'next') { pos++; answered = null; draw(); }
+else if (b.getAttribute('data-act') === 'missed') startD(missed);
+else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+});
+startD(ITEMS);
+})();
+</script>
+</body></html>

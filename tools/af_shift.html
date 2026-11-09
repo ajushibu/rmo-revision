@@ -1,0 +1,389 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>AF Night Shift</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+--best: #2e6b45; --best-t: #d9eadf; --ok: #86690a; --ok-t: #f2e9c9; --poor: #b85a0f; --poor-t: #f6e4d4; --harm: #b3261e; --harm-t: #f6dddb;
+--on: #ffffff;
+--mon-bg: #0b1218; --mon-line: #22323f; --mon-dim: #6f8798; --mon-ok: #5de08a; --mon-warn: #f2c14e; --mon-bad: #ff6b5e; --mon-cyan: #62d6ff;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+--on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+--on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+padding-block: 24px 48px;
+padding-left: max(16px, env(safe-area-inset-left, 0px));
+padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button { font: inherit; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn { font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.monitor { background: var(--mon-bg); color: var(--mon-cyan); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--mon-line); }
+.monitor .head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mon-dim); margin-bottom: 8px; }
+.vit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.vit div { border-top: 1px solid var(--mon-line); padding-top: 6px; }
+.vit .l { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--mon-dim); display: flex; align-items: center; gap: 6px; }
+.vit .v { font-family: var(--mono); font-weight: 600; font-size: 34px; line-height: 1.1; transition: color .4s; }
+.vit .u { font-size: 12px; color: var(--mon-dim); margin-left: 4px; font-weight: 500; }
+.v.ok { color: var(--mon-ok); } .v.warn { color: var(--mon-warn); } .v.bad { color: var(--mon-bad); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mon-ok); animation: beat 1s infinite; }
+@keyframes beat { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } .vit .v { transition: none; } }
+.chart ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.chart li.new { font-weight: 600; }
+.scene { font-size: 16px; margin: 0 0 14px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; cursor: pointer; line-height: 1.45; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; opacity: .62; }
+.opt.chosen { opacity: 1; border-width: 2px; }
+.opt.chosen.best { border-color: var(--best); } .opt.chosen.ok { border-color: var(--ok); }
+.opt.chosen.poor { border-color: var(--poor); } .opt.chosen.harm { border-color: var(--harm); }
+.fb { border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+.fb .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.fb p { margin: 4px 0 12px; }
+.fb.best { background: var(--best-t); } .fb.ok { background: var(--ok-t); } .fb.poor { background: var(--poor-t); } .fb.harm { background: var(--harm-t); }
+.fb.best .tag { color: var(--best); } .fb.ok .tag { color: var(--ok); } .fb.poor .tag { color: var(--poor); } .fb.harm .tag { color: var(--harm); }
+.pager { border-left: 6px solid var(--ink); background: var(--n-tint); border-radius: 4px; padding: 12px 14px; }
+.pager b { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.case-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.case-card h3 { margin: 0; font-size: 16px; }
+.case-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.case-card .btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; }
+.meter { height: 8px; background: var(--n-tint); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--best); }
+.meter i.mid { background: var(--ok); } .meter i.low { background: var(--harm); }
+.row { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr) 56px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.row .name { font-weight: 500; }
+.row .num { font-family: var(--mono); font-size: 13px; text-align: right; }
+.revisit { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .row { grid-template-columns: minmax(0, 1fr) 56px; } .row .meter { grid-column: 1 / -1; order: 3; } }
+.big { font-family: var(--display); font-size: 44px; font-weight: 600; line-height: 1; }
+a { color: inherit; }
+.note { font-size: 13px; color: var(--muted); max-width: 70ch; }
+</style>
+</head><body><main>
+<div class="top">
+<h1>AF Night Shift</h1>
+<span class="mono" id="progress"></span>
+</div>
+<div id="view"></div>
+<p class="note">Study aid, not a clinical decision tool. Content follows the Point of Care Medicine AF template, checked against the 2018 NHFA/CSANZ guideline and fact sheet. Shock energies come from a Queensland ambulance protocol. Confirm every threshold and dose against eTG and your hospital guideline.</p>
+</main>
+<script>
+(function () {
+var $ = function (s) { return document.querySelector(s); };
+var PTS = { best: 2, ok: 1, poor: 0, harm: -1 };
+var LABEL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
+var KIT = 'af_kit.html';
+var CONCEPTS = {
+first: { n: "First moves and work-up", tab: "aus", r: "Monitor, IV access, 12-lead ECG, bloods (electrolytes including K and Mg, TFTs, troponin, creatinine), and look for the trigger: sepsis, alcohol, thyroid, ischaemia, PE, heart failure. Treating the cause is often the most important step." },
+score: { n: "Stroke score (CHA2DS2-VA)", tab: "risk", r: "Australia uses CHA2DS2-VA, with no point for female sex. Score 2 or more: anticoagulate. Score 1: consider. Score 0: do not. A bleeding score is not a reason to withhold anticoagulation; fix the modifiable risks." },
+drug: { n: "Choosing the anticoagulant and dose", tab: "dose", r: "DOAC (apixaban, dabigatran, rivaroxaban) over warfarin. Warfarin if CrCl under 30, moderate-severe mitral stenosis or a mechanical valve. Apixaban 2.5 mg twice daily needs 2 of: age 80+, weight 60 kg or less, creatinine 133 umol/L or more. Rivaroxaban 15 mg if CrCl 30-49." },
+rate: { n: "Rate control choices", tab: "drill", r: "Stable and good LV function: beta-blocker or diltiazem. LV systolic dysfunction or marginal reserve: amiodarone, not diltiazem or verapamil. Digoxin is slow and an add-on." },
+toe: { n: "The 48-hour rule", tab: "cv", r: "AF over 48 hours or of unknown duration: do not cardiovert unless left atrial thrombus is excluded by TOE (or you have anticoagulated for weeks first). Chemical conversion carries the same risk as a shock." },
+post: { n: "Anticoagulation after cardioversion", tab: "cv", r: "Anticoagulate for at least 4 weeks (standard teaching; confirm in eTG), then continue by CHA2DS2-VA. Sinus rhythm does not remove the stroke risk." },
+unstable: { n: "Recognising unstable AF", tab: "drill", r: "Hypotension, confusion, ischaemic chest pain or acute pulmonary oedema caused by the rate means urgent synchronised electrical cardioversion. Do not wait for a TOE or anticoagulation." },
+shock: { n: "Doing the shock", tab: "aus", r: "Pads on, sedation per protocol with senior or anaesthetic help, synchronise to the R wave, start around 100 J biphasic and escalate (the Queensland ambulance protocol uses 100, 150, 200 J). Follow your hospital device protocol." },
+wpw: { n: "Pre-excited AF", tab: "drill", r: "Irregular, wide, very fast rhythm in a young person, with a delta wave on an old ECG: no AV-nodal blockers (adenosine, verapamil, diltiazem, beta-blockers, digoxin). Pads on, call your senior and cardiology; electrical cardioversion is the safe default. This is standard teaching; I did not find it in the Australian sources I read." }
+};
+var CASES = [
+{
+id: "c1", title: "Three days of fluttering", where: "Emergency department", time: "14:20", blurb: "Stable AF, unknown to anyone for three days. Tests the stroke score, the DOAC choice and the 48-hour rule.",
+intro: "Triage note: 71-year-old man, three days of palpitations, now a bit short of breath on stairs. ECG done. Please review.",
+vit: { hr: 112, sbp: 142, dbp: 88, spo2: 97, rr: 16 },
+facts: ["71M; hypertension and type 2 diabetes; no previous stroke or TIA", "ECG: irregularly irregular narrow-complex rhythm, no P waves", "Chest clear; no oedema; not on an anticoagulant", "Weight 90 kg; creatinine 95 umol/L"],
+decisions: [
+{ tag: "first", scene: "The ECG shows AF. What do you do before you make treatment decisions?", opts: [
+{ q: "best", t: "Bloods (electrolytes with K and Mg, TFTs, FBC, creatinine), check for a trigger such as alcohol, infection or thyroid disease, and arrange an echo", fb: "AF is usually a sign of something: thyroid, alcohol, sepsis, ischaemia, valve disease. The creatinine you send now also decides the anticoagulant dose." },
+{ q: "ok", t: "Start a rate-control drug and sort out the bloods afterwards", fb: "Reasonable, since he is stable, but bloods are quick and you need creatinine for the dose decision anyway." },
+{ q: "poor", t: "Book a TOE and cardioversion for today", fb: "Premature. Stroke risk, anticoagulation and the cause all come first, and he is not unstable." },
+{ q: "poor", t: "Reassure him that AF is harmless and send him home", fb: "AF carries a clear stroke risk and a possible cause to find. It is not harmless." }
+] },
+{ tag: "score", scene: "Score his stroke risk using the Australian CHA2DS2-VA. He is 71, hypertensive and diabetic.", opts: [
+{ q: "best", t: "Score 3 (age 65-74, hypertension, diabetes): anticoagulation recommended", fb: "Age 65-74 gives 1, hypertension 1, diabetes 1. A score of 2 or more means anticoagulate." },
+{ q: "poor", t: "Score 1 (age only): consider anticoagulation", fb: "Hypertension and diabetes each count. Recount." },
+{ q: "poor", t: "Score 0: no anticoagulation because there is no stroke or heart failure", fb: "A previous stroke is only one of the items. Age, hypertension and diabetes all score." },
+{ q: "harm", t: "Skip anticoagulation because his HAS-BLED is 2", fb: "The Australian guideline says bleeding scores should not be used to withhold anticoagulation. Fix what is modifiable instead." }
+] },
+{ tag: "drug", reveal: ["Estimated CrCl about 80 mL/min (Cockcroft-Gault); weight 90 kg; creatinine 95 umol/L"], scene: "He needs an anticoagulant. His creatinine clearance is about 80 mL/min. What do you start?", opts: [
+{ q: "best", t: "Apixaban 5 mg twice daily (none of the dose-reduction criteria met)", fb: "Age 71, weight 90 kg and creatinine 95 umol/L: zero of the three reduction criteria. Full dose." },
+{ q: "best", t: "Rivaroxaban 20 mg once daily with food", fb: "Also correct: CrCl is above 50, so no dose reduction." },
+{ q: "ok", t: "Warfarin, target INR 2 to 3", fb: "It works, but a DOAC is preferred in Australia unless CrCl is under 30, there is moderate-severe mitral stenosis or a mechanical valve." },
+{ q: "poor", t: "Apixaban 2.5 mg twice daily to be safe", fb: "Under-dosing leaves him unprotected. Reduce only if two of the three criteria are met." },
+{ q: "harm", t: "Aspirin 100 mg daily", fb: "Antiplatelet therapy is not recommended for stroke prevention in AF at any risk level." }
+] },
+{ tag: "rate", reveal: ["Bedside echo: normal LV function, no valve disease"], scene: "He is stable and the echo shows normal LV function. Heart rate 112. Which rate-control drug?", opts: [
+{ q: "best", t: "A beta-blocker (for example metoprolol), titrated to symptoms and heart rate", fb: "First-line rate control with preserved LV function." , vit: { hr: 98 } },
+{ q: "ok", t: "Diltiazem", fb: "Acceptable with normal LV function. Both a beta-blocker and diltiazem are first line.", vit: { hr: 100 } },
+{ q: "poor", t: "Digoxin alone", fb: "Onset takes hours and rate control on its own is weak. It is an add-on." },
+{ q: "harm", t: "IV amiodarone to convert him", fb: "Chemical cardioversion has the same stroke risk as a shock. AF for three days without therapeutic anticoagulation needs a TOE or weeks of anticoagulation first." }
+] },
+{ tag: "toe", scene: "He says: I start a new job tomorrow, can you shock me back into rhythm tonight?", opts: [
+{ q: "best", t: "Not tonight. Over 48 hours means a TOE to exclude thrombus first, or weeks of anticoagulation. Rate control now, and plan cardioversion electively if needed", fb: "This is the 48-hour rule. Cardioversion can dislodge a clot sitting in the left atrial appendage." },
+{ q: "ok", t: "Start heparin, then shock tonight", fb: "Heparin for a few hours does not make an AF of unknown duration safe to shock. Without a TOE you need weeks of anticoagulation." },
+{ q: "poor", t: "Give one dose of apixaban and shock after the blood level rises", fb: "One dose does not replace weeks of therapeutic cover or a TOE." },
+{ q: "harm", t: "Sedate him and shock him now: it usually works", fb: "It often works, and that is exactly how strokes happen around cardioversion in an under-anticoagulated patient." }
+] },
+{ tag: "post", scene: "Three weeks later he has been electively cardioverted after a TOE and is in sinus rhythm. He asks how long he needs the tablets.", opts: [
+{ q: "best", t: "At least 4 weeks after cardioversion, then long term because his CHA2DS2-VA is 3. Sinus rhythm does not remove the risk. Review yearly", fb: "Post-cardioversion duration is the minimum. His score is what decides the long-term plan. The template says at least 10 days; standard teaching is longer, so check eTG." },
+{ q: "poor", t: "Stop after 4 weeks: he is back in sinus rhythm", fb: "Recurrence is common and often silent, and the score still says he should be protected." },
+{ q: "harm", t: "Stop as soon as the ECG shows sinus rhythm", fb: "The few weeks after cardioversion are when atrial stunning raises clot risk." }
+] }
+],
+ends: { hi: "He goes home on a beta-blocker and apixaban, with an elective plan and a clear explanation of why not tonight.", mid: "He ends up safe, but a few steps skipped a rule you need to know cold.", lo: "Several decisions exposed him to stroke risk. Go back to the Anticoagulate? and Before cardioversion tabs in the Study Kit, then play again." }
+},
+{
+id: "c2", title: "Fast and failing", where: "Medical ward 4B", time: "02:10", blurb: "AF with rapid rate in a patient with heart failure who then becomes unstable. Tests drug choice, the shock and the next-day anticoagulant.",
+intro: "Nurse call: 76-year-old woman, day 2 of treatment for pneumonia. Her heart rate has jumped from 90 to 148 and she looks short of breath.",
+vit: { hr: 148, sbp: 108, dbp: 66, spo2: 91, rr: 26 },
+facts: ["76F; known heart failure with EF 25%; hypertension", "Admission ECG 36 hours ago: sinus rhythm; now irregularly irregular narrow complex at 148", "Crackles both bases; temperature 37.9", "Weight 62 kg; creatinine 118 umol/L; not on an anticoagulant"],
+decisions: [
+{ tag: "first", scene: "You arrive. What do you do in the first ten minutes?", opts: [
+{ q: "best", t: "Sit her up, oxygen to the target, monitor, IV access, 12-lead ECG, bloods (K, Mg, troponin, lactate, creatinine, TFTs), tell your registrar, and look for triggers: sepsis, hypoxia, fluid status", vit: { spo2: 94 }, fb: "She is hypoxic and in a failing, septic-looking state. Basics, help and cause." },
+{ q: "ok", t: "Oxygen and the ECG first, then bloods and a call to your senior", vit: { spo2: 94 }, fb: "Safe start, but the call to your senior should not wait." },
+{ q: "poor", t: "Give an IV metoprolol bolus for the rate before assessing her", fb: "Beta-blockade in acute decompensated heart failure can drop her output. Assess and decide first." },
+{ q: "harm", t: "Give a litre of fluid: she is septic and tachycardic", vit: { spo2: 87, rr: 30 }, fb: "She has crackles and EF 25%. A litre could push her into pulmonary oedema." }
+] },
+{ tag: "rate", scene: "BP 108/66, AF at 148, EF 25%. Which drug for the rate?", opts: [
+{ q: "best", t: "IV amiodarone, with careful blood-pressure monitoring", fb: "Favoured with LV dysfunction and marginal reserve. It can drop the BP when bolused, so give it carefully.", vit: { hr: 140 } },
+{ q: "ok", t: "Digoxin load as an add-on, while you treat the sepsis", fb: "Reasonable in heart failure but slow, and not enough on its own at 148.", vit: { hr: 144 } },
+{ q: "poor", t: "IV metoprolol", fb: "Negatively inotropic in a patient already in acute failure. Avoid as first move.", vit: { hr: 140, sbp: 96, dbp: 58 } },
+{ q: "harm", t: "IV diltiazem", fb: "Diltiazem and verapamil should not be used in LV systolic dysfunction. They can precipitate cardiogenic shock.", vit: { hr: 136, sbp: 82, dbp: 48, spo2: 89 } }
+] },
+{ tag: "unstable", vit: { hr: 150, sbp: 82, dbp: 50, spo2: 89, rr: 30 }, reveal: ["Now confused; cold hands; BP 82/50"], scene: "Ten minutes later she is confused with cold hands. BP is 82/50 and rate 150.", opts: [
+{ q: "best", t: "This is unstable AF: urgent synchronised electrical cardioversion, with your registrar and the anaesthetic or ICU team", fb: "Hypotension and confusion caused by the rate are unstable features. The ECG on admission was sinus rhythm 36 hours ago, so the 48-hour rule is also met." },
+{ q: "poor", t: "Another amiodarone dose and reassess in 20 minutes", fb: "Too slow. Unstable AF needs a shock now." },
+{ q: "harm", t: "Give 2 litres of fluid and wait", fb: "She has EF 25% and crackles. Fluid will worsen pulmonary oedema and does not treat the cause." },
+{ q: "harm", t: "More diltiazem", fb: "Diltiazem is contraindicated in LV systolic dysfunction and will lower the BP further." }
+] },
+{ tag: "shock", scene: "Pads are on. How do you deliver the shock?", opts: [
+{ q: "best", t: "Sedation per protocol with the anaesthetic or ICU team, synchronised mode on (check the sync markers sit on the R wave), start about 100 J biphasic and escalate per protocol", vit: { hr: 88, sbp: 104, dbp: 62, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 88, BP 104/62"], fb: "Sinus rhythm after one shock. In Queensland the ambulance protocol steps 100, 150, 200 J. Follow your hospital device protocol." },
+{ q: "ok", t: "Synchronised shock at 200 J straight away", vit: { hr: 90, sbp: 102, dbp: 60, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 90, BP 102/60"], fb: "It works, but start lower and escalate, so you use the least energy needed." },
+{ q: "poor", t: "Wait for a TOE before you shock", fb: "She is unstable. Do not delay for a TOE. Her sinus rhythm 36 hours ago also puts onset under 48 hours." },
+{ q: "harm", t: "Unsynchronised 200 J: there is no time to sync", fb: "A shock on a T wave can trigger VF. Synchronisation takes a button press." }
+] },
+{ tag: "score", reveal: ["Estimated CrCl about 35 mL/min; CHA2DS2-VA 4 (heart failure 1, hypertension 1, age 75+ 2)"], scene: "She is in sinus rhythm. Heart failure 1, hypertension 1, age 76 gives CHA2DS2-VA 4. Estimated CrCl 35 mL/min, weight 62 kg, creatinine 118 umol/L. What do you do about anticoagulation?", opts: [
+{ q: "best", t: "Start apixaban 5 mg twice daily (age under 80, weight over 60 kg, creatinine under 133: no reduction criteria met) and continue long term", fb: "Score 4 means anticoagulate. CrCl 35 is above 30, so a DOAC is allowed. Apixaban needs two of the three criteria for a reduction, and she has none." },
+{ q: "best", t: "Start rivaroxaban 15 mg once daily (CrCl 30-49)", fb: "Also correct. The reduced rivaroxaban dose applies at CrCl 30-49." },
+{ q: "ok", t: "Warfarin", fb: "Works, but CrCl is above 30, so a DOAC is preferred." },
+{ q: "harm", t: "Nothing: she is back in sinus rhythm", fb: "A score of 4 means anticoagulation, whatever the rhythm. Post-cardioversion stunning raises the clot risk too." },
+{ q: "harm", t: "Aspirin", fb: "Antiplatelet therapy is not recommended for stroke prevention in AF." }
+] }
+],
+ends: { hi: "She is in sinus rhythm, anticoagulated, and you treated the pneumonia that probably started it.", mid: "She came through, but a drug choice or a delay cost her stability.", lo: "She nearly got worse with the wrong drug. Go back to the Shock or drug tab in the Study Kit, then play again." }
+},
+{
+id: "c3", title: "Wide, fast and irregular", where: "Emergency resus bay", time: "03:30", blurb: "A young man with an irregular wide-complex tachycardia. Tests the one rule that kills if you forget it.",
+intro: "Resus call: 27-year-old man, 40 minutes of rapid palpitations. Fit and well otherwise. ECG shows a very fast, irregular, wide-complex rhythm.",
+vit: { hr: 215, sbp: 112, dbp: 70, spo2: 98, rr: 20 },
+facts: ["27M, previous short episodes of fast palpitations since his teens; no medicines", "ECG: irregular broad-complex tachycardia, QRS width varies beat to beat", "Chest clear; alert and talking", "Nurse has already drawn up verapamil and adenosine"],
+decisions: [
+{ tag: "wpw", scene: "He is stable but the rate is 215 and irregular. What do you do first?", opts: [
+{ q: "best", t: "Monitor, pads on, IV access, 12-lead ECG, find his old ECGs, and call your senior and cardiology now", fb: "An irregular rate over 200 with varying QRS width in a young man should make you think of AF conducting down an accessory pathway. Pads on, because it can degenerate to VF." },
+{ q: "harm", t: "Treat it as SVT: give adenosine 6 mg", vit: { hr: 235, sbp: 98, dbp: 56 }, fb: "Adenosine blocks the AV node and can speed conduction down the accessory pathway. It is not for irregular wide-complex tachycardia." },
+{ q: "poor", t: "Treat it as VT and give IV amiodarone", fb: "Irregular and varying QRS width points away from VT. Amiodarone is also usually avoided in pre-excited AF. Think first, ask your senior." }
+] },
+{ tag: "wpw", reveal: ["Old clinic ECG in his notes: short PR interval and a delta wave"], scene: "His old ECG in the notes shows a short PR and a delta wave. The nurse hands you the verapamil. What do you say?", opts: [
+{ q: "best", t: "No verapamil, diltiazem, beta-blocker, digoxin or adenosine. This is pre-excited AF", fb: "AV-nodal blockers can push more impulses down the accessory pathway and trigger VF." },
+{ q: "harm", t: "Give the verapamil slowly over 10 minutes", vit: { hr: 240, sbp: 88, dbp: 52 }, fb: "Going slowly does not make it safe. The risk is the drug, not the speed." },
+{ q: "harm", t: "Give a beta-blocker instead, as it is gentler", vit: { hr: 235, sbp: 92, dbp: 54 }, fb: "Same problem: it blocks the AV node and leaves the accessory pathway unopposed." }
+] },
+{ tag: "wpw", scene: "He is still stable. Your senior is on the way. What is the safest plan for restoring rhythm?", opts: [
+{ q: "best", t: "Prepare for sedated, synchronised electrical cardioversion as the safe default, and let the senior and cardiology choose any drug option", fb: "Electrical cardioversion avoids the AV-nodal blocker trap. Drug choices in pre-excited AF belong to a senior or cardiologist." },
+{ q: "poor", t: "Observe him for 24 hours and see if it settles", fb: "At 215 per minute with a pathway conducting freely, he can deteriorate into VF. Treat." },
+{ q: "poor", t: "Give IV amiodarone", fb: "Amiodarone is usually avoided in pre-excited AF too. Cardiology decide." }
+] },
+{ tag: "unstable", vit: { hr: 230, sbp: 84, dbp: 50, spo2: 96, rr: 24 }, reveal: ["BP falling to 84/50; now drowsy; rate 230"], scene: "Before the senior arrives, his BP falls to 84/50. He is drowsy and the rate is 230.", opts: [
+{ q: "best", t: "Sedate and deliver a synchronised shock now", vit: { hr: 74, sbp: 118, dbp: 72, spo2: 98, rr: 16 }, reveal: ["Sinus rhythm: delta wave visible, HR 74"], fb: "Hypotension and drowsiness make this unstable. Shock first." },
+{ q: "poor", t: "Wait for cardiology to arrive", fb: "He is unstable now. Waiting risks VF." },
+{ q: "poor", t: "Give a 1 litre fluid bolus and recheck", fb: "Fluid will not fix a rate this fast. He needs the shock." }
+] },
+{ tag: "wpw", scene: "He is in sinus rhythm and feels fine. He asks to go home. What do you do?", opts: [
+{ q: "best", t: "Keep him monitored and refer to cardiology and electrophysiology to consider ablation. Do not send him out on an AV-nodal blocker", fb: "The accessory pathway is the problem and ablation is the usual definitive answer." },
+{ q: "poor", t: "Discharge on metoprolol with GP follow-up", fb: "The pathway is still there and the first drug you give him may be the one that makes the next episode dangerous." },
+{ q: "poor", t: "Discharge with no follow-up: it was a one-off", fb: "He has had episodes since his teens. The risk of a worse episode is real." }
+] }
+],
+ends: { hi: "He is in sinus rhythm, watched by cardiology, and the verapamil stayed in the bag.", mid: "He survives the night, but at one point the plan was less safe than it needed to be.", lo: "A drug from your list nearly caused VF. Go back to the Shock or drug tab in the Study Kit, read the pre-excited AF scenario, and play again." }
+}
+];
+var S = { mode: 'home', run: [], ci: 0, di: 0, vit: {}, facts: [], newFacts: [], order: [], picked: null, results: {}, t0: 0 };
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function merge(a, b) { var o = {}; for (var k in a) o[k] = a[k]; for (var k2 in b) o[k2] = b[k2]; return o; }
+function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('af-shift') || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('af-shift', JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('af-shift') || '{}')[id]; } catch (e) { return undefined; } }
+function cls(k, v) {
+if (v === 0) return 'bad';
+if (k === 'spo2') return v < 88 ? 'bad' : v < 92 ? 'warn' : 'ok';
+if (k === 'hr') return v > 130 || v < 40 ? 'bad' : v > 100 ? 'warn' : 'ok';
+if (k === 'sbp') return v < 90 ? 'bad' : v < 100 ? 'warn' : 'ok';
+if (k === 'rr') return v > 30 ? 'bad' : v > 24 ? 'warn' : 'ok';
+return 'ok';
+}
+function monitorHTML(c) {
+var v = S.vit;
+var arrest = v.hr === 0;
+var dur = arrest ? 0 : Math.max(0.35, 60 / v.hr);
+return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div><div class="vit">' +
+'<div><span class="l"><i class="dot" style="' + (arrest ? 'animation:none;background:var(--mon-bad)' : 'animation-duration:' + dur.toFixed(2) + 's') + '"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + (arrest ? '--' : v.hr) + '<span class="u">bpm</span></span></div>' +
+'<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + (arrest ? '--/--' : v.sbp + '/' + v.dbp) + '<span class="u">mmHg</span></span></div>' +
+'<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + (arrest ? '--' : v.spo2) + '<span class="u">%</span></span></div>' +
+'<div><span class="l">RR</span><span class="v ' + cls('rr', v.rr) + '">' + (arrest ? '--' : v.rr) + '<span class="u">/min</span></span></div>' +
+'</div></div>';
+}
+function chartHTML() {
+return '<div class="card chart"><span class="mono">Chart</span><ul>' +
+S.facts.map(function (f) { return '<li>' + f + '</li>'; }).join('') +
+S.newFacts.map(function (f) { return '<li class="new">New: ' + f + '</li>'; }).join('') + '</ul></div>';
+}
+function start(idxs) {
+S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
+startCase();
+}
+function startCase() {
+var c = CASES[S.run[S.ci]];
+S.di = 0; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.picked = null;
+S.results[c.id] = [];
+S.mode = 'intro'; render();
+}
+function beginDecision() {
+var c = CASES[S.run[S.ci]], d = c.decisions[S.di];
+if (d.vit) S.vit = merge(S.vit, d.vit);
+if (d.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = d.reveal.slice(); }
+else { S.facts = S.facts.concat(S.newFacts); S.newFacts = []; }
+S.order = shuffle(d.opts.map(function (o, i) { return i; }));
+S.picked = null; S.mode = 'decide'; render();
+}
+function pick(i) {
+var c = CASES[S.run[S.ci]], d = c.decisions[S.di], o = d.opts[i];
+if (S.picked !== null) return;
+S.picked = i;
+if (o.vit) S.vit = merge(S.vit, o.vit);
+if (o.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = o.reveal.slice(); }
+S.results[c.id][S.di] = { q: o.q, tag: d.tag };
+render();
+}
+function next() {
+var c = CASES[S.run[S.ci]];
+if (S.di + 1 < c.decisions.length) { S.di++; beginDecision(); }
+else { S.mode = 'caseend'; render(); }
+}
+function caseScore(c) {
+var r = S.results[c.id] || [], pts = 0;
+r.forEach(function (x) { pts += PTS[x.q]; });
+return Math.max(0, pts);
+}
+function caseMax(c) { return c.decisions.length * 2; }
+function afterCase() {
+if (S.ci + 1 < S.run.length) { S.ci++; startCase(); } else { S.mode = 'debrief'; render(); }
+}
+function render() {
+var v = $('#view'), p = $('#progress');
+window.scrollTo(0, 0);
+if (S.mode === 'home') { p.textContent = ''; v.innerHTML = homeHTML(); return; }
+var c = CASES[S.run[S.ci]];
+if (S.mode === 'debrief') { p.textContent = 'Debrief'; v.innerHTML = debriefHTML(); return; }
+p.textContent = 'Case ' + (S.ci + 1) + ' of ' + S.run.length + (S.mode === 'decide' ? ' · Decision ' + (S.di + 1) + ' of ' + c.decisions.length : '');
+if (S.mode === 'intro') {
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><h2>' + c.title + '</h2><div class="pager"><b>' + c.time + ' · ' + c.where.toUpperCase() + '</b><p style="margin:6px 0 0">' + c.intro + '</p></div><div class="btns" style="margin-top:14px"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+return;
+}
+if (S.mode === 'decide') {
+var d = c.decisions[S.di], o = S.picked !== null ? d.opts[S.picked] : null;
+var opts = S.order.map(function (i) {
+var oo = d.opts[i], chosen = S.picked === i;
+return '<button class="opt' + (chosen ? ' chosen ' + oo.q : '') + '" data-i="' + i + '"' + (S.picked !== null ? ' disabled' : '') + '>' + oo.t + '</button>';
+}).join('');
+var fb = '';
+if (o) {
+var last = (S.di + 1 === c.decisions.length);
+fb = '<div class="fb ' + o.q + '" role="status"><span class="tag">' + LABEL[o.q] + '</span><p>' + o.fb + '</p>' + bestHint(d, o) + '<button class="btn primary" data-a="next">' + (last ? 'Hand over' : 'Next') + '</button></div>';
+}
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><p class="scene">' + d.scene + '</p><div class="opts">' + opts + '</div>' + fb + '</div></div></div>';
+return;
+}
+if (S.mode === 'caseend') {
+var sc = caseScore(c), mx = caseMax(c), pct = Math.round(sc / mx * 100);
+var end = pct >= 80 ? c.ends.hi : pct >= 50 ? c.ends.mid : c.ends.lo;
+var bestPrev = bestStore(c.id, pct);
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div></div></div></div>';
+}
+}
+function bestHint(d, o) {
+if (o.q === 'best') return '';
+var b = d.opts.filter(function (x) { return x.q === 'best'; })[0];
+return b ? '<p><b>Best move:</b> ' + b.t + '</p>' : '';
+}
+function homeHTML() {
+var cards = CASES.map(function (c, i) {
+var b = bestStore(c.id);
+return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div>';
+}).join('');
+return '<div class="card"><h2>You are the RMO on nights</h2><p style="max-width:62ch">Three patients, sixteen decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
+}
+function debriefHTML() {
+var byTag = {}, tot = 0, mx = 0;
+S.run.forEach(function (ci) {
+var c = CASES[ci];
+(S.results[c.id] || []).forEach(function (r) {
+byTag[r.tag] = byTag[r.tag] || { p: 0, m: 0 };
+byTag[r.tag].p += Math.max(0, PTS[r.q]); byTag[r.tag].m += 2;
+});
+tot += caseScore(c); mx += caseMax(c);
+});
+var pct = Math.round(tot / mx * 100);
+var rows = Object.keys(byTag).map(function (k) {
+var x = byTag[k], f = Math.round(x.p / x.m * 100), cn = CONCEPTS[k];
+var cl = f >= 80 ? '' : f >= 50 ? 'mid' : 'low';
+return '<div class="row"><span class="name">' + cn.n + '</span><div class="meter"><i class="' + cl + '" style="width:' + f + '%"></i></div><span class="num">' + x.p + '/' + x.m + '</span>' +
+(f < 80 ? '<div class="revisit"><b>Revisit:</b> ' + cn.r + ' <a href="' + KIT + '#' + cn.tab + '" target="_self">Open in the Study Kit</a></div>' : '') + '</div>';
+}).join('');
+var verdict = pct >= 85 ? 'Solid. The pathway is in your head. Replay in two days to see what stuck.' : pct >= 60 ? 'Decent base with gaps. The red and amber bars below are your next study session.' : 'Not there yet, and that is useful to know. Work through the rows below, then replay.';
+return '<div class="card"><span class="mono">Shift debrief</span><p class="big" style="margin-top:6px">' + pct + '%</p><p class="muted" style="margin:4px 0 14px">' + tot + ' of ' + mx + ' points. ' + verdict + '</p>' + rows + '<div class="btns" style="margin-top:16px"><button class="btn primary" data-a="all">Replay the whole shift</button><button class="btn" data-a="home">Pick a case</button></div></div>';
+}
+$('#view').addEventListener('click', function (e) {
+var b = e.target.closest('button');
+if (!b) return;
+var a = b.getAttribute('data-a');
+if (b.classList.contains('opt')) { pick(Number(b.getAttribute('data-i'))); return; }
+if (a === 'all') start([0, 1, 2]);
+else if (a === 'one') start([Number(b.getAttribute('data-i'))]);
+else if (a === 'go') beginDecision();
+else if (a === 'next') next();
+else if (a === 'after') afterCase();
+else if (a === 'home') { S.mode = 'home'; render(); }
+});
+render();
+})();
+</script>
+</body></html>

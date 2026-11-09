@@ -1,0 +1,276 @@
+<title>Bradycardia Study Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>.seg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}svg .p{stroke:var(--b-fill);stroke-width:2;fill:none}svg .q{stroke:var(--ink);stroke-width:2;fill:none}svg .dr{stroke:var(--a-fill);stroke-width:2;stroke-dasharray:3 3}</style>
+
+<main>
+  <header>
+    <h1>Bradycardia Study Kit</h1>
+    <p class="lede">The Point of Care Medicine bradycardia template, checked against Australian guidance (ANZCOR 11.9), then turned into things you can click. Start on the first tab.</p>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Study tools">
+    <button role="tab" id="t-aus" aria-controls="p-aus" data-tab="aus">Australia first</button>
+    <button role="tab" id="t-triage" aria-controls="p-triage" data-tab="triage">Is it unstable?</button>
+    <button role="tab" id="t-block" aria-controls="p-block" data-tab="block">Heart block</button>
+    <button role="tab" id="t-drill" aria-controls="p-drill" data-tab="drill">First move</button>
+  </nav>
+
+  <section class="panel" id="p-aus" role="tabpanel" aria-labelledby="t-aus">
+    <div class="card">
+      <h2>Where Australia differs from the template</h2>
+      <p class="hint" style="margin-bottom:10px">The template is US-based. Learn the right-hand column. Amber cells would change what you do or write on the chart.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Topic</th><th>US template</th><th>Australia (ANZCOR 11.9)</th></tr></thead>
+        <tbody>
+          <tr><td>Atropine dose</td><td>1 mg every 3-5 minutes, up to 3 mg.</td><td class="aus">500-600 mcg IV every 3-5 minutes, up to 3 mg total. Very low doses can paradoxically slow the heart, so do not under-dose.</td></tr>
+          <tr><td>What counts as unstable</td><td>Low SBP (under 90), altered mental state, chest pain, shortness of breath.</td><td class="aus">Adverse signs: systolic BP under 90, heart rate under 40, ventricular arrhythmia, heart failure. Also look for asystole risk: recent asystole, Mobitz II, complete block with a broad QRS or rate under 40, pause over 3 seconds.</td></tr>
+          <tr><td>If atropine fails</td><td>Dopamine 5-20 mcg/kg/min or adrenaline 2-10 mcg/min, then pacing.</td><td class="aus">Adrenaline 2-10 mcg/min (titrate to a stable rate and mean pressure around 70), or transcutaneous pacing. Dopamine is quoted at a lower 2-5 mcg/kg/min in the Australian sources I read.</td></tr>
+          <tr><td>Pacing</td><td>Transcutaneous pacing; give fentanyl or midazolam first.</td><td>Demand mode at 70-80 a minute, start near 30 mA and increase until electrical capture. Check a QRS after each spike and a pulse: twitching alone is not capture.</td></tr>
+          <tr><td>Heart transplant</td><td>Not mentioned.</td><td class="aus">Atropine will not work in a denervated heart. Go to pacing or adrenaline.</td></tr>
+          <tr><td>Beta-blocker toxicity</td><td>Glucagon if concerned.</td><td>Glucagon, or insulin with glucose and potassium, may be used, and much higher adrenaline doses may be needed. Call the Poisons Information Centre on 13 11 26.</td></tr>
+          <tr><td>Atropine in MI</td><td>Might be harmful in acute MI (more oxygen demand).</td><td>Reasonable trial in inferior MI with adverse signs, but be ready to pace early.</td></tr>
+          <tr><td>Permanent pacemaker</td><td>Symptomatic sinus bradycardia, complete block, symptomatic second-degree block, syncope from bradycardia.</td><td>Same teaching. Correct reversible causes first; cardiology or electrophysiology decide.</td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="flag"><b>How far to trust this tab.</b> The atropine dose, adverse-sign list, adrenaline and pacing steps come from ANZCOR Guideline 11.9, whose page carries no revision date (the Australian Resuscitation Council version I found is dated November 2009). The glucagon dose and the sedation drug for pacing were not in the Australian sources, so I have left them out: take them from eTG or your hospital protocol. The atropine and MI caution comes from the US template and teaching, not from ANZCOR. Check the current ANZCOR page and your hospital's guideline before you act.</div>
+  </section>
+
+  <section class="panel" id="p-triage" role="tabpanel" aria-labelledby="t-triage" hidden>
+    <div class="split">
+      <div class="card">
+        <h2>Tick what you find</h2>
+        <p class="hint">Heart rate is assumed to be slow. Tick what applies.</p>
+        <ul class="checks" id="tr-list"></ul>
+      </div>
+      <div class="card">
+        <h2>What it means</h2>
+        <div class="result" id="tr-res" aria-live="polite"></div>
+        <p class="hint" id="tr-why" style="margin-top:10px"></p>
+        <h2 style="margin-top:18px">Causes to look for</h2>
+        <p class="hint">Drugs (beta-blockers, calcium-channel blockers, digoxin, amiodarone, opioids), hyperkalaemia, inferior MI, hypothyroidism, hypothermia, raised intracranial pressure, infection, high vagal tone. Check the drug chart, the potassium and the ECG first.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-block" role="tabpanel" aria-labelledby="t-block" hidden>
+    <div class="card">
+      <h2>Read the four heart blocks</h2>
+      <p class="hint">Blue marks are P waves (atria), dark spikes are QRS complexes (ventricles). Red dashes are dropped beats. Pick a block.</p>
+      <div class="seg" id="bk-seg" role="group" aria-label="Block type"></div>
+      <figure><div class="scroll"><svg id="bk-svg" viewBox="0 0 720 120" role="img" aria-label="Schematic ECG strip"></svg></div>
+      <figcaption id="bk-cap"></figcaption></figure>
+      <div class="result" id="bk-res"></div>
+    </div>
+    <div class="card">
+      <h2>Why atropine is a gamble in the dangerous ones</h2>
+      <p>Atropine speeds up the sinus node and the AV node. A block <b>in</b> the AV node (first degree, Mobitz I, many cases of inferior MI) still has a node to speed up, so it often works. A block <b>below</b> the node (Mobitz II, complete block with a broad QRS) is a wiring fault that atropine cannot reach, so go to pacing without waiting. A transplanted heart has no vagal supply, so atropine has nothing to remove.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-drill" role="tabpanel" aria-labelledby="t-drill" hidden>
+    <div class="card">
+      <h2>What is your first move?</h2>
+      <p class="hint">Eight short scenarios. Wrong ones come back in a second round.</p>
+      <div class="drill" id="drill-box" aria-live="polite" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <p class="foot">Study aid, not a clinical decision tool. Content follows the Point of Care Medicine bradycardia template, checked against ANZCOR Guideline 11.9. Confirm every dose in eTG and your hospital protocol.</p>
+</main>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var TABS = ['aus', 'triage', 'block', 'drill'];
+  function show(name) {
+    if (TABS.indexOf(name) < 0) name = 'aus';
+    TABS.forEach(function (t) {
+      $('#p-' + t).hidden = t !== name;
+      var b = $('#t-' + t); b.setAttribute('aria-selected', String(t === name)); b.tabIndex = t === name ? 0 : -1;
+    });
+  }
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () { var n = b.getAttribute('data-tab'); if (location.hash.slice(1) === n) show(n); else location.hash = n; });
+  });
+  window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
+
+  /* ---------- Triage ---------- */
+  var ADV = [
+    ['Systolic BP under 90', 'a'], ['Heart rate under 40', 'a'], ['Ventricular arrhythmia', 'a'], ['Heart failure or pulmonary oedema', 'a'],
+    ['Chest pain or altered mental state', 'a'],
+    ['Recent asystole or a pause over 3 seconds', 'r'], ['Mobitz II block', 'r'], ['Complete block with a broad QRS', 'r']
+  ];
+  $('#tr-list').innerHTML = ADV.map(function (x, i) {
+    return '<li><label><input type="checkbox" data-i="' + i + '"><span>' + x[0] + '</span><span class="pts">' + (x[1] === 'a' ? 'adverse' : 'asystole risk') + '</span></label></li>';
+  }).join('');
+  function tri() {
+    var a = 0, r = 0;
+    document.querySelectorAll('#tr-list input').forEach(function (c) { if (c.checked) { if (ADV[+c.dataset.i][1] === 'a') a++; else r++; } });
+    var el = $('#tr-res'), w = $('#tr-why');
+    if (a) { el.className = 'result go'; el.textContent = 'Adverse signs: treat now. Atropine 500-600 mcg, then pacing or adrenaline.'; w.textContent = 'Unstable bradycardia is an emergency. Pads on, call your senior, and look for the cause while you treat.'; }
+    else if (r) { el.className = 'result diff'; el.textContent = 'No adverse signs, but asystole risk: monitor with pads on and call cardiology.'; w.textContent = 'These rhythms can fail suddenly even when the patient looks well. Do not send them to a ward bed with routine observations.'; }
+    else { el.className = 'result ok'; el.textContent = 'No adverse signs or asystole-risk markers: observe and find the cause.'; w.textContent = 'Monitor, 12-lead ECG, bloods, and review the drug chart. Treatment is usually the cause.'; }
+  }
+  document.querySelectorAll('#tr-list input').forEach(function (c) { c.addEventListener('change', tri); }); tri();
+
+  /* ---------- Heart block strips ---------- */
+  var PX = 120, W = 720, MID = 70;
+  function pw(x) { return 'M' + x + ',' + MID + ' q6,-14 12,0'; }
+  function qrs(x) { return 'M' + x + ',' + MID + ' l3,6 l4,-50 l4,60 l3,-16'; }
+  function line(a, b) { return 'M' + a + ',' + MID + ' L' + b + ',' + MID; }
+  var BK = {
+    first: { n: 'First degree', cap: 'Every P is followed by a QRS, but the PR interval is long (over 0.20 s) and the same every time.', res: 'Stable delay. No treatment on its own; check drugs and potassium.', build: function () {
+      var P = [], Q = []; for (var t = 20; t < W - 60; t += 110) { P.push(t); Q.push(t + 45); } return { P: P, Q: Q, drops: [] }; } },
+    m1: { n: 'Mobitz I', cap: 'The PR gets longer with each beat until one P is not followed by a QRS, then the cycle starts again.', res: 'Usually in the AV node and benign. Atropine usually works if it is needed.', build: function () {
+      var P = [], Q = [], d = [], pr = [22, 34, 48, 0], t = 20; for (var n = 0; n < 8; n++) { var k = n % 4; P.push(t); if (pr[k]) Q.push(t + pr[k] + 10); else d.push(t + 30); t += 80; } return { P: P, Q: Q, drops: d }; } },
+    m2: { n: 'Mobitz II', cap: 'The PR is the same every beat, then a QRS is suddenly dropped with no warning.', res: 'Below the AV node and can jump to complete block. Counts as an asystole risk: pads on, cardiology, pacing ready.', build: function () {
+      var P = [], Q = [], d = [], t = 20; for (var n = 0; n < 8; n++) { P.push(t); if (n % 3 === 2) d.push(t + 30); else Q.push(t + 32); t += 85; } return { P: P, Q: Q, drops: d }; } },
+    third: { n: 'Complete (third degree)', cap: 'P waves march at their own rate (about 90) and QRS complexes at theirs (about 38). They are unrelated.', res: 'Atria and ventricles are disconnected. Atropine often fails with a broad QRS: prepare to pace and call cardiology.', build: function () {
+      var P = [], Q = []; for (var t = 15; t < W - 20; t += 80) P.push(t); for (var q = 70; q < W - 20; q += 190) Q.push(q); return { P: P, Q: Q, drops: [] }; } }
+  };
+  var cur = 'first';
+  function drawB() {
+    var b = BK[cur].build(), s = '<path class="ln" d="' + line(0, W) + '" stroke-opacity=".25"/>';
+    b.P.forEach(function (x) { s += '<path class="p" d="' + pw(x) + '"/>'; });
+    b.Q.forEach(function (x) { s += '<path class="q" d="' + qrs(x) + '"/>'; });
+    b.drops.forEach(function (x) { s += '<line class="dr" x1="' + x + '" x2="' + (x + 12) + '" y1="30" y2="30"/><text class="sm" x="' + (x - 6) + '" y="22">dropped</text>'; });
+    $('#bk-svg').innerHTML = s;
+    $('#bk-cap').textContent = BK[cur].cap; var r = $('#bk-res'); r.textContent = BK[cur].res; r.className = 'result' + (cur === 'third' || cur === 'm2' ? ' go' : ' ok');
+    document.querySelectorAll('#bk-seg button').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.k === cur)); });
+  }
+  $('#bk-seg').innerHTML = Object.keys(BK).map(function (k) { return '<button data-k="' + k + '" aria-pressed="false">' + BK[k].n + '</button>'; }).join('');
+  $('#bk-seg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) { cur = b.dataset.k; drawB(); } });
+  drawB();
+
+  /* ---------- Drill ---------- */
+  var OPTS = [['atro', 'Atropine'], ['pace', 'Pace or adrenaline'], ['tox', 'Toxicology: glucagon, high-dose adrenaline'], ['watch', 'Monitor, pads on, call cardiology'], ['cause', 'Treat the cause']];
+  var ITEMS = [
+    { t: 'HR 34, BP 78/44, drowsy. Sinus bradycardia, no heart block.', a: 'atro', why: 'Adverse signs. Atropine 500-600 mcg IV every 3-5 minutes up to 3 mg is first line.' },
+    { t: 'Atropine 3 mg given, HR 36, BP 80/48, still drowsy.', a: 'pace', why: 'Atropine failed. Move to transcutaneous pacing or an adrenaline infusion (2-10 mcg/min).' },
+    { t: 'Two days after a heart transplant: HR 38, BP 82/50.', a: 'pace', why: 'A denervated heart does not respond to atropine. Go to pacing or adrenaline.' },
+    { t: 'Overdose of a beta-blocker, HR 32, BP 70/40, atropine barely helped.', a: 'tox', why: 'Think toxicity: ANZCOR mentions glucagon or insulin with glucose and potassium, and much higher adrenaline doses. Call the Poisons Information Centre (13 11 26). Take the glucagon dose from your toxicology guidance.' },
+    { t: 'Mobitz II, HR 48, BP 130/80, no symptoms.', a: 'watch', why: 'No adverse signs, but Mobitz II is an asystole-risk marker. Monitor with pads on and call cardiology.' },
+    { t: 'Potassium 7.1, wide QRS, HR 40, BP 100/60.', a: 'cause', why: 'Reversible cause. Treat the hyperkalaemia (calcium, insulin with glucose) per protocol, and keep pacing ready.' },
+    { t: 'Inferior STEMI, complete heart block, HR 38, BP 84/50.', a: 'atro', why: 'Block above the His bundle in an inferior MI can respond to atropine, so it is a reasonable first trial. Have pads on and be ready to pace early, and call cardiology for reperfusion.' },
+    { t: 'HR 44, BP 125/78, feels fine, sleeping and fit 25-year-old.', a: 'watch', why: 'Likely physiological. No treatment needed. Observe and reassure; do not give atropine for a number.' }
+  ];
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, firstCorrect = 0, missed = [], answered = null, total = 0;
+  function startD(list) { order = shuffle(list.slice()); pos = 0; firstCorrect = 0; missed = []; answered = null; total = order.length; draw(); }
+  function draw() {
+    var box = $('#drill-box');
+    if (pos >= order.length) {
+      var h = '<div class="item">' + firstCorrect + ' of ' + total + ' right first time</div>';
+      if (missed.length) h += '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>';
+      else h += '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>';
+      box.innerHTML = h; return;
+    }
+    var it = order[pos];
+    var btns = OPTS.map(function (o) {
+      var c = ''; if (answered) { if (o[0] === it.a) c = ' right'; else if (o[0] === answered) c = ' wrong'; }
+      return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (answered ? ' disabled' : '') + '>' + o[1] + '</button>';
+    }).join('');
+    box.innerHTML = '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="bar" aria-hidden="true"><i style="width:' + (pos / order.length * 100) + '%"></i></div>' +
+      '<div class="item">' + it.t + '</div><div class="btns">' + btns + '</div>' +
+      (answered ? '<div class="fb ' + (answered === it.a ? 'good' : 'bad') + '">' + (answered === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '');
+  }
+  $('#drill-box').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-ans') && !answered) {
+      var it = order[pos], pick = b.getAttribute('data-ans');
+      if (pick === it.a) { if (missed.indexOf(it) < 0) firstCorrect++; } else if (missed.indexOf(it) < 0) missed.push(it);
+      answered = pick; draw();
+    } else if (b.getAttribute('data-act') === 'next') { pos++; answered = null; draw(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  startD(ITEMS);
+})();
+</script>

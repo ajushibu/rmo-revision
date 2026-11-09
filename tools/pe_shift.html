@@ -1,0 +1,374 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>PE Night Shift</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+--best: #2e6b45; --best-t: #d9eadf; --ok: #86690a; --ok-t: #f2e9c9; --poor: #b85a0f; --poor-t: #f6e4d4; --harm: #b3261e; --harm-t: #f6dddb;
+--on: #ffffff;
+--mon-bg: #0b1218; --mon-line: #22323f; --mon-dim: #6f8798; --mon-ok: #5de08a; --mon-warn: #f2c14e; --mon-bad: #ff6b5e; --mon-cyan: #62d6ff;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+--on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+--on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+padding-block: 24px 48px;
+padding-left: max(16px, env(safe-area-inset-left, 0px));
+padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button { font: inherit; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn { font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.monitor { background: var(--mon-bg); color: var(--mon-cyan); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--mon-line); }
+.monitor .head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mon-dim); margin-bottom: 8px; }
+.vit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.vit div { border-top: 1px solid var(--mon-line); padding-top: 6px; }
+.vit .l { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--mon-dim); display: flex; align-items: center; gap: 6px; }
+.vit .v { font-family: var(--mono); font-weight: 600; font-size: 34px; line-height: 1.1; transition: color .4s; }
+.vit .u { font-size: 12px; color: var(--mon-dim); margin-left: 4px; font-weight: 500; }
+.v.ok { color: var(--mon-ok); } .v.warn { color: var(--mon-warn); } .v.bad { color: var(--mon-bad); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mon-ok); animation: beat 1s infinite; }
+@keyframes beat { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } .vit .v { transition: none; } }
+.chart ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.chart li.new { font-weight: 600; }
+.scene { font-size: 16px; margin: 0 0 14px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; cursor: pointer; line-height: 1.45; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; opacity: .62; }
+.opt.chosen { opacity: 1; border-width: 2px; }
+.opt.chosen.best { border-color: var(--best); } .opt.chosen.ok { border-color: var(--ok); }
+.opt.chosen.poor { border-color: var(--poor); } .opt.chosen.harm { border-color: var(--harm); }
+.fb { border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+.fb .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.fb p { margin: 4px 0 12px; }
+.fb.best { background: var(--best-t); } .fb.ok { background: var(--ok-t); } .fb.poor { background: var(--poor-t); } .fb.harm { background: var(--harm-t); }
+.fb.best .tag { color: var(--best); } .fb.ok .tag { color: var(--ok); } .fb.poor .tag { color: var(--poor); } .fb.harm .tag { color: var(--harm); }
+.pager { border-left: 6px solid var(--ink); background: var(--n-tint); border-radius: 4px; padding: 12px 14px; }
+.pager b { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.case-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.case-card h3 { margin: 0; font-size: 16px; }
+.case-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.case-card .btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; }
+.meter { height: 8px; background: var(--n-tint); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--best); }
+.meter i.mid { background: var(--ok); } .meter i.low { background: var(--harm); }
+.row { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr) 56px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.row .name { font-weight: 500; }
+.row .num { font-family: var(--mono); font-size: 13px; text-align: right; }
+.revisit { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .row { grid-template-columns: minmax(0, 1fr) 56px; } .row .meter { grid-column: 1 / -1; order: 3; } }
+.big { font-family: var(--display); font-size: 44px; font-weight: 600; line-height: 1; }
+a { color: inherit; }
+.note { font-size: 13px; color: var(--muted); max-width: 70ch; }
+</style>
+</head><body><main>
+<div class="top">
+<h1>PE Night Shift</h1>
+<span class="mono" id="progress"></span>
+</div>
+<div id="view"></div>
+<p class="note">Study aid, not a clinical decision tool. Content follows the Point of Care Medicine PE template and the PERC and Wells criteria in Rosen and Barkin. Confirm thresholds and doses against your hospital guideline.</p>
+</main>
+<script>
+(function () {
+var $ = function (s) { return document.querySelector(s); };
+var PTS = { best: 2, ok: 1, poor: 0, harm: -1 };
+var LABEL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
+var KIT = 'pe_kit.html';
+var CONCEPTS = {
+first: { n: 'First moves and recognition', tab: 'risk', r: 'Resuscitate and call for help first. In shock with a raised JVP and clear chest, think obstructive: massive PE, tamponade, tension pneumothorax, and use bedside ultrasound. No pulse with an organised rhythm is PEA: start CPR.' },
+prob: { n: 'Probability: Wells and PERC', tab: 'test', r: 'PERC needs age under 50 plus seven more criteria and is only for low suspicion. Modified Wells: DVT signs 3, PE most likely 3, HR over 100 1.5, surgery or immobilisation 1.5, previous VTE 1.5, haemoptysis 1, cancer 1. Over 4 is likely.' },
+ddimer: { n: 'Using the D-dimer', tab: 'test', r: 'Only when PE is unlikely. From age 50 the cut-off is age x 10, not 500.' },
+imaging: { n: 'Choosing imaging', tab: 'test', r: 'PE likely: go straight to CT pulmonary angiogram. V/Q if CT is unsuitable. A negative leg scan does not rule out PE. A D-dimer after surgery is raised anyway.' },
+risk: { n: 'Risk class', tab: 'risk', r: 'High: arrest or SBP under 90. Intermediate-high: RV strain and raised troponin. Intermediate-low: one of them. Low: neither.' },
+anticoag: { n: 'Choosing treatment', tab: 'risk', r: 'Stable with normal renal function: LMWH. Otherwise a heparin infusion. Thrombolysis is for high risk, not routine in intermediate risk (PEITHO).' },
+dispo: { n: 'Monitoring and disposition', tab: 'risk', r: 'Intermediate-high risk: monitored bed with telemetry and clear triggers to call you.' },
+rv: { n: 'Protecting the right ventricle', tab: 'rv', r: 'Small fluid bolus at most, noradrenaline early, avoid intubation. If you must: ketamine, noradrenaline running, adrenaline drawn up.' },
+lysis: { n: 'Thrombolysis safety', tab: 'lysis', r: 'Run the contraindication list before lysis. Absolute: haemorrhagic stroke, ischaemic stroke within 3 months, known AVM, recent brain or spinal surgery, head trauma with fracture or brain injury within 3 weeks, serious active bleeding.' }
+};
+var CASES = [
+{
+id: 'c1', title: 'The chest-wall patient', where: 'Medical assessment unit', time: '21:40', blurb: 'A pleuritic chest pain that is probably not a clot. Tests the rule-out pathway.',
+intro: 'Pager: 66-year-old man, three days of right-sided pleuritic chest pain after a chest cold. Triage has done an ECG and chest X-ray. Please review.',
+vit: { hr: 92, sbp: 138, dbp: 82, spo2: 97, rr: 16 },
+facts: ['66M; no history of VTE, cancer or recent surgery', 'Pain worse on breathing in and on pressing the right chest wall', 'Chest clear; calves soft and equal; no leg swelling', 'ECG sinus rhythm, no changes; chest X-ray clear'],
+decisions: [
+{ tag: 'prob', scene: 'You think PE is possible but not the leading diagnosis. How do you put a number on that?', opts: [
+{ q: 'best', t: 'Score him with the modified Wells criteria', fb: 'Every item scores 0: no DVT signs, PE is not the most likely diagnosis (the chest wall tenderness is reproducible), HR under 100, no surgery or immobilisation, no previous VTE, no haemoptysis, no cancer. Wells 0: PE unlikely.' },
+{ q: 'poor', t: 'Apply PERC and stop if it is negative', fb: 'PERC needs age under 50, so at 66 he can never be PERC-negative. Wells is the right tool here.' },
+{ q: 'poor', t: 'Order a CT pulmonary angiogram', fb: 'Imaging before probability exposes him to contrast and radiation, and most scans in low-probability patients are negative. Score first, then decide.' },
+{ q: 'poor', t: 'Send a D-dimer without scoring him', fb: 'A D-dimer only means something against a pre-test probability. Score first.' }
+] },
+{ tag: 'prob', reveal: ['Wells score 0: PE unlikely'], scene: 'Wells is 0, so PE is unlikely. What next?', opts: [
+{ q: 'best', t: 'Send a D-dimer', fb: 'At this probability a negative D-dimer excludes PE and spares him the CT. PERC is not available because he is over 50.' },
+{ q: 'poor', t: 'Go straight to CT pulmonary angiogram', fb: 'Safe but unnecessary. At an unlikely probability the D-dimer comes first.' },
+{ q: 'poor', t: 'Discharge with analgesia and no test', fb: 'At 66 PERC cannot clear him, so the pathway still needs a D-dimer before you can call PE excluded.' },
+{ q: 'harm', t: 'Start therapeutic enoxaparin while you wait', fb: 'Empirical anticoagulation is for high suspicion with a delay to imaging. At Wells 0 you add bleeding risk with no indication.' }
+] },
+{ tag: 'ddimer', reveal: ['D-dimer 590 ng/mL FEU (lab limit 500)'], scene: 'The D-dimer is back: 590 ng/mL FEU. The lab flags it as above the 500 reference limit.', opts: [
+{ q: 'best', t: 'Below the age-adjusted cut-off (66 x 10 = 660): PE excluded at this probability. Treat the chest wall pain.', fb: 'From age 50 the cut-off is age x 10. 590 is under 660 and Wells is unlikely, so PE is excluded. Check your lab\'s units and whether it reports age-adjusted limits.' },
+{ q: 'poor', t: 'Above 500, so it is positive: send him for a CT pulmonary angiogram', fb: 'The classic trap. The fixed 500 cut-off is for patients under 50. A scan here adds contrast and radiation for a result that was already negative by the rule.' },
+{ q: 'poor', t: 'Repeat the D-dimer in six hours', fb: 'A repeat will not change the answer and delays a decision the rule has already made.' },
+{ q: 'harm', t: 'Start anticoagulation anyway, since it is above 500', fb: 'That adds bleeding risk without an indication.' }
+] }
+],
+ends: { hi: 'He goes home with analgesia and safety-net advice. One blood test, no scan, and you can explain why.', mid: 'He ends up in the right place, but you took extra steps or tests to get there.', lo: 'The pathway let you down. Go back to the Test or not tab in the Study Kit and walk it through once.' }
+},
+{
+id: 'c2', title: 'Day 3 after the hip', where: 'Orthopaedic ward 5A', time: '02:30', blurb: 'A likely PE in a stable patient. Tests imaging, risk class and treatment.',
+intro: 'Pager: 72-year-old woman, day 3 after a right total hip replacement. New breathlessness and left chest pain. The night nurse is worried.',
+vit: { hr: 118, sbp: 128, dbp: 76, spo2: 90, rr: 26 },
+facts: ['72F, right total hip replacement 3 days ago, on prophylactic enoxaparin', 'Left pleuritic chest pain; right calf swollen and tender', 'Chest clear; JVP not raised; ECG sinus tachycardia only', 'Weight 68 kg; last eGFR 78 mL/min'],
+decisions: [
+{ tag: 'first', scene: 'She is alone in the room and frightened. What do you do in the first ten minutes?', opts: [
+{ q: 'best', t: 'Oxygen to keep saturation above 90%, continuous monitoring, IV access, bloods (troponin, creatinine, coagulation, group and screen), and tell your registrar', vit: { spo2: 93 }, fb: 'That covers the basics and gets help moving. Troponin and creatinine feed the risk class and the choice of anticoagulant.' },
+{ q: 'ok', t: 'Oxygen and monitoring, then work out the cause while her obs settle', vit: { spo2: 93 }, fb: 'A safe start, but you lose time. Bloods and a call to your senior belong in the first ten minutes.' },
+{ q: 'poor', t: 'Request a chest X-ray and wait for it before doing anything else', fb: 'A chest X-ray is reasonable but it is not a reason to wait. She is hypoxic and tachycardic and needs monitoring and treatment now.' },
+{ q: 'harm', t: 'Reassure her: post-op pain and atelectasis. Paracetamol, chest physio, review in the morning', vit: { hr: 126, spo2: 88 }, fb: 'This is anchoring. Day 3 after a hip replacement with hypoxia, tachycardia and a swollen calf is PE until proven otherwise.' }
+] },
+{ tag: 'imaging', reveal: ['Wells 9: DVT signs 3 + surgery 1.5 + HR over 100 1.5 + PE most likely 3 (PE likely)'], scene: 'She has oxygen on and a drip running. Your Wells score is 9, so PE is likely. Which test?', opts: [
+{ q: 'best', t: 'CT pulmonary angiogram now (renal function is fine)', fb: 'Above 4 you go straight to imaging. A D-dimer would be raised after surgery anyway and could not help you.' },
+{ q: 'poor', t: 'D-dimer first', fb: 'PE is likely, so a D-dimer cannot rule it out, and it is almost always raised in the weeks after surgery.' },
+{ q: 'poor', t: 'V/Q scan', fb: 'Reasonable when CT is unsuitable, for example in kidney failure or contrast allergy. CT is quicker and also looks for other causes.' },
+{ q: 'poor', t: 'Leg ultrasound only', fb: 'A positive scan would justify treatment, but a negative one does not rule out PE, and she is hypoxic. She needs the chest imaged.' }
+] },
+{ tag: 'risk', vit: { hr: 112, sbp: 124, dbp: 70, spo2: 94, rr: 24 }, reveal: ['CT pulmonary angiogram: bilateral lobar emboli, RV/LV ratio 1.1', 'Troponin raised; BP 124/70, SpO2 94% on 3 L'], scene: 'The scan shows bilateral lobar emboli with an RV/LV ratio of 1.1. Troponin is raised. BP 124/70. Which risk class?', opts: [
+{ q: 'best', t: 'Intermediate-high: RV strain plus raised troponin, no hypotension', fb: 'Correct. She has both markers and is not hypotensive.' },
+{ q: 'poor', t: 'High risk (massive)', fb: 'High risk needs cardiac arrest or SBP under 90 not explained by other causes. She is normotensive. Over-calling it risks lysis she does not need.' },
+{ q: 'poor', t: 'Intermediate-low', fb: 'Intermediate-low is RV strain or troponin, not both. She has both.' },
+{ q: 'harm', t: 'Low risk', fb: 'RV strain and a raised troponin put her well above low risk. Under-calling it is the dangerous mistake.' }
+] },
+{ tag: 'anticoag', scene: 'What treatment do you start?', opts: [
+{ q: 'best', t: 'Therapeutic weight-based enoxaparin (renal function normal), and tell the orthopaedic team about the bleeding risk', fb: 'LMWH is the usual choice when she is stable with no renal impairment. The orthopaedic team need to know because the wound and any drain matter.' },
+{ q: 'ok', t: 'Unfractionated heparin infusion', fb: 'Reasonable, and preferred when kidneys are poor or lysis may be needed. For a stable patient with normal renal function, LMWH is simpler because you do not need to chase PTT.' },
+{ q: 'harm', t: 'Alteplase now', fb: 'Routine thrombolysis in intermediate-risk PE brought more major bleeding without long-term benefit (PEITHO). She is also three days out from major surgery, a relative contraindication.' },
+{ q: 'harm', t: 'Aspirin and compression stockings', fb: 'Neither treats an acute PE.' }
+] },
+{ tag: 'dispo', scene: 'She is on treatment and her obs are slowly settling. Where does she go?', opts: [
+{ q: 'best', t: 'Monitored bed with telemetry and clear triggers to call you, such as falling BP or rising oxygen need', fb: 'Intermediate-high patients can deteriorate in the first days. Monitoring and a plan for escalation matter more than the bed number.' },
+{ q: 'poor', t: 'Back to the ward on four-hourly observations', fb: 'Too little. A sudden drop in blood pressure could go unnoticed for hours.' },
+{ q: 'poor', t: 'Transfer to ICU for lysis', fb: 'Over-treatment. Lysis is not routine in intermediate-risk PE. If she deteriorates it becomes a senior decision.' }
+] }
+],
+ends: { hi: 'She stays monitored, stays anticoagulated, and the orthopaedic team know. A clean night.', mid: 'She does well, but a few of your choices left her less safe than they needed to be.', lo: 'Several decisions put her at risk. Review the Risk class tab in the Study Kit, then play this case again.' }
+},
+{
+id: 'c3', title: 'MET call, 04:50', where: 'Ward 3C', time: '04:50', blurb: 'A collapsing patient with probable massive PE. Tests RV protection and lysis safety.',
+intro: 'MET call: 61-year-old man, metastatic colon cancer, day 5 of an admission for pain control. He collapsed on the way back from the toilet. You are the first doctor to arrive.',
+vit: { hr: 134, sbp: 76, dbp: 48, spo2: 84, rr: 32 },
+facts: ['61M, metastatic colon cancer; 80 kg', 'GCS 14; cold peripheries', 'JVP raised; chest clear both sides; trachea central', 'ECG: sinus tachycardia'],
+decisions: [
+{ tag: 'first', scene: 'The nurse is holding his hand. What do you do first?', opts: [
+{ q: 'best', t: 'Call your registrar and ICU, give high-flow oxygen, put on the monitor and defibrillator pads, get IV access, do an ECG and bring bedside ultrasound', vit: { spo2: 88 }, fb: 'He is shocked and hypoxic. Resuscitate, get help, and look for the cause at the bedside. Pads on because he may arrest.' },
+{ q: 'poor', t: 'Take a full history from him first', fb: 'He is shocked. History comes after resuscitation.' },
+{ q: 'harm', t: 'Take him to radiology for a CT pulmonary angiogram straight away', vit: { sbp: 68, dbp: 42 }, fb: 'Unstable patients die in scanners. Stabilise first; a bedside echo will tell you whether you need the scan at all.' }
+] },
+{ tag: 'first', scene: 'BP 76/48, JVP raised, chest clear, trachea central. What kind of shock is this, and what separates the causes?', opts: [
+{ q: 'best', t: 'Obstructive shock. Massive PE vs tamponade vs tension pneumothorax, separated by bedside ultrasound', fb: 'A raised JVP with a clear chest and a central trachea fits massive PE, with his cancer and a day of immobility as the setup. Ultrasound shows a dilated RV, a pericardial effusion, or absent lung sliding.' },
+{ q: 'poor', t: 'Septic shock: broad-spectrum antibiotics and 2 litres of fluid', fb: 'Sepsis does not explain a raised JVP with a clear chest, and 2 litres would overload a failing RV.' },
+{ q: 'harm', t: 'Cardiogenic shock from heart failure: give furosemide', fb: 'Diuresis drops his preload when his failing RV already cannot fill the left side.' }
+] },
+{ tag: 'rv', reveal: ['Bedside echo: dilated RV, flat septum, small LV, no effusion, lung sliding both sides'], scene: 'Echo shows a dilated RV, a flattened septum, a small underfilled LV, no effusion, and lung sliding on both sides. BP is still 76/48. What about fluids and pressors?', opts: [
+{ q: 'best', t: 'A small fluid bolus of about 500 mL at most, then noradrenaline early', vit: { sbp: 84, dbp: 52 }, fb: 'A small bolus is fine, but more fluid overdistends a failing RV. Noradrenaline supports the pressure.' },
+{ q: 'ok', t: 'No fluids; start noradrenaline now', vit: { sbp: 86, dbp: 54 }, fb: 'Reasonable and safe. A small cautious bolus is also acceptable.' },
+{ q: 'harm', t: 'Give 2 litres rapidly, then reassess', vit: { hr: 142, sbp: 64, dbp: 40, spo2: 82 }, fb: 'Big fluid loads overload the RV, push the septum further into the LV and make the shock worse.' }
+] },
+{ tag: 'rv', vit: { hr: 130, sbp: 84, dbp: 52, spo2: 88, rr: 30 }, scene: 'He is on high-flow nasal oxygen: SpO2 88%, RR 30, GCS 14. The ICU registrar asks whether to intubate now.', opts: [
+{ q: 'best', t: 'Keep high-flow nasal oxygen; avoid intubation unless he is failing', fb: 'Positive pressure cuts venous return and RV output, and induction drugs drop the BP. Patients with massive PE who are intubated often collapse.' },
+{ q: 'ok', t: 'If it becomes unavoidable: ketamine induction, noradrenaline running, adrenaline drawn up, pulmonary vasodilators considered', fb: 'That is the safe way to do it if you must. He is not at that point yet.' },
+{ q: 'harm', t: 'Intubate now with a standard induction', vit: { hr: 142, sbp: 60, dbp: 36, spo2: 80 }, fb: 'A classic route to arrest: positive pressure and standard induction drugs together strip the preload from a failing RV.' }
+] },
+{ tag: 'lysis', vit: { hr: 128, sbp: 82, dbp: 50, spo2: 89, rr: 30 }, scene: 'BP 82/50 on noradrenaline. The ICU registrar asks: what is the definitive plan?', opts: [
+{ q: 'best', t: 'Start heparin, run the contraindication checklist, and ask ICU and the PE team about options', reveal: ['Chart: ischaemic stroke 6 weeks ago (absolute contraindication to lysis)'], fb: 'The notes show an ischaemic stroke six weeks ago: an absolute contraindication to lysis. That points to catheter or surgical embolectomy. Heparin stops more clot forming meanwhile.' },
+{ q: 'harm', t: 'Give alteplase now: he has a massive PE', reveal: ['Chart: ischaemic stroke 6 weeks ago (absolute contraindication to lysis)'], fb: 'You skipped the checklist. His notes record an ischaemic stroke six weeks ago, which is an absolute contraindication. Lysis risks an intracranial bleed in a man who may be saved another way.' },
+{ q: 'poor', t: 'Wait for a CT pulmonary angiogram to confirm before deciding', fb: 'He is too unstable to scan. The echo and the clinical picture are enough to act; delay costs him.' }
+] },
+{ tag: 'first', scene: 'While you are talking he becomes unresponsive. The monitor shows an organised rhythm, but there is no pulse.', vit: { hr: 0, sbp: 0, dbp: 0, spo2: 0, rr: 0 }, opts: [
+{ q: 'best', t: 'Start CPR, call the arrest team, give adrenaline per ANZCOR, and say the likely cause is massive PE so the senior can decide on lytics, ECMO or embolectomy', fb: 'Pulseless electrical activity: start compressions now and name the cause, because the cause decides the rescue options.' },
+{ q: 'poor', t: 'Check again in two minutes before starting compressions', fb: 'No pulse with an organised rhythm is PEA. Start compressions straight away.' },
+{ q: 'harm', t: 'Give a 2 litre fluid bolus first', fb: 'Fluid will not fix PEA from an obstructed RV. Compressions and adrenaline come first.' }
+] }
+],
+ends: { hi: 'He is on his way for catheter-directed treatment with a clear handover. You protected the RV and checked before you lysed.', mid: 'He is alive but the path was bumpy. Some decisions cost him time or stability.', lo: 'He deteriorated and the team lost options. Go back through the RV tab and Lysis drill in the Study Kit, then play again.' }
+}
+];
+var S = { mode: 'home', run: [], ci: 0, di: 0, vit: {}, facts: [], newFacts: [], order: [], picked: null, results: {}, t0: 0 };
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function merge(a, b) { var o = {}; for (var k in a) o[k] = a[k]; for (var k2 in b) o[k2] = b[k2]; return o; }
+function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('pe-shift') || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('pe-shift', JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('pe-shift') || '{}')[id]; } catch (e) { return undefined; } }
+function cls(k, v) {
+if (v === 0) return 'bad';
+if (k === 'spo2') return v < 88 ? 'bad' : v < 92 ? 'warn' : 'ok';
+if (k === 'hr') return v > 130 || v < 40 ? 'bad' : v > 100 ? 'warn' : 'ok';
+if (k === 'sbp') return v < 90 ? 'bad' : v < 100 ? 'warn' : 'ok';
+if (k === 'rr') return v > 30 ? 'bad' : v > 24 ? 'warn' : 'ok';
+return 'ok';
+}
+function monitorHTML(c) {
+var v = S.vit;
+var arrest = v.hr === 0;
+var dur = arrest ? 0 : Math.max(0.35, 60 / v.hr);
+return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div><div class="vit">' +
+'<div><span class="l"><i class="dot" style="' + (arrest ? 'animation:none;background:var(--mon-bad)' : 'animation-duration:' + dur.toFixed(2) + 's') + '"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + (arrest ? '--' : v.hr) + '<span class="u">bpm</span></span></div>' +
+'<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + (arrest ? '--/--' : v.sbp + '/' + v.dbp) + '<span class="u">mmHg</span></span></div>' +
+'<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + (arrest ? '--' : v.spo2) + '<span class="u">%</span></span></div>' +
+'<div><span class="l">RR</span><span class="v ' + cls('rr', v.rr) + '">' + (arrest ? '--' : v.rr) + '<span class="u">/min</span></span></div>' +
+'</div></div>';
+}
+function chartHTML() {
+return '<div class="card chart"><span class="mono">Chart</span><ul>' +
+S.facts.map(function (f) { return '<li>' + f + '</li>'; }).join('') +
+S.newFacts.map(function (f) { return '<li class="new">New: ' + f + '</li>'; }).join('') + '</ul></div>';
+}
+function start(idxs) {
+S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
+startCase();
+}
+function startCase() {
+var c = CASES[S.run[S.ci]];
+S.di = 0; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.picked = null;
+S.results[c.id] = [];
+S.mode = 'intro'; render();
+}
+function beginDecision() {
+var c = CASES[S.run[S.ci]], d = c.decisions[S.di];
+if (d.vit) S.vit = merge(S.vit, d.vit);
+if (d.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = d.reveal.slice(); }
+else { S.facts = S.facts.concat(S.newFacts); S.newFacts = []; }
+S.order = shuffle(d.opts.map(function (o, i) { return i; }));
+S.picked = null; S.mode = 'decide'; render();
+}
+function pick(i) {
+var c = CASES[S.run[S.ci]], d = c.decisions[S.di], o = d.opts[i];
+if (S.picked !== null) return;
+S.picked = i;
+if (o.vit) S.vit = merge(S.vit, o.vit);
+if (o.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = o.reveal.slice(); }
+S.results[c.id][S.di] = { q: o.q, tag: d.tag };
+render();
+}
+function next() {
+var c = CASES[S.run[S.ci]];
+if (S.di + 1 < c.decisions.length) { S.di++; beginDecision(); }
+else { S.mode = 'caseend'; render(); }
+}
+function caseScore(c) {
+var r = S.results[c.id] || [], pts = 0;
+r.forEach(function (x) { pts += PTS[x.q]; });
+return Math.max(0, pts);
+}
+function caseMax(c) { return c.decisions.length * 2; }
+function afterCase() {
+if (S.ci + 1 < S.run.length) { S.ci++; startCase(); } else { S.mode = 'debrief'; render(); }
+}
+function render() {
+var v = $('#view'), p = $('#progress');
+window.scrollTo(0, 0);
+if (S.mode === 'home') { p.textContent = ''; v.innerHTML = homeHTML(); return; }
+var c = CASES[S.run[S.ci]];
+if (S.mode === 'debrief') { p.textContent = 'Debrief'; v.innerHTML = debriefHTML(); return; }
+p.textContent = 'Case ' + (S.ci + 1) + ' of ' + S.run.length + (S.mode === 'decide' ? ' · Decision ' + (S.di + 1) + ' of ' + c.decisions.length : '');
+if (S.mode === 'intro') {
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><h2>' + c.title + '</h2><div class="pager"><b>' + c.time + ' · ' + c.where.toUpperCase() + '</b><p style="margin:6px 0 0">' + c.intro + '</p></div><div class="btns" style="margin-top:14px"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+return;
+}
+if (S.mode === 'decide') {
+var d = c.decisions[S.di], o = S.picked !== null ? d.opts[S.picked] : null;
+var opts = S.order.map(function (i) {
+var oo = d.opts[i], chosen = S.picked === i;
+return '<button class="opt' + (chosen ? ' chosen ' + oo.q : '') + '" data-i="' + i + '"' + (S.picked !== null ? ' disabled' : '') + '>' + oo.t + '</button>';
+}).join('');
+var fb = '';
+if (o) {
+var last = (S.di + 1 === c.decisions.length);
+fb = '<div class="fb ' + o.q + '" role="status"><span class="tag">' + LABEL[o.q] + '</span><p>' + o.fb + '</p>' + bestHint(d, o) + '<button class="btn primary" data-a="next">' + (last ? 'Hand over' : 'Next') + '</button></div>';
+}
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><p class="scene">' + d.scene + '</p><div class="opts">' + opts + '</div>' + fb + '</div></div></div>';
+return;
+}
+if (S.mode === 'caseend') {
+var sc = caseScore(c), mx = caseMax(c), pct = Math.round(sc / mx * 100);
+var end = pct >= 80 ? c.ends.hi : pct >= 50 ? c.ends.mid : c.ends.lo;
+var bestPrev = bestStore(c.id, pct);
+v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div></div></div></div>';
+}
+}
+function bestHint(d, o) {
+if (o.q === 'best') return '';
+var b = d.opts.filter(function (x) { return x.q === 'best'; })[0];
+return b ? '<p><b>Best move:</b> ' + b.t + '</p>' : '';
+}
+function homeHTML() {
+var cards = CASES.map(function (c, i) {
+var b = bestStore(c.id);
+return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div>';
+}).join('');
+return '<div class="card"><h2>You are the RMO on nights</h2><p style="max-width:62ch">Three pages, fourteen decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
+}
+function debriefHTML() {
+var byTag = {}, tot = 0, mx = 0;
+S.run.forEach(function (ci) {
+var c = CASES[ci];
+(S.results[c.id] || []).forEach(function (r) {
+byTag[r.tag] = byTag[r.tag] || { p: 0, m: 0 };
+byTag[r.tag].p += Math.max(0, PTS[r.q]); byTag[r.tag].m += 2;
+});
+tot += caseScore(c); mx += caseMax(c);
+});
+var pct = Math.round(tot / mx * 100);
+var rows = Object.keys(byTag).map(function (k) {
+var x = byTag[k], f = Math.round(x.p / x.m * 100), cn = CONCEPTS[k];
+var cl = f >= 80 ? '' : f >= 50 ? 'mid' : 'low';
+return '<div class="row"><span class="name">' + cn.n + '</span><div class="meter"><i class="' + cl + '" style="width:' + f + '%"></i></div><span class="num">' + x.p + '/' + x.m + '</span>' +
+(f < 80 ? '<div class="revisit"><b>Revisit:</b> ' + cn.r + ' <a href="' + KIT + '#' + cn.tab + '" target="_self">Open in the Study Kit</a></div>' : '') + '</div>';
+}).join('');
+var verdict = pct >= 85 ? 'Solid. The pathway is in your head. Replay in two days to see what stuck.' : pct >= 60 ? 'Decent base with gaps. The red and amber bars below are your next study session.' : 'Not there yet, and that is useful to know. Work through the rows below, then replay.';
+return '<div class="card"><span class="mono">Shift debrief</span><p class="big" style="margin-top:6px">' + pct + '%</p><p class="muted" style="margin:4px 0 14px">' + tot + ' of ' + mx + ' points. ' + verdict + '</p>' + rows + '<div class="btns" style="margin-top:16px"><button class="btn primary" data-a="all">Replay the whole shift</button><button class="btn" data-a="home">Pick a case</button></div></div>';
+}
+$('#view').addEventListener('click', function (e) {
+var b = e.target.closest('button');
+if (!b) return;
+var a = b.getAttribute('data-a');
+if (b.classList.contains('opt')) { pick(Number(b.getAttribute('data-i'))); return; }
+if (a === 'all') start([0, 1, 2]);
+else if (a === 'one') start([Number(b.getAttribute('data-i'))]);
+else if (a === 'go') beginDecision();
+else if (a === 'next') next();
+else if (a === 'after') afterCase();
+else if (a === 'home') { S.mode = 'home'; render(); }
+});
+render();
+})();
+</script>
+</body></html>

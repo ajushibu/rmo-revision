@@ -1,0 +1,174 @@
+<title>Heart Block, Simply</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}
+.step h2{font-size:24px}
+.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
+svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
+svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
+svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+</style>
+
+<main>
+  <header>
+    <h1>Heart block, simply</h1>
+    <p class="lede">Seven short steps. One picture and a few lines each. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav">
+    <button class="btn" id="back">Back</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button class="btn primary" id="next">Next</button>
+  </div>
+  <p class="foot">Simplified for learning, not a clinical decision tool. The numbers are typical, not exact. Check doses and local protocols before you act.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var Y = 80;
+  function P(x) { return '<path class="p" d="M' + x + ',' + Y + ' q9,-16 18,0"/>'; }
+  function Q(x, wide) { return wide ? '<path class="q" d="M' + x + ',' + Y + ' l10,-8 l4,-52 l10,70 l4,-10"/>' : '<path class="q" d="M' + x + ',' + Y + ' l3,7 l5,-56 l5,68 l3,-19"/>'; }
+  function base(w) { return '<line x1="0" x2="' + w + '" y1="' + Y + '" y2="' + Y + '" stroke="var(--line)" stroke-width="1.5"/>'; }
+  /* one beat: P at x, PR in ms (0.4 px per ms), null = dropped */
+  function beat(x, pr, lab) {
+    var s = P(x);
+    if (pr) { var a = x + 18, b = x + 18 + pr * 0.4; s += '<line class="pr" x1="' + a + '" x2="' + b + '" y1="' + (Y + 18) + '" y2="' + (Y + 18) + '"/>' + Q(b, false); if (lab) s += '<text x="' + (a) + '" y="' + (Y + 38) + '">' + lab + '</text>'; }
+    else s += '<text class="big" x="' + (x - 4) + '" y="' + (Y + 38) + '" fill="var(--a-fill)">missed</text>';
+    return s;
+  }
+  function box(cls, x, y, w, h, t1, t2) { return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="8"/><text class="big" x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle">' + t1 + '</text>' + (t2 ? '<text x="' + (x + w / 2) + '" y="' + (y + 42) + '" text-anchor="middle">' + t2 + '</text>' : ''); }
+  function arrow(x1, y1, x2, y2) { return '<path class="arr" d="M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2 + '"/><path class="arr" d="M' + (x2 - 7) + ',' + (y2 - 6) + ' L' + x2 + ',' + y2 + ' L' + (x2 - 7) + ',' + (y2 + 6) + '"/>'; }
+  function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
+
+  var STEPS = [
+    { h: 'The signal takes a path', say: 'Each heartbeat is an electrical signal. It starts in the <b>atria</b> (the P wave), passes through a <b>gate</b> called the AV node, runs down <b>wires</b> below the gate, and reaches the <b>ventricles</b> (the QRS).',
+      pic: function () { return svg(760, 130, box('neutral', 10, 30, 150, 56, 'Atria', 'makes the P wave') + arrow(160, 58, 196, 58) + box('gate', 200, 30, 170, 56, 'The gate', 'AV node (a short pause)') + arrow(370, 58, 406, 58) + box('wire', 410, 30, 150, 56, 'Wires below', 'His bundle, branches') + arrow(560, 58, 596, 58) + box('neutral', 600, 30, 150, 56, 'Ventricles', 'makes the QRS'), 'Signal path'); } },
+    { h: 'A normal beat', say: 'The pause at the gate is the <b>PR interval</b>: the gap between the P wave and the QRS. Normally it is the same every beat and not too long. Every P is followed by a QRS.',
+      pic: function () { return svg(760, 130, base(760) + beat(20, 160, 'PR') + beat(260, 160) + beat(500, 160), 'Normal beats'); } },
+    { h: 'Trouble at the gate: warning signs', say: 'A tired gate lets the signal through more and more slowly. The PR <b>gets longer each beat</b>, then one beat does not get through. The gate rests and starts again. This is <b>Mobitz I</b>. It gives warning, and it is usually harmless.',
+      pic: function () { return svg(760, 130, base(760) + beat(10, 160, '160') + beat(190, 240, '240') + beat(380, 320, '320') + beat(600, null), 'PR gets longer then a missed beat'); } },
+    { h: 'Trouble in the wires: no warning', say: 'The wires below the gate do not get tired. The PR stays <b>exactly the same</b>, and then, with no warning, a beat is lost. This is <b>Mobitz II</b>. You cannot predict the miss, and it can suddenly become complete block, so it is more dangerous.',
+      pic: function () { return svg(760, 130, base(760) + beat(10, 160, '160') + beat(190, 160, '160') + beat(370, 160, '160') + beat(560, null), 'Same PR then a missed beat'); } },
+    { h: 'Why atropine helps one and not the other', say: 'The gate has a nerve <b>brake</b> on it, and atropine releases the brake, so the gate works better. The wires below have <b>no brake</b>, so atropine has nothing to act on. Faster beats can even make a damaged wire worse.',
+      pic: function () { return svg(760, 150, box('gate', 20, 20, 320, 100, 'Gate (AV node)', 'has a nerve brake') + '<text x="40" y="100">Atropine releases the brake: it helps.</text>' + box('wire', 420, 20, 320, 100, 'Wires below', 'no brake') + '<text x="440" y="100">Atropine has nothing to act on.</text>', 'Gate versus wires'); } },
+    { h: 'If nothing gets through', say: '<b>Complete block</b>: the atria and ventricles stop talking. A backup pacemaker below the block starts its own slow beat. The higher the backup, the better it is. Below the gate it is slow, wide and unreliable.',
+      pic: function () {
+        var a = '', b = '', i;
+        for (i = 0; i < 8; i++) { a += P(20 + i * 90); b += P(20 + i * 90); }
+        return svg(760, 300, '<text class="big" x="10" y="24">Block at the gate: backup is steadier (40-60 a minute, narrow QRS)</text><g transform="translate(0,10)">' + base(760) + a + Q(150, false) + Q(430, false) + Q(710, false) + '</g>' + '<text class="big" x="10" y="164">Block in the wires: backup is slow and wide (20-40 a minute)</text><g transform="translate(0,150)">' + base(760) + b + Q(240, true) + Q(620, true) + '</g>', 'Backup rhythms'); } },
+    { h: 'The whole thing on one page', say: '', sum: true }
+  ];
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    if (s.sum) {
+      h += '<div class="sum">' +
+        '<div class="card"><h3>Gate (Mobitz I)</h3><p><b>See:</b> PR longer, longer, then a miss. Narrow QRS.</p><p><b>Meaning:</b> usually benign.</p><p><b>Atropine:</b> works if it is needed.</p></div>' +
+        '<div class="card"><h3>Wires (Mobitz II)</h3><p><b>See:</b> same PR, sudden miss, often a wide QRS.</p><p><b>Meaning:</b> dangerous, can go complete.</p><p><b>Do:</b> pads on, call cardiology, be ready to pace. Atropine often fails.</p></div>' +
+        '<div class="card"><h3>Complete block</h3><p><b>See:</b> P and QRS unrelated, slow QRS.</p><p><b>Meaning:</b> slow and wide is worse.</p><p><b>Do:</b> if unstable, treat per your protocol; pace if atropine fails.</p></div></div>' +
+        '<p class="hint">One rule to keep: <b>warning before the miss means the gate; no warning means the wires.</b></p>';
+    } else h += '<p class="say">' + s.say + '</p>' + s.pic();
+    $('#stage').innerHTML = h;
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>

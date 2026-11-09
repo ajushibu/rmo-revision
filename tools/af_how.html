@@ -1,0 +1,394 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>How AF Drugs Work</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+--atr: #1f5f8b; --atr-t: #d8e8f4; --bad: #b3261e; --bad-t: #f6dddb; --good: #2e6b45; --good-t: #d9eadf; --warn: #86690a; --warn-t: #f2e9c9;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--atr: #6aaee0; --atr-t: #17303f; --bad: #e5645a; --bad-t: #3a1f1e; --good: #62b58a; --good-t: #1a3226; --warn: #d9b43a; --warn-t: #352e14;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+--atr: #6aaee0; --atr-t: #17303f; --bad: #e5645a; --bad-t: #3a1f1e; --good: #62b58a; --good-t: #1a3226; --warn: #d9b43a; --warn-t: #352e14;
+color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--atr); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel[hidden] { display: none; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex-wrap: wrap; }
+.seg button { font: inherit; background: var(--surface); color: var(--ink); border: 0; padding: 7px 14px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.ctl { display: flex; flex-direction: column; gap: 6px; }
+.ctl > span { font-size: 13px; color: var(--muted); }
+.tog { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.tog input { width: 16px; height: 16px; accent-color: var(--atr); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.stat { border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; background: var(--surface); }
+.stat b { display: block; font-family: var(--mono); font-size: 26px; line-height: 1.15; font-weight: 600; }
+.stat b.bad { color: var(--bad); } .stat b.warn { color: var(--warn); } .stat b.good { color: var(--good); }
+.verdict { border-radius: 6px; padding: 10px 14px; background: var(--n-tint); font-weight: 500; }
+.verdict.bad { background: var(--bad-t); } .verdict.good { background: var(--good-t); } .verdict.warn { background: var(--warn-t); }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 640px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .chamber { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .atrium { fill: var(--atr-t); stroke: var(--atr); stroke-width: 1.5; }
+svg .scar { fill: var(--ink); opacity: .75; }
+svg .tk-a { stroke: var(--atr); stroke-width: 2; }
+svg .tk-v { stroke: var(--ink); stroke-width: 3; }
+svg .lk { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+svg .ok { stroke: var(--good); stroke-width: 2.5; fill: none; }
+svg .no { stroke: var(--bad); stroke-width: 2.5; fill: none; }
+.gauge { position: relative; height: 22px; background: var(--n-tint); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.gauge i { position: absolute; inset: 0 auto 0 0; background: var(--good); transition: width .3s, background .3s; }
+.gauge i.warn { background: var(--warn); } .gauge i.bad { background: var(--bad); }
+.gauge u { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--ink); }
+.gl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 3px; }
+@media (prefers-reduced-motion: reduce) { .gauge i { transition: none; } }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+</style>
+</head><body><main>
+<header>
+<h1>How AF Drugs Work</h1>
+<p class="lede">Five small experiments that show why rate control and drug cardioversion have the rules they do. Press the buttons and watch what changes. All numbers are illustrative, to show the idea. They are not doses or real patient data.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="Experiments">
+<button role="tab" id="t-wire" aria-controls="p-wire" data-tab="wire">1. The gatekeeper</button>
+<button role="tab" id="t-rate" aria-controls="p-rate" data-tab="rate">2. Rate control</button>
+<button role="tab" id="t-conv" aria-controls="p-conv" data-tab="conv">3. Drug cardioversion</button>
+<button role="tab" id="t-clot" aria-controls="p-clot" data-tab="clot">4. The clot</button>
+<button role="tab" id="t-wpw" aria-controls="p-wpw" data-tab="wpw">5. The second wire</button>
+</nav>
+<section class="panel" id="p-wire" role="tabpanel" aria-labelledby="t-wire">
+<div class="card">
+<h2>The AV node decides how many signals reach the ventricles</h2>
+<p class="hint" style="margin-bottom:10px">Blue ticks are signals fired by the atria. Black ticks are beats that got through to the ventricles, and your pulse is the black ticks. Ten seconds of rhythm.</p>
+<div class="scroll">
+<svg viewBox="0 0 700 150" id="heart-svg" role="img" aria-label="Simplified heart: two atria on top, the AV node in the middle, two ventricles below.">
+<rect class="atrium" x="40" y="10" width="260" height="55" rx="26"/>
+<rect class="atrium" x="320" y="10" width="260" height="55" rx="26"/>
+<rect class="chamber" x="40" y="85" width="260" height="55" rx="26"/>
+<rect class="chamber" x="320" y="85" width="260" height="55" rx="26"/>
+<circle cx="310" cy="75" r="9" fill="var(--warn)"/>
+<text x="170" y="42" text-anchor="middle">Atria (receive blood)</text>
+<text x="450" y="42" text-anchor="middle">Atria</text>
+<text x="170" y="117" text-anchor="middle">Ventricles (pump blood out)</text>
+<text x="450" y="117" text-anchor="middle">Ventricles</text>
+<text x="330" y="79" class="sm">AV node: the only gate</text>
+</svg>
+</div>
+<div class="row" style="margin: 12px 0 8px">
+<div class="seg" id="w-rhythm" role="group" aria-label="Rhythm">
+<button data-v="sinus" aria-pressed="true">Sinus rhythm</button>
+<button data-v="af" aria-pressed="false">Atrial fibrillation</button>
+<button data-v="flutter" aria-pressed="false">Atrial flutter</button>
+</div>
+</div>
+<div class="scroll"><svg id="w-strip" viewBox="0 0 700 130" role="img" aria-label="Atrial signals and ventricular beats over ten seconds"></svg></div>
+<div class="stats" style="margin-top:10px" id="w-stats"></div>
+<p class="verdict" id="w-msg" style="margin-top:10px"></p>
+</div>
+</section>
+<section class="panel" id="p-rate" role="tabpanel" aria-labelledby="t-rate" hidden>
+<div class="card">
+<h2>Slowing the gate also affects the muscle</h2>
+<p class="hint" style="margin-bottom:10px">Pick a drug and a heart. The strip shows AF being slowed by the AV node. The squeeze gauge shows how hard the heart muscle contracts, as a percentage of a normal heart. The dashed line is the minimum squeeze needed to keep blood pressure up (illustrative).</p>
+<div class="row" style="gap:20px; margin-bottom:12px">
+<div class="ctl"><span>Drug</span>
+<div class="seg" id="r-drug" role="group" aria-label="Drug">
+<button data-v="none" aria-pressed="true">None</button><button data-v="bb" aria-pressed="false">Beta-blocker</button><button data-v="dil" aria-pressed="false">Diltiazem</button><button data-v="ver" aria-pressed="false">Verapamil</button><button data-v="dig" aria-pressed="false">Digoxin</button><button data-v="amio" aria-pressed="false">Amiodarone</button>
+</div></div>
+<div class="ctl"><span>Heart</span>
+<div class="seg" id="r-heart" role="group" aria-label="Heart">
+<button data-v="norm" aria-pressed="true">Normal (EF 60%)</button><button data-v="weak" aria-pressed="false">Weak (EF 25%)</button>
+</div></div>
+</div>
+<div class="scroll"><svg id="r-strip" viewBox="0 0 700 130" role="img" aria-label="Atrial fibrillation strip with the selected drug"></svg></div>
+<div class="stats" style="margin: 10px 0" id="r-stats"></div>
+<div class="ctl"><span>Squeeze of the ventricle (% of normal)</span>
+<div class="gauge" id="r-gauge"><i id="r-fill"></i><u id="r-thr"></u></div>
+<div class="gl"><span>0</span><span>minimum to hold pressure</span><span>100</span></div>
+</div>
+<p class="verdict" id="r-msg" style="margin-top:12px"></p>
+<p class="hint" style="margin-top:8px" id="r-why"></p>
+</div>
+</section>
+<section class="panel" id="p-conv" role="tabpanel" aria-labelledby="t-conv" hidden>
+<div class="two">
+<div class="card">
+<h2>Why give an AV-nodal blocker before flecainide</h2>
+<p class="hint" style="margin-bottom:10px">Atrial flutter: the atria fire about 300 times a minute. See what flecainide does to the ventricular rate.</p>
+<div class="row" style="flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:10px">
+<label class="tog"><input type="checkbox" id="c-fle"><span>Give flecainide (slows the atria)</span></label>
+<label class="tog"><input type="checkbox" id="c-blk"><span>AV-nodal blocker given first</span></label>
+</div>
+<div class="scroll"><svg id="c-strip" viewBox="0 0 700 130" role="img" aria-label="Flutter strip showing conduction ratio"></svg></div>
+<div class="stats" style="margin: 10px 0" id="c-stats"></div>
+<p class="verdict" id="c-msg"></p>
+</div>
+<div class="card">
+<h2>Why flecainide needs a healthy ventricle</h2>
+<p class="hint" style="margin-bottom:10px">Flecainide slows electrical conduction everywhere, including in the ventricle.</p>
+<div class="row" style="gap:16px; margin-bottom:10px">
+<div class="seg" id="s-vent" role="group" aria-label="Ventricle">
+<button data-v="ok" aria-pressed="true">Healthy ventricle</button><button data-v="scar" aria-pressed="false">Scarred (old MI)</button>
+</div>
+<label class="tog"><input type="checkbox" id="s-fle"><span>Flecainide on board</span></label>
+</div>
+<div class="scroll"><svg id="s-svg" viewBox="0 0 420 220" role="img" aria-label="Wave of electrical activation crossing ventricular muscle"></svg></div>
+<p class="verdict" id="s-msg" style="margin-top:10px"></p>
+</div>
+</div>
+</section>
+<section class="panel" id="p-clot" role="tabpanel" aria-labelledby="t-clot" hidden>
+<div class="card">
+<h2>Why the 48-hour rule exists</h2>
+<p class="hint" style="margin-bottom:10px">A quivering atrium does not empty properly, so blood pools in it. Choose how long the AF has been going and whether the patient is anticoagulated.</p>
+<div class="row" style="gap:20px; margin-bottom:12px">
+<div class="ctl"><span>How long in AF</span><div class="seg" id="k-dur" role="group" aria-label="Duration">
+<button data-v="short" aria-pressed="true">Under 48 hours</button><button data-v="long" aria-pressed="false">Over 48 hours or unknown</button></div></div>
+<div class="ctl"><span>Therapeutic anticoagulation for weeks</span><div class="seg" id="k-ac" role="group" aria-label="Anticoagulation">
+<button data-v="no" aria-pressed="true">No</button><button data-v="yes" aria-pressed="false">Yes</button></div></div>
+</div>
+<div class="scroll"><svg id="k-svg" viewBox="0 0 700 170" role="img" aria-label="Clot forming in the atrium and what happens at conversion"></svg></div>
+<p class="verdict" id="k-msg" style="margin-top:10px"></p>
+</div>
+</section>
+<section class="panel" id="p-wpw" role="tabpanel" aria-labelledby="t-wpw" hidden>
+<div class="card">
+<h2>Why AV-nodal blockers are dangerous in pre-excited AF</h2>
+<p class="hint" style="margin-bottom:10px">This patient has a second electrical route from atria to ventricles (the accessory pathway, seen as a delta wave). The AV node has a speed limiter. The second route does not. Black beats came through the AV node. Red beats came through the accessory pathway. Ten seconds of rhythm, illustrative numbers.</p>
+<div class="row" style="gap:20px; margin-bottom:12px">
+<div class="ctl"><span>Rhythm</span><div class="seg" id="p-rhythm" role="group" aria-label="Rhythm"><button data-v="sinus" aria-pressed="false">Sinus rhythm</button><button data-v="af" aria-pressed="true">Atrial fibrillation</button></div></div>
+<div class="ctl"><span>Treatment</span><div class="seg" id="p-drug" role="group" aria-label="Treatment"><button data-v="none" aria-pressed="true">None</button><button data-v="blk" aria-pressed="false">Beta-blocker or verapamil or diltiazem</button><button data-v="dig" aria-pressed="false">Digoxin</button><button data-v="shock" aria-pressed="false">Synchronised shock</button></div></div>
+</div>
+<div class="scroll"><svg id="p-svg" viewBox="0 0 700 200" role="img" aria-label="Two routes from the atria to the ventricles: the AV node and the accessory pathway"></svg></div>
+<div class="scroll"><svg id="p-strip" viewBox="0 0 700 130" role="img" aria-label="Atrial signals and ventricular beats by route"></svg></div>
+<div class="stats" style="margin-top:10px" id="p-stats"></div>
+<p class="verdict" id="p-msg" style="margin-top:10px"></p>
+</div>
+</section>
+<aside class="foot">Educational use only. Rate-control and cardioversion choices follow the 2018 NHFA/CSANZ guideline and standard physiology teaching; all gauges, rates and thresholds here are illustrative. Confirm against eTG and your hospital's guideline.</aside>
+</main>
+<script>
+(function () {
+var $ = function (s) { return document.querySelector(s); };
+var NS = 'http://www.w3.org/2000/svg';
+var TABS = ['wire', 'rate', 'conv', 'clot', 'wpw'];
+function show(n) {
+if (TABS.indexOf(n) < 0) n = 'wire';
+TABS.forEach(function (t) {
+$('#p-' + t).hidden = t !== n;
+var b = $('#t-' + t); b.setAttribute('aria-selected', String(t === n)); b.tabIndex = t === n ? 0 : -1;
+});
+}
+document.querySelectorAll('[data-tab]').forEach(function (b) {
+b.addEventListener('click', function () { var n = b.getAttribute('data-tab'); if (location.hash.slice(1) === n) show(n); else location.hash = n; });
+});
+window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1));
+function seg(id, cb) {
+var el = $(id);
+el.addEventListener('click', function (e) {
+var b = e.target.closest('button'); if (!b) return;
+el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+cb(b.getAttribute('data-v'));
+});
+}
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function stat(label, val, cls) { return '<div class="stat"><span class="hint">' + label + '</span><b class="' + (cls || '') + '">' + val + '</b></div>'; }
+var W = 700, SEC = 10;
+function x(t) { return 20 + (t / SEC) * (W - 40); }
+function strip(svg, atrial, pass) {
+var h = '<text x="20" y="14" class="sm">Atria</text><text x="20" y="122" class="sm">Ventricles (pulse)</text>';
+atrial.forEach(function (t, i) {
+var c = pass.indexOf(i) >= 0;
+h += '<line class="tk-a" x1="' + x(t) + '" y1="22" x2="' + x(t) + '" y2="' + (c ? 38 : 48) + '"' + (c ? '' : ' opacity=".55"') + '/>';
+if (c) h += '<line class="lk" x1="' + x(t) + '" y1="38" x2="' + x(t) + '" y2="86"/><line class="tk-v" x1="' + x(t) + '" y1="86" x2="' + x(t) + '" y2="112"/>';
+});
+svg.innerHTML = h;
+}
+function regular(rate) { var a = [], dt = 60 / rate; for (var t = 0.3; t < SEC - 0.1; t += dt) a.push(t); return a; }
+function irregular(rate, seed) { var r = rng(seed), a = [], t = 0.2; while (t < SEC - 0.1) { a.push(t); t += (60 / rate) * (0.6 + r() * 0.8); } return a; }
+function pickIrregular(atrial, vRate, seed) {
+var r = rng(seed), out = [], t = 0.3, mean = 60 / vRate;
+while (t < SEC - 0.1) {
+var best = 0, bd = 99;
+atrial.forEach(function (at, i) { var d = Math.abs(at - t); if (d < bd) { bd = d; best = i; } });
+if (out.indexOf(best) < 0) out.push(best);
+t += mean * (0.7 + r() * 0.6);
+}
+return out;
+}
+function pickN(atrial, n) { var o = []; for (var i = 0; i < atrial.length; i += n) o.push(i); return o; }
+function bpm(n) { return Math.round(n / SEC * 60); }
+function wire(v) {
+var a, p, aRate, desc, cls = '';
+if (v === 'sinus') { a = regular(75); p = pickN(a, 1); aRate = 75; }
+else if (v === 'flutter') { a = regular(300); p = pickN(a, 2); aRate = 300; }
+else { a = irregular(420, 7); p = pickIrregular(a, 120, 3); aRate = 420; }
+strip($('#w-strip'), a, p);
+var vr = bpm(p.length);
+$('#w-stats').innerHTML = stat('Atrial signals / min', aRate) + stat('Ventricular beats / min', vr, vr > 100 ? 'warn' : 'good') + stat('Gate lets through', '1 in ' + (a.length / Math.max(1, p.length)).toFixed(a.length / Math.max(1, p.length) > 5 ? 0 : 1));
+$('#w-msg').className = 'verdict' + (v === 'sinus' ? ' good' : ' warn');
+$('#w-msg').textContent = v === 'sinus' ? 'Each atrial signal produces one ventricular beat: regular and 1 to 1.' :
+v === 'flutter' ? 'Flutter: the atria fire at a steady 300 a minute. The AV node passes every second one, so the ventricles beat at a regular 150.' :
+'AF: the atria fire chaotically at 400 or more. The AV node passes a random fraction, so the pulse is fast and irregular. The gate is the only thing between the chaos and your pulse, which is why rate-control drugs act on it.';
+}
+seg('#w-rhythm', wire); wire('sinus');
+var DRUG = {
+none: { n: 'No drug', v: 150, c: 1, why: 'AF at 150: fast, so the ventricle fills poorly.' },
+bb: { n: 'Beta-blocker', v: 105, c: 0.88, why: 'Blocks adrenaline: slows the AV node and takes some drive off the muscle.' },
+dil: { n: 'Diltiazem', v: 100, c: 0.82, why: 'Blocks calcium channels. Calcium triggers muscle contraction, so squeeze falls.' },
+ver: { n: 'Verapamil', v: 95, c: 0.7, why: 'The strongest calcium-channel effect on muscle and on vessels: the biggest drop in squeeze.' },
+dig: { n: 'Digoxin', v: 135, c: 1.03, why: 'Acts through vagal tone: little effect on squeeze, but slow and weak when adrenaline is high.' },
+amio: { n: 'Amiodarone', v: 100, c: 0.97, why: 'Slows the AV node by several routes with little effect on squeeze. Can lower BP if bolused fast, and can convert AF to sinus rhythm.' }
+};
+var R = { drug: 'none', heart: 'norm' };
+var BASE = { norm: 100, weak: 42 }, THR = 36;
+function rate() {
+var d = DRUG[R.drug], a = irregular(420, 11);
+var p = pickIrregular(a, d.v, 5);
+strip($('#r-strip'), a, p);
+var vr = bpm(p.length), sq = Math.round(BASE[R.heart] * d.c);
+$('#r-stats').innerHTML = stat('Ventricular rate / min', vr, vr > 110 ? 'warn' : 'good') + stat('Squeeze, % of normal', sq, sq < THR ? 'bad' : sq < THR + 4 ? 'warn' : 'good');
+$('#r-fill').style.width = Math.min(100, sq) + '%';
+$('#r-fill').className = sq < THR ? 'bad' : sq < THR + 4 ? 'warn' : '';
+$('#r-thr').style.left = THR + '%';
+var msg, cls;
+if (sq < THR) { cls = 'bad'; msg = 'Danger: the squeeze falls below what holds the pressure up. In a weak heart this can tip into cardiogenic shock.'; }
+else if (sq < THR + 4) { cls = 'warn'; msg = 'Marginal: still above the line, but almost no reserve left. A weak heart should only get this drug with care.'; }
+else if (R.heart === 'weak' && R.drug === 'none') { cls = 'warn'; msg = 'No drug: the weak heart is already running near its limit, and a rate of 150 gives it little time to fill.'; }
+else { cls = 'good'; msg = R.heart === 'norm' ? 'A normal heart has plenty of reserve, so every one of these is tolerated.' : 'The rate comes down without losing the squeeze.'; }
+$('#r-msg').className = 'verdict ' + cls; $('#r-msg').textContent = msg;
+$('#r-why').textContent = d.n + ': ' + d.why;
+}
+seg('#r-drug', function (v) { R.drug = v; rate(); });
+seg('#r-heart', function (v) { R.heart = v; rate(); });
+rate();
+function conv() {
+var fle = $('#c-fle').checked, blk = $('#c-blk').checked;
+var aRate = fle ? 220 : 300, maxF = blk ? 120 : 250;
+var n = 1; while (aRate / n > maxF) n++;
+var a = regular(aRate), p = pickN(a, n), vr = Math.round(aRate / n);
+strip($('#c-strip'), a, p);
+$('#c-stats').innerHTML = stat('Atrial rate / min', aRate) + stat('Gate passes', '1 in ' + n) + stat('Ventricular rate / min', vr, vr > 180 ? 'bad' : vr > 110 ? 'warn' : 'good');
+var m = $('#c-msg');
+if (!fle) { m.className = 'verdict'; m.textContent = blk ? 'Flutter with an AV-nodal blocker: the gate is tighter, so the ventricles beat slower still.' : 'Flutter at 300: the gate passes every second signal, so the ventricles beat at 150.'; }
+else if (n === 1) { m.className = 'verdict bad'; m.textContent = 'Danger: flecainide slowed the atria to 220, and the unblocked AV node can now pass every one. The ventricles race at 220 (1 to 1 flutter). This is why the blocker goes in first.'; }
+else { m.className = 'verdict good'; m.textContent = 'Safe: with the AV node already restrained, slowing the atria does not make the ventricles race.'; }
+}
+$('#c-fle').addEventListener('change', conv); $('#c-blk').addEventListener('change', conv); conv();
+var V = { v: 'ok' };
+function scar() {
+var fle = $('#s-fle').checked, sc = V.v === 'scar';
+var h = '<rect x="10" y="20" width="400" height="180" rx="22" fill="var(--n-tint)" stroke="var(--ink)" stroke-width="1.5"/>';
+h += '<text x="22" y="40" class="sm">Ventricular muscle: the wave should cross once, then stop</text>';
+if (sc) h += '<ellipse cx="215" cy="115" rx="34" ry="30" class="scar"/><text x="215" y="119" text-anchor="middle" style="fill:var(--bg);font-size:11px">scar</text>';
+var loop = sc && fle;
+h += '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="' + (loop ? 'var(--bad)' : 'var(--good)') + '"/></marker></defs>';
+if (!sc) { h += '<path class="ok" d="M30 80 H380" marker-end="url(#ar)"/><path class="ok" d="M30 120 H380" marker-end="url(#ar)"/><path class="ok" d="M30 160 H380" marker-end="url(#ar)"/>'; }
+else if (!loop) { h += '<path class="ok" d="M30 70 H380" marker-end="url(#ar)"/><path class="ok" d="M30 165 H380" marker-end="url(#ar)"/><path class="ok" d="M30 118 H170 M260 118 H380" marker-end="url(#ar)"/>'; }
+else { h += '<path class="no" d="M30 70 H330 Q385 70 385 115 Q385 160 330 160 H215 Q160 160 160 115 Q160 80 190 78" marker-end="url(#ar)"/><text x="215" y="190" text-anchor="middle" style="fill:var(--bad);font-size:12px">wave circles the scar and re-excites the muscle</text>'; }
+$('#s-svg').innerHTML = h;
+var m = $('#s-msg');
+if (loop) { m.className = 'verdict bad'; m.textContent = 'Slowed conduction lets the wave catch its own tail around the scar: a re-entry loop, the basis of ventricular tachycardia and VF. This is why flecainide is not used with coronary disease, scar or LV dysfunction.'; }
+else if (sc) { m.className = 'verdict warn'; m.textContent = 'A scarred ventricle has risky tissue, but at normal conduction speed the wave passes by. Adding flecainide is what turns it dangerous.'; }
+else if (fle) { m.className = 'verdict good'; m.textContent = 'Healthy muscle: conduction is slowed but the wave still crosses once and dies out. Acceptable.'; }
+else { m.className = 'verdict'; m.textContent = 'Healthy ventricle: the wave crosses once and stops.'; }
+}
+seg('#s-vent', function (v) { V.v = v; scar(); }); $('#s-fle').addEventListener('change', scar); scar();
+var K = { dur: 'short', ac: 'no' };
+function clot() {
+var longAF = K.dur === 'long', ac = K.ac === 'yes';
+var rs = rng(3), h = '';
+h += '<ellipse cx="130" cy="85" rx="90" ry="62" fill="var(--atr-t)" stroke="var(--atr)" stroke-width="1.5"/><text x="130" y="30" text-anchor="middle" class="sm">Atrium in AF (quivering, not emptying)</text>';
+for (var i = 0; i < 14; i++) h += '<circle cx="' + (80 + rs() * 100) + '" cy="' + (60 + rs() * 55) + '" r="4" fill="var(--bad)" opacity=".55"/>';
+var hasClot = longAF && !ac;
+if (hasClot) h += '<ellipse cx="160" cy="105" rx="26" ry="14" fill="var(--bad)"/><text x="160" y="109" text-anchor="middle" style="fill:#fff;font-size:11px">clot</text>';
+h += '<path d="M230 85 H300" stroke="var(--ink)" stroke-width="2" marker-end="url(#ak)"/><defs><marker id="ak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--ink)"/></marker></defs>';
+h += '<text x="265" y="76" text-anchor="middle" class="sm">cardioversion</text>';
+h += '<ellipse cx="400" cy="85" rx="90" ry="62" fill="var(--good-t)" stroke="var(--good)" stroke-width="1.5"/><text x="400" y="30" text-anchor="middle" class="sm">Sinus rhythm: atrium contracts again</text>';
+if (hasClot) h += '<ellipse cx="430" cy="105" rx="26" ry="14" fill="var(--bad)"/><path d="M470 85 L650 50" stroke="var(--bad)" stroke-width="2.5" marker-end="url(#ak2)"/><defs><marker id="ak2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--bad)"/></marker></defs><text x="560" y="40" text-anchor="middle" style="fill:var(--bad)">to the brain: stroke</text>';
+else h += '<text x="400" y="90" text-anchor="middle" class="sm">no clot to throw</text>';
+$('#k-svg').innerHTML = h;
+var m = $('#k-msg');
+if (K.dur === 'short') { m.className = 'verdict good'; m.textContent = ac ? 'Under 48 hours with anticoagulation: cardioversion can proceed.' : 'Under 48 hours: clots usually have not had time to form, so cardioversion can proceed. Anticoagulation afterwards follows the stroke score, and standard teaching is at least 4 weeks (confirm in eTG).'; }
+else if (ac) { m.className = 'verdict good'; m.textContent = 'Over 48 hours or unknown, but weeks of therapeutic anticoagulation: clot risk is reduced, so cardioversion is acceptable. Confirm the local duration in eTG.'; }
+else { m.className = 'verdict bad'; m.textContent = 'Over 48 hours or unknown, not anticoagulated: a clot may already be sitting in the atrium. Do not cardiovert (by shock or drug) until a TOE excludes thrombus or you have anticoagulated for weeks. If the patient is unstable, the shock cannot wait, and that decision belongs with your senior.'; }
+}
+seg('#k-dur', function (v) { K.dur = v; clot(); }); seg('#k-ac', function (v) { K.ac = v; clot(); }); clot();
+var PW = { rhythm: 'af', drug: 'none' };
+function wpw() {
+var sinus = PW.rhythm === 'sinus' || PW.drug === 'shock';
+var avR, accR, a, avIdx = [], accIdx = [];
+if (sinus) {
+a = regular(75); avIdx = pickN(a, 1); avR = 75; accR = 0;
+} else {
+a = irregular(420, 7);
+var T = { none: [95, 150], blk: [40, 210], dig: [50, 200] }[PW.drug];
+avR = T[0]; accR = T[1];
+accIdx = pickIrregular(a, accR, 3);
+avIdx = pickIrregular(a, avR, 5).filter(function (i) { return accIdx.indexOf(i) < 0; });
+}
+var vr = bpm(avIdx.length + accIdx.length);
+var wAV = sinus ? 6 : Math.max(1.5, avR / 25), wAC = sinus ? 2 : Math.max(2, accR / 25);
+var g = '<defs><marker id="pw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--ink)"/></marker></defs>';
+g += '<rect class="atrium" x="60" y="8" width="580" height="44" rx="22"/><text x="350" y="35" text-anchor="middle">Atria' + (sinus ? ' (one regular signal at a time)' : ' (400+ chaotic signals a minute)') + '</text>';
+g += '<rect class="chamber" x="60" y="148" width="580" height="44" rx="22"/><text x="350" y="175" text-anchor="middle">Ventricles</text>';
+g += '<circle cx="200" cy="100" r="16" fill="var(--warn)"/><text x="200" y="104" text-anchor="middle" style="fill:#fff;font-size:11px">AV</text>';
+g += '<path d="M200 52 V84" stroke="var(--ink)" stroke-width="' + wAV + '" fill="none"/><path d="M200 116 V146" stroke="var(--ink)" stroke-width="' + wAV + '" fill="none"/>';
+g += '<text x="226" y="96" class="sm">AV node: speed limiter</text><text x="226" y="110" class="sm">' + (PW.drug === 'blk' ? 'tightened by the drug' : PW.drug === 'dig' ? 'slowed by digoxin' : 'filters the signals') + '</text>';
+g += '<path d="M500 52 V146" stroke="var(--bad)" stroke-width="' + wAC + '" fill="none" opacity="' + (sinus && PW.drug !== 'shock' ? '.5' : '1') + '"/>';
+g += '<text x="516" y="96" class="sm">Accessory pathway:</text><text x="516" y="110" class="sm">no speed limiter</text>';
+$('#p-svg').innerHTML = g;
+var h = '<text x="20" y="14" class="sm">Atria</text><text x="20" y="122" class="sm">Ventricles (pulse)</text>';
+a.forEach(function (t, i) {
+var isAv = avIdx.indexOf(i) >= 0, isAc = accIdx.indexOf(i) >= 0;
+h += '<line class="tk-a" x1="' + x(t) + '" y1="22" x2="' + x(t) + '" y2="' + (isAv || isAc ? 38 : 48) + '"' + (isAv || isAc ? '' : ' opacity=".55"') + '/>';
+if (isAv) h += '<line class="lk" x1="' + x(t) + '" y1="38" x2="' + x(t) + '" y2="86"/><line class="tk-v" x1="' + x(t) + '" y1="86" x2="' + x(t) + '" y2="112"/>';
+if (isAc) h += '<line class="lk" x1="' + x(t) + '" y1="38" x2="' + x(t) + '" y2="86"/><line x1="' + x(t) + '" y1="86" x2="' + x(t) + '" y2="112" stroke="var(--bad)" stroke-width="3"/>';
+});
+$('#p-strip').innerHTML = h;
+$('#p-stats').innerHTML = stat('Via AV node / min', bpm(avIdx.length)) + stat('Via accessory pathway / min', bpm(accIdx.length), accIdx.length ? 'bad' : 'good') + stat('Ventricular rate / min', vr, vr > 180 ? 'bad' : vr > 110 ? 'warn' : 'good');
+var m = $('#p-msg'), c, t;
+if (sinus && PW.drug === 'shock') { c = 'good'; t = 'Shock: the whole heart is reset, sinus rhythm returns and the rate falls. No drug acts on one route and leaves the other open, which is why a synchronised shock is the safe default.'; }
+else if (sinus) { c = ''; t = 'Sinus rhythm: one signal at a time, so the second route cannot flood the ventricles. The delta wave on the ECG is the only clue it is there. The danger starts when AF begins.'; }
+else if (PW.drug === 'none') { c = 'bad'; t = 'AF with a second route: the AV node filters, but the accessory pathway passes many signals unchecked. The ventricles race, irregularly and with a wide QRS. This can degenerate into VF.'; }
+else if (PW.drug === 'blk') { c = 'bad'; t = 'The drug tightened the AV node only. The red route is untouched, and with the AV node blocked, a larger share of signals can go down the accessory pathway. The ventricular rate can rise and VF risk goes up. Verapamil, diltiazem, beta-blockers and adenosine all do this.'; }
+else { c = 'bad'; t = 'Digoxin slows the AV node and can also speed conduction down the accessory pathway. Same trap: it closes the wrong route.'; }
+m.className = 'verdict' + (c ? ' ' + c : ''); m.textContent = t;
+}
+seg('#p-rhythm', function (v) { PW.rhythm = v; wpw(); });
+seg('#p-drug', function (v) { PW.drug = v; wpw(); });
+wpw();
+
+})();
+</script>
+</body></html>

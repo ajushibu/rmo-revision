@@ -1,0 +1,465 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>Pulmonary Embolism Study Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3;
+--a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4; --n-tint: #e9ecf1;
+--r1: #b3261e; --r2: #b85a0f; --r3: #86690a; --r4: #2e6b45; --on-r: #ffffff;
+--r1-t: #f6dddb; --r2-t: #f6e4d4; --r3-t: #f2e9c9; --r4-t: #d9eadf;
+--good: #2e6b45; --bad: #b3261e;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747;
+--a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f; --n-tint: #232c3a;
+--r1: #e5645a; --r2: #f08a45; --r3: #d9b43a; --r4: #62b58a; --on-r: #12100a;
+--r1-t: #3a1f1e; --r2-t: #3a2716; --r3-t: #352e14; --r4-t: #1a3226;
+--good: #62b58a; --bad: #e5645a;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747;
+--a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f; --n-tint: #232c3a;
+--r1: #e5645a; --r2: #f08a45; --r3: #d9b43a; --r4: #62b58a; --on-r: #12100a;
+--r1-t: #3a1f1e; --r2-t: #3a2716; --r3-t: #352e14; --r4-t: #1a3226;
+--good: #62b58a; --bad: #e5645a;
+color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+padding-block: 28px 48px;
+padding-left: max(16px, env(safe-area-inset-left, 0px));
+padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.q p { margin: 0 0 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { font: inherit; background: var(--surface); color: var(--ink); border: 0; padding: 6px 18px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.q.dim { opacity: .5; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.ladder { display: flex; flex-direction: column; gap: 8px; }
+.rung { border: 1px solid var(--line); border-left-width: 8px; border-radius: 6px; padding: 10px 14px; background: var(--surface); }
+.rung h3 { margin: 0; font-size: 15px; }
+.rung p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.rung ul { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.rung[data-k="high"] { border-left-color: var(--r1); } .rung[data-k="ih"] { border-left-color: var(--r2); }
+.rung[data-k="il"] { border-left-color: var(--r3); } .rung[data-k="low"] { border-left-color: var(--r4); }
+.rung.on { color: var(--on-r); border-color: transparent; }
+.rung.on p { color: inherit; opacity: .9; }
+.rung.on[data-k="high"] { background: var(--r1); } .rung.on[data-k="ih"] { background: var(--r2); }
+.rung.on[data-k="il"] { background: var(--r3); } .rung.on[data-k="low"] { background: var(--r4); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--r4-t); } .result.go { background: var(--r2-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"] { font: inherit; width: 140px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.next { border: 2px solid var(--ink); border-radius: 8px; padding: 14px 16px; background: var(--surface); }
+.next p { margin: 4px 0 0; font-weight: 500; }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 22px; line-height: 1.3; font-weight: 600; max-width: 34ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 18px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.fb { font-weight: 500; min-height: 1.5em; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--bad); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.ref { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.ref h3 { margin: 0 0 6px; font-size: 14px; }
+.ref ul { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 3px; }
+details summary { cursor: pointer; font-weight: 500; }
+figure { margin: 0; }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .chain { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .harm { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .help { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .ln-a { stroke: var(--a-fill); stroke-width: 1.5; fill: none; }
+svg .ln-b { stroke: var(--b-fill); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); } svg .m-a { fill: var(--a-fill); } svg .m-b { fill: var(--b-fill); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 34%; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+</head><body><main>
+<header>
+<h1>Pulmonary Embolism Study Kit</h1>
+<p class="lede">Four parts of the Point of Care Medicine PE template that are hard to hold in your head, turned into things you can click. A study aid, not a clinical decision tool.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="Study tools">
+<button role="tab" id="t-risk" aria-controls="p-risk" data-tab="risk">Risk class</button>
+<button role="tab" id="t-test" aria-controls="p-test" data-tab="test">Test or not</button>
+<button role="tab" id="t-lysis" aria-controls="p-lysis" data-tab="lysis">Lysis drill</button>
+<button role="tab" id="t-rv" aria-controls="p-rv" data-tab="rv">Why the RV fails</button>
+</nav>
+<section class="panel" id="p-risk" role="tabpanel" aria-labelledby="t-risk">
+<div class="split">
+<div class="card stack">
+<div>
+<h2>Answer three questions</h2>
+<p class="hint">The class moves as you change them. The starting answers are an example.</p>
+</div>
+<div class="q" data-q="a">
+<p>Cardiac arrest, or systolic BP under 90 mmHg not explained by low volume or an arrhythmia?</p>
+<div class="seg" role="group" aria-label="Arrest or hypotension"><button data-v="1">Yes</button><button data-v="0">No</button></div>
+</div>
+<div class="q" data-q="b">
+<p>Right ventricular strain on echo or CT, or NT-proBNP above 500?</p>
+<div class="seg" role="group" aria-label="RV strain"><button data-v="1">Yes</button><button data-v="0">No</button></div>
+</div>
+<div class="q" data-q="c">
+<p>Troponin raised?</p>
+<div class="seg" role="group" aria-label="Troponin"><button data-v="1">Yes</button><button data-v="0">No</button></div>
+</div>
+<p class="hint" id="risk-hint"></p>
+<p class="hint">PESI is not calculated here: the template puts high risk at PESI IV or above, intermediate at III and low at I-II. Use a PESI calculator for the score.</p>
+</div>
+<div>
+<div class="ladder" id="ladder" aria-live="polite"></div>
+<p class="hint" style="margin-top:10px">Every class: oxygen to keep saturation above 90%, high-flow nasal oxygen if needed, and avoid positive-pressure ventilation.</p>
+</div>
+</div>
+</section>
+<section class="panel" id="p-test" role="tabpanel" aria-labelledby="t-test" hidden>
+<div class="split">
+<div class="stack">
+<div class="card">
+<h2>Step 1: PERC</h2>
+<p class="hint">Use only when your suspicion is already low. Tick every statement that is true for the patient.</p>
+<ul class="checks" id="perc-list"></ul>
+<div class="result" id="perc-result"></div>
+</div>
+<div class="card">
+<h2>Step 2: Modified Wells</h2>
+<p class="hint">Tick what applies.</p>
+<ul class="checks" id="wells-list"></ul>
+<div class="result" id="wells-result"></div>
+</div>
+</div>
+<div class="stack">
+<div class="card">
+<h2>Step 3: D-dimer</h2>
+<p class="hint">Only needed when PE is unlikely on Wells. Enter the patient's age and the lab value.</p>
+<div class="fields">
+<label for="age">Age (years)<input id="age" type="number" min="1" max="120" value="62"></label>
+<label for="dd">D-dimer (ng/mL FEU)<input id="dd" type="number" min="0" step="1" placeholder="e.g. 640"></label>
+</div>
+<div class="result" id="dd-result"></div>
+<p class="hint" style="margin-top:8px">The template also gives a second rule: below 500 with moderate pre-test probability, or below 1000 with low probability, rules out PE. Check which one your hospital uses and which units your lab reports.</p>
+</div>
+<div class="next" aria-live="polite">
+<span class="mono">Next step</span>
+<p id="next-step"></p>
+</div>
+<p class="hint">Sources word the Wells cut-off differently: the book says a score under 4 with a negative D-dimer, the template uses low, moderate and high tiers, and the usual two-tier version is 4 or less (unlikely) vs above 4 (likely). This page uses the two-tier version. A patient who is unstable needs senior help and bedside echo, not a pathway.</p>
+</div>
+</div>
+</section>
+<section class="panel" id="p-lysis" role="tabpanel" aria-labelledby="t-lysis" hidden>
+<div class="card">
+<h2>Thrombolysis contraindications: absolute or relative?</h2>
+<p class="hint">15 items from the template. Wrong answers come back in a second round. The list is not exhaustive.</p>
+<div class="drill" id="lysis-box" aria-live="polite" style="margin-top:14px"></div>
+</div>
+<details class="card">
+<summary>Show the full lists</summary>
+<div class="ref" style="margin-top:12px">
+<div><h3>Absolute</h3><ul id="ref-abs"></ul></div>
+<div><h3>Relative (weigh against the risk of dying from the PE, with a senior)</h3><ul id="ref-rel"></ul></div>
+</div>
+</details>
+</section>
+<section class="panel" id="p-rv" role="tabpanel" aria-labelledby="t-rv" hidden>
+<figure class="card">
+<div class="scroll">
+<svg viewBox="0 0 820 384" role="img" aria-label="Chain of events in massive pulmonary embolism: clot raises right ventricular afterload, the right ventricle dilates and pumps less, the septum bows into the left ventricle, and cardiac output falls into obstructive shock. Three actions to avoid (intubation, large fluid boluses, blood-pressure-lowering sedatives) push the chain forward; four actions (heparin and clot removal, pulmonary vasodilators, high-flow nasal oxygen, noradrenaline) push back.">
+<defs>
+<marker id="ah-n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="m-n" points="0,0 10,5 0,10"/></marker>
+<marker id="ah-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="m-a" points="0,0 10,5 0,10"/></marker>
+<marker id="ah-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon class="m-b" points="0,0 10,5 0,10"/></marker>
+</defs>
+<rect class="chain" x="26" y="150" width="136" height="84" rx="4"/>
+<rect class="chain" x="184" y="150" width="136" height="84" rx="4"/>
+<rect class="chain" x="342" y="150" width="136" height="84" rx="4"/>
+<rect class="chain" x="500" y="150" width="136" height="84" rx="4"/>
+<rect class="chain" x="658" y="150" width="136" height="84" rx="4"/>
+<path class="ln" d="M164 192 H182" marker-end="url(#ah-n)"/>
+<path class="ln" d="M322 192 H340" marker-end="url(#ah-n)"/>
+<path class="ln" d="M480 192 H498" marker-end="url(#ah-n)"/>
+<path class="ln" d="M638 192 H656" marker-end="url(#ah-n)"/>
+<g text-anchor="middle">
+<text x="94" y="186">Clot lodges in the</text><text x="94" y="202">pulmonary arteries</text>
+<text x="252" y="186">RV afterload rises</text><text x="252" y="202">(RV pressure up)</text>
+<text x="410" y="186">RV dilates and</text><text x="410" y="202">pumps less</text>
+<text x="568" y="186">Septum bows into LV;</text><text x="568" y="202">LV fills less</text>
+<text x="726" y="178">Cardiac output falls:</text><text x="726" y="194">obstructive shock</text><text class="sm" x="726" y="212">SVR up, PCWP low</text>
+</g>
+<rect class="harm" x="342" y="24" width="136" height="68" rx="4"/>
+<rect class="harm" x="500" y="24" width="136" height="68" rx="4"/>
+<rect class="harm" x="658" y="24" width="136" height="68" rx="4"/>
+<path class="ln-a" d="M410 93 V147" marker-end="url(#ah-a)"/>
+<path class="ln-a" d="M568 93 V147" marker-end="url(#ah-a)"/>
+<path class="ln-a" d="M726 93 V147" marker-end="url(#ah-a)"/>
+<g text-anchor="middle">
+<text x="410" y="45">Avoid intubation and</text><text x="410" y="61">positive pressure:</text><text x="410" y="77">less venous return</text>
+<text x="568" y="45">Avoid big fluid</text><text x="568" y="61">boluses: they</text><text x="568" y="77">overload the RV</text>
+<text x="726" y="45">Avoid sedatives that</text><text x="726" y="61">lower BP (ketamine</text><text x="726" y="77">is the example)</text>
+</g>
+<rect class="help" x="26" y="292" width="136" height="68" rx="4"/>
+<rect class="help" x="184" y="292" width="136" height="68" rx="4"/>
+<rect class="help" x="342" y="292" width="136" height="68" rx="4"/>
+<rect class="help" x="658" y="292" width="136" height="68" rx="4"/>
+<path class="ln-b" d="M94 291 V237" marker-end="url(#ah-b)"/>
+<path class="ln-b" d="M252 291 V237" marker-end="url(#ah-b)"/>
+<path class="ln-b" d="M410 291 V237" marker-end="url(#ah-b)"/>
+<path class="ln-b" d="M726 291 V237" marker-end="url(#ah-b)"/>
+<g text-anchor="middle">
+<text x="94" y="313">Do: heparin now;</text><text x="94" y="329">lysis or thrombectomy</text><text x="94" y="345">via PERT if high risk</text>
+<text x="252" y="313">Do: pulmonary</text><text x="252" y="329">vasodilators (inhaled</text><text x="252" y="345">NO, epoprostenol)</text>
+<text x="410" y="313">Do: high-flow nasal</text><text x="410" y="329">oxygen instead of</text><text x="410" y="345">intubating if possible</text>
+<text x="726" y="313">Do: noradrenaline if</text><text x="726" y="329">needed; adrenaline</text><text x="726" y="345">if crashing</text>
+</g>
+</svg>
+</div>
+<figcaption>In massive PE the failing organ is the right ventricle. Red boxes push the chain forward by overloading the RV or cutting its filling. Blue boxes push back by removing the clot, unloading the RV or supporting pressure. Heparin stops the clot growing; the body's own fibrinolysis, lysis or thrombectomy remove it.</figcaption>
+</figure>
+</section>
+<section class="card" aria-labelledby="skip-h">
+<h2 id="skip-h">Left out on purpose</h2>
+<p class="hint" style="margin-bottom:10px">Parts of the template that did not earn a picture or a drill, and why.</p>
+<div class="scroll">
+<table>
+<thead><tr><th>Part of the template</th><th>Why it is not here</th></tr></thead>
+<tbody>
+<tr><td>The ten trials (PEITHO, FLARE, iNOPE, SOME, CLOT, RE-COVER, AMPLIFY, EINSTEIN-PE, SELECT-D, PREPIC-2)</td><td>Journal-club detail, not first-hour knowledge. The one lesson an RMO needs, that lysis is for preventing death in high-risk PE and brings bleeding, is built into the Risk class tab.</td></tr>
+<tr><td>ECG frequencies (normal in 20%, tachycardia 28%, T inversion V1-V4 7-14%, S1Q3T3 about 8%)</td><td>One fact carries the value: a normal ECG does not exclude PE. A chart of four percentages adds nothing.</td></tr>
+<tr><td>Echo and CT signs of RV strain (McConnell sign, RV/LV above 0.9), Hampton hump, wedge infarct</td><td>These are image-recognition skills. Learn them from real images; a hand-drawn cartoon could mislead.</td></tr>
+<tr><td>Anticoagulant choice and duration (LMWH vs heparin, DOAC caveats, 3 months vs indefinite)</td><td>Short rules that read fine as text, and doses must come from your hospital's guideline, not a study page.</td></tr>
+<tr><td>Risk factor odds ratios</td><td>A three-tier list that does not change what you do in the first hour.</td></tr>
+<tr><td>Virchow's triad, May-Thurner syndrome, PE in syncope, PICC and upper-limb DVT pearls</td><td>Low yield for a new RMO, and easy to recall without help.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<aside class="foot">
+<p>Source: Point of Care Medicine, Pulmonary Embolism and VTE template (last updated 1/16/2023), with the PERC and Wells criteria from Rosen and Barkin's 5-Minute Emergency Medicine Consult, Pulmonary Embolism, PDF pages 3250-3256. Educational use only. Confirm every threshold against your hospital guideline.</p>
+</aside>
+</main>
+<script>
+(function () {
+var $ = function (s) { return document.querySelector(s); };
+var TABS = ['risk', 'test', 'lysis', 'rv'];
+function show(name) {
+if (TABS.indexOf(name) < 0) name = 'risk';
+TABS.forEach(function (t) {
+$('#p-' + t).hidden = t !== name;
+var b = $('#t-' + t);
+b.setAttribute('aria-selected', String(t === name));
+b.tabIndex = t === name ? 0 : -1;
+});
+}
+document.querySelectorAll('[data-tab]').forEach(function (b) {
+b.addEventListener('click', function () {
+var n = b.getAttribute('data-tab');
+if (location.hash.slice(1) === n) show(n); else location.hash = n;
+});
+});
+window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1));
+var risk = { a: 0, b: 1, c: 1 };
+var CLASSES = [
+{ k: 'high', n: 'High risk (massive)', d: 'Cardiac arrest, or SBP under 90 not due to low volume or arrhythmia. PESI IV or above.',
+m: ['Call your senior, ICU and the PE response team now', 'Heparin bolus and infusion; thrombolysis or thrombectomy is the decision to make', 'Respect the RV: small fluid bolus only, noradrenaline if needed, avoid intubation', 'Crash cart and pads at the bedside'] },
+{ k: 'ih', n: 'Intermediate-high risk (submassive)', d: 'RV strain and raised troponin, no hypotension.',
+m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin', 'Monitored bed with continuous telemetry', 'Thrombolysis is a senior decision: trials show more major bleeding and limited long-term benefit', 'Escalate to your senior and the PE team if BP falls or oxygen needs rise'] },
+{ k: 'il', n: 'Intermediate-low risk', d: 'RV strain or raised troponin, but not both. No hypotension.',
+m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin', 'Admit with telemetry; follow troponin, NT-proBNP, echo and leg dopplers'] },
+{ k: 'low', n: 'Low risk (non-massive)', d: 'No RV strain and no hypotension. PESI I-II.',
+m: ['Anticoagulate unless contraindicated (a subsegmental PE with low recurrence risk may not need it)', 'Check the PESI score; any early discharge follows your local pathway'] }
+];
+function classify() {
+if (risk.a) return 'high';
+if (risk.b && risk.c) return 'ih';
+if (risk.b || risk.c) return 'il';
+return 'low';
+}
+function renderRisk() {
+document.querySelectorAll('.q').forEach(function (q) {
+var key = q.getAttribute('data-q');
+q.querySelectorAll('button').forEach(function (b) {
+b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-v')) === risk[key]));
+});
+q.classList.toggle('dim', risk.a === 1 && key !== 'a');
+});
+$('#risk-hint').textContent = risk.a ? 'Already high risk, so the other two answers do not change the class.' : '';
+var cur = classify();
+$('#ladder').innerHTML = CLASSES.map(function (c) {
+var on = c.k === cur;
+return '<div class="rung' + (on ? ' on' : '') + '" data-k="' + c.k + '"' + (on ? ' aria-current="true"' : '') + '>' +
+'<h3>' + c.n + '</h3><p>' + c.d + '</p>' +
+(on ? '<ul>' + c.m.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' : '') + '</div>';
+}).join('');
+}
+document.querySelectorAll('.q').forEach(function (q) {
+q.addEventListener('click', function (e) {
+var b = e.target.closest('button');
+if (!b) return;
+risk[q.getAttribute('data-q')] = Number(b.getAttribute('data-v'));
+renderRisk();
+});
+});
+renderRisk();
+var PERC = ['Age under 50', 'Heart rate under 100', 'Oxygen saturation 95% or higher', 'No haemoptysis', 'No oestrogen use',
+'No previous DVT or PE', 'No unilateral leg swelling', 'No surgery or trauma needing hospital care in the past 4 weeks'];
+var WELLS = [
+['Clinical signs of DVT (leg swelling, pain on palpation)', 3],
+['PE is the most likely diagnosis, or as likely as any other', 3],
+['Heart rate above 100', 1.5],
+['Surgery or immobilisation for 3 or more days in the past 4 weeks', 1.5],
+['Previous PE or DVT', 1.5],
+['Haemoptysis', 1],
+['Cancer with treatment in the past 6 months', 1]
+];
+function mkList(id, items, withPts) {
+$(id).innerHTML = items.map(function (it, i) {
+var text = withPts ? it[0] : it;
+var pts = withPts ? '<span class="pts">+' + it[1] + '</span>' : '';
+return '<li><label><input type="checkbox" data-i="' + i + '"><span>' + text + '</span>' + pts + '</label></li>';
+}).join('');
+}
+mkList('#perc-list', PERC, false);
+mkList('#wells-list', WELLS, true);
+function setResult(el, text, cls) { el.textContent = text; el.className = 'result' + (cls ? ' ' + cls : ''); }
+function updateTest() {
+var pc = 0;
+document.querySelectorAll('#perc-list input').forEach(function (c) { if (c.checked) pc++; });
+var percNeg = pc === PERC.length;
+setResult($('#perc-result'), percNeg
+? 'PERC negative (8 of 8). If your suspicion was already low, PE is effectively excluded (under 1% risk). No D-dimer.'
+: 'PERC not met (' + pc + ' of 8 true). Go to Wells.', percNeg ? 'ok' : '');
+var w = 0;
+document.querySelectorAll('#wells-list input').forEach(function (c) { if (c.checked) w += WELLS[Number(c.getAttribute('data-i'))][1]; });
+var likely = w > 4;
+setResult($('#wells-result'), 'Wells score ' + w + ': PE ' + (likely ? 'likely (above 4)' : 'unlikely (4 or less)') + '.', likely ? 'go' : '');
+var age = parseFloat($('#age').value);
+var dd = parseFloat($('#dd').value);
+var cutoff = (age >= 50) ? age * 10 : 500;
+var ddNeg = null;
+if (isNaN(age)) {
+setResult($('#dd-result'), 'Enter the age to get the cut-off.');
+} else if (isNaN(dd)) {
+setResult($('#dd-result'), 'Age-adjusted cut-off: ' + cutoff + ' ng/mL (age x 10 from age 50, otherwise 500).');
+} else {
+ddNeg = dd < cutoff;
+setResult($('#dd-result'), 'Cut-off ' + cutoff + ' ng/mL. Your value ' + dd + ' is ' + (ddNeg ? 'below it: negative.' : 'at or above it: positive.'), ddNeg ? 'ok' : 'go');
+}
+var next;
+if (percNeg) next = 'Stop. PERC negative in a low-suspicion patient: no D-dimer, no imaging.';
+else if (likely) next = 'PE likely: go straight to CT pulmonary angiogram (V/Q scan if CT is not suitable). A D-dimer would not change this.';
+else if (ddNeg === null) next = 'PE unlikely: send a D-dimer. Negative excludes PE at this score; positive means CT pulmonary angiogram.';
+else if (ddNeg) next = 'PE unlikely and D-dimer negative: PE excluded at this score.';
+else next = 'PE unlikely but D-dimer positive: CT pulmonary angiogram.';
+$('#next-step').textContent = next;
+}
+document.querySelectorAll('#perc-list input, #wells-list input').forEach(function (c) { c.addEventListener('change', updateTest); });
+$('#age').addEventListener('input', updateTest);
+$('#dd').addEventListener('input', updateTest);
+updateTest();
+var ITEMS = [
+{ t: 'Haemorrhagic stroke', abs: 1 },
+{ t: 'Ischaemic stroke in the last 3 months', abs: 1 },
+{ t: 'Known arteriovenous malformation', abs: 1 },
+{ t: 'Recent brain or spinal surgery', abs: 1 },
+{ t: 'Recent head trauma with fracture or brain injury (last 3 weeks)', abs: 1 },
+{ t: 'Serious active bleeding', abs: 1 },
+{ t: 'CNS tumour', abs: 0 },
+{ t: 'Major non-CNS surgery in the last 2-3 weeks', abs: 0 },
+{ t: 'Platelets below 100 (x10^9/L)', abs: 0 },
+{ t: 'INR above 1.7', abs: 0 },
+{ t: 'Fibrinogen below 1.5 g/L (150 mg/dL)', abs: 0 },
+{ t: 'On an oral anticoagulant', abs: 0 },
+{ t: 'BP above 180/110', abs: 0 },
+{ t: 'Age over 75', abs: 0 },
+{ t: 'Advanced cirrhosis', abs: 0 }
+];
+$('#ref-abs').innerHTML = ITEMS.filter(function (i) { return i.abs; }).map(function (i) { return '<li>' + i.t + '</li>'; }).join('');
+$('#ref-rel').innerHTML = ITEMS.filter(function (i) { return !i.abs; }).map(function (i) { return '<li>' + i.t + '</li>'; }).join('');
+var order = [], pos = 0, firstCorrect = 0, missed = [], answered = false, total = 0;
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function start(list) { order = shuffle(list.slice()); pos = 0; firstCorrect = 0; missed = []; answered = false; total = order.length; draw(''); }
+function draw(fb, good) {
+var box = $('#lysis-box');
+if (pos >= order.length) {
+var html = '<div class="item">' + firstCorrect + ' of ' + total + ' right first time</div>';
+if (missed.length) {
+html += '<p class="hint">Missed: ' + missed.map(function (i) { return i.t + ' (' + (i.abs ? 'absolute' : 'relative') + ')'; }).join('; ') + '</p>' +
+'<div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>';
+} else {
+html += '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>';
+}
+box.innerHTML = html;
+return;
+}
+var it = order[pos];
+box.innerHTML = '<span class="mono">Item ' + (pos + 1) + ' of ' + order.length + '</span>' +
+'<div class="bar" aria-hidden="true"><i style="width:' + (pos / order.length * 100) + '%"></i></div>' +
+'<div class="item">' + it.t + '</div>' +
+'<div class="btns"><button class="btn" data-ans="1"' + (answered ? ' disabled' : '') + '>Absolute</button><button class="btn" data-ans="0"' + (answered ? ' disabled' : '') + '>Relative</button></div>' +
+'<div class="fb ' + (good === undefined ? '' : (good ? 'good' : 'bad')) + '">' + (fb || '') + '</div>' +
+(answered ? '<button class="btn primary" data-act="next">Next</button>' : '');
+}
+$('#lysis-box').addEventListener('click', function (e) {
+var b = e.target.closest('button');
+if (!b) return;
+if (b.hasAttribute('data-ans') && !answered) {
+var it = order[pos];
+var pick = Number(b.getAttribute('data-ans'));
+var ok = pick === it.abs;
+if (ok) { if (missed.indexOf(it) < 0) firstCorrect++; } else if (missed.indexOf(it) < 0) { missed.push(it); }
+answered = true;
+draw(ok ? 'Correct: ' + (it.abs ? 'absolute.' : 'relative.') : 'Not quite: this one is ' + (it.abs ? 'absolute.' : 'relative.'), ok);
+} else if (b.getAttribute('data-act') === 'next') {
+pos++; answered = false; draw('');
+} else if (b.getAttribute('data-act') === 'missed') {
+start(missed);
+} else if (b.getAttribute('data-act') === 'all') {
+start(ITEMS);
+}
+});
+start(ITEMS);
+})();
+</script>
+</body></html>

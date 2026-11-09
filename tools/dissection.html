@@ -1,0 +1,158 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>Aortic Dissection Classification</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+:root {
+--bg: #f4f6f9;
+--surface: #ffffff;
+--ink: #17202e;
+--muted: #566274;
+--line: #d3d9e3;
+--a-fill: #b3261e;
+--on-a: #ffffff;
+--a-tint: #f6dddb;
+--b-fill: #1f5f8b;
+--on-b: #ffffff;
+--b-tint: #d8e8f4;
+--n-tint: #e6e9ef;
+--display: "Source Serif 4", Georgia, "Times New Roman", serif;
+--body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+--mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747;
+--a-fill: #e5645a; --on-a: #1a0a09; --a-tint: #3a1f1e;
+--b-fill: #6aaee0; --on-b: #08141f; --b-tint: #17303f; --n-tint: #232c3a;
+color-scheme: dark;
+}
+}
+:root[data-theme="dark"] {
+--bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747;
+--a-fill: #e5645a; --on-a: #1a0a09; --a-tint: #3a1f1e;
+--b-fill: #6aaee0; --on-b: #08141f; --b-tint: #17303f; --n-tint: #232c3a;
+color-scheme: dark;
+}
+body {
+background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+padding-block: 28px 40px;
+padding-left: max(16px, env(safe-area-inset-left, 0px));
+padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 920px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 62ch; }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.scroll { overflow-x: auto; }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+svg text { font-family: var(--body); fill: var(--ink); }
+.t-muted { fill: var(--muted); }
+.t-mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.t-row { font-size: 13px; font-weight: 600; }
+.t-in { font-size: 12px; font-weight: 500; }
+.seg-a { fill: var(--a-tint); stroke: var(--line); }
+.seg-n { fill: var(--n-tint); stroke: var(--line); }
+.seg-b { fill: var(--b-tint); stroke: var(--line); }
+.bar-a { fill: var(--a-fill); }
+.bar-b { fill: var(--b-fill); }
+.on-a { fill: var(--on-a) !important; }
+.on-b { fill: var(--on-b) !important; }
+.ghost-a { fill: none; stroke: var(--a-fill); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.guide { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 4; }
+.rule { stroke: var(--line); stroke-width: 1; }
+.tick { stroke: var(--ink); stroke-width: 1.5; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.card h2 { font-family: var(--display); font-size: 20px; line-height: 1.25; margin: 0 0 2px; }
+.card .map { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; margin: 0 0 12px; }
+.card.a { border-top: 4px solid var(--a-fill); }
+.card.b { border-top: 4px solid var(--b-fill); }
+.card.a .map { color: var(--a-fill); }
+.card.b .map { color: var(--b-fill); }
+.card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.note { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.note p { margin: 0 0 8px; }
+</style>
+</head><body><main>
+<header>
+<h1>Aortic Dissection Classification</h1>
+<p class="lede">Stanford and DeBakey describe the same thing: how far the tear reaches along the thoracic aorta. The one question that sets treatment is whether the ascending aorta is involved.</p>
+</header>
+<figure>
+<div class="scroll">
+<svg viewBox="0 0 820 362" role="img" aria-label="The thoracic aorta drawn as a straight strip from root to descending aorta, with bars showing which segments each Stanford and DeBakey type involves. Stanford A and DeBakey I and II involve the ascending aorta; Stanford B and DeBakey III involve the descending aorta only.">
+<line class="guide" x1="400" y1="104" x2="400" y2="338"/>
+<line class="guide" x1="520" y1="104" x2="520" y2="338"/>
+<line class="tick" x1="430" y1="60" x2="430" y2="44"/>
+<line class="tick" x1="460" y1="60" x2="460" y2="44"/>
+<line class="tick" x1="490" y1="60" x2="490" y2="44"/>
+<text class="t-in t-muted" x="460" y="34" text-anchor="middle" style="font-size:11px">brachiocephalic · L carotid · L subclavian</text>
+<text class="t-mono t-muted" x="170" y="87" text-anchor="end">Aorta</text>
+<rect class="seg-a" x="180" y="60" width="60" height="44"/>
+<rect class="seg-a" x="240" y="60" width="160" height="44"/>
+<rect class="seg-n" x="400" y="60" width="120" height="44"/>
+<rect class="seg-b" x="520" y="60" width="260" height="44"/>
+<text class="t-in" x="210" y="87" text-anchor="middle">Root</text>
+<text class="t-in" x="320" y="87" text-anchor="middle">Ascending</text>
+<text class="t-in" x="460" y="87" text-anchor="middle">Arch</text>
+<text class="t-in" x="650" y="87" text-anchor="middle">Descending thoracic</text>
+<polygon points="780,60 792,82 780,104" fill="var(--b-tint)" stroke="var(--line)"/>
+<text class="t-mono t-muted" x="20" y="134">Stanford</text>
+<line class="rule" x1="90" y1="130" x2="800" y2="130"/>
+<text class="t-row" x="170" y="161" text-anchor="end">Type A</text>
+<rect class="bar-a" x="180" y="144" width="220" height="24"/>
+<text class="t-in on-a" x="290" y="160" text-anchor="middle">ascending involved</text>
+<rect class="ghost-a" x="400" y="144" width="380" height="24"/>
+<text class="t-in t-muted" x="590" y="160" text-anchor="middle">may extend into arch and descending</text>
+<text class="t-row" x="170" y="197" text-anchor="end">Type B</text>
+<rect class="bar-b" x="520" y="180" width="250" height="24"/>
+<polygon class="bar-b" points="770,180 784,192 770,204"/>
+<text class="t-in on-b" x="645" y="196" text-anchor="middle">ascending not involved</text>
+<text class="t-mono t-muted" x="20" y="234">DeBakey</text>
+<line class="rule" x1="90" y1="230" x2="800" y2="230"/>
+<text class="t-row" x="170" y="261" text-anchor="end">DeBakey I</text>
+<rect class="bar-a" x="180" y="244" width="600" height="24"/>
+<polygon class="bar-a" points="780,244 794,256 780,268"/>
+<text class="t-in on-a" x="480" y="260" text-anchor="middle">ascending → arch → descending</text>
+<text class="t-row" x="170" y="297" text-anchor="end">DeBakey II</text>
+<rect class="bar-a" x="180" y="280" width="220" height="24"/>
+<text class="t-in on-a" x="290" y="296" text-anchor="middle">ascending only</text>
+<text class="t-row" x="170" y="333" text-anchor="end">DeBakey III</text>
+<rect class="bar-b" x="520" y="316" width="250" height="24"/>
+<polygon class="bar-b" points="770,316 784,328 770,340"/>
+<text class="t-in on-b" x="645" y="332" text-anchor="middle">descending only</text>
+<text class="t-in t-muted" x="400" y="356" text-anchor="middle" style="font-size:11px">arch begins</text>
+<text class="t-in t-muted" x="520" y="356" text-anchor="middle" style="font-size:11px">beyond left subclavian</text>
+</svg>
+</div>
+<figcaption>Type A equals DeBakey I plus II. Type B equals DeBakey III. Arrowheads mean the tear can continue down into the abdominal aorta. Dashed outline means it may or may not extend that far.</figcaption>
+</figure>
+<section class="cards" aria-label="What each type means at the bedside">
+<article class="card a">
+<h2>Type A: ascending aorta involved</h2>
+<p class="map">Stanford A = DeBakey I + II</p>
+<ul>
+<li>Emergency cardiothoracic surgery is the treatment of choice.</li>
+<li>Can spread to the coronary ostia (MI, inferior more often than left-sided), the aortic valve (regurgitation), the pericardium (tamponade) and the carotids (stroke).</li>
+<li>While waiting: ICU, IV beta-blocker (esmolol or labetalol) first, then nitroprusside if needed. No anticoagulants or thrombolytics.</li>
+<li>Untreated, nearly 75% die within 2 weeks. Peak age 50-55.</li>
+</ul>
+</article>
+<article class="card b">
+<h2>Type B: ascending aorta not involved</h2>
+<p class="map">Stanford B = DeBakey III</p>
+<ul>
+<li>Stable type B is treated medically: blood pressure and heart rate control, analgesia, ICU admission.</li>
+<li>Surgery or intervention is for patients who fail medical therapy. The website's template adds endovascular repair (TEVAR) in selected complicated cases.</li>
+<li>Complications to watch for: branch-vessel compromise (renal, mesenteric, spinal), expansion and rupture.</li>
+<li>Peak age 60-70.</li>
+</ul>
+</article>
+</section>
+<aside class="note">
+<p>Source: Rosen and Barkin's 5-Minute Emergency Medicine Consult (5th ed., 2015), Aortic Dissection, Thoracic, PDF pages 413-418. Complication list for type B from the Point of Care Medicine aortic dissection template.</p>
+<p>The book defines DeBakey I by where the tear starts (arch or root). Most references describe it by how far it spreads, which is how this figure draws it. If a question asks for the book's wording, use the book's. Confirm treatment thresholds against your hospital guideline.</p>
+</aside>
+</main>
+</body></html>
