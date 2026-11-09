@@ -48,6 +48,8 @@
   var STATUS = { 'new': 'Not started', learning: 'Learning', done: 'Done' };
 
   /* ---------- recall items ---------- */
+  var SECT = { R: 'Recognise', A: 'Assess and investigate', T: 'Treat now', C: 'Complications and traps', F: 'After and follow-up', Y: 'Your subtopics' };
+  var GORD = { R: 0, A: 1, T: 2, C: 3, F: 4, Y: 5 };
   var PRI = { 1: 'Must know', 2: 'Good to know', 3: 'Detail' };
   var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance' };
   var openSet = {}, revealed = false;
@@ -56,7 +58,7 @@
     rc.items.forEach(function (x, i) { out.push({ it: x, o: i, tid: tid }); });
     rc.sg.forEach(function (x) { if (added.indexOf(x.id) >= 0) out.push({ it: x, o: 500, tid: tid }); });
     (S.custom[tid] || []).forEach(function (x, i) { out.push({ it: x, o: 1000 + i, tid: tid, mine: true }); });
-    out.sort(function (a, b) { return (a.it.p - b.it.p) || (a.o - b.o); });
+    out.sort(function (a, b) { return (GORD[a.it.g || 'Y'] - GORD[b.it.g || 'Y']) || (a.o - b.o); });
     return out;
   }
   function itState(id) {
@@ -78,8 +80,6 @@
         if (k === 'due') due.push(x); else if (k === 'new' && studied) fresh.push(x);
       });
     });
-    function byP(a, b) { return a.it.p - b.it.p; }
-    due.sort(byP); fresh.sort(byP);
     return { due: due, fresh: fresh, all: due.concat(fresh) };
   }
   function topicDueCount(tid) { return topicItems(tid).filter(function (x) { return itState(x.it.id).k === 'due'; }).length; }
@@ -274,7 +274,7 @@
   }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span><small>' + PRI[it.p] + (x.mine ? ', added by you' : '') + '</small></span>' + tagFor(st) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (it.p === 1 || x.mine ? '<small>' + (it.p === 1 ? '<b class="must">Must know</b>' : '') + (x.mine ? (it.p === 1 ? ', ' : '') + 'added by you' : '') + '</small>' : '') + '</span>' + tagFor(st) + '</button>';
     if (op) h += '<div class="ans"><p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -285,11 +285,15 @@
     var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
     if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
 
-    h += '<h2>Recall checklist</h2><p class="meta">Most important first. Say the answer to yourself, then tap to check it. Got it brings an item back in 3, 7, 14, then 28 days. Shaky brings it back tomorrow.</p>';
-    h += its.length ? '<ul class="list">' + its.map(itemRow).join('') + '</ul>' : '<p class="meta">No checklist for this topic yet. Add your own subtopics below.</p>';
+    h += '<h2>Recall checklist</h2><p class="meta">In the order you would think it through on the ward. Say the answer to yourself, then tap to check it. Got it brings an item back in 3, 7, 14, then 28 days. Shaky brings it back tomorrow.</p>';
+    if (its.length) {
+      var gs = [];
+      its.forEach(function (x) { var g = x.it.g || 'Y'; if (!gs.length || gs[gs.length - 1].g !== g) gs.push({ g: g, xs: [] }); gs[gs.length - 1].xs.push(x); });
+      h += gs.map(function (grp) { return '<h3 class="sect">' + SECT[grp.g] + '</h3><ul class="list">' + grp.xs.map(itemRow).join('') + '</ul>'; }).join('');
+    } else h += '<p class="meta">No checklist for this topic yet. Add your own subtopics below.</p>';
     var added = S.added[t.id] || [], sg = (RC[t.id] || { sg: [] }).sg.filter(function (x) { return added.indexOf(x.id) < 0; });
-    if (sg.length) h += '<h3>Suggested subtopics</h3><ul class="list">' + sg.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.t) + '</span><small>' + esc(x.k) + '</small></span><button class="btn small" data-addsg="' + x.id + '" data-tp="' + t.id + '">Add</button></div></li>'; }).join('') + '</ul>';
-    h += '<h3>Add your own subtopic</h3><form id="itform" class="form"><label><span>Subtopic</span><input type="text" id="ittitle" placeholder="Digoxin toxicity signs" autocomplete="off"></label><label><span>Key point to recall</span><textarea id="itkey" rows="2" placeholder="Optional"></textarea></label><div class="inline"><label><span>Priority</span><select id="itpri"><option value="1">Must know</option><option value="2" selected>Good to know</option><option value="3">Detail</option></select></label><button class="btn primary" type="submit">Add subtopic</button></div></form>';
+    if (sg.length) h += '<h3>Suggested subtopics</h3><ul class="list">' + sg.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.t) + '</span><small>' + SECT[x.g || 'Y'] + ': ' + esc(x.k) + '</small></span><button class="btn small" data-addsg="' + x.id + '" data-tp="' + t.id + '">Add</button></div></li>'; }).join('') + '</ul>';
+    h += '<h3>Add your own subtopic</h3><form id="itform" class="form"><label><span>Subtopic</span><input type="text" id="ittitle" placeholder="Digoxin toxicity signs" autocomplete="off"></label><label><span>Key point to recall</span><textarea id="itkey" rows="2" placeholder="Optional"></textarea></label><div class="inline"><label><span>Section</span><select id="itsec"><option value="R">Recognise</option><option value="A">Assess and investigate</option><option value="T" selected>Treat now</option><option value="C">Complications and traps</option><option value="F">After and follow-up</option></select></label><label class="check"><input type="checkbox" id="itmust"> Must know</label><button class="btn primary" type="submit">Add subtopic</button></div></form>';
 
     h += '<h2>Read</h2><ul class="list">';
     if (t.url) h += '<li><a class="row" href="' + esc(t.url) + '" target="_blank" rel="noopener"><span class="t"><span>Point of Care Medicine template</span><small>Opens in a new tab</small></span></a></li>';
@@ -320,7 +324,7 @@
       return shell(h, { page: 'revise' });
     }
     var x = q.all[0], t = byId(x.tid), st = itState(x.it.id);
-    h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + PRI[x.it.p] + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
+    h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer</button>';
     else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + rateButtons(x.it.id);
     h += '</section>';
@@ -393,7 +397,7 @@
     if (itf) itf.addEventListener('submit', function (e) {
       e.preventDefault();
       var tt = document.getElementById('ittitle').value.trim(); if (!tt) return;
-      var tid = topicId(); (S.custom[tid] = S.custom[tid] || []).push({ id: 'u' + Date.now(), p: +document.getElementById('itpri').value, s: 'p', t: tt, k: document.getElementById('itkey').value.trim() });
+      var tid = topicId(); (S.custom[tid] = S.custom[tid] || []).push({ id: 'u' + Date.now(), p: document.getElementById('itmust').checked ? 1 : 2, g: document.getElementById('itsec').value, s: 'p', t: tt, k: document.getElementById('itkey').value.trim() });
       save(); keepScroll = true; render();
     });
     var si = document.getElementById('signin');
