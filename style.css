@@ -79,3 +79,15 @@ textarea { min-height: 70px; resize: vertical; }
 .toolbar b { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 iframe.frame { flex: 1; width: 100%; border: 0; background: var(--bg); }
 .note { background: var(--warn-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+
+.ri { list-style: none; }
+.rt { width: 100%; text-align: left; background: none; border: 0; padding: 10px 0; cursor: pointer; display: flex; gap: 10px; justify-content: space-between; align-items: flex-start; color: inherit; font: inherit; }
+.rt2 { display: flex; gap: 10px; justify-content: space-between; align-items: flex-start; padding: 10px 0; }
+.rk { background: var(--n-tint); border-radius: 6px; padding: 10px 12px; margin: 0 0 10px; display: flex; flex-direction: column; gap: 6px; }
+.rk p { margin: 0; }
+.rb { display: flex; gap: 8px; flex-wrap: wrap; }
+.sub { font-size: 17px; margin-top: 8px; }
+#itform input, #itform textarea, #itform select { font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); width: 100%; box-sizing: border-box; }
+#itform select { width: auto; }
+.rt .nm, .rt2 .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rt b { font-weight: 600; }

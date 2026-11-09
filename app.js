@@ -9,6 +9,8 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
+  function fix() { S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; }
+  fix();
   function save() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function ts(id) { return S.topics[id] || (S.topics[id] = { status: 'new', studied: null, rev: {} }); }
 
@@ -46,11 +48,90 @@
     return '<li><a class="row" href="#/t/' + t.id + '"><span class="nm"><b>' + esc(t.name) + '</b><span class="hint">' + esc(extra || ('Day ' + t.day)) + '</span></span><span class="chips">' + chips + '</span></a></li>';
   }
 
+
+  /* ---------- recall checklist ---------- */
+  var RC = window.RECALL || {}, openSet = {}, PRI = { 1: 'Must know', 2: 'Good to know', 3: 'Detail' };
+  var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Page and Australian guidance' };
+  function topicItems(tid) {
+    var rc = RC[tid] || { items: [], sg: [] }, out = [], added = S.added[tid] || [];
+    rc.items.forEach(function (x, i) { out.push({ it: x, o: i, tid: tid }); });
+    rc.sg.forEach(function (x) { if (added.indexOf(x.id) >= 0) out.push({ it: x, o: 500, tid: tid }); });
+    (S.custom[tid] || []).forEach(function (x, i) { out.push({ it: x, o: 1000 + i, tid: tid, mine: true }); });
+    out.sort(function (a, b) { return (a.it.p - b.it.p) || (a.o - b.o); });
+    return out;
+  }
+  function itState(id) {
+    var s = S.items[id];
+    if (!s) return { k: 'new' };
+    return { k: diff(today(), s.due) >= 0 ? 'due' : 'ok', s: s };
+  }
+  function rate(id, how) {
+    var s = S.items[id] || { step: 0 }, n;
+    if (how === 'got') n = Math.min((s.step || 0) + 1, INT.length - 1); else n = 0;
+    S.items[id] = { step: n, due: addDays(today(), INT[n]), last: today(), r: how };
+    save();
+  }
+  function itemRow(x) {
+    var it = x.it, st = itState(it.id), op = !!openSet[it.id], chip;
+    if (st.k === 'new') chip = '<span class="chip">not rated</span>';
+    else if (st.k === 'due') chip = '<span class="chip due">due</span>';
+    else chip = '<span class="chip done">next ' + nice(st.s.due) + '</span>';
+    if (st.s && st.s.r === 'shaky' && st.k !== 'due') chip += '<span class="chip learning">shaky</span>';
+    var h = '<li class="ri"><button class="rt" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="nm"><b>' + esc(it.t) + '</b><span class="hint">' + PRI[it.p] + (x.mine ? ' · yours' : '') + '</span></span><span class="chips">' + chip + '</span></button>';
+    if (op) {
+      h += '<div class="rk"><p>' + (it.k ? esc(it.k) : '<span class="hint">No key point written. Add one by deleting and re-adding this item.</span>') + '</p><p class="hint">Source: ' + SRC[it.s || 'p'] + '</p><div class="rb"><button class="btn small" data-rate="got" data-it="' + it.id + '">Got it</button> <button class="btn small" data-rate="shaky" data-it="' + it.id + '">Shaky</button>' + (x.mine ? ' <button class="btn small danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete</button>' : '') + '</div></div>';
+    }
+    return h + '</li>';
+  }
+  function recallDue() {
+    var out = [];
+    TOP.forEach(function (t) {
+      var studied = (S.topics[t.id] || {}).studied;
+      topicItems(t.id).forEach(function (x) {
+        var st = itState(x.it.id);
+        if (st.k === 'due' || (st.k === 'new' && studied)) out.push(x);
+      });
+    });
+    out.sort(function (a, b) { return (a.it.p - b.it.p); });
+    return out;
+  }
+  function recallCard(tid) {
+    var its = topicItems(tid), rc = RC[tid] || { sg: [] }, added = S.added[tid] || [];
+    var known = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
+    var h = '<div class="card"><h2>Recall checklist</h2><p class="hint">Most important first. Say the answer to yourself, tap to check it, then rate: Got it brings it back in 3, 7, 14 then 28 days; Shaky brings it back tomorrow. ' + known + ' of ' + its.length + ' rated.</p>';
+    if (its.length) h += '<ul class="list">' + its.map(itemRow).join('') + '</ul>';
+    else h += '<p class="hint">No checklist for this topic yet. Add your own below.</p>';
+    var sg = rc.sg.filter(function (x) { return added.indexOf(x.id) < 0; });
+    if (sg.length) {
+      h += '<h2 class="sub">Suggested by Claude</h2><p class="hint">Extra subtopics I think are worth knowing. Add the ones you want.</p><ul class="list">' + sg.map(function (x) {
+        return '<li class="ri"><div class="rt2"><span class="nm"><b>' + esc(x.t) + '</b><span class="hint">' + esc(x.k) + '</span></span><button class="btn small" data-addsg="' + x.id + '" data-tp="' + tid + '">Add</button></div></li>';
+      }).join('') + '</ul>';
+    }
+    h += '<h2 class="sub">Add your own</h2><form id="itform" class="field"><input type="text" id="ittitle" placeholder="Subtopic, e.g. Digoxin toxicity signs" autocomplete="off"><textarea id="itkey" placeholder="Key point to recall (optional)"></textarea><div><select id="itpri"><option value="1">Must know</option><option value="2" selected>Good to know</option><option value="3">Detail</option></select> <button class="btn primary small" type="submit">Add subtopic</button></div></form></div>';
+    return h;
+  }
+  function revise() {
+    var due = recallDue();
+    var h = '<div class="wrap"><button class="back" data-go="#/">← Home</button><h1>Revise</h1><p class="hint">Items that are due, plus every unrated item in topics you marked "Studied today". Say it first, then tap to check.</p>';
+    if (!due.length) h += '<div class="card"><p class="hint">Nothing due. Open a topic and rate its checklist, or press "Studied today" on a topic you have just learned.</p></div>';
+    else {
+      var by = {};
+      due.forEach(function (x) { (by[x.tid] = by[x.tid] || []).push(x); });
+      Object.keys(by).forEach(function (tid) {
+        var t = byId(tid);
+        h += '<div class="card"><div class="top"><h2>' + esc(t ? t.name : tid) + '</h2><a class="btn small" href="#/t/' + tid + '">Open topic</a></div><ul class="list">' + by[tid].map(itemRow).join('') + '</ul></div>';
+      });
+    }
+    return h + '</div>';
+  }
+
   /* ---------- views ---------- */
   function home() {
     var due = dueList(), done = 0, withTools = 0;
     TOP.forEach(function (t) { if ((S.topics[t.id] || {}).status === 'done') done++; if (t.tools.length) withTools++; });
     var h = '<div class="wrap"><div class="top"><div><h1>RMO Revision</h1><p class="hint">' + TOP.length + ' topics · ' + withTools + ' with interactive tools · ' + done + ' done</p></div><a class="btn small" href="#/log">Error log</a></div>';
+    var rd = recallDue();
+    h += '<div class="card"><h2>Recall due</h2>' + (rd.length ? '<p>' + rd.length + (rd.length === 1 ? ' item' : ' items') + ' to recall today.</p><div><a class="btn primary" href="#/revise">Start revising</a></div>' : '<p class="hint">Nothing to recall today. Open a topic and rate its checklist to start.</p>') + '</div>';
     h += '<div class="card"><h2>Due for review</h2>';
     if (due.length) {
       h += '<ul class="list">' + due.slice(0, 12).map(function (x) {
@@ -82,6 +163,7 @@
     if (t.tools.length) {
       h += '<div class="tools">' + t.tools.map(function (x, i) { return '<button class="toolbtn" data-go="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + '</b><span class="hint">' + esc(x.desc) + '</span></button>'; }).join('') + '</div>';
     }
+    h += recallCard(t.id);
     h += '<div class="card"><h2>Read</h2><div class="top"><span>' + (t.url ? 'Point of Care Medicine template' : esc(t.src || '')) + '</span>' + (t.url ? '<a class="btn small" href="' + esc(t.url) + '" target="_blank" rel="noopener">Open page</a>' : '') + '</div>' +
       (t.rch ? '<div class="top"><span>Royal Children\'s Hospital guidelines</span><a class="btn small" href="https://www.rch.org.au/clinicalguide/" target="_blank" rel="noopener">Open</a></div>' : '') +
       (t.pages ? '<p class="hint">Rosen and Barkin PDF pages ' + esc(t.pages) + '</p>' : '') +
@@ -126,18 +208,20 @@
   function notFound() { return '<div class="wrap"><button class="back" data-go="#/">← Home</button><div class="card"><p>That page does not exist.</p></div></div>'; }
 
   /* ---------- router ---------- */
-  var app = document.getElementById('app');
+  var app = document.getElementById('app'), keepScroll = false;
   function render() {
     var r = location.hash.replace(/^#\/?/, '').split('/'), h;
     app.className = '';
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
     else if (r[0] === 'tool') { h = tool(r[1], +r[2]); app.className = 'tool'; }
+    else if (r[0] === 'revise') h = revise();
     else if (r[0] === 'log') h = log();
     else if (r[0] === 'settings') h = settings();
     else h = home();
     app.innerHTML = h;
-    if (r[0] !== 'tool') window.scrollTo(0, 0);
+    if (r[0] !== 'tool' && !keepScroll) window.scrollTo(0, 0);
+    keepScroll = false;
     wire();
   }
   window.addEventListener('hashchange', render);
@@ -158,12 +242,19 @@
       var v = document.getElementById('errtext').value.trim(); if (!v) return;
       S.errors.push({ id: String(Date.now()), topic: topicId(), text: v, date: today() }); save(); render();
     });
+    var itf = document.getElementById('itform');
+    if (itf) itf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var tt = document.getElementById('ittitle').value.trim(); if (!tt) return;
+      var tid = topicId(); (S.custom[tid] = S.custom[tid] || []).push({ id: 'u' + Date.now(), p: +document.getElementById('itpri').value, s: 'p', t: tt, k: document.getElementById('itkey').value.trim() });
+      save(); keepScroll = true; render();
+    });
     var imp = document.getElementById('imp');
     if (imp) imp.addEventListener('change', function () {
       var file = imp.files[0]; if (!file) return;
       var rd = new FileReader();
       rd.onload = function () {
-        try { var o = JSON.parse(rd.result); if (!o.topics || !o.errors) throw 0; S = o; save(); document.getElementById('msg').textContent = 'Backup imported.'; }
+        try { var o = JSON.parse(rd.result); if (!o.topics || !o.errors) throw 0; S = o; fix(); save(); document.getElementById('msg').textContent = 'Backup imported.'; }
         catch (e) { document.getElementById('msg').textContent = 'That file is not a valid backup.'; }
       };
       rd.readAsText(file);
@@ -172,6 +263,14 @@
   function topicId() { return location.hash.replace(/^#\/?/, '').split('/')[1]; }
 
   app.addEventListener('click', function (e) {
+    var rv = e.target.closest('[data-rv]');
+    if (rv) { var rid = rv.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
+    var rt = e.target.closest('[data-rate]');
+    if (rt) { var iid = rt.getAttribute('data-it'); rate(iid, rt.getAttribute('data-rate')); delete openSet[iid]; keepScroll = true; render(); return; }
+    var ad = e.target.closest('[data-addsg]');
+    if (ad) { var tp = ad.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(ad.getAttribute('data-addsg')); save(); keepScroll = true; render(); return; }
+    var di = e.target.closest('[data-delitem]');
+    if (di) { var tq = di.getAttribute('data-tp'), did = di.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; save(); keepScroll = true; render(); return; }
     var b = e.target.closest('[data-go],[data-act],[data-del]');
     if (!b) return;
     if (b.hasAttribute('data-go')) { location.hash = b.getAttribute('data-go'); return; }
@@ -185,7 +284,7 @@
     }
     else if (a === 'reset') {
       if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Press again to confirm'; return; }
-      S = { topics: {}, errors: [] }; save(); location.hash = '#/'; render();
+      S = { topics: {}, errors: [] }; fix(); save(); location.hash = '#/'; render();
     }
   });
   app.addEventListener('change', function (e) {
