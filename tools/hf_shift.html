@@ -1,0 +1,391 @@
+<title>Heart Failure On Call</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: left column is the patient (monitor + chart), right column is the decision. The monitor is the one dark, high-contrast object; everything else stays quiet. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --best: #2e6b45; --best-t: #d9eadf; --ok: #86690a; --ok-t: #f2e9c9; --poor: #b85a0f; --poor-t: #f6e4d4; --harm: #b3261e; --harm-t: #f6dddb;
+  --on: #ffffff;
+  --mon-bg: #0b1218; --mon-line: #22323f; --mon-dim: #6f8798; --mon-ok: #5de08a; --mon-warn: #f2c14e; --mon-bad: #ff6b5e; --mon-cyan: #62d6ff;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+    --on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+  --on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button { font: inherit; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn { font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* monitor */
+.monitor { background: var(--mon-bg); color: var(--mon-cyan); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--mon-line); }
+.monitor .head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mon-dim); margin-bottom: 8px; }
+.vit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.vit div { border-top: 1px solid var(--mon-line); padding-top: 6px; }
+.vit .l { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--mon-dim); display: flex; align-items: center; gap: 6px; }
+.vit .v { font-family: var(--mono); font-weight: 600; font-size: 34px; line-height: 1.1; transition: color .4s; }
+.vit .u { font-size: 12px; color: var(--mon-dim); margin-left: 4px; font-weight: 500; }
+.v.ok { color: var(--mon-ok); } .v.warn { color: var(--mon-warn); } .v.bad { color: var(--mon-bad); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mon-ok); animation: beat 1s infinite; }
+@keyframes beat { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } .vit .v { transition: none; } }
+
+.chart ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.chart li.new { font-weight: 600; }
+
+/* decision */
+.scene { font-size: 16px; margin: 0 0 14px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; cursor: pointer; line-height: 1.45; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; opacity: .62; }
+.opt.chosen { opacity: 1; border-width: 2px; }
+.opt.chosen.best { border-color: var(--best); } .opt.chosen.ok { border-color: var(--ok); }
+.opt.chosen.poor { border-color: var(--poor); } .opt.chosen.harm { border-color: var(--harm); }
+.fb { border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+.fb .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.fb p { margin: 4px 0 12px; }
+.fb.best { background: var(--best-t); } .fb.ok { background: var(--ok-t); } .fb.poor { background: var(--poor-t); } .fb.harm { background: var(--harm-t); }
+.fb.best .tag { color: var(--best); } .fb.ok .tag { color: var(--ok); } .fb.poor .tag { color: var(--poor); } .fb.harm .tag { color: var(--harm); }
+.pager { border-left: 6px solid var(--ink); background: var(--n-tint); border-radius: 4px; padding: 12px 14px; }
+.pager b { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
+
+/* home + debrief */
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.case-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.case-card h3 { margin: 0; font-size: 16px; }
+.case-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.case-card .btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; }
+.meter { height: 8px; background: var(--n-tint); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--best); }
+.meter i.mid { background: var(--ok); } .meter i.low { background: var(--harm); }
+.row { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr) 56px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.row .name { font-weight: 500; }
+.row .num { font-family: var(--mono); font-size: 13px; text-align: right; }
+.revisit { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .row { grid-template-columns: minmax(0, 1fr) 56px; } .row .meter { grid-column: 1 / -1; order: 3; } }
+.big { font-family: var(--display); font-size: 44px; font-weight: 600; line-height: 1; }
+a { color: inherit; }
+.note { font-size: 13px; color: var(--muted); max-width: 70ch; }
+</style>
+
+<main>
+  <div class="top">
+    <h1>Heart Failure On Call</h1>
+    <span class="mono" id="progress"></span>
+  </div>
+  <div id="view"></div>
+  <p class="note">Study aid, not a clinical decision tool. Content follows the Point of Care Medicine heart failure template, checked against Australian consensus statements (MJA 2022; Heart Lung Circ 2026), NPS MedicineWise and an Australian ED handbook. Diuresis timing and goals are from the US template. Confirm every dose in eTG and your hospital protocol.</p>
+</main>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var PTS = { best: 2, ok: 1, poor: 0, harm: -1 };
+  var LABEL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
+  var KIT = 'hf_kit.html';
+  var CONCEPTS = {
+  apo: { n: "Acute pulmonary oedema", tab: "1", r: "Sit up, oxygen if hypoxic, CPAP or NIV if oxygen is not enough or CO2 rises, GTN if BP allows, IV furosemide. Avoid morphine and IV fluid." },
+  profile: { n: "Warm or cold, wet or dry", tab: "3", r: "Perfusion (warm hands, pulse pressure, mental state, lactate, urine) and congestion (JVP, oedema, orthopnoea, crackles). Cold and wet is cardiogenic shock until proven otherwise: senior and ICU now." },
+  trigger: { n: "Finding the trigger", tab: "2", r: "Salt, fluid and missed tablets; ischaemia; arrhythmia (AF); high BP; NSAIDs, steroids, verapamil or diltiazem; infection; kidney injury; alcohol or cocaine; valve disease. ECG and troponin on admission." },
+  diuresis: { n: "A diuresis day", tab: "4", r: "IV loop at about twice the home dose in the morning. Urine within 1 hour. At 3-4 hours, less than halfway to goal: double the dose. Second dose by early afternoon. Goal about 2 L negative in HFrEF, 1 L in HFpEF (US template)." },
+  creat: { n: "Creatinine and electrolytes", tab: "5", r: "A modest creatinine rise while still congested is expected: keep diuresing and trust the exam. Replace potassium and magnesium early; spironolactone helps hold potassium." },
+  resist: { n: "Diuretic resistance", tab: "5", r: "At 80 mg IV twice daily without enough output: cardiology input, furosemide infusion, add a thiazide (metolazone), or acetazolamide if alkalotic with potassium above 4." },
+  hold: { n: "When to hold back drugs", tab: "6", r: "Shock: stop the beta-blocker and vasodilators. ARNI, ACE inhibitor, ARB or MRA: caution if systolic under 95, potassium over 5.0 or eGFR under 20; withhold if potassium over 6.0. Beta-blocker: caution if heart rate under 55 or systolic under 95." },
+  gdmt: { n: "The four pillars", tab: "6", r: "HFrEF: ARNI (or ACE inhibitor), a proven beta-blocker, MRA and SGLT2 inhibitor, all started as soon as clinically possible. Uptitrate at least twice before discharge, aiming for about half the target dose." },
+  home: { n: "Iron and going home", tab: "7", r: "IV iron if ferritin under 100 µg/L, or 100-299 with TSAT under 20%; oral iron does not work. Oral diuretic when symptoms and JVP improve. Daily weights: 2 kg change in 2 days means contact the GP within 24 hours. Review within 1-2 weeks." }
+  };
+  var CASES = [
+  {
+  id: "c1", title: "Flooded at 3 am", where: "Medical ward 4B", time: "03:05", blurb: "A woman drowning in her own lungs with a very high BP. Tests pulmonary oedema, the trigger and the next morning's plan.",
+  intro: "Nurse call: 74-year-old woman, suddenly very short of breath, sitting bolt upright, frothy pink sputum. Saturations 82%.",
+  vit: { hr: 118, sbp: 196, dbp: 108, spo2: 82, rr: 32 },
+  facts: ["74F; hypertension; HFpEF on her last echo (EF 55%)", "Admitted yesterday with a urinary infection", "Crackles to the mid zones, JVP raised", "Fluid chart: 3 litres of IV fluid in 24 hours"],
+  decisions: [
+  { tag: "apo", scene: "She is fighting for breath with a BP of 196/108. What do you do first?", opts: [
+  { q: "best", t: "Sit her up, high-flow oxygen, call for CPAP or NIV, GTN sublingual then an infusion, IV furosemide, and call your registrar", vit: { spo2: 91, sbp: 168, dbp: 96, rr: 26 }, fb: "Acute pulmonary oedema with high BP: CPAP or NIV and a vasodilator do the most, quickly. Furosemide follows." },
+  { q: "ok", t: "IV furosemide 80 mg and oxygen, then reassess in an hour", vit: { spo2: 86 }, fb: "Right drug, but she needs CPAP or NIV and GTN now. An hour is too long at 82%." },
+  { q: "harm", t: "IV morphine for her distress", vit: { spo2: 79, rr: 14 }, fb: "Morphine is avoided in pulmonary oedema; it can worsen breathing." },
+  { q: "harm", t: "Stop the IV fluids? No: she is septic, give another 500 mL bolus", vit: { spo2: 76 }, fb: "She is already flooded. More fluid worsens the oedema." }
+  ] },
+  { tag: "apo", reveal: ["On CPAP 10 cmH2O: SpO2 93%, BP 160/94"], scene: "On CPAP her saturations are 93% and BP 160/94. How do you run the GTN?", opts: [
+  { q: "best", t: "GTN infusion starting around 5-10 mcg/min, increased to effect while watching the BP, and stopped if the systolic falls too far", fb: "Titrate to BP. CPAP itself lowers BP, so watch both together." },
+  { q: "poor", t: "No GTN: CPAP is enough", fb: "With a BP of 160/94 and pulmonary oedema, a vasodilator still helps unload the heart." },
+  { q: "harm", t: "GTN infusion at a fixed high rate without BP checks", fb: "GTN can drop the BP sharply. Start low and titrate." }
+  ] },
+  { tag: "trigger", scene: "She settles. What tipped her over?", opts: [
+  { q: "best", t: "3 litres of IV fluid in a day into a stiff (HFpEF) heart, plus high BP: stop maintenance fluid, review the fluid chart, ECG and troponin", fb: "Iatrogenic fluid is a common trigger on the wards. Treat the cause as well as the oedema." },
+  { q: "ok", t: "The urinary infection alone", fb: "Infection contributes, but the fluid chart is the strongest clue." },
+  { q: "poor", t: "A new MI: start a heparin infusion", fb: "Check ECG and troponin first. There is no evidence of ACS yet." }
+  ] },
+  { tag: "diuresis", scene: "Next morning she is off CPAP, still with ankle oedema and a raised JVP. She takes no diuretics at home. What is the plan for today?", opts: [
+  { q: "best", t: "IV furosemide early in the morning (40 mg for a diuretic-naive patient is reasonable), strict fluid balance, daily weight, check output at 3-4 hours and redose by early afternoon", fb: "Bolus early, check, redose before mid-afternoon. With HFpEF, aim for about 1 litre negative (US template)." },
+  { q: "poor", t: "Give a dose at 6 pm when the ward round finishes", fb: "Late doses keep the patient up all night and leave decisions to the night team." },
+  { q: "poor", t: "No more diuretics: she is off CPAP", fb: "She is still congested. Keep going until symptoms and JVP improve." }
+  ] },
+  { tag: "home", scene: "Three days later she is euvolaemic. What does she need before going home?", opts: [
+  { q: "best", t: "An oral diuretic plan she has tried for 24 hours, daily weights with the 2 kg in 2 days rule, BP control, and review within 1-2 weeks", fb: "A tested oral dose, clear self-monitoring and early follow-up reduce readmission." },
+  { q: "poor", t: "Discharge on IV-equivalent furosemide with no follow-up booked", fb: "Untested doses and no early review are how patients come back." },
+  { q: "poor", t: "Tell her to weigh herself monthly", fb: "Daily weights catch fluid early. A 2 kg change in 2 days is the trigger to call." }
+  ] }
+  ],
+  ends: { hi: "She survives the night, the trigger is fixed and she goes home with a plan.", mid: "She recovers, but a step was slower or less safe than it should be.", lo: "Several steps put her at risk. Go back to steps 1, 2 and 4 of the Study Kit and play again." }
+  },
+  {
+  id: "c2", title: "The slow diuresis", where: "Cardiology ward", time: "08:30", blurb: "A day of diuresis that is not working. Tests the dose, the 3-hour check, creatinine and electrolytes.",
+  intro: "Ward round: 68-year-old man with HFrEF (EF 25%), admitted overnight with 4 kg of weight gain, orthopnoea and oedema to the thighs.",
+  vit: { hr: 88, sbp: 128, dbp: 76, spo2: 93, rr: 20 },
+  facts: ["68M; ischaemic cardiomyopathy, EF 25%", "Home: furosemide 40 mg twice daily, bisoprolol 5 mg, sacubitril-valsartan, spironolactone, dapagliflozin", "Warm hands, JVP to the ear, sacral and thigh oedema", "Creatinine 110 µmol/L, potassium 4.1, Mg 0.75"],
+  decisions: [
+  { tag: "profile", scene: "Warm hands, BP 128/76, JVP to the ear, oedema to the thighs. Which profile and which dose?", opts: [
+  { q: "best", t: "Warm and wet: IV furosemide about twice his home dose (80 mg IV now), strict fluid balance, daily weights", fb: "His home dose is 40 mg twice daily. About double, given IV, is the usual start." },
+  { q: "ok", t: "Warm and wet: IV furosemide 40 mg", fb: "Right profile, but a dose at or below his home dose often does too little." },
+  { q: "harm", t: "Cold and wet: start dobutamine", fb: "He is warm and well perfused. Inotropes are for low output." }
+  ] },
+  { tag: "diuresis", reveal: ["11:30, three hours after 80 mg IV: 300 mL of urine"], scene: "Three hours after the dose he has passed 300 mL. Today's goal is 2 litres negative. Next step?", opts: [
+  { q: "best", t: "Double the dose: 160 mg IV now, before early afternoon", fb: "Less than halfway to goal at 3-4 hours means double the dose. Do it early." },
+  { q: "poor", t: "Repeat 80 mg at 8 pm", fb: "Too late and too little. He will not reach goal and will be up all night." },
+  { q: "poor", t: "Wait until tomorrow's round", fb: "A whole day lost. Act on the 3-hour check." }
+  ] },
+  { tag: "creat", reveal: ["Day 3: creatinine 138 µmol/L (from 110). Still orthopnoeic, JVP still raised, oedema to the knees. Weight down 2.5 kg."], scene: "Day 3: creatinine has risen from 110 to 138. He is still clearly congested. What now?", opts: [
+  { q: "best", t: "Keep diuresing: he is still wet. Recheck daily and trust the examination", fb: "A modest rise during decongestion rarely means kidney damage. Stopping leaves him overloaded." },
+  { q: "poor", t: "Stop all diuretics until the creatinine is back to baseline", fb: "He stays congested and the kidneys stay congested too." },
+  { q: "harm", t: "Give a litre of fluid to 'protect the kidneys'", fb: "He is overloaded. Fluid makes things worse." }
+  ] },
+  { tag: "creat", reveal: ["Potassium 3.3 mmol/L, magnesium 0.6 mmol/L"], scene: "Potassium is 3.3 and magnesium 0.6. What do you do?", opts: [
+  { q: "best", t: "Replace both per protocol, keep the spironolactone going, and recheck tomorrow", fb: "Loop diuretics waste both. Low K and Mg raise arrhythmia risk, especially with a weak heart." },
+  { q: "poor", t: "Replace potassium only", fb: "Low magnesium makes potassium hard to correct and adds arrhythmia risk." },
+  { q: "poor", t: "Stop the spironolactone", fb: "It helps hold potassium and is one of his life-saving drugs." }
+  ] },
+  { tag: "resist", reveal: ["Day 4: on 80 mg IV twice daily, output only 1.2 litres a day, still congested"], scene: "Day 4: on 80 mg IV twice daily he still only passes about 1.2 litres a day and remains wet. Next?", opts: [
+  { q: "best", t: "Discuss with cardiology: furosemide infusion, add a thiazide such as metolazone, or acetazolamide if he is alkalotic with potassium above 4", fb: "These are the standard steps for diuretic resistance. Watch electrolytes closely when you add a thiazide." },
+  { q: "ok", t: "Increase to 120 mg IV twice daily", fb: "Reasonable, but get cardiology involved and consider combination therapy." },
+  { q: "poor", t: "Accept it and discharge on his home dose", fb: "He will be back within days." }
+  ] }
+  ],
+  ends: { hi: "He decongests, his electrolytes stay safe, and the plan moved quickly each day.", mid: "He improves, but a day was lost somewhere.", lo: "Diuresis stalled or became unsafe. Go back to steps 4 and 5 of the Study Kit and play again." }
+  },
+  {
+  id: "c3", title: "Cold hands", where: "Emergency department", time: "22:40", blurb: "A man with HFrEF who is cold, confused and hypotensive. Tests cardiogenic shock, holding drugs and restarting them safely.",
+  intro: "ED call: 79-year-old man with known heart failure, breathless and drowsy. His hands are cold and the BP is low.",
+  vit: { hr: 112, sbp: 82, dbp: 64, spo2: 90, rr: 26 },
+  facts: ["79M; HFrEF, EF 20%", "Home: bisoprolol 10 mg, sacubitril-valsartan, spironolactone, empagliflozin, furosemide", "Cool mottled knees, confused, urine output poor", "Lactate 4.2, creatinine 180 µmol/L (baseline 120)"],
+  decisions: [
+  { tag: "profile", scene: "Cold, confused, BP 82/64 with a narrow pulse pressure, lactate 4.2, JVP raised. What is this and what do you do?", opts: [
+  { q: "best", t: "Cold and wet: possible cardiogenic shock. Call your senior and ICU now, monitor, IV access, ECG and troponin", fb: "Poor perfusion plus congestion. ICU decides on inotropes or vasopressors." },
+  { q: "poor", t: "Warm and wet: give 80 mg IV furosemide and admit to the ward", fb: "Cold peripheries, confusion and a lactate of 4.2 are signs of poor perfusion. This is not a ward patient." },
+  { q: "harm", t: "Give a 1 litre fluid bolus for the low BP", vit: { spo2: 84, rr: 32 }, fb: "He is congested with a failing heart. A large bolus can push him into pulmonary oedema." }
+  ] },
+  { tag: "hold", scene: "What do you do with his regular drugs tonight?", opts: [
+  { q: "best", t: "Withhold the bisoprolol, sacubitril-valsartan and any vasodilator; review spironolactone and empagliflozin with the kidney injury", fb: "In shock, the beta-blocker and BP-lowering drugs come off. They are restarted carefully once he is stable." },
+  { q: "poor", t: "Give all his usual evening tablets", fb: "Bisoprolol and sacubitril-valsartan will lower an already low pressure." },
+  { q: "harm", t: "Start GTN for his breathlessness", vit: { sbp: 70, dbp: 48 }, fb: "A vasodilator in a hypotensive, poorly perfused patient worsens shock." }
+  ] },
+  { tag: "trigger", reveal: ["ECG: new ST depression; troponin rising"], scene: "The ECG shows new ST depression and the troponin is rising. What does that change?", opts: [
+  { q: "best", t: "Ischaemia may be the trigger: tell cardiology now about an ACS with cardiogenic shock", fb: "ACS is a common cause of sudden decompensation and needs cardiology's decision on angiography." },
+  { q: "poor", t: "Troponin is always raised in heart failure: ignore it", fb: "A rising troponin with new ECG changes needs action." }
+  ] },
+  { tag: "gdmt", reveal: ["Day 6: off inotropes, warm, BP 104/68, heart rate 84, potassium 4.6, eGFR 40"], scene: "Day 6: he is warm, off support, BP 104/68, potassium 4.6, eGFR 40. What about his heart failure drugs?", opts: [
+  { q: "best", t: "Restart them at low doses, one or two at a time, checking BP, potassium and kidney function, aiming to uptitrate before discharge", fb: "Stopping life-saving drugs for good worsens survival. Restart carefully within the caution limits." },
+  { q: "poor", t: "Leave them all off to be safe", fb: "Patients discharged without these drugs do worse at one year." },
+  { q: "harm", t: "Restart everything at the full previous doses tonight", fb: "Too much too soon after shock risks hypotension and hyperkalaemia." }
+  ] },
+  { tag: "home", reveal: ["Iron studies: ferritin 80 µg/L, TSAT 15%"], scene: "Before discharge, iron studies show ferritin 80 µg/L and TSAT 15%. What do you recommend?", opts: [
+  { q: "best", t: "IV ferric carboxymaltose: he meets the Australian criteria (ferritin under 100)", fb: "IV iron improves symptoms and exercise capacity. Oral iron is not absorbed well in heart failure." },
+  { q: "poor", t: "Oral ferrous sulfate", fb: "Hepcidin blocks absorption; oral iron does not work in heart failure." },
+  { q: "poor", t: "No treatment: his haemoglobin is normal", fb: "Iron deficiency matters in heart failure even without anaemia." }
+  ] }
+  ],
+  ends: { hi: "He survives the shock, the cause is found and his drugs are back on safely.", mid: "He recovers, but a decision added risk or delay.", lo: "Several decisions worsened his shock. Go back to steps 1, 3 and 6 of the Study Kit and play again." }
+  }
+  ];
+
+  /* ---------- state ---------- */
+  var S = { mode: 'home', run: [], ci: 0, di: 0, vit: {}, facts: [], newFacts: [], order: [], picked: null, results: {}, t0: 0 };
+
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function merge(a, b) { var o = {}; for (var k in a) o[k] = a[k]; for (var k2 in b) o[k2] = b[k2]; return o; }
+  function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('af-shift') || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('af-shift', JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('af-shift') || '{}')[id]; } catch (e) { return undefined; } }
+
+  /* ---------- monitor ---------- */
+  function cls(k, v) {
+    if (v === 0) return 'bad';
+    if (k === 'spo2') return v < 88 ? 'bad' : v < 92 ? 'warn' : 'ok';
+    if (k === 'hr') return v > 130 || v < 40 ? 'bad' : v > 100 ? 'warn' : 'ok';
+    if (k === 'sbp') return v < 90 ? 'bad' : v < 100 ? 'warn' : 'ok';
+    if (k === 'rr') return v > 30 ? 'bad' : v > 24 ? 'warn' : 'ok';
+    return 'ok';
+  }
+  function monitorHTML(c) {
+    var v = S.vit;
+    var arrest = v.hr === 0;
+    var dur = arrest ? 0 : Math.max(0.35, 60 / v.hr);
+    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div><div class="vit">' +
+      '<div><span class="l"><i class="dot" style="' + (arrest ? 'animation:none;background:var(--mon-bad)' : 'animation-duration:' + dur.toFixed(2) + 's') + '"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + (arrest ? '--' : v.hr) + '<span class="u">bpm</span></span></div>' +
+      '<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + (arrest ? '--/--' : v.sbp + '/' + v.dbp) + '<span class="u">mmHg</span></span></div>' +
+      '<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + (arrest ? '--' : v.spo2) + '<span class="u">%</span></span></div>' +
+      '<div><span class="l">RR</span><span class="v ' + cls('rr', v.rr) + '">' + (arrest ? '--' : v.rr) + '<span class="u">/min</span></span></div>' +
+      '</div></div>';
+  }
+  function chartHTML() {
+    return '<div class="card chart"><span class="mono">Chart</span><ul>' +
+      S.facts.map(function (f) { return '<li>' + f + '</li>'; }).join('') +
+      S.newFacts.map(function (f) { return '<li class="new">New: ' + f + '</li>'; }).join('') + '</ul></div>';
+  }
+
+  /* ---------- flow ---------- */
+  function start(idxs) {
+    S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
+    startCase();
+  }
+  function startCase() {
+    var c = CASES[S.run[S.ci]];
+    S.di = 0; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.picked = null;
+    S.results[c.id] = [];
+    S.mode = 'intro'; render();
+  }
+  function beginDecision() {
+    var c = CASES[S.run[S.ci]], d = c.decisions[S.di];
+    if (d.vit) S.vit = merge(S.vit, d.vit);
+    if (d.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = d.reveal.slice(); }
+    else { S.facts = S.facts.concat(S.newFacts); S.newFacts = []; }
+    S.order = shuffle(d.opts.map(function (o, i) { return i; }));
+    S.picked = null; S.mode = 'decide'; render();
+  }
+  function pick(i) {
+    var c = CASES[S.run[S.ci]], d = c.decisions[S.di], o = d.opts[i];
+    if (S.picked !== null) return;
+    S.picked = i;
+    if (o.vit) S.vit = merge(S.vit, o.vit);
+    if (o.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = o.reveal.slice(); }
+    S.results[c.id][S.di] = { q: o.q, tag: d.tag };
+    render();
+  }
+  function next() {
+    var c = CASES[S.run[S.ci]];
+    if (S.di + 1 < c.decisions.length) { S.di++; beginDecision(); }
+    else { S.mode = 'caseend'; render(); }
+  }
+  function caseScore(c) {
+    var r = S.results[c.id] || [], pts = 0;
+    r.forEach(function (x) { pts += PTS[x.q]; });
+    return Math.max(0, pts);
+  }
+  function caseMax(c) { return c.decisions.length * 2; }
+  function afterCase() {
+    if (S.ci + 1 < S.run.length) { S.ci++; startCase(); } else { S.mode = 'debrief'; render(); }
+  }
+
+  /* ---------- views ---------- */
+  function render() {
+    var v = $('#view'), p = $('#progress');
+    window.scrollTo(0, 0);
+    if (S.mode === 'home') { p.textContent = ''; v.innerHTML = homeHTML(); return; }
+    var c = CASES[S.run[S.ci]];
+    if (S.mode === 'debrief') { p.textContent = 'Debrief'; v.innerHTML = debriefHTML(); return; }
+    p.textContent = 'Case ' + (S.ci + 1) + ' of ' + S.run.length + (S.mode === 'decide' ? ' · Decision ' + (S.di + 1) + ' of ' + c.decisions.length : '');
+    if (S.mode === 'intro') {
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><h2>' + c.title + '</h2><div class="pager"><b>' + c.time + ' · ' + c.where.toUpperCase() + '</b><p style="margin:6px 0 0">' + c.intro + '</p></div><div class="btns" style="margin-top:14px"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+      return;
+    }
+    if (S.mode === 'decide') {
+      var d = c.decisions[S.di], o = S.picked !== null ? d.opts[S.picked] : null;
+      var opts = S.order.map(function (i) {
+        var oo = d.opts[i], chosen = S.picked === i;
+        return '<button class="opt' + (chosen ? ' chosen ' + oo.q : '') + '" data-i="' + i + '"' + (S.picked !== null ? ' disabled' : '') + '>' + oo.t + '</button>';
+      }).join('');
+      var fb = '';
+      if (o) {
+        var last = (S.di + 1 === c.decisions.length);
+        fb = '<div class="fb ' + o.q + '" role="status"><span class="tag">' + LABEL[o.q] + '</span><p>' + o.fb + '</p>' + bestHint(d, o) + '<button class="btn primary" data-a="next">' + (last ? 'Hand over' : 'Next') + '</button></div>';
+      }
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><p class="scene">' + d.scene + '</p><div class="opts">' + opts + '</div>' + fb + '</div></div></div>';
+      return;
+    }
+    if (S.mode === 'caseend') {
+      var sc = caseScore(c), mx = caseMax(c), pct = Math.round(sc / mx * 100);
+      var end = pct >= 80 ? c.ends.hi : pct >= 50 ? c.ends.mid : c.ends.lo;
+      var bestPrev = bestStore(c.id, pct);
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div></div></div></div>';
+    }
+  }
+  function bestHint(d, o) {
+    if (o.q === 'best') return '';
+    var b = d.opts.filter(function (x) { return x.q === 'best'; })[0];
+    return b ? '<p><b>Best move:</b> ' + b.t + '</p>' : '';
+  }
+  function homeHTML() {
+    var cards = CASES.map(function (c, i) {
+      var b = bestStore(c.id);
+      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div>';
+    }).join('');
+    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">Three patients, fifteen decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
+  }
+  function debriefHTML() {
+    var byTag = {}, tot = 0, mx = 0;
+    S.run.forEach(function (ci) {
+      var c = CASES[ci];
+      (S.results[c.id] || []).forEach(function (r) {
+        byTag[r.tag] = byTag[r.tag] || { p: 0, m: 0 };
+        byTag[r.tag].p += Math.max(0, PTS[r.q]); byTag[r.tag].m += 2;
+      });
+      tot += caseScore(c); mx += caseMax(c);
+    });
+    var pct = Math.round(tot / mx * 100);
+    var rows = Object.keys(byTag).map(function (k) {
+      var x = byTag[k], f = Math.round(x.p / x.m * 100), cn = CONCEPTS[k];
+      var cl = f >= 80 ? '' : f >= 50 ? 'mid' : 'low';
+      return '<div class="row"><span class="name">' + cn.n + '</span><div class="meter"><i class="' + cl + '" style="width:' + f + '%"></i></div><span class="num">' + x.p + '/' + x.m + '</span>' +
+        (f < 80 ? '<div class="revisit"><b>Revisit:</b> ' + cn.r + ' <a href="' + KIT + '#' + cn.tab + '" target="_blank" rel="noopener">Open in the Study Kit</a></div>' : '') + '</div>';
+    }).join('');
+    var verdict = pct >= 85 ? 'Solid. The pathway is in your head. Replay in two days to see what stuck.' : pct >= 60 ? 'Decent base with gaps. The red and amber bars below are your next study session.' : 'Not there yet, and that is useful to know. Work through the rows below, then replay.';
+    return '<div class="card"><span class="mono">Shift debrief</span><p class="big" style="margin-top:6px">' + pct + '%</p><p class="muted" style="margin:4px 0 14px">' + tot + ' of ' + mx + ' points. ' + verdict + '</p>' + rows + '<div class="btns" style="margin-top:16px"><button class="btn primary" data-a="all">Replay the whole shift</button><button class="btn" data-a="home">Pick a case</button></div></div>';
+  }
+
+  $('#view').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var a = b.getAttribute('data-a');
+    if (b.classList.contains('opt')) { pick(Number(b.getAttribute('data-i'))); return; }
+    if (a === 'all') start([0, 1, 2]);
+    else if (a === 'one') start([Number(b.getAttribute('data-i'))]);
+    else if (a === 'go') beginDecision();
+    else if (a === 'next') next();
+    else if (a === 'after') afterCase();
+    else if (a === 'home') { S.mode = 'home'; render(); }
+  });
+  render();
+})();
+</script>

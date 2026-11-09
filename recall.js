@@ -2,6 +2,28 @@
    p = priority (1 must know, 2 good to know, 3 detail), s = source: p = the Point of Care page,
    a = ANZCOR 11.9 (Australia), b = both. sg = suggestions you can add. */
 window.RECALL = {
+"acute-decompensated-heart-failure": { items: [
+{id:"hf1",p:1,s:"b",t:"Spotting cardiogenic shock",k:"Systolic under 90 for over 30 minutes, cold and clammy, narrow pulse pressure, confusion, rising lactate, poor urine. Call your senior and ICU; stop the beta-blocker and vasodilators."},
+{id:"hf2",p:1,s:"b",t:"Acute pulmonary oedema: first steps",k:"Sit up, oxygen if hypoxic, CPAP or NIV if oxygen is not enough or CO2 rises, GTN if BP allows (infusion from about 5-10 mcg/min), IV furosemide. Avoid morphine."},
+{id:"hf3",p:1,s:"p",t:"Warm or cold, wet or dry",k:"Warm and wet: IV diuretic (most common). Warm and dry: look for another cause. Cold and wet: shock, ICU. Cold and dry: senior review, stop diuretics, consider cautious fluid."},
+{id:"hf4",p:1,s:"p",t:"Starting dose of IV loop diuretic",k:"About twice the home oral dose, given IV (higher with kidney disease). An Australian ED handbook gives furosemide 80 mg IV, or the usual dose IV."},
+{id:"hf5",p:1,s:"p",t:"The 1-hour and 3-4 hour checks",k:"Urine within an hour, or check for shock and double the dose. At 3-4 hours, less than halfway to goal: double; otherwise repeat. Second dose by early afternoon."},
+{id:"hf6",p:1,s:"p",t:"Creatinine rising during diuresis",k:"Usually haemodynamic, not damage. If still congested, keep diuresing and trust the exam. Sweet spot: bicarbonate rising, creatinine stable."},
+{id:"hf7",p:1,s:"a",t:"The four pillars for HFrEF",k:"ARNI preferred (or ACE inhibitor, 36-hour washout before ARNI; ARB last-line), a proven beta-blocker (bisoprolol, carvedilol, metoprolol succinate, nebivolol), MRA, SGLT2 inhibitor (dapagliflozin or empagliflozin). Start all as soon as clinically possible."},
+{id:"hf8",p:1,s:"a",t:"When to hold back drugs in hospital",k:"ARNI, ACE inhibitor, ARB or MRA: caution if systolic under 95, K over 5.0 or eGFR under 20; reduce if K 5.5-6.0, withhold if over 6.0. Beta-blocker: caution if HR under 55 or systolic under 95."},
+{id:"hf9",p:1,s:"p",t:"Common triggers",k:"Salt, fluid and missed tablets; ischaemia; arrhythmia (AF); hypertension; NSAIDs, steroids, verapamil or diltiazem; infection; kidney injury; alcohol or cocaine; valve disease; iatrogenic IV fluid."},
+{id:"hf10",p:2,s:"p",t:"Diuretic resistance",k:"At 80 mg IV twice daily without enough output: cardiology, furosemide infusion, add a thiazide (metolazone), or acetazolamide if alkalotic with K above 4 (ADVOR)."},
+{id:"hf11",p:2,s:"p",t:"Potassium and magnesium",k:"Check daily and replace early; loop diuretics waste both. Keep spironolactone going to hold potassium."},
+{id:"hf12",p:2,s:"a",t:"IV iron criteria",k:"Ferritin under 100 µg/L, or 100-299 with TSAT under 20%: IV ferric carboxymaltose. Oral iron does not work in heart failure."},
+{id:"hf13",p:2,s:"a",t:"Discharge plan",k:"Oral diuretic when symptoms and JVP improve, ideally tested for 24 hours. Daily weights: 2 kg change in 2 days, contact the GP within 24 hours. Review within 1-2 weeks. Uptitrate the pillars at least twice before discharge."},
+{id:"hf14",p:2,s:"p",t:"NT-proBNP and exam findings",k:"NT-proBNP under 300 makes ADHF unlikely. S3 (LR 11) and JVP (LR 5) are the most useful signs; crackles are not specific. Oedema on CXR has LR 12."},
+{id:"hf15",p:3,s:"p",t:"Devices",k:"After 3-6 months of full therapy: ICD if EF under 35% (US criteria); CRT if EF under 35% with QRS over 150 ms, especially LBBB. Cardiology decides."}
+], sg: [
+{id:"hfs1",p:2,s:"p",t:"HFrEF, HFmrEF and HFpEF cut-offs",k:"EF 40% or less, 41-49%, and 50% or more. The four pillars are proven in HFrEF; empagliflozin should also be considered in HFmrEF and HFpEF."},
+{id:"hfs2",p:2,s:"p",t:"New heart failure work-up",k:"Ischaemic: ECG, troponin, stress test or angiogram. Non-ischaemic: lipids, HbA1c, iron studies, TSH, and others by suspicion; cardiac MRI if unclear."},
+{id:"hfs3",p:3,s:"p",t:"Loop diuretic equivalents",k:"40 mg oral furosemide is about 1 mg bumetanide. Oral furosemide is roughly half as potent as IV (my addition from standard teaching)."}
+]},
+
 "aortic-dissection": { items: [
 {id:"ad1",p:1,s:"p",t:"Type A vs Type B and what each needs",k:"Type A involves the ascending aorta: urgent surgical repair. Type B is descending only: usually medical, TEVAR if complicated."},
 {id:"ad2",p:1,s:"p",t:"BP and heart-rate targets, and drug order",k:"HR under 60, SBP 100-120. IV labetalol or esmolol first; add nitroprusside or nicardipine if SBP stays over 120. Never a vasodilator without a beta-blocker (reflex tachycardia raises wall stress)."},

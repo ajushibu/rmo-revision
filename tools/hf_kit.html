@@ -1,0 +1,219 @@
+<title>Heart Failure, Step by Step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Heart failure on the ward, one decision at a time</h1>
+    <p class="lede">The Point of Care Medicine acute decompensated heart failure template, rebuilt step by step and checked against Australian guidance. Nine short steps. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> The four pillars and IV iron criteria come from the Australian consensus statement (Sindone et al, MJA, August 2022). The in-hospital caution limits and 1-2 week follow-up come from the 2026 Australian consensus on care after heart failure hospitalisation (Heart Lung Circ 2026). The 2 kg in 2 days advice is from NPS MedicineWise. Pulmonary oedema doses come from an undated Australian ED handbook (eMedSA). The diuresis timing, goals, resistance steps and device criteria come from the US template and were not found in Australian sources. Check eTG and your hospital protocol before you act.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var G = { q: 'warm', r: 'wet' };
+  var GRID = {
+    'warm-wet': { h: 'Warm and wet', who: 'Well perfused but overloaded. The most common picture: breathless, raised JVP, oedema, crackles, normal or high BP.', cls: '', go: [
+      'IV loop diuretic: about <b>twice the home dose</b> (higher with kidney disease). An Australian ED handbook gives <b>furosemide 80 mg IV</b>, or the usual dose given IV, as a starting point.',
+      'High BP or pulmonary oedema: add a vasodilator (GTN).',
+      'Keep the beta-blocker and other heart failure drugs going unless BP, potassium or kidney function stop you.'] },
+    'warm-dry': { h: 'Warm and dry', who: 'Well perfused, not overloaded. This is compensated heart failure, so the breathlessness probably has another cause.', cls: '', go: [
+      'Look for another cause: infection, PE, COPD, anaemia, arrhythmia.',
+      'No IV diuretic needed. Optimise the four heart failure drugs.'] },
+    'cold-wet': { h: 'Cold and wet', who: 'Poorly perfused and overloaded: cool peripheries, narrow pulse pressure, low BP, confusion, rising lactate, low urine output. This is cardiogenic shock or close to it.', cls: 'stop', go: [
+      '<b>Call your senior and ICU now.</b>',
+      'Support perfusion first: ICU decides on inotropes (dobutamine or milrinone) or vasopressors (noradrenaline if hypotensive).',
+      'Reduce or stop the beta-blocker and vasodilators. Diuretics follow once perfusion is supported.',
+      'Look for a cause that needs urgent treatment: ACS, arrhythmia, valve failure.'] },
+    'cold-dry': { h: 'Cold and dry', who: 'Poorly perfused without overload. Less common: over-diuresis, low output, or another cause of shock.', cls: 'warn', go: [
+      'Senior review. Consider cautious fluid if you think the patient is dry.',
+      'Stop diuretics and review all BP-lowering drugs.',
+      'Think of other causes: sepsis, bleeding, tamponade.'] }
+  };
+  function seg(sel, opts, key) {
+    return '<div class="seg" data-key="' + key + '">' + opts.map(function (o) { return '<button data-v="' + o[0] + '" aria-pressed="' + (G[key] === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+  }
+  function gridCard() { var g = GRID[G.q + '-' + G.r]; return '<div class="rx ' + g.cls + '"><h3>' + g.h + '</h3><p>' + g.who + '</p><ul class="tight">' + g.go.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>'; }
+
+  var STEPS = [
+    { h: 'First look: is this shock or flooded lungs?', body: function () { return '<p class="say">Two things kill quickly in heart failure: <b>cardiogenic shock</b> (the heart cannot pump enough) and <b>acute pulmonary oedema</b> (the lungs fill with fluid). Check for both before anything else.</p>' +
+      '<div class="rx stop"><h3>Cardiogenic shock</h3><p>Low BP (systolic under 90 for over 30 minutes), cold and clammy, narrow pulse pressure, confusion, rising lactate, little urine. Call your senior and ICU.</p></div>' +
+      '<div class="rx"><h3>Acute pulmonary oedema: first steps</h3><ul class="tight"><li>Sit the patient up. Oxygen if hypoxic.</li><li><b>CPAP or NIV</b> if oxygen alone is not enough or CO2 is rising.</li><li><b>GTN</b> if the BP allows (sublingual, then an infusion starting around 5-10 mcg/min).</li><li><b>IV furosemide</b>.</li><li>Morphine is avoided; it can worsen breathing.</li></ul><p class="hint">Doses from an Australian ED handbook (eMedSA, undated). Use your hospital protocol.</p></div>'; } },
+    { h: 'Why did they decompensate?', body: function () { return '<p class="say">Heart failure does not usually worsen for no reason. Find the trigger, because treating it stops the next admission.</p>' +
+      '<div class="rx"><h3>Common triggers</h3><ul class="tight"><li>Salt and fluid, or stopping their tablets</li><li>Ischaemia (ACS) and arrhythmia, especially AF</li><li>High blood pressure</li><li>Drugs: NSAIDs, steroids, verapamil or diltiazem</li><li>Infection, kidney injury, alcohol or cocaine, valve disease</li></ul></div>' +
+      '<div class="rx"><h3>Admission tests</h3><ul class="tight"><li>ECG and troponin (ischaemia, arrhythmia)</li><li>NT-proBNP: under 300 makes heart failure unlikely</li><li>Electrolytes and creatinine, magnesium, full blood count, iron studies, lactate</li><li>Chest X-ray. Echo only if new, changed, or the last one is old.</li><li>Daily weights, fluid balance chart, telemetry</li></ul></div>'; } },
+    { h: 'Warm or cold? Wet or dry?', body: function () { return '<p class="say">Two bedside questions sort every patient. <b>Warm or cold</b>: are they perfused (warm hands, good pulse pressure, clear mind)? <b>Wet or dry</b>: are they overloaded (raised JVP, oedema, orthopnoea, crackles)? Pick one of each.</p><div class="lab">Perfusion</div>' + seg('', [['warm', 'Warm'], ['cold', 'Cold']], 'q') + '<div class="lab">Fluid</div>' + seg('', [['wet', 'Wet'], ['dry', 'Dry']], 'r') + '<div id="gc">' + gridCard() + '</div>'; }, after: function () {
+        document.querySelectorAll('.seg').forEach(function (s) { s.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; G[s.dataset.key] = b.dataset.v; s.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); $('#gc').innerHTML = gridCard(); }); }); } },
+    { h: 'A diuresis day, hour by hour', body: function () { return '<p class="say">Most admissions are warm and wet. Your job is to get the fluid off steadily and early in the day.</p>' +
+      '<div class="rx"><h3>The plan</h3><ul class="tight"><li><b>Morning:</b> IV loop diuretic at about twice the home oral dose (higher with kidney disease). Ask for strict fluid balance and daily weights.</li><li><b>After 1 hour:</b> they should be passing urine. If not, check they are not cold (shock), then double the dose.</li><li><b>After 3-4 hours:</b> check total output. Less than halfway to the day\'s goal: give double the dose. Otherwise repeat the same dose.</li><li>Give the second dose by early afternoon so nobody is up all night passing urine, and you do not hand the decision to the night team.</li><li><b>Goal:</b> about 2 litres negative a day in HFrEF, about 1 litre in HFpEF (template figures).</li></ul></div>' +
+      '<div class="rx warn"><h3>Units and drugs in Australia</h3><p>Furosemide is the usual loop diuretic; bumetanide is the alternative (1 mg is about 40 mg oral furosemide). Torsemide, listed on the US page, is not commonly available here, so check your formulary.</p></div>'; } },
+    { h: 'When the creatinine rises, or the urine stops', body: function () { return '<div class="rx"><h3>Creatinine rising while still congested</h3><p>Usually not kidney damage. It reflects shifting fluid, and the kidneys improve once the patient is euvolaemic. <b>Keep diuresing if they are still wet</b>, and trust your examination: JVP, oedema, breathlessness.</p><p class="hint">A useful sign you are close: bicarbonate rising (contraction alkalosis) with a stable creatinine.</p></div>' +
+      '<div class="rx"><h3>Keep potassium and magnesium up</h3><p>Loop diuretics waste both. Check them daily and replace early (the US page says keep K above 4 and Mg above 2 mg/dL, which is about 0.8 mmol/L). Continuing spironolactone helps hold potassium.</p></div>' +
+      '<div class="rx warn"><h3>Diuretic resistance</h3><ul class="tight"><li>At 80 mg IV twice daily and still not enough: talk to cardiology.</li><li>Options: a furosemide infusion, adding a thiazide (metolazone), or acetazolamide if alkalotic with potassium above 4 (ADVOR trial).</li></ul></div>'; } },
+    { h: 'The four drugs that keep them alive', body: function () { return '<p class="say">For HFrEF (EF 40% or less), the Australian consensus calls these the four pillars. Start all four <b>as soon as clinically possible</b>; you do not need to finish titrating one before starting the next.</p>' +
+      '<div class="scroll"><table><thead><tr><th>Pillar</th><th>Australian choice</th></tr></thead><tbody>' +
+      '<tr><td>ARNI (or ACE inhibitor)</td><td>Sacubitril-valsartan preferred. Leave a 36-hour gap after stopping an ACE inhibitor. ARB is last-line.</td></tr>' +
+      '<tr><td>Beta-blocker</td><td>Bisoprolol, carvedilol, metoprolol <b>succinate</b> (slow release) or nebivolol. Plain metoprolol tartrate is not one of the proven ones.</td></tr>' +
+      '<tr><td>MRA</td><td>Spironolactone or eplerenone</td></tr>' +
+      '<tr><td>SGLT2 inhibitor</td><td>Dapagliflozin or empagliflozin. Empagliflozin should also be considered in HFpEF and HFmrEF.</td></tr></tbody></table></div>' +
+      '<div class="rx warn"><h3>In hospital: when to hold back (2026 Australian consensus)</h3><ul class="tight"><li>ARNI, ACE inhibitor, ARB or MRA: caution if systolic under 95, potassium over 5.0 or eGFR under 20. Reduce if potassium is 5.5-6.0; withhold if over 6.0.</li><li>Beta-blocker: caution if heart rate under 55 or systolic under 95. Keep it going in ADHF unless the patient is in shock (US page).</li><li>Low BP or slow rate on admission: reduce the beta-blocker first, then stop it, then the ACE inhibitor or ARB (US page).</li><li>Before discharge: try to uptitrate at least twice, aiming for about half the target dose.</li></ul></div>'; } },
+    { h: 'Iron, devices and going home', body: function () { return '<div class="rx"><h3>Iron</h3><p>Iron deficiency is common in heart failure, and <b>oral iron does not work</b> (hepcidin blocks absorption). Australian criteria for IV ferric carboxymaltose in HFrEF: <b>ferritin under 100 µg/L, or 100-299 with transferrin saturation under 20%</b>.</p></div>' +
+      '<div class="rx"><h3>Devices (for cardiology to decide)</h3><p>ICD and CRT are considered after 3-6 months of full medical therapy. The US page gives EF under 35% for ICD, and EF under 35% with a wide QRS (over 150 ms, especially LBBB) for CRT.</p></div>' +
+      '<div class="rx"><h3>Going home</h3><ul class="tight"><li>Switch to oral diuretics when symptoms and the JVP or oedema have improved, not when a "dry weight" is reached. Ideally watch 24 hours on the oral dose.</li><li>Tell the patient any dose changes, and to weigh themselves daily. <b>Gain or loss of 2 kg over 2 days: contact their GP within 24 hours</b> (NPS MedicineWise advice).</li><li>Clinical review within 1-2 weeks of discharge, then often in the first 6 weeks (2026 Australian consensus).</li></ul></div>'; } },
+    { h: 'US template vs Australia', body: function () { return '<div class="scroll"><table><thead><tr><th>Topic</th><th>US template</th><th>Australia</th></tr></thead><tbody>' +
+      '<tr><td>Weight alarm</td><td>5 lb in 3-4 days or 2-3 lb in 1-2 days: double the diuretic, call the doctor</td><td class="aus">2 kg in 2 days: contact the GP within 24 hours</td></tr>' +
+      '<tr><td>Units</td><td>Mg above 2 mg/dL, creatinine in mg/dL</td><td>Mg in mmol/L (2 mg/dL is about 0.8), creatinine in µmol/L</td></tr>' +
+      '<tr><td>Beta-blocker</td><td>Carvedilol or metoprolol</td><td>Bisoprolol, carvedilol, metoprolol succinate or nebivolol</td></tr>' +
+      '<tr><td>ACE inhibitor / ARB / ARNI</td><td>Switch to ARNI if class II-III</td><td class="aus">ARNI preferred first-line; ARB last-line</td></tr>' +
+      '<tr><td>SGLT2 inhibitor</td><td>EF under 35% regardless of diabetes</td><td>All HFrEF; empagliflozin also in HFpEF and HFmrEF</td></tr>' +
+      '<tr><td>IV iron</td><td>Ferritin under 100, or under 300 with TSAT under 20%, or iron under 13</td><td>Ferritin under 100 µg/L, or 100-299 with TSAT under 20%</td></tr>' +
+      '<tr><td>Loop equivalents</td><td>40 furosemide = 10-20 torsemide = 1 bumetanide</td><td>Torsemide not commonly available; check your formulary</td></tr>' +
+      '<tr><td>Discharge follow-up</td><td>Not stated</td><td>Within 1-2 weeks</td></tr></tbody></table></div>'; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [['diur', 'IV loop diuretic, about twice the home dose'], ['double', 'Double the diuretic dose'], ['cpap', 'CPAP or NIV, GTN, IV furosemide'], ['shock', 'Senior and ICU now: possible cardiogenic shock'], ['keep', 'Keep diuresing: expected creatinine rise'], ['gdmt', 'Start or continue the four pillars'], ['hold', 'Reduce or withhold a drug']];
+  var ITEMS = [
+    { t: 'Warm and wet: breathless, JVP up, ankle oedema. Home furosemide 40 mg twice daily. BP 132/78.', a: 'diur', why: 'Warm and wet: IV loop diuretic at about twice the home dose (80 mg IV), strict fluid balance, daily weights.' },
+    { t: 'Three hours after 80 mg IV furosemide, output is 300 mL. Today\'s goal is 2 litres negative.', a: 'double', why: 'Less than halfway to goal at 3-4 hours: double the dose and give it by early afternoon.' },
+    { t: 'SpO2 84% on a non-rebreather, BP 190/110, frothy sputum, sitting bolt upright.', a: 'cpap', why: 'Acute pulmonary oedema with high BP: CPAP or NIV, GTN, IV furosemide.' },
+    { t: 'Cool and clammy, BP 84/60, lactate 4, confused, little urine.', a: 'shock', why: 'Cold and wet: cardiogenic shock until proven otherwise. Senior and ICU now.' },
+    { t: 'Day 3: creatinine 110 to 135 µmol/L. JVP still raised, oedema to the knees, still orthopnoeic.', a: 'keep', why: 'Still congested. A modest creatinine rise during diuresis rarely means kidney damage. Keep going and recheck.' },
+    { t: 'HFrEF, EF 25%. Euvolaemic now. BP 118/70, potassium 4.3, eGFR 55. Taking only bisoprolol.', a: 'gdmt', why: 'Start the missing pillars before discharge: ARNI (or ACE inhibitor), MRA and SGLT2 inhibitor.' },
+    { t: 'Potassium 6.2 mmol/L on spironolactone and sacubitril-valsartan.', a: 'hold', why: 'Potassium over 6.0: withhold the MRA (and review the ARNI). Treat the hyperkalaemia per protocol.' },
+    { t: 'Warm, heart rate 48, BP 88/56, on bisoprolol 10 mg. Dizzy on standing.', a: 'hold', why: 'Slow and low: reduce the beta-blocker first. Heart rate under 55 and systolic under 95 are caution limits.' }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">Eight scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>
