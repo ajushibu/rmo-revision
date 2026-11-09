@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -120,8 +120,22 @@
         if ((out.addedAt[id] || 0) < r || L.indexOf(id) >= 0) return; L.push(id);
       }); });
     });
+    var seenA = {}; out.attempts = [];
+    (a.attempts || []).concat(b.attempts || []).forEach(function (x) { if (seenA[x.id] || (x.at || 0) < r) return; seenA[x.id] = 1; out.attempts.push(x); });
+    out.attempts.sort(function (x, y) { return x.at - y.at; });
     return out;
   }
+
+  /* ---------- case attempts reported by the on-call pages ---------- */
+  function drainAttempts() {
+    var q = [];
+    try { q = JSON.parse(localStorage.getItem('rmo-attempt-queue') || '[]'); localStorage.removeItem('rmo-attempt-queue'); } catch (e) { return; }
+    if (!q.length) return;
+    var have = {}; S.attempts.forEach(function (x) { have[x.id] = 1; });
+    q.forEach(function (x) { if (x && x.id && !have[x.id]) S.attempts.push(x); });
+    save();
+  }
+  window.addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.rmoAttempt) drainAttempts(); });
 
   /* ---------- cloud sync (Supabase) ---------- */
   var SB = 'https://omuzlqabwlzhbrfipwqx.supabase.co', SBK = 'sb_publishable_wQHqdu55ZO72ujh-1iq98A_gBS5E3FB', SKEY = 'rmo-sync-session';
@@ -451,9 +465,10 @@
     save(); keepScroll = true; render();
   });
 
+  drainAttempts();
   render();
   if (sess) syncNow();
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && sess) syncNow(); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 })();

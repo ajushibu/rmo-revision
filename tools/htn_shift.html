@@ -111,96 +111,22 @@ a { color: inherit; }
   <p class="note">Study aid, not a clinical decision tool. I did not find an Australian guideline on hypertensive emergencies, so targets and doses are from the US template and standard teaching. Confirm every dose in eTG and your hospital protocol.</p>
 </main>
 
+<script src="cases/htn_shift.js"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
   var PTS = { best: 2, ok: 1, poor: 0, harm: -1 };
   var LABEL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
   var KIT = 'htn_kit.html';
-  var CONCEPTS = {
-  which: { n: "Urgency or emergency", tab: "1", r: "Organ damage makes it an emergency, not the number. Urgency: re-measure, treat the cause, oral drugs." },
-  organ: { n: "Looking for organ damage", tab: "2", r: "Brain, eyes, heart, aorta, kidneys, blood, pregnancy. ECG, troponin, creatinine, urinalysis, fundoscopy, CT when indicated." },
-  speed: { n: "How fast to lower", tab: "3", r: "Most emergencies: no more than 25% in the first hour. Dissection: systolic under 120 within an hour. ACS or pulmonary oedema: under 140." },
-  drug: { n: "Drug for the emergency", tab: "4", r: "Dissection: beta-blocker first. ACS and pulmonary oedema: GTN, no beta-blocker. Stimulants: benzodiazepines first." },
-  cause: { n: "Secondary causes", tab: "6", r: "Drugs, sleep apnoea, renal artery stenosis, primary aldosteronism, phaeochromocytoma, thyroid, Cushing, coarctation." }
-  };
-  var CASES = [
-  {
-  id: "c1", title: "200 over 110 at midnight", where: "Surgical ward", time: "00:20", blurb: "A classic ward call about a high BP. Tests urgency vs emergency and the urge to treat a number.",
-  intro: "Nurse call: 72-year-old man, day 1 after a hip replacement, BP 204/108. 'Can you chart something IV?'",
-  vit: { hr: 96, sbp: 204, dbp: 108, spo2: 96, rr: 18 },
-  facts: ["72M; hypertension on amlodipine and perindopril", "Day 1 after hip replacement", "Pain 8/10; has not passed urine since 4 pm", "Usual tablets not given today (nil by mouth earlier)"],
-  decisions: [
-  { tag: "which", scene: "BP 204/108. What do you do first?", opts: [
-  { q: "best", t: "See him: re-measure properly, check for symptoms and signs of organ damage, and look at pain, bladder and the drug chart", fb: "Most of these calls are urgency with an obvious cause." },
-  { q: "harm", t: "Chart IV hydralazine over the phone", vit: { sbp: 128, dbp: 70, hr: 112 }, fb: "An unpredictable IV drug to an unassessed patient can drop the BP too far." },
-  { q: "poor", t: "Tell the nurse to recheck in 4 hours", fb: "You need to know whether there is organ damage." }
-  ] },
-  { tag: "organ", reveal: ["No chest pain or breathlessness, no confusion, no focal signs. Bladder scan 900 mL."], scene: "No organ damage. Bladder scan 900 mL; pain 8/10. Plan?", opts: [
-  { q: "best", t: "Catheterise, treat the pain, give his usual amlodipine and perindopril (if kidney function allows), recheck in an hour", vit: { sbp: 158, dbp: 88, hr: 84 }, fb: "Treat the causes: retention, pain and missed tablets. That is hypertensive urgency managed well." },
-  { q: "poor", t: "Start a labetalol infusion", fb: "IV infusions are for emergencies with organ damage." }
-  ] },
-  { tag: "speed", scene: "An hour later BP is 158/88. What target do you set?", opts: [
-  { q: "best", t: "This is fine for tonight: aim under 160/100 over hours, lower over days with his usual medicines", fb: "Gradual control for urgency." },
-  { q: "harm", t: "Push it under 120 tonight with extra doses", fb: "Rapid lowering in an older adapted patient risks stroke and kidney injury." }
-  ] }
-  ],
-  ends: { hi: "You treated the patient, not the number.", mid: "BP came down, but a step risked over-treatment.", lo: "Review steps 1 and 5 of the Study Kit." }
-  },
-  {
-  id: "c2", title: "Confused and very high", where: "Emergency department", time: "02:30", blurb: "A true hypertensive emergency. Tests organ damage, speed and setting.",
-  intro: "ED call: 46-year-old man, BP 238/136, headache, blurred vision and now confused.",
-  vit: { hr: 98, sbp: 238, dbp: 136, spo2: 97, rr: 20 },
-  facts: ["46M; stopped his antihypertensives 2 months ago", "Headache 2 days, blurred vision, new confusion", "Fundi: swollen discs and flame haemorrhages", "Creatinine 260 µmol/L (no baseline)"],
-  decisions: [
-  { tag: "organ", scene: "Confused, papilloedema, creatinine 260. What is this?", opts: [
-  { q: "best", t: "Hypertensive emergency with brain, eye and kidney involvement: ECG, troponin, film for haemolysis, urinalysis, CT head", fb: "Organ damage in several places. Look for each." },
-  { q: "poor", t: "Urgency: oral captopril and home", fb: "Confusion and papilloedema are organ damage." }
-  ] },
-  { tag: "speed", reveal: ["CT head: no bleed; changes in the occipital lobes (possible PRES)"], scene: "How fast should the BP come down?", opts: [
-  { q: "best", t: "IV agent in HDU or ICU with an arterial line, no more than 25% lower in the first hour, then to about 160/100 over the next hours", vit: { sbp: 186, dbp: 108 }, fb: "Controlled lowering protects the brain and kidneys." },
-  { q: "harm", t: "Normalise it within the hour", vit: { sbp: 118, dbp: 70 }, fb: "Rapid lowering can cause watershed stroke and worsen the kidney injury." }
-  ] },
-  { tag: "drug", scene: "Which IV option is reasonable here?", opts: [
-  { q: "best", t: "A titratable infusion your hospital uses (for example labetalol), with ICU or HDU input", fb: "Titratable infusions are safest. Check what your hospital stocks." },
-  { q: "poor", t: "Repeated IV hydralazine boluses", fb: "Response and duration are unpredictable." }
-  ] },
-  { tag: "cause", scene: "He is 46 and had a crisis. What do you plan for later?", opts: [
-  { q: "best", t: "Look for secondary causes: aldosterone to renin ratio, metanephrines, renal artery imaging, sleep apnoea, drugs", fb: "Young age and a crisis are triggers to look for a cause." },
-  { q: "poor", t: "Nothing: he just stopped his tablets", fb: "That may be all, but at his age a secondary cause is worth excluding." }
-  ] }
-  ],
-  ends: { hi: "You recognised the emergency and lowered the BP safely.", mid: "He improved, but a step added risk.", lo: "Review steps 2, 3 and 4 of the Study Kit." }
-  },
-  {
-  id: "c3", title: "Sweaty after the festival", where: "Emergency department", time: "03:50", blurb: "Stimulant toxicity with a high BP. Tests the beta-blocker trap.",
-  intro: "ED call: 23-year-old, agitated, BP 196/112, heart rate 138, temperature 38.4, after taking pills at a festival.",
-  vit: { hr: 138, sbp: 196, dbp: 112, spo2: 97, rr: 24 },
-  facts: ["23M; took 'two pills' 4 hours ago", "Agitated, sweaty, dilated pupils", "Chest tightness on and off", "ECG: sinus tachycardia, no ST elevation"],
-  decisions: [
-  { tag: "drug", scene: "First treatment for his BP and agitation?", opts: [
-  { q: "best", t: "Benzodiazepine (per protocol), cooling, IV fluids, and call toxicology advice (Poisons Information Centre 13 11 26)", vit: { hr: 112, sbp: 168, dbp: 98 }, fb: "Sedation treats the cause of the high BP and heart rate." },
-  { q: "harm", t: "IV metoprolol for the tachycardia", vit: { sbp: 214, dbp: 124 }, fb: "A beta-blocker alone can leave alpha effects unopposed and raise the BP." }
-  ] },
-  { tag: "organ", scene: "He has had chest tightness. What else do you check?", opts: [
-  { q: "best", t: "Serial ECG and troponin, creatinine kinase, electrolytes, kidney function, temperature", fb: "Stimulants can cause ischaemia, rhabdomyolysis and hyperthermia." },
-  { q: "poor", t: "Nothing: it is just drugs", fb: "Stimulant toxicity can damage the heart and muscles." }
-  ] },
-  { tag: "drug", scene: "BP stays 180/110 after benzodiazepines and his chest pain persists. Next?", opts: [
-  { q: "best", t: "GTN, more sedation as needed, and senior and toxicology advice", fb: "GTN is a reasonable vasodilator for chest pain with stimulants; avoid beta-blockers alone." },
-  { q: "harm", t: "Labetalol bolus", fb: "Beta-blockade in stimulant toxicity is avoided on the US page." }
-  ] }
-  ],
-  ends: { hi: "You avoided the beta-blocker trap and treated the cause.", mid: "He settled, but one step was risky.", lo: "Review step 4 of the Study Kit." }
-  }
-  ];
+  var CONCEPTS = window.RMO_CONCEPTS;
+  var CASES = (window.RMO_CASES || []).filter(function (c) { return !c.retired; });
 
   /* ---------- state ---------- */
   var S = { mode: 'home', run: [], ci: 0, di: 0, vit: {}, facts: [], newFacts: [], order: [], picked: null, results: {}, t0: 0 };
 
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function merge(a, b) { var o = {}; for (var k in a) o[k] = a[k]; for (var k2 in b) o[k2] = b[k2]; return o; }
-  function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('af-shift') || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('af-shift', JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('af-shift') || '{}')[id]; } catch (e) { return undefined; } }
+  function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('shift-best-' + location.pathname) || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('shift-best-' + location.pathname, JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('shift-best-' + location.pathname) || '{}')[id]; } catch (e) { return undefined; } }
 
   /* ---------- monitor ---------- */
   function cls(k, v) {
@@ -229,6 +155,20 @@ a { color: inherit; }
   }
 
   /* ---------- flow ---------- */
+
+  /* ---------- report attempts to the app (synced, used for weak-point analysis) ---------- */
+  var TOOL = (location.pathname.split('/').pop() || '').replace('.html', '');
+  function report(c) {
+    try {
+      var r = S.results[c.id] || [], pts = 0;
+      r.forEach(function (x) { pts += PTS[x.q]; });
+      var rec = { id: 'a' + Date.now() + Math.random().toString(36).slice(2, 6), tool: TOOL, cs: c.id, title: c.title, at: Date.now(), pts: Math.max(0, pts), max: c.decisions.length * 2,
+        d: r.map(function (x) { return { tag: x.tag, q: x.q, c: x.c }; }) };
+      var q = JSON.parse(localStorage.getItem('rmo-attempt-queue') || '[]'); q.push(rec); localStorage.setItem('rmo-attempt-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoAttempt: true }, location.origin);
+    } catch (e) { /* storage blocked: attempt not recorded */ }
+  }
+
   function start(idxs) {
     S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
     startCase();
@@ -253,13 +193,13 @@ a { color: inherit; }
     S.picked = i;
     if (o.vit) S.vit = merge(S.vit, o.vit);
     if (o.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = o.reveal.slice(); }
-    S.results[c.id][S.di] = { q: o.q, tag: d.tag };
+    S.results[c.id][S.di] = { q: o.q, tag: d.tag, c: String(o.t).slice(0, 90) };
     render();
   }
   function next() {
     var c = CASES[S.run[S.ci]];
     if (S.di + 1 < c.decisions.length) { S.di++; beginDecision(); }
-    else { S.mode = 'caseend'; render(); }
+    else { S.mode = 'caseend'; report(c); render(); }
   }
   function caseScore(c) {
     var r = S.results[c.id] || [], pts = 0;
@@ -314,7 +254,7 @@ a { color: inherit; }
       var b = bestStore(c.id);
       return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div>';
     }).join('');
-    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">Three patients, ten decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
+    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">' + CASES.length + ' patients, ' + CASES.reduce(function (n, c) { return n + c.decisions.length; }, 0) + ' decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
   }
   function debriefHTML() {
     var byTag = {}, tot = 0, mx = 0;
