@@ -10,9 +10,11 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; }
   fix();
-  function save() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
+  function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
+  function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
+  function touch(id) { ts(id).t = Date.now(); }
   function ts(id) { return S.topics[id] || (S.topics[id] = { status: 'new', studied: null, rev: {} }); }
 
   /* ---------- helpers ---------- */
@@ -64,7 +66,7 @@
   }
   function rate(id, how) {
     var s = S.items[id] || { step: 0 }, n = how === 'got' ? Math.min((s.step || 0) + 1, INT.length - 1) : 0;
-    S.items[id] = { step: n, due: addDays(today(), INT[n]), last: today(), r: how };
+    S.items[id] = { step: n, due: addDays(today(), INT[n]), last: today(), r: how, t: Date.now() };
     save();
   }
   function queue() {
@@ -91,6 +93,102 @@
     return '<div class="rate"><button class="b got" data-rate="got" data-it="' + id + '">Got it</button><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky</button></div>';
   }
 
+
+  /* ---------- merge (used by sync and import) ---------- */
+  function merge(a, b) {
+    a = a || {}; b = b || {};
+    var r = Math.max(a.resetAt || 0, b.resetAt || 0), out = { topics: {}, errors: [], items: {}, custom: {}, added: {}, addedAt: {}, dead: {}, resetAt: r };
+    [a.dead || {}, b.dead || {}].forEach(function (d) { Object.keys(d).forEach(function (k) { out.dead[k] = Math.max(out.dead[k] || 0, d[k]); }); });
+    function newer(x, y) { if (!x) return y; if (!y) return x; return (y.t || 0) > (x.t || 0) ? y : x; }
+    ['topics', 'items'].forEach(function (f) {
+      var A = a[f] || {}, B = b[f] || {};
+      Object.keys(A).concat(Object.keys(B)).forEach(function (k) { var v = newer(A[k], B[k]); if ((v.t || 0) >= r || !r) out[f][k] = v; });
+    });
+    function idTime(id) { var n = Number(String(id).replace(/^u/, '')); return isNaN(n) ? 0 : n; }
+    var seen = {};
+    (a.errors || []).concat(b.errors || []).forEach(function (e) { if (seen[e.id] || out.dead[e.id] || idTime(e.id) < r) return; seen[e.id] = 1; out.errors.push(e); });
+    [a.custom || {}, b.custom || {}].forEach(function (c) {
+      Object.keys(c).forEach(function (tid) { (c[tid] || []).forEach(function (x) {
+        var L = out.custom[tid] = out.custom[tid] || [];
+        if (out.dead[x.id] || idTime(x.id) < r || L.some(function (y) { return y.id === x.id; })) return; L.push(x);
+      }); });
+    });
+    [a, b].forEach(function (s) { Object.keys(s.addedAt || {}).forEach(function (k) { out.addedAt[k] = Math.max(out.addedAt[k] || 0, s.addedAt[k]); }); });
+    [a.added || {}, b.added || {}].forEach(function (ad) {
+      Object.keys(ad).forEach(function (tid) { (ad[tid] || []).forEach(function (id) {
+        var L = out.added[tid] = out.added[tid] || [];
+        if ((out.addedAt[id] || 0) < r || L.indexOf(id) >= 0) return; L.push(id);
+      }); });
+    });
+    return out;
+  }
+
+  /* ---------- cloud sync (Supabase) ---------- */
+  var SB = 'https://omuzlqabwlzhbrfipwqx.supabase.co', SBK = 'sb_publishable_wQHqdu55ZO72ujh-1iq98A_gBS5E3FB', SKEY = 'rmo-sync-session';
+  var sess = null, syncState = { status: 'off', at: null, msg: '' }, timer = null, busy = false, again = false;
+  try { sess = JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (e) { sess = null; }
+  function keepSess(s) { sess = s; try { if (s) localStorage.setItem(SKEY, JSON.stringify(s)); else localStorage.removeItem(SKEY); } catch (e) {} }
+  function jwtClaims(t) { try { return JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); } catch (e) { return {}; } }
+  function fromAuth(d) {
+    var c = jwtClaims(d.access_token);
+    return { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || (Math.floor(Date.now() / 1000) + (+d.expires_in || 3600)), uid: c.sub, email: c.email || (d.user && d.user.email) || '' };
+  }
+  function api(path, opt) {
+    opt = opt || {}; var h = { apikey: SBK, 'Content-Type': 'application/json' };
+    if (opt.auth) h.Authorization = 'Bearer ' + sess.access_token;
+    Object.keys(opt.headers || {}).forEach(function (k) { h[k] = opt.headers[k]; });
+    return fetch(SB + path, { method: opt.method || 'GET', headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined }).then(function (res) {
+      return res.text().then(function (t) { var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {} if (!res.ok) { var err = new Error((j && (j.msg || j.error_description || j.message || j.error)) || ('HTTP ' + res.status)); err.status = res.status; throw err; } return j; });
+    });
+  }
+  function fresh() {
+    if (!sess) return Promise.reject(new Error('signed out'));
+    if (sess.expires_at - 120 > Date.now() / 1000) return Promise.resolve();
+    return api('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: sess.refresh_token } }).then(function (d) { keepSess(fromAuth(d)); });
+  }
+  function setSync(st, msg) { syncState.status = st; syncState.msg = msg || ''; if (st === 'ok') syncState.at = new Date(); var el = document.getElementById('syncline'); if (el) el.innerHTML = syncLine(); }
+  function syncNow() {
+    if (!sess) { setSync('off'); return Promise.resolve(); }
+    if (busy) { again = true; return Promise.resolve(); }
+    busy = true; setSync('busy');
+    var before = JSON.stringify(S);
+    return fresh().then(function () {
+      return api('/rest/v1/rmo_revision_state?select=data&user_id=eq.' + sess.uid, { auth: true });
+    }).then(function (rows) {
+      var remote = rows && rows[0] ? rows[0].data : {};
+      S = merge(S, remote); fix(); store();
+      return api('/rest/v1/rmo_revision_state', { method: 'POST', auth: true, headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: sess.uid, data: S, updated_at: new Date().toISOString() } });
+    }).then(function () {
+      busy = false; setSync('ok');
+      if (JSON.stringify(S) !== before) softRender();
+      if (again) { again = false; syncNow(); }
+    }).catch(function (e) {
+      busy = false;
+      if (e.status === 401 || e.status === 400 && /refresh/i.test(e.message)) { keepSess(null); setSync('off', 'Your sign-in expired. Sign in again to keep syncing.'); }
+      else setSync('err', navigator.onLine === false ? 'Offline. Changes will sync when you reconnect.' : 'Could not sync: ' + e.message);
+    });
+  }
+  function softRender() { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; keepScroll = true; render(); }
+  window.RMOSync = { soon: function () { if (!sess) return; clearTimeout(timer); timer = setTimeout(syncNow, 2500); } };
+  function syncLine() {
+    if (!sess) return '<a href="#/settings">Turn on sync</a> to use your progress on all your devices.';
+    if (syncState.status === 'busy') return 'Syncing…';
+    if (syncState.status === 'err') return esc(syncState.msg) + ' <a href="#/settings">Details</a>';
+    if (syncState.status === 'ok' && syncState.at) return 'Synced at ' + syncState.at.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) + ' as ' + esc(sess.email) + '.';
+    return 'Sync is on as ' + esc(sess.email) + '.';
+  }
+  function takeLinkTokens() {
+    var h = location.hash;
+    if (h.indexOf('access_token=') < 0) {
+      if (h.indexOf('error_description=') >= 0) { var q0 = new URLSearchParams(h.slice(1)); syncState.msg = 'Sign-in link failed: ' + q0.get('error_description'); history.replaceState(null, '', location.pathname + '#/settings'); }
+      return;
+    }
+    var q = new URLSearchParams(h.slice(1));
+    keepSess(fromAuth({ access_token: q.get('access_token'), refresh_token: q.get('refresh_token'), expires_in: q.get('expires_in'), expires_at: +q.get('expires_at') || 0 }));
+    history.replaceState(null, '', location.pathname + '#/settings');
+  }
+  takeLinkTokens();
+
   /* ---------- shell ---------- */
   var route = [];
   function navLink(href, label, on, count) {
@@ -108,7 +206,7 @@
       h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span>' + (d ? '<span class="n">' + d + '</span>' : '') + '</a>';
       if (open) h += tps.map(function (t) { var c = topicDueCount(t.id); return '<a href="#/t/' + t.id + '" class="sub' + (cur.topic === t.id ? ' on' : '') + '"><span>' + esc(t.name) + '</span>' + (c ? '<span class="n">' + c + '</span>' : '') + '</a>'; }).join('');
     });
-    return h + '</nav><a class="foot" href="#/settings">Backup and reset</a></aside>';
+    return h + '</nav><a class="foot" href="#/settings">Sync and backup</a></aside>';
   }
   function tabbar(cur) {
     var n = queue().all.length;
@@ -124,7 +222,7 @@
   function home() {
     var q = queue(), rv = topicReviews(), done = 0, studied = 0;
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.status === 'done') done++; if (s.studied) studied++; });
-    var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p></header>';
+    var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small" id="syncline">' + syncLine() + '</p></header>';
     h += '<div class="stats"><div><b>' + q.due.length + '</b><span>due to recall</span></div><div><b>' + q.fresh.length + '</b><span>new to rate</span></div><div><b>' + studied + '</b><span>topics studied</span></div><div><b>' + done + '</b><span>of ' + TOP.length + ' done</span></div></div>';
     h += q.all.length ? '<p><a class="btn primary big" href="#/revise">Start revising</a></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
     if (q.all.length) {
@@ -229,8 +327,17 @@
     return shell(h, { page: 'log' });
   }
   function settings() {
-    var h = '<header class="head"><h1>Backup and reset</h1></header><h2>Your data</h2><p class="meta">Progress, ratings and the error log live only on this device. Export a copy now and then, and import it on a new device.</p><p class="btns"><button class="btn primary" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
-      '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and the error log on this device.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
+    var h = '<header class="head"><h1>Sync and backup</h1></header>';
+    h += '<h2>Sync between devices</h2>';
+    if (sess) {
+      h += '<p class="meta" id="syncline">' + syncLine() + '</p><p class="meta">Your ratings, topic progress, error log and your own subtopics are kept the same on every device where you sign in with this account. Changes made offline sync when you reconnect.</p><p class="btns"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="signout">Sign out on this device</button></p>';
+    } else {
+      h += '<p class="meta">Sign in on each device with the same account. Use the email and password you already use for your other apps on this Supabase account (Stride, Margin).</p>' + (syncState.msg ? '<p class="meta" style="color:var(--due)">' + esc(syncState.msg) + '</p>' : '') +
+        '<form id="signin" class="form"><label><span>Email</span><input type="email" id="si-email" autocomplete="username" required></label><label><span>Password</span><input type="password" id="si-pass" autocomplete="current-password"></label><div class="btns"><button class="btn primary" type="submit">Sign in and sync</button><button class="btn" type="button" data-act="sendcode">Email me a code instead</button></div></form>' +
+        '<div id="codebox" hidden><p class="meta">Check your email. Type the code here, or open the link on this device.</p><form id="codeform" class="form"><label><span>Code from the email</span><input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code"></label><div><button class="btn primary" type="submit">Sign in</button></div></form></div><p class="meta" id="simsg"></p>';
+    }
+    h += '<h2>Backup file</h2><p class="meta">A copy you keep yourself. Importing merges it with what is on this device.</p><p class="btns"><button class="btn" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
+      '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and the error log' + (sess ? ' on every synced device' : ' on this device') + '.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
     return shell(h, { page: 'settings' });
   }
   function notFound() { return shell('<header class="head"><h1>Page not found</h1></header><p><a class="btn" href="#/">Go to Today</a></p>', { page: '' }); }
@@ -261,7 +368,7 @@
 
   function wire() {
     var st = document.getElementById('status');
-    if (st) st.addEventListener('change', function () { ts(topicId()).status = st.value; save(); keepScroll = true; render(); });
+    if (st) st.addEventListener('change', function () { ts(topicId()).status = st.value; touch(topicId()); save(); keepScroll = true; render(); });
     var f = document.getElementById('errform');
     if (f) f.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -275,12 +382,29 @@
       var tid = topicId(); (S.custom[tid] = S.custom[tid] || []).push({ id: 'u' + Date.now(), p: +document.getElementById('itpri').value, s: 'p', t: tt, k: document.getElementById('itkey').value.trim() });
       save(); keepScroll = true; render();
     });
+    var si = document.getElementById('signin');
+    if (si) si.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var em = document.getElementById('si-email').value.trim(), pw = document.getElementById('si-pass').value, m = document.getElementById('simsg');
+      if (!pw) { m.textContent = 'Enter your password, or use "Email me a code instead".'; return; }
+      m.textContent = 'Signing in…';
+      api('/auth/v1/token?grant_type=password', { method: 'POST', body: { email: em, password: pw } }).then(function (d) { keepSess(fromAuth(d)); syncState.msg = ''; render(); return syncNow(); })
+        .catch(function (err) { m.textContent = err.status === 400 ? 'Email or password is wrong. Try again or use "Email me a code instead".' : 'Could not sign in: ' + err.message; });
+    });
+    var cf = document.getElementById('codeform');
+    if (cf) cf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var em = document.getElementById('si-email').value.trim(), code = document.getElementById('si-code').value.replace(/\s/g, ''), m = document.getElementById('simsg');
+      m.textContent = 'Checking the code…';
+      api('/auth/v1/verify', { method: 'POST', body: { type: 'email', email: em, token: code } }).then(function (d) { keepSess(fromAuth(d)); syncState.msg = ''; render(); return syncNow(); })
+        .catch(function (err) { m.textContent = 'That code did not work (' + err.message + '). Codes expire after a while; ask for a new one.'; });
+    });
     var imp = document.getElementById('imp');
     if (imp) imp.addEventListener('change', function () {
       var file = imp.files[0]; if (!file) return;
       var rd = new FileReader();
       rd.onload = function () {
-        try { var o = JSON.parse(rd.result); if (!o.topics || !o.errors) throw 0; S = o; fix(); save(); document.getElementById('msg').textContent = 'Backup imported.'; }
+        try { var o = JSON.parse(rd.result); if (!o.topics || !o.errors) throw 0; S = merge(S, o); fix(); save(); document.getElementById('msg').textContent = 'Backup imported and merged with this device.'; }
         catch (e) { document.getElementById('msg').textContent = 'That file is not an RMO Revision backup. Choose the .json file you exported.'; }
       };
       rd.readAsText(file);
@@ -291,31 +415,45 @@
     var el;
     if ((el = e.target.closest('[data-rv]'))) { var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); rate(iid, el.getAttribute('data-rate')); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
-    if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); save(); keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; save(); keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-del]'))) { var id = el.getAttribute('data-del'); S.errors = S.errors.filter(function (x) { return x.id !== id; }); save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-del]'))) { var id = el.getAttribute('data-del'); S.errors = S.errors.filter(function (x) { return x.id !== id; }); S.dead[id] = Date.now(); save(); keepScroll = true; render(); return; }
     if (!(el = e.target.closest('[data-act]'))) return;
     var a = el.getAttribute('data-act'), t;
+    if (a === 'syncnow') { syncNow(); return; }
+    if (a === 'signout') { keepSess(null); setSync('off'); render(); return; }
+    if (a === 'sendcode') {
+      var em = (document.getElementById('si-email') || {}).value || '', m = document.getElementById('simsg');
+      if (!em.trim()) { m.textContent = 'Type your email first.'; return; }
+      m.textContent = 'Sending…';
+      api('/auth/v1/otp?redirect_to=' + encodeURIComponent(location.origin + location.pathname), { method: 'POST', body: { email: em.trim(), create_user: false } })
+        .then(function () { m.textContent = 'Sent to ' + em.trim() + '.'; document.getElementById('codebox').hidden = false; })
+        .catch(function (err) { m.textContent = err.status === 429 ? 'Too many emails sent. Wait a few minutes and try again.' : 'Could not send: ' + err.message; });
+      return;
+    }
     if (a === 'reveal') { revealed = true; keepScroll = true; render(); }
-    else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; save(); keepScroll = true; render(); }
-    else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; save(); keepScroll = true; render(); }
+    else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
+    else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'export') {
       var blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }), u = URL.createObjectURL(blob), l = document.createElement('a');
       l.href = u; l.download = 'rmo-revision-backup-' + today() + '.json'; document.body.appendChild(l); l.click(); l.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 1000);
     }
     else if (a === 'reset') {
       if (el.getAttribute('data-sure') !== '1') { el.setAttribute('data-sure', '1'); el.textContent = 'Press again to delete everything'; return; }
-      S = { topics: {}, errors: [] }; fix(); save(); location.hash = '#/'; render();
+      S = { topics: {}, errors: [] }; fix(); S.resetAt = Date.now(); save(); location.hash = '#/'; render();
     }
   });
   app.addEventListener('change', function (e) {
     var c = e.target.closest('[data-rev]'); if (!c) return;
-    var t = ts(topicId()), k = c.getAttribute('data-rev');
+    var t = ts(topicId()), k = c.getAttribute('data-rev'); t.t = Date.now();
     if (c.checked) t.rev[k] = true; else delete t.rev[k];
     if (INT.every(function (x) { return t.rev[x]; })) t.status = 'done';
     save(); keepScroll = true; render();
   });
 
   render();
+  if (sess) syncNow();
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && sess) syncNow(); });
+  window.addEventListener('online', function () { if (sess) syncNow(); });
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 })();
