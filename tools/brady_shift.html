@@ -88,6 +88,9 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .case-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
 .case-card h3 { margin: 0; font-size: 16px; }
 .case-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.star { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; }
+.star[aria-pressed="true"] { color: #b7791f; border-color: #b7791f; font-weight: 600; }
+.star-note { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
 .case-card .btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; }
 .meter { height: 8px; background: var(--n-tint); border-radius: 4px; overflow: hidden; }
 .meter i { display: block; height: 100%; background: var(--best); }
@@ -169,6 +172,20 @@ a { color: inherit; }
     } catch (e) { /* storage blocked: attempt not recorded */ }
   }
 
+  /* ---------- star a case: the next refresh writes similar new cases (synced through the app) ---------- */
+  function starMap() { try { return JSON.parse(localStorage.getItem('rmo-stars') || '{}'); } catch (e) { return {}; } }
+  function starBtn(c) {
+    var on = !!starMap()[TOOL + ':' + c.id];
+    return '<button class="star" data-a="star" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '\u2605 Starred' : '\u2606 Star this case') + '</button>';
+  }
+  function toggleStar(id) {
+    var c = CASES.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+    try {
+      var key = TOOL + ':' + id, m = starMap(), on = !m[key]; if (on) m[key] = 1; else delete m[key]; localStorage.setItem('rmo-stars', JSON.stringify(m));
+      var q = JSON.parse(localStorage.getItem('rmo-star-queue') || '[]'); q.push({ id: key, on: on, t: Date.now(), tool: TOOL, title: c.title }); localStorage.setItem('rmo-star-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoStar: true }, location.origin);
+    } catch (e) { /* storage blocked: star not saved */ }
+  }
   function start(idxs) {
     S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
     startCase();
@@ -241,7 +258,7 @@ a { color: inherit; }
       var sc = caseScore(c), mx = caseMax(c), pct = Math.round(sc / mx * 100);
       var end = pct >= 80 ? c.ends.hi : pct >= 50 ? c.ends.mid : c.ends.lo;
       var bestPrev = bestStore(c.id, pct);
-      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div></div></div></div>';
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div><p style="margin:12px 0 0">' + starBtn(c) + '</p><p class="star-note">Star it to get more cases like this at the next refresh, even if you got it all right.</p></div></div></div>';
     }
   }
   function bestHint(d, o) {
@@ -252,7 +269,7 @@ a { color: inherit; }
   function homeHTML() {
     var cards = CASES.map(function (c, i) {
       var b = bestStore(c.id);
-      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div>';
+      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<div class="btns" style="margin-top:4px"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button>' + starBtn(c) + '</div></div>';
     }).join('');
     return '<div class="card"><h2>You are the RMO on nights</h2><p style="max-width:62ch">' + CASES.length + ' patients, ' + CASES.reduce(function (n, c) { return n + c.decisions.length; }, 0) + ' decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
   }
@@ -288,6 +305,7 @@ a { color: inherit; }
     else if (a === 'next') next();
     else if (a === 'after') afterCase();
     else if (a === 'home') { S.mode = 'home'; render(); }
+else if (a === 'star') { toggleStar(b.getAttribute('data-id')); var on2 = !!starMap()[TOOL + ':' + b.getAttribute('data-id')]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 Starred' : '\u2606 Star this case'; }
   });
   render();
 })();

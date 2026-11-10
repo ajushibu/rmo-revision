@@ -53,7 +53,8 @@ def analyse(state):
         out.append({'tool': tool, 'tag': tag, 'name': concept_names(tool).get(tag, tag), 'score_pct': round(100 * w / mx) if mx else None, 'status': status, 'n': len(c['first']) + len(c['later']), 'wrong': c['wrong'][-4:]})
     order = {'WEAK': 0, 'shaky': 1, 'fixed later': 2, 'strong': 3}
     out.sort(key=lambda x: (order[x['status']], x['score_pct'] if x['score_pct'] is not None else 999))
-    return {'attempts': len(atts), 'concepts': out, 'cases': sorted(cases, key=lambda c: (c['tool'], c['case']))}
+    stars = [{'tool': v.get('tool', ''), 'case': k, 'title': v.get('title', ''), 'starred': day(v['t'])} for k, v in sorted((state.get('stars') or {}).items()) if v.get('on')]
+    return {'attempts': len(atts), 'stars': stars, 'concepts': out, 'cases': sorted(cases, key=lambda c: (c['tool'], c['case']))}
 
 if __name__ == '__main__':
     st = json.load(open(sys.argv[1]))
@@ -61,6 +62,10 @@ if __name__ == '__main__':
     r = analyse(st)
     if '--json' in sys.argv: print(json.dumps(r, indent=1)); sys.exit()
     print(f"{r['attempts']} case attempts recorded\n")
+    if r['stars']:
+        print('STARRED cases (the user wants more cases like these; write one similar new case each, in a different setting):')
+        for s in r['stars']: print(f"  {s['tool']} {s['case']} '{s['title']}' starred {s['starred']}")
+        print()
     print('Concepts, weakest first:')
     for c in r['concepts']:
         print(f"  [{c['status']}] {c['tool']} / {c['name']} ({c['tag']}): {c['score_pct']}% over {c['n']} answers")

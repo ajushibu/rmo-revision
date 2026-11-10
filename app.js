@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -148,6 +148,9 @@
     var seenH = {}; out.highlights = [];
     (a.highlights || []).concat(b.highlights || []).forEach(function (x) { if (seenH[x.id] || out.dead[x.id] || (x.at || 0) < r) return; seenH[x.id] = 1; out.highlights.push(x); });
     out.highlights.sort(function (x, y) { return x.at - y.at; });
+    out.stars = {};
+    [a.stars || {}, b.stars || {}].forEach(function (st) { Object.keys(st).forEach(function (k) { if (!out.stars[k] || (st[k].t || 0) > (out.stars[k].t || 0)) out.stars[k] = st[k]; }); });
+    Object.keys(out.stars).forEach(function (k) { if ((out.stars[k].t || 0) < r) delete out.stars[k]; });
     return out;
   }
 
@@ -160,7 +163,20 @@
     q.forEach(function (x) { if (x && x.id && !have[x.id]) S.attempts.push(x); });
     save();
   }
-  window.addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.rmoAttempt) drainAttempts(); });
+  window.addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.rmoAttempt) drainAttempts(); if (e.origin === location.origin && e.data && e.data.rmoStar) drainStars(); });
+
+  /* ---------- starred night-shift cases (synced; the refresh writes similar new cases for them) ---------- */
+  function mirrorStars() {
+    try { var m = {}; Object.keys(S.stars).forEach(function (k) { if (S.stars[k].on) m[k] = 1; }); localStorage.setItem('rmo-stars', JSON.stringify(m)); } catch (e) {}
+  }
+  function drainStars() {
+    var q = [];
+    try { q = JSON.parse(localStorage.getItem('rmo-star-queue') || '[]'); localStorage.removeItem('rmo-star-queue'); } catch (e) { return; }
+    var changed = false;
+    q.forEach(function (x) { if (x && x.id && (!S.stars[x.id] || (x.t || 0) > (S.stars[x.id].t || 0))) { S.stars[x.id] = { on: !!x.on, t: x.t || Date.now(), tool: x.tool || '', title: x.title || '' }; changed = true; } });
+    if (changed) save();
+    mirrorStars();
+  }
 
   /* ---------- cloud sync (Supabase) ---------- */
   var SB = 'https://omuzlqabwlzhbrfipwqx.supabase.co', SBK = 'sb_publishable_wQHqdu55ZO72ujh-1iq98A_gBS5E3FB', SKEY = 'rmo-sync-session';
@@ -195,7 +211,7 @@
       return api('/rest/v1/rmo_revision_state?select=data&user_id=eq.' + sess.uid, { auth: true });
     }).then(function (rows) {
       var remote = rows && rows[0] ? rows[0].data : {};
-      S = merge(S, remote); fix(); store();
+      S = merge(S, remote); fix(); store(); mirrorStars();
       return api('/rest/v1/rmo_revision_state', { method: 'POST', auth: true, headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: sess.uid, data: S, updated_at: new Date().toISOString() } });
     }).then(function () {
       busy = false; setSync('ok');
@@ -553,10 +569,10 @@
     save(); keepScroll = true; render();
   });
 
-  drainAttempts();
+  drainAttempts(); drainStars();
   render();
   if (sess) syncNow();
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); if (sess) syncNow(); } });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 })();
