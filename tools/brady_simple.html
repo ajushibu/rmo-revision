@@ -107,7 +107,7 @@ svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
 <main>
   <header>
     <h1>Heart block, simply</h1>
-    <p class="lede">Seven short steps. One picture and a few lines each. Press Next.</p>
+    <p class="lede">Nine short steps. One picture and a few lines each. Press Next.</p>
   </header>
   <div class="card step" id="stage" aria-live="polite"></div>
   <div class="nav">
@@ -136,21 +136,40 @@ svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
   function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
 
   var STEPS = [
-    { h: 'The signal takes a path', say: 'Each heartbeat is an electrical signal. It starts in the <b>atria</b> (the P wave), passes through a <b>gate</b> called the AV node, runs down <b>wires</b> below the gate, and reaches the <b>ventricles</b> (the QRS).',
+    { h: 'The signal takes a path', say: 'Each heartbeat is an electrical signal. It starts in the <b>atria</b> (the P wave), passes through a <b>gate</b> called the AV node, runs down <b>wires</b> below the gate, and reaches the <b>ventricles</b> (the QRS). The <b>sinus node</b> in the atria sets the rate. The gate does not set it: it only passes each signal on.',
       pic: function () { return svg(760, 130, box('neutral', 10, 30, 150, 56, 'Atria', 'makes the P wave') + arrow(160, 58, 196, 58) + box('gate', 200, 30, 170, 56, 'The gate', 'AV node (a short pause)') + arrow(370, 58, 406, 58) + box('wire', 410, 30, 150, 56, 'Wires below', 'His bundle, branches') + arrow(560, 58, 596, 58) + box('neutral', 600, 30, 150, 56, 'Ventricles', 'makes the QRS'), 'Signal path'); } },
     { h: 'A normal beat', say: 'The pause at the gate is the <b>PR interval</b>: the gap between the P wave and the QRS. Normally it is the same every beat and not too long. Every P is followed by a QRS.',
       pic: function () { return svg(760, 130, base(760) + beat(20, 160, 'PR') + beat(260, 160) + beat(500, 160), 'Normal beats'); } },
-    { h: 'Trouble at the gate: warning signs', say: 'A tired gate lets the signal through more and more slowly. The PR <b>gets longer each beat</b>, then one beat does not get through. The gate rests and starts again. This is <b>Mobitz I</b>. It gives warning, and it is usually harmless.',
+    { h: 'Trouble at the gate: warning signs', say: 'A tired gate lets the signal through more and more slowly. The PR <b>gets longer each beat</b>, then one beat does not get through. The gate rests and starts again. This is <b>Mobitz I</b>. It gives warning, and it is usually harmless. A healthy gate keeps up at normal rates, so Mobitz I means the gate has lost some margin. Next step: why.',
       pic: function () { return svg(760, 130, base(760) + beat(10, 160, '160') + beat(190, 240, '240') + beat(380, 320, '320') + beat(600, null), 'PR gets longer then a missed beat'); } },
-    { h: 'Trouble in the wires: no warning', say: 'The wires below the gate do not get tired. The PR stays <b>exactly the same</b>, and then, with no warning, a beat is lost. This is <b>Mobitz II</b>. You cannot predict the miss, and it can suddenly become complete block, so it is more dangerous.',
+    { h: 'Why does the gate get tired?', say: 'The gate is made of <b>slow cells</b> on purpose: that is what holds each signal back. Slow cells need time to <b>reset</b> after every beat. In a healthy person the reset is done before the next signal arrives, so every beat gets through. When the gate needs longer to reset (a drug, scarring, an inferior MI, strong vagal tone, as in athletes and in sleep) or the signals come very fast, the next signal arrives before the reset is done. It still passes, but slowly, so the PR grows. Then one arrives too early and is blocked. The pause lets the gate reset fully. Nothing is damaged by this.',
+      pic: function () {
+        var h1 = '', h2 = '', h3 = '', d = '', i, x;
+        for (i = 0; i < 5; i++) {
+          x = 30 + i * 135;
+          h1 += '<rect class="gate" x="' + x + '" y="40" width="85" height="24" rx="6"/>';
+          h2 += '<rect class="gate" x="' + x + '" y="150" width="175" height="24" rx="6"/>';
+          if (i < 4) h3 += '<rect class="wire" x="' + (x + 135) + '" y="150" width="40" height="24" rx="6"/>';
+          d += '<circle cx="' + x + '" cy="52" r="6" fill="var(--ink)"/><circle cx="' + x + '" cy="162" r="6" fill="var(--ink)"/>';
+        }
+        return svg(760, 250, '<text class="big" x="10" y="22">Healthy gate: the reset is finished before the next signal</text>' + h1 + '<text x="10" y="92">Dots are signals arriving on schedule. Bars are the reset time.</text>' +
+          '<text class="big" x="10" y="132">Slowed gate: the next signal arrives before the reset is done</text>' + h2 + h3 + d +
+          '<text x="10" y="204">Red = a signal arrives while the gate is still resetting. It passes slowly (PR longer).</text><text x="10" y="226">If it arrives too early, it is blocked. That is the dropped beat.</text>', 'Reset time of the gate'); } },
+    { h: 'Trouble in the wires: no warning', say: 'The wires below the gate are fast cables. They do not slow down gradually: a signal either crosses at full speed or does not cross at all. So the PR stays <b>exactly the same</b>, and then, with no warning, a beat is lost. This is <b>Mobitz II</b>. The wires are diseased (usually scarred), so some signals cross and some do not. You cannot predict the miss, and it can suddenly become complete block, so it is more dangerous.',
       pic: function () { return svg(760, 130, base(760) + beat(10, 160, '160') + beat(190, 160, '160') + beat(370, 160, '160') + beat(560, null), 'Same PR then a missed beat'); } },
-    { h: 'Why atropine helps one and not the other', say: 'The gate has a nerve <b>brake</b> on it, and atropine releases the brake, so the gate works better. The wires below have <b>no brake</b>, so atropine has nothing to act on. Faster beats can even make a damaged wire worse.',
+    { h: 'Why atropine helps one and not the other', say: 'The gate has a nerve <b>brake</b> on it, and atropine releases the brake, so the gate works better. The wires below have <b>no brake</b>, so atropine has nothing to act on. Faster beats can even make a damaged wire worse, because more signals reach a bridge that cannot carry them.',
       pic: function () { return svg(760, 150, box('gate', 20, 20, 320, 100, 'Gate (AV node)', 'has a nerve brake') + '<text x="40" y="100">Atropine releases the brake: it helps.</text>' + box('wire', 420, 20, 320, 100, 'Wires below', 'no brake') + '<text x="440" y="100">Atropine has nothing to act on.</text>', 'Gate versus wires'); } },
     { h: 'If nothing gets through', say: '<b>Complete block</b>: the atria and ventricles stop talking. A backup pacemaker below the block starts its own slow beat. The higher the backup, the better it is. Below the gate it is slow, wide and unreliable.',
       pic: function () {
         var a = '', b = '', i;
         for (i = 0; i < 8; i++) { a += P(20 + i * 90); b += P(20 + i * 90); }
         return svg(760, 300, '<text class="big" x="10" y="24">Block at the gate: backup is steadier (40-60 a minute, narrow QRS)</text><g transform="translate(0,10)">' + base(760) + a + Q(150, false) + Q(430, false) + Q(710, false) + '</g>' + '<text class="big" x="10" y="164">Block in the wires: backup is slow and wide (20-40 a minute)</text><g transform="translate(0,150)">' + base(760) + b + Q(240, true) + Q(620, true) + '</g>', 'Backup rhythms'); } },
+    { h: 'A blocked branch (BBB) is not a tired gate', say: 'Below the gate the wires split into a <b>right and a left branch</b>. In <b>BBB</b> one branch is damaged, usually by scarring. The other branch still carries every signal, so every P is still followed by a QRS and the PR is normal. The blocked side gets the signal late, through slow muscle, so the QRS is <b>wide</b>. Nothing is tired and no beats are dropped. Heart block means signals fail to get through. BBB means they get through by a slower route.',
+      pic: function () {
+        function ln(x1, y1, x2, y2, dash) { return '<path class="arr"' + (dash ? ' stroke-dasharray="6 5" opacity="0.45"' : '') + ' d="M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2 + '"/>'; }
+        return svg(760, 210, box('neutral', 10, 76, 110, 56, 'Atria', 'P wave') + arrow(120, 104, 156, 104) + box('gate', 160, 76, 130, 56, 'The gate', 'passes every beat') +
+          ln(290, 104, 340, 52) + ln(290, 104, 340, 156, true) + box('wire', 340, 24, 190, 56, 'Right branch', 'working') + box('neutral', 340, 128, 190, 56, 'Left branch', 'BLOCKED') +
+          ln(530, 52, 576, 104) + ln(530, 156, 576, 104, true) + box('neutral', 576, 76, 180, 56, 'Ventricles', 'one side is late'), 'One branch blocked'); } },
     { h: 'The whole thing on one page', say: '', sum: true }
   ];
   var n = 0;
@@ -161,7 +180,7 @@ svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
         '<div class="card"><h3>Gate (Mobitz I)</h3><p><b>See:</b> PR longer, longer, then a miss. Narrow QRS.</p><p><b>Meaning:</b> usually benign.</p><p><b>Atropine:</b> works if it is needed.</p></div>' +
         '<div class="card"><h3>Wires (Mobitz II)</h3><p><b>See:</b> same PR, sudden miss, often a wide QRS.</p><p><b>Meaning:</b> dangerous, can go complete.</p><p><b>Do:</b> pads on, call cardiology, be ready to pace. Atropine often fails.</p></div>' +
         '<div class="card"><h3>Complete block</h3><p><b>See:</b> P and QRS unrelated, slow QRS.</p><p><b>Meaning:</b> slow and wide is worse.</p><p><b>Do:</b> if unstable, treat per your protocol; pace if atropine fails.</p></div></div>' +
-        '<p class="hint">One rule to keep: <b>warning before the miss means the gate; no warning means the wires.</b></p>';
+        '<p class="hint">One rule to keep: <b>warning before the miss means the gate; no warning means the wires.</b> A wide QRS with a normal PR and no dropped beats is a blocked branch (BBB), not heart block.</p>';
     } else h += '<p class="say">' + s.say + '</p>' + s.pic();
     $('#stage').innerHTML = h;
     $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
