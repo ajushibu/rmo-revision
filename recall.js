@@ -197,6 +197,7 @@ window.RECALL = {
 ], sg: [
 {id:"afs2",g:"C",p:1,s:"a",t:"AF over 48 hours: anticoagulate before cardioversion",k:"Do not cardiovert (shock or drug) unless fully anticoagulated or a TOE shows no clot (ANZCOR 11.9)."},
 {id:"afs1",g:"T",p:1,s:"a",t:"Unstable AF: synchronised cardioversion",k:"Adverse signs (low BP, chest pain, heart failure, confusion, very fast rate) mean cardioversion with sedation, not drugs first (ANZCOR 11.9)."},
+{id:"afs4",g:"R",p:2,s:"p",t:"Why the QRS width changes in pre-excited AF",k:"Some beats go down the AV node (narrower QRS) and some down the accessory pathway (wider QRS), so the width changes beat to beat and the rhythm is irregular. (My suggestion.)"},
 {id:"afs3",g:"T",p:2,s:"b",t:"Australian version of the rate-control order",k:"Open the AF Study Kit (Australia first) in this app: it compares the US page with Australian guidance."}
 ]},
 
@@ -237,6 +238,10 @@ window.RECALL = {
 ], sg: [
 {id:"tcs1",g:"T",p:1,s:"p",t:"Adenosine: side effects and cautions",k:"Brief chest tightness and a pause are expected; warn the patient. Avoid in pre-excited AF. (My suggestion from standard teaching.)"},
 {id:"tcs3",g:"T",p:3,s:"a",t:"Lignocaine in VT during acute MI",k:"ANZCOR calls it reasonable for stable sustained monomorphic VT with ischaemia, and gives no dose."},
+{id:"tcs4",g:"R",p:1,s:"p",t:"What a wide QRS means",k:"The signal took a slow route through muscle. Three reasons: the beat starts in the ventricle (VT), a fast wire is blocked (bundle branch block or aberrancy), or the signal came down an accessory pathway (pre-excitation). Wide tells you the route was slow, not the cause. (My suggestion.)"},
+{id:"tcs5",g:"R",p:1,s:"p",t:"Wide: regular or irregular?",k:"Wide, regular, same shape every beat: think VT (one focus firing like a metronome). Wide, irregular, shape changing beat to beat: think AF down an accessory pathway or AF with block. (My suggestion.)"},
+{id:"tcs6",g:"A",p:1,s:"p",t:"Clues for pre-excited AF",k:"Young patient, past episodes of fast palpitations, old ECG with a delta wave, irregular rate over 200 with a QRS width that changes beat to beat. Find his old ECGs. (My suggestion.)"},
+{id:"tcs7",g:"C",p:1,s:"p",t:"Wide and not sure which: what to avoid",k:"If you cannot tell VT from pre-excited AF, give no verapamil, diltiazem, adenosine or digoxin. Pads on, 12-lead ECG, call your senior early. Unstable: synchronised shock. (My suggestion.)"},
 {id:"tcs2",g:"F",p:2,s:"p",t:"After conversion",k:"Repeat the 12-lead (delta wave?), check K and Mg, find the cause, tell your senior or cardiology. (My suggestion.)"}
 ]}
 };
