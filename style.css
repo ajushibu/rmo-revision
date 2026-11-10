@@ -170,3 +170,12 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .undo .link { color: var(--bg); text-decoration: underline; font-size: 15px; }
 .sched label.locked { opacity: .55; cursor: not-allowed; }
 @media (max-width: 760px) { .undo { bottom: calc(76px + env(safe-area-inset-bottom)); } }
+
+.mynote { background: var(--shaky-t); color: var(--ink); border-radius: 10px; padding: 10px 12px; margin: 8px 0 12px; }
+.mynote b { color: var(--shaky); }
+.note { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 4px; max-width: 560px; }
+.note span { font-size: 14px; font-weight: 600; color: var(--mut); }
+.note textarea { width: 100%; min-height: 60px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--pane); resize: vertical; }
+.toolbar .hlcount { margin-left: auto; color: var(--mut); font-size: 14px; }
+.toolbar #hlbtn[disabled] { opacity: .45; cursor: default; }
+@media (max-width: 760px) { .toolbar { flex-wrap: wrap; gap: 8px; } .toolbar .hlcount { display: none; } .toolbar #hlbtn { margin-left: auto; } }

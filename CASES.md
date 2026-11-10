@@ -29,3 +29,18 @@ The on-call case pages (`tools/*_shift.html`) report every finished case to the 
 8. Bump the cache name in `sw.js` (`rmo-vN` to `rmo-vN+1`) so devices pick up the new cases.
 9. Commit, push to `main`, confirm the Vercel deployment is READY.
 10. Tell the user: their weakest concepts (with the wrong answer they chose), which cases were retired, which new cases were added and where, and any dose that could not be verified.
+
+# Turning the user's highlights into recall cards
+
+In any study tool the user can select text and press "Save highlight". Highlights sync in `highlights` (id, topic, tool, toolLabel, where = the heading it sat under, text, at). They show on the topic page as "waiting for Claude" until a card is made.
+
+1. Read the state as above and run `python3 scripts/highlights.py state.json`.
+2. For each pending highlight, add one card to that topic in `recall.js` (or merge several highlights that cover the same point into one card):
+   - `t`: a short recall cue, written as the thing to recall (for example "Atropine dose in Australia"), not a copy of the highlight.
+   - `k`: the key point in plain sentences, based on the highlight, checked against an Australian source. If it cannot be verified, keep the user's wording and add "(check your hospital protocol)".
+   - `g`: the section it belongs in (R, A, T, C, F) and place it in recall order inside that section; `p: 1` if it is must-know.
+   - `s`: `p`, `a` or `b` as for other items.
+   - `from: ["h..."]` with the highlight id(s). This is what marks them processed in the app.
+   - Use a new unique `id` (for example `br-h1`); never reuse an existing id.
+3. If a highlight is only a fragment with no recall value, still give it a card only if it makes sense; otherwise tell the user and leave it pending so they can delete it.
+4. Bump `sw.js`, commit, push, confirm the deployment, and tell the user which cards were created under which topic and section.

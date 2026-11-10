@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -142,6 +142,12 @@
     var seenA = {}; out.attempts = [];
     (a.attempts || []).concat(b.attempts || []).forEach(function (x) { if (seenA[x.id] || (x.at || 0) < r) return; seenA[x.id] = 1; out.attempts.push(x); });
     out.attempts.sort(function (x, y) { return x.at - y.at; });
+    out.notes = {};
+    [a.notes || {}, b.notes || {}].forEach(function (n) { Object.keys(n).forEach(function (k) { if (!out.notes[k] || (n[k].t || 0) > (out.notes[k].t || 0)) out.notes[k] = n[k]; }); });
+    Object.keys(out.notes).forEach(function (k) { if ((out.notes[k].t || 0) < r) delete out.notes[k]; });
+    var seenH = {}; out.highlights = [];
+    (a.highlights || []).concat(b.highlights || []).forEach(function (x) { if (seenH[x.id] || out.dead[x.id] || (x.at || 0) < r) return; seenH[x.id] = 1; out.highlights.push(x); });
+    out.highlights.sort(function (x, y) { return x.at - y.at; });
     return out;
   }
 
@@ -296,10 +302,22 @@
     }).join('') + '</ul>';
     return shell(h, { page: 'system', sys: id });
   }
+  function noteOf(id) { var n = S.notes[id]; return n && n.text ? n.text : ''; }
+  function setNote(id, text) { text = (text || '').trim(); if (text === noteOf(id)) return; S.notes[id] = { text: text, t: Date.now() }; }
+  function noteBox(id, label) {
+    return '<label class="note"><span>' + label + '</span><textarea rows="2" data-note="' + id + '" placeholder="What did you miss? Next time it shows before the answer.">' + esc(noteOf(id)) + '</textarea></label>';
+  }
+  var cardFrom = null;
+  function processedHighlights() {
+    if (cardFrom) return cardFrom; cardFrom = {};
+    Object.keys(RC).forEach(function (tid) { (RC[tid].items || []).concat(RC[tid].sg || []).forEach(function (it) { (it.from || []).forEach(function (h) { cardFrom[h] = it.id; }); }); });
+    return cardFrom;
+  }
+  function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (it.p === 1 || x.mine ? '<small>' + (it.p === 1 ? '<b class="must">Must know</b>' : '') + (x.mine ? (it.p === 1 ? ', ' : '') + 'added by you' : '') + '</small>' : '') + '</span>' + tagFor(st) + '</button>';
-    if (op) h += '<div class="ans"><p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
+    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
   function topic(id) {
@@ -317,6 +335,8 @@
     } else h += '<p class="meta">No checklist for this topic yet. Add your own subtopics below.</p>';
     var added = S.added[t.id] || [], sg = (RC[t.id] || { sg: [] }).sg.filter(function (x) { return added.indexOf(x.id) < 0; });
     if (sg.length) h += '<h3>Suggested subtopics</h3><ul class="list">' + sg.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.t) + '</span><small>' + SECT[x.g || 'Y'] + ': ' + esc(x.k) + '</small></span><button class="btn small" data-addsg="' + x.id + '" data-tp="' + t.id + '">Add</button></div></li>'; }).join('') + '</ul>';
+    var hl = pendingHighlights(t.id);
+    if (hl.length) h += '<h3>Your highlights, waiting for Claude</h3><p class="meta">Claude turns these into recall cards in the right section when you ask in chat, or in the Sunday refresh.</p><ul class="list">' + hl.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.text) + '</span><small>' + esc(x.toolLabel || '') + (x.where ? ', ' + esc(x.where) : '') + ', ' + nice(iso(new Date(x.at))) + '</small></span><button class="link danger" data-delhl="' + x.id + '">Delete</button></div></li>'; }).join('') + '</ul>';
     h += '<h3>Add your own subtopic</h3><form id="itform" class="form"><label><span>Subtopic</span><input type="text" id="ittitle" placeholder="Digoxin toxicity signs" autocomplete="off"></label><label><span>Key point to recall</span><textarea id="itkey" rows="2" placeholder="Optional"></textarea></label><div class="inline"><label><span>Section</span><select id="itsec"><option value="R">Recognise</option><option value="A">Assess and investigate</option><option value="T" selected>Treat now</option><option value="C">Complications and traps</option><option value="F">After and follow-up</option></select></label><label class="check"><input type="checkbox" id="itmust"> Must know</label><button class="btn primary" type="submit">Add subtopic</button></div></form>';
 
     h += '<h2>Read</h2><ul class="list">';
@@ -349,15 +369,17 @@
     }
     var x = q.all[0], t = byId(x.tid), st = itState(x.it.id);
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
+    if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer</button>';
-    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + rateButtons(x.it.id);
+    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)') + rateButtons(x.it.id);
     h += '</section>';
     if (q.all.length > 1) h += '<h2>Coming up</h2><ul class="list">' + q.all.slice(1, 9).map(function (y) { return row('#/t/' + y.tid, esc(y.it.t), '', esc(byId(y.tid).name)); }).join('') + '</ul>';
     return shell(h, { page: 'revise' });
   }
   function tool(id, i) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
-    return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + '"></iframe>';
+    var n = pendingHighlights(t.id).length;
+    return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + '"></iframe>';
   }
   function log() {
     var h = '<header class="head"><h1>Error log</h1><p class="meta">Everything you wrote down as wrong, newest first. Read it before a test day.</p></header>';
@@ -408,7 +430,37 @@
   window.addEventListener('hashchange', function () { revealed = false; render(); });
   function topicId() { return route[1]; }
 
+  var lastSel = null;
+  function headingBefore(doc, node) {
+    var hs = doc.querySelectorAll('h1, h2, h3'), best = null;
+    for (var i = 0; i < hs.length; i++) { if (hs[i].compareDocumentPosition(node) & 4 || hs[i].contains(node)) best = hs[i]; }
+    return best ? best.textContent.trim().slice(0, 80) : '';
+  }
+  function wireTool() {
+    var f = document.querySelector('iframe.frame'); if (!f) return;
+    function attach() {
+      var d; try { d = f.contentDocument; } catch (e) { return; } if (!d) return;
+      d.addEventListener('selectionchange', function () {
+        var s = f.contentWindow.getSelection(), txt = s ? String(s).replace(/\s+/g, ' ').trim() : '';
+        var b = document.getElementById('hlbtn'); if (!b) return;
+        if (txt.length >= 3) { var r = s.getRangeAt(0); lastSel = { text: txt.slice(0, 600), where: headingBefore(d, r.startContainer), range: r.cloneRange() }; b.disabled = false; }
+        else b.disabled = !lastSel;
+      });
+    }
+    f.addEventListener('load', attach); if (f.contentDocument && f.contentDocument.readyState === 'complete') attach();
+  }
+  function saveHighlight() {
+    if (!lastSel) return;
+    var tid = route[1], t = byId(tid), tl = t && t.tools[+route[2]];
+    S.highlights.push({ id: 'h' + Date.now(), topic: tid, tool: tl ? tl.file.replace('.html', '') : '', toolLabel: tl ? tl.label : '', where: lastSel.where, text: lastSel.text, at: Date.now() });
+    try { var m = lastSel.range.startContainer.ownerDocument.createElement('mark'); m.style.background = '#FFE58F'; lastSel.range.surroundContents(m); } catch (e) { /* selection crosses elements: saved without the yellow mark */ }
+    try { lastSel.range.startContainer.ownerDocument.defaultView.getSelection().removeAllRanges(); } catch (e) {}
+    lastSel = null; save();
+    var b = document.getElementById('hlbtn'); if (b) b.disabled = true;
+    var c = document.getElementById('hlcount'); if (c) c.textContent = pendingHighlights(tid).length + ' saved. Claude turns them into cards';
+  }
   function wire() {
+    wireTool();
     var st = document.getElementById('status');
     if (st) st.addEventListener('change', function () { ts(topicId()).status = st.value; touch(topicId()); save(); keepScroll = true; render(); });
     var f = document.getElementById('errform');
@@ -458,9 +510,10 @@
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-delhl]'))) { var hid = el.getAttribute('data-delhl'); S.highlights = S.highlights.filter(function (x) { return x.id !== hid; }); S.dead[hid] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-del]'))) { var id = el.getAttribute('data-del'); S.errors = S.errors.filter(function (x) { return x.id !== id; }); S.dead[id] = Date.now(); save(); keepScroll = true; render(); return; }
     if (!(el = e.target.closest('[data-act]'))) return;
     var a = el.getAttribute('data-act'), t;
@@ -475,6 +528,7 @@
         .catch(function (err) { m.textContent = err.status === 429 ? 'Too many emails sent. Wait a few minutes and try again.' : 'Could not send: ' + err.message; });
       return;
     }
+    if (a === 'highlight') { saveHighlight(); return; }
     if (a === 'undo') { undoRate(); keepScroll = true; render(); return; }
     if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
@@ -489,6 +543,7 @@
     }
   });
   app.addEventListener('change', function (e) {
+    var nt = e.target.closest('[data-note]'); if (nt) { setNote(nt.getAttribute('data-note'), nt.value); save(); return; }
     var c = e.target.closest('[data-rev]'); if (!c) return;
     var t = ts(topicId()), k = c.getAttribute('data-rev');
     if (!revCan(t, k)) { c.checked = !c.checked; return; }
