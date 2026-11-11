@@ -61,7 +61,7 @@
   var openSet = {}, revealed = false;
   function topicItems(tid) {
     var rc = RC[tid] || { items: [], sg: [] }, out = [], added = S.added[tid] || [];
-    rc.items.forEach(function (x, i) { out.push({ it: x, o: i, tid: tid }); });
+    rc.items.forEach(function (x, i) { if (!x.dup) out.push({ it: x, o: i, tid: tid }); });
     rc.sg.forEach(function (x) { if (added.indexOf(x.id) >= 0) out.push({ it: x, o: 500, tid: tid }); });
     (S.custom[tid] || []).forEach(function (x, i) { out.push({ it: x, o: 1000 + i, tid: tid, mine: true }); });
     out.sort(function (a, b) { return (GORD[a.it.g || 'Y'] - GORD[b.it.g || 'Y']) || (a.o - b.o); });
@@ -262,29 +262,82 @@
   }
   takeLinkTokens();
 
+
+  /* ---------- soft "new" nudge (yellow, per device, never blocks anything) ---------- */
+  var SEEN_KEY = 'rmo-seen', seen = { cards: {}, cases: {}, bc: false, bs: false }, caseIds = null;
+  try { var rs = JSON.parse(localStorage.getItem(SEEN_KEY) || 'null'); if (rs) seen = { cards: rs.cards || {}, cases: rs.cases || {}, bc: !!rs.bc, bs: !!rs.bs }; } catch (e) {}
+  function saveSeen() { try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) {} }
+  function allCardIds() { var o = []; Object.keys(RC).forEach(function (tid) { (RC[tid].items || []).forEach(function (x) { if (!x.dup) o.push({ id: x.id, tid: tid }); }); }); return o; }
+  if (!seen.bc) { allCardIds().forEach(function (x) { seen.cards[x.id] = 1; }); seen.bc = true; saveSeen(); } // first visit on this device: nothing is "new"
+  function isNewCard(id) { return !seen.cards[id] && !S.items[id]; }
+  function newCardsIn(tid) { return ((RC[tid] || {}).items || []).filter(function (x) { return !x.dup && isNewCard(x.id); }); }
+  function newCardCount() { return allCardIds().filter(function (x) { return isNewCard(x.id); }).length; }
+  function caseFile(f) { for (var i = 0; i < TOP.length; i++) { var ts_ = TOP[i].tools || []; for (var j = 0; j < ts_.length; j++) if (ts_[j].file === f + '_shift.html') return TOP[i]; } return null; }
+  function newCases() { // [{f, topic, ids}]
+    if (!caseIds || !seen.bs) return [];
+    var o = []; Object.keys(caseIds).forEach(function (f) { var ids = caseIds[f].filter(function (id) { return !seen.cases[id]; }); if (ids.length) o.push({ f: f, topic: caseFile(f), ids: ids }); });
+    return o;
+  }
+  function newCaseCount() { return newCases().reduce(function (a, x) { return a + x.ids.length; }, 0); }
+  function newTotal() { return newCardCount() + newCaseCount(); }
+  function loadCaseIds() {
+    var files = []; TOP.forEach(function (t) { (t.tools || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m) files.push(m[1]); }); });
+    var out = {}, left = files.length;
+    if (!left) return;
+    files.forEach(function (f) {
+      fetch('tools/cases/' + f + '_shift.js').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
+        var ids = [], re = /(?:^|[\s,{])id\s*:\s*["']([^"']+)["']/g, m;
+        while ((m = re.exec(txt))) ids.push(m[1]);
+        if (txt) out[f] = ids.map(function (id) { return f + ':' + id; });
+        if (--left === 0) {
+          caseIds = out;
+          if (!seen.bs) { Object.keys(out).forEach(function (k) { out[k].forEach(function (id) { seen.cases[id] = 1; }); }); seen.bs = true; saveSeen(); }
+          else if (newCaseCount()) render();
+        }
+      });
+    });
+  }
+  function markSeenTopic(tid) {
+    var ch = false;
+    newCardsIn(tid).forEach(function (x) { seen.cards[x.id] = 1; ch = true; });
+    var t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) caseIds[m[1]].forEach(function (id) { if (!seen.cases[id]) { seen.cases[id] = 1; ch = true; } }); });
+    if (ch) saveSeen();
+  }
+  function markAllSeen() { allCardIds().forEach(function (x) { seen.cards[x.id] = 1; }); Object.keys(caseIds || {}).forEach(function (k) { caseIds[k].forEach(function (id) { seen.cases[id] = 1; }); }); saveSeen(); }
+  function newTopicCount(tid) { var n = newCardsIn(tid).length; var t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) n += caseIds[m[1]].filter(function (id) { return !seen.cases[id]; }).length; }); return n; }
+  function newPill(n) { return n && seen.bc ? '<span class="n new" title="New since you last looked">' + n + ' new</span>' : ''; }
+  function newNote() {
+    var c = newCardCount(), cs = newCases(), k = newCaseCount();
+    if (!c && !k) return '';
+    var bits = []; if (c) bits.push(plural(c, 'new recall card', 'new recall cards')); if (k) bits.push(plural(k, 'new on-call case', 'new on-call cases'));
+    var where = []; allCardIds().filter(function (x) { return isNewCard(x.id); }).forEach(function (x) { var t = byId(x.tid); if (t && where.indexOf(t.name) < 0) where.push(t.name); });
+    cs.forEach(function (x) { if (x.topic && where.indexOf(x.topic.name) < 0) where.push(x.topic.name); });
+    return '<div class="newnote" role="status"><span><b>' + bits.join(' and ') + '</b> since you last looked' + (where.length ? ': ' + esc(where.slice(0, 4).join(', ')) + (where.length > 4 ? ' and more' : '') : '') + '. No hurry. They show a yellow tag in the topic.</span><button class="link" data-act="seenall">Got it</button></div>';
+  }
+
   /* ---------- shell ---------- */
   var route = [];
-  function navLink(href, label, on, count) {
-    return '<a href="' + href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span>' + label + '</span>' + (count ? '<span class="n">' + count + '</span>' : '') + '</a>';
+  function navLink(href, label, on, count, extra) {
+    return '<a href="' + href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span>' + label + '</span><span class="ns">' + (count ? '<span class="n">' + count + '</span>' : '') + (extra || '') + '</span></a>';
   }
   function sidebar(cur) {
     var q = queue(), curSys = cur.sys || '';
     var h = '<aside class="side" aria-label="Navigation"><a class="brand" href="#/">RMO Revision</a><nav class="nav">' +
       navLink('#/', 'Today', cur.page === 'home') +
-      navLink('#/revise', 'Revise', cur.page === 'revise', q.all.length) +
+      navLink('#/revise', 'Revise', cur.page === 'revise', q.all.length, newPill(newCardCount())) +
       navLink('#/log', 'Error log', cur.page === 'log') + '</nav><nav class="nav sys" aria-label="Systems">';
     SYS.forEach(function (s) {
       var open = s.id === curSys, tps = TOP.filter(function (t) { return t.system === s.id; });
       var d = tps.reduce(function (a, t) { return a + topicDueCount(t.id); }, 0);
-      h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span>' + (d ? '<span class="n">' + d + '</span>' : '') + '</a>';
+      h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + newPill(tps.reduce(function (a, t) { return a + newTopicCount(t.id); }, 0)) + '</span></a>';
       if (open) h += tps.map(function (t) { var c = topicDueCount(t.id); return '<a href="#/t/' + t.id + '" class="sub' + (cur.topic === t.id ? ' on' : '') + '"><span>' + esc(t.name) + '</span>' + (c ? '<span class="n">' + c + '</span>' : '') + '</a>'; }).join('');
     });
     return h + '</nav><a class="foot" href="#/settings">Sync and backup</a></aside>';
   }
   function tabbar(cur) {
     var n = queue().all.length;
-    function tab(href, label, on, c) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + '</a>'; }
-    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home') + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n) + tab('#/log', 'Error log', cur.page === 'log') + '</nav>';
+    function tab(href, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + (nw && seen.bc ? ' <span class="n new">' + nw + '</span>' : '') + '</a>'; }
+    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home') + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n, newTotal()) + tab('#/log', 'Error log', cur.page === 'log') + '</nav>';
   }
   function undoBar() {
     if (!undo || Date.now() - undo.at > 8000) return '';
@@ -301,6 +354,7 @@
     var q = queue(), rv = topicReviews(), done = 0, studied = 0;
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.status === 'done') done++; if (s.studied) studied++; });
     var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small" id="syncline">' + syncLine() + '</p></header>';
+    h += newNote();
     h += '<div class="stats"><div><b>' + q.due.length + '</b><span>due to recall</span></div><div><b>' + q.fresh.length + '</b><span>new to rate</span></div><div><b>' + studied + '</b><span>topics studied</span></div><div><b>' + done + '</b><span>of ' + TOP.length + ' done</span></div></div>';
     h += q.all.length ? '<p><a class="btn primary big" href="#/revise">Start revising</a></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
     if (q.all.length) {
@@ -351,7 +405,7 @@
   function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); if (isNewCard(it.id)) bits.push('<b class="newtag">New</b>'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
     if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -360,7 +414,7 @@
     var s = sysById(t.system), st = ts(t.id), n = nextDue(t), dy = D.days[t.day] || {}, its = topicItems(t.id);
     var rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
     var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
-    if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
+    if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { var mm = /^(.*)_shift\.html$/.exec(x.file), nc = mm && caseIds && caseIds[mm[1]] ? caseIds[mm[1]].filter(function (id) { return !seen.cases[id]; }).length : 0; return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + (nc ? ' <span class="n new">' + nc + ' new</span>' : '') + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
 
     h += '<h2>Recall checklist</h2><p class="meta">In the order you would think it through on the ward. Say the answer to yourself, then tap to check it. Got it brings an item back in 3, 7, 14, then 28 days. Shaky brings it back tomorrow.</p>';
     if (its.length) {
@@ -458,12 +512,14 @@
     else h = home();
     var sideY = 0, sd = document.querySelector('.side'); if (sd) sideY = sd.scrollTop;
     app.innerHTML = h;
+    viewing = r[0] === 't' ? r[1] : null;
     var sd2 = document.querySelector('.side'); if (sd2) sd2.scrollTop = sideY;
     window.scrollTo(0, keepScroll ? y : 0);
     keepScroll = false;
     wire();
   }
-  window.addEventListener('hashchange', function () { revealed = false; render(); });
+  var viewing = null;
+  window.addEventListener('hashchange', function () { revealed = false; if (viewing) { markSeenTopic(viewing); viewing = null; } render(); });
   function topicId() { return route[1]; }
 
   var lastSel = null;
@@ -573,6 +629,7 @@
     }
     if (a === 'highlight') { saveHighlight(); return; }
     if (a === 'undo') { undoRate(); keepScroll = true; render(); return; }
+    if (a === 'seenall') { markAllSeen(); keepScroll = true; render(); return; }
     if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; t.t = Date.now(); save(); keepScroll = true; render(); }
@@ -597,6 +654,7 @@
   });
 
   drainAttempts(); drainStars(); drainCards(); mirrorCards();
+  loadCaseIds();
   render();
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });

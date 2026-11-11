@@ -181,3 +181,13 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .toolbar .hlcount { margin-left: auto; color: var(--mut); font-size: 14px; }
 .toolbar #hlbtn[disabled] { opacity: .45; cursor: default; }
 @media (max-width: 760px) { .toolbar { flex-wrap: wrap; gap: 8px; } .toolbar .hlcount { display: none; } .toolbar #hlbtn { margin-left: auto; } }
+
+/* soft yellow nudge for new cards and cases */
+.nav .ns { display: inline-flex; align-items: center; gap: 6px; }
+.n.new { font-size: 12px; font-weight: 600; color: var(--shaky); background: var(--shaky-t); padding: 1px 8px; border-radius: 999px; }
+.tabs .n.new { padding: 0 6px; }
+.tools .n.new { margin-left: 6px; vertical-align: 1px; }
+.newtag { color: var(--shaky); background: var(--shaky-t); padding: 0 7px; border-radius: 999px; font-size: 12px; }
+.newnote { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; margin-bottom: 14px; border-radius: 10px; background: var(--shaky-t); color: var(--shaky); font-size: 14px; }
+.newnote b { font-weight: 600; }
+.newnote .link { white-space: nowrap; }

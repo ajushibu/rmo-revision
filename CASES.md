@@ -51,3 +51,17 @@ In any study tool the user can select text and press "Save highlight". Highlight
    - In your report to the user, list which claims you changed or left out and why.
 3b. If a highlight is only a fragment with no recall value, still give it a card only if it makes sense; otherwise tell the user and leave it pending so they can delete it.
 4. Bump `sw.js`, commit, push, confirm the deployment, and tell the user which cards were created under which topic and section.
+
+
+# Duplicate check (every alternate-day sync, after the steps above)
+
+1. Run `python3 scripts/dupes.py`. It lists pairs of cards in the same topic that share many words. It only finds candidates; judge each pair yourself by reading both.
+2. If two cards ask for the same recall, keep the more complete one and fold anything unique from the other into it.
+3. Never delete the user's own cards (`S.custom`, Test yourself cards) or anything they added from a suggestion and rated. Never change an id.
+4. A retired built-in card gets `dup:"<keeper id>"` and stays in `recall.js`, so a highlight pointing at it (`from`) stays processed and the user's old rating is not orphaned. The app hides cards that have `dup`. An unadded suggestion (`sg`) that is covered can simply be removed.
+5. Cards that overlap but ask for different things (a list versus a detail, a rule versus its reason) stay as they are. Say which pairs you left and why.
+6. Tell the user what was merged, in plain words. A card the user had rated and that was merged will be new to rate again; say so.
+
+# New-item nudge (app behaviour, nothing to do in the refresh)
+
+The app shows a soft yellow "new" tag for recall cards and on-call cases the device has not seen. It reads ids from `recall.js` and `tools/cases/*_shift.js`, so a new id is all that is needed. A new shift tool must have a `file` ending `_shift.html` in `data.js` and its case file at `tools/cases/<name>_shift.js`. Do not reuse or rename ids, or old cards will look new.
