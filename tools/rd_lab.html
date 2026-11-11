@@ -1,0 +1,267 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oxygen Lab and Ladder Game</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}
+.step h2{font-size:24px}
+.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
+svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
+svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
+svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+</style>
+
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cards .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.cards p{margin:6px 0 0;font-size:15px}
+.cards .card.bad{border-color:var(--a-fill)}.cards .card.good{border-color:var(--good)}
+.q{font-family:var(--display);font-size:21px;line-height:1.35;font-weight:600;max-width:46ch;margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.opts .btn{text-align:left}
+.fb2{font-weight:500;max-width:60ch;min-height:1.5em;margin:0}
+svg .pctbar{fill:var(--b-fill)}svg .thr{stroke:var(--a-fill);stroke-width:1.5;stroke-dasharray:5 4}
+svg .curve{stroke:var(--ink);stroke-width:2.5;fill:none}svg .curve2{stroke:var(--a-fill);stroke-width:2.5;fill:none;stroke-dasharray:6 4}
+svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
+</style>
+
+<style>
+.lab-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:760px){.lab-grid{grid-template-columns:minmax(0,1fr)}}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.ctl label{display:block;font-size:14px;color:var(--muted)}
+.ctl select,.ctl input[type=range]{font:inherit;width:100%;display:block;margin-top:6px}
+.ctl select{padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+.ctl b.v{color:var(--ink)}
+.meter{height:26px;border-radius:6px;background:var(--n-tint);position:relative;overflow:hidden;border:1px solid var(--line)}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--b-fill)}
+.meter span{position:relative;z-index:1;padding:0 10px;line-height:26px;font-size:13px;font-weight:600}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat div{background:var(--n-tint);border-radius:8px;padding:10px 12px}.stat b{display:block;font-size:24px;line-height:1.2}.stat span{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.stat .ok b{color:var(--good)}.stat .bad b{color:var(--a-fill)}.stat .warn b{color:var(--diff)}
+.mix{display:flex;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--line);font-size:12px;font-weight:600}
+.mix div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.mix .o{background:var(--b-fill);color:#fff}.mix .a{background:var(--n-tint);color:var(--muted)}
+.msg{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px;font-size:15px}
+.msg.bad{border-left-color:var(--a-fill)}.msg.warn{border-left-color:var(--diff)}.msg.good{border-left-color:var(--good)}
+.opts2{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.opts2 .btn{text-align:left}
+.vit{display:flex;gap:10px;flex-wrap:wrap}.vit span{background:var(--n-tint);border-radius:6px;padding:6px 10px;font-size:14px}
+</style>
+
+<main>
+  <header>
+    <h1>Oxygen lab and ladder game</h1>
+    <p class="lede">Learn how each device changes what the patient really breathes, then practise choosing the next rung.</p>
+  </header>
+  <div class="tabs" role="tablist"><button role="tab" id="tlab" aria-selected="true">Lab: see what happens</button><button role="tab" id="tgame" aria-selected="false">Game: climb the ladder</button></div>
+  <section id="lab" class="panel"></section>
+  <section id="game" class="panel" hidden></section>
+  <p class="foot">Simplified for learning, not a clinical decision tool. This is a teaching model with rounded numbers. Targets (92 to 96%, or 88 to 92% for CO2 retainers) are from the TSANZ guideline as summarised in the MJA (2015). Device behaviour is standard teaching, not an Australian guideline: confirm with your hospital protocol and your senior.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  function interp(pts, x) { if (x <= pts[0][0]) return pts[0][1]; for (var i = 1; i < pts.length; i++) if (x <= pts[i][0]) { var a = pts[i - 1], b = pts[i]; return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]); } return pts[pts.length - 1][1]; }
+
+  /* ---------------- LAB ---------------- */
+  var DEV = {
+    cannula: { n: 'Nasal cannula', flow: [1, 6, 2], eff: function (f) { return f; } },
+    simple: { n: 'Simple face mask', flow: [5, 10, 8], eff: function (f) { return f + 2; } },
+    nrb: { n: 'Non-rebreather mask', flow: [10, 15, 15], eff: function (f) { return f + 10; } },
+    v24: { n: 'Venturi 24%', fixed: 0.24, total: 50 },
+    v28: { n: 'Venturi 28%', fixed: 0.28, total: 44 },
+    hfno: { n: 'High-flow nasal oxygen', flow: [20, 60, 40], hf: true }
+  };
+  var PAT = {
+    t1: { n: 'Pneumonia: low oxygen, normal CO2', lo: 92, hi: 96, spo2: [[0.21, 82], [0.3, 87], [0.4, 90], [0.5, 93], [0.6, 95], [0.8, 97], [1, 98]] },
+    copd: { n: 'COPD: retains CO2', lo: 88, hi: 92, spo2: [[0.21, 84], [0.24, 88], [0.28, 91], [0.35, 94], [0.4, 96], [0.5, 98], [1, 99]] }
+  };
+  var L = { dev: 'v24', pat: 'copd', dem: 40, flow: 2, hfo: 0.6 };
+  function fio2() {
+    var d = DEV[L.dev], D = L.dem, F, fi;
+    if (d.fixed) { fi = D <= d.total ? d.fixed : (d.total * d.fixed + (D - d.total) * 0.21) / D; return { fi: fi, o2: Math.min(D, d.total) * (d.fixed - 0.21) / 0.79, tot: Math.max(D, d.total) }; }
+    if (d.hf) { F = L.flow; fi = D <= F ? L.hfo : (F * L.hfo + (D - F) * 0.21) / D; return { fi: fi, tot: Math.max(D, F), set: L.hfo, F: F }; }
+    F = d.eff(L.flow); var tot = Math.max(D, F); fi = Math.min(1, (F + Math.max(D - F, 0) * 0.21) / tot); return { fi: fi, tot: tot, F: F };
+  }
+  function labDraw() {
+    var d = DEV[L.dev], p = PAT[L.pat], r = fio2(), fi = r.fi, sp = Math.round(interp(p.spo2, fi));
+    var co2 = L.pat === 'copd' ? Math.round(55 + Math.max(0, fi - 0.28) * 150) : 38;
+    var sc = sp < p.lo ? 'bad' : sp > p.hi ? 'warn' : 'ok', cc = co2 > 70 ? 'bad' : co2 > 60 ? 'warn' : 'ok';
+    var oShare, aShare;
+    if (d.fixed) { oShare = 0; aShare = 0; }
+    var pct = Math.round(fi * 100);
+    var msg, cls = '';
+    if (L.pat === 'copd') {
+      if (co2 > 70) { msg = 'Too much oxygen. His SpO2 looks great, but the CO2 is climbing and he is getting drowsy. In a CO2 retainer, aim for 88 to 92%, not a "normal" saturation. Step the oxygen down and get a gas.'; cls = 'bad'; }
+      else if (sp < p.lo) { msg = 'Below target. Step up the oxygen one notch (for example Venturi 24% to 28%) and recheck.'; cls = 'warn'; }
+      else if (sp > p.hi) { msg = 'Above the 88 to 92% target. Step the oxygen down a notch.'; cls = 'warn'; }
+      else { msg = 'In the target range with a steady CO2. This is the dose you want.'; cls = 'good'; }
+    } else {
+      if (sp < p.lo) { msg = 'Below 92%. She needs a higher percentage and more flow. A cannula or simple mask is diluted by room air when she breathes this hard. Try a non-rebreather or high-flow nasal oxygen.'; cls = 'bad'; }
+      else if (sp > p.hi) { msg = 'Above 96%: more than needed. You can turn it down.'; cls = 'warn'; }
+      else { msg = 'In the 92 to 96% range.'; cls = 'good'; }
+    }
+    var mix = '';
+    if (d.fixed) { var air = Math.max(0, r.tot - r.o2 * 1); mix = '<div class="o" style="flex:' + (d.total ? 1 : 1) + '">Mask gas: ' + pct + '% oxygen at about ' + d.total + ' L/min</div>'; }
+    else { var supplied = Math.min(r.F, r.tot), gap = Math.max(0, L.dem - r.F); mix = '<div class="o" style="flex:' + supplied + '">device ' + Math.round(supplied) + ' L/min</div>' + (gap > 0 ? '<div class="a" style="flex:' + gap + '">room air fills the gap: ' + Math.round(gap) + ' L/min</div>' : ''); }
+    var flowCtl = '';
+    if (d.flow) flowCtl = '<label>Flow from the device: <b class="v" id="fv">' + L.flow + '</b> L/min<input type="range" id="fl" min="' + d.flow[0] + '" max="' + d.flow[1] + '" value="' + L.flow + '"></label>';
+    if (d.hf) flowCtl += '<label>Oxygen setting on the high-flow machine: <b class="v" id="hv">' + Math.round(L.hfo * 100) + '</b>%<input type="range" id="hf" min="21" max="100" value="' + Math.round(L.hfo * 100) + '"></label>';
+    if (d.fixed) flowCtl = '<p class="hint">A Venturi mask has a fixed percentage and a high flow built in: you choose the valve, not the flow.</p>';
+    $('#lab').innerHTML = '<div class="lab-grid"><div class="card ctl"><label>Patient<select id="pp">' + Object.keys(PAT).map(function (k) { return '<option value="' + k + '"' + (k === L.pat ? ' selected' : '') + '>' + PAT[k].n + '</option>'; }).join('') + '</select></label>' +
+      '<label>How hard is the patient breathing in? <b class="v" id="dv">' + L.dem + '</b> L/min<input type="range" id="dm" min="20" max="60" value="' + L.dem + '"></label>' +
+      '<label>Device<select id="dd">' + Object.keys(DEV).map(function (k) { return '<option value="' + k + '"' + (k === L.dev ? ' selected' : '') + '>' + DEV[k].n + '</option>'; }).join('') + '</select></label>' + flowCtl + '</div>' +
+      '<div class="stack"><div class="card stack"><span class="mono">What the patient really breathes in</span><div class="meter"><i style="width:' + pct + '%"></i><span>' + pct + '% oxygen (room air is 21%)</span></div><div class="mix">' + mix + '</div></div>' +
+      '<div class="stat"><div class="' + sc + '"><b>' + sp + '%</b><span>SpO2 (target ' + p.lo + ' to ' + p.hi + ')</span></div><div class="' + cc + '"><b>' + co2 + '</b><span>CO2 mmHg</span></div></div>' +
+      '<div class="msg ' + cls + '">' + msg + '</div></div></div>' +
+      '<div class="card"><h2>Try these</h2><ul class="tight"><li>COPD patient on <b>Venturi 24%</b>: drag the breathing slider. The percentage barely moves.</li><li>Switch to <b>Simple mask</b> and do the same: it swings.</li><li>Now give the COPD patient a <b>Non-rebreather</b> and watch the CO2.</li><li>Pneumonia patient: compare a <b>Nasal cannula</b> with <b>High-flow nasal oxygen</b> at 40 L/min.</li></ul></div>';
+    $('#pp').onchange = function () { L.pat = this.value; if (L.pat === 'copd' && L.dev === 'nrb') {} labDraw(); };
+    $('#dd').onchange = function () { L.dev = this.value; var f = DEV[L.dev].flow; if (f) L.flow = f[2]; labDraw(); };
+    $('#dm').oninput = function () { L.dem = +this.value; labDraw(); };
+    if ($('#fl')) $('#fl').oninput = function () { L.flow = +this.value; labDraw(); };
+    if ($('#hf')) $('#hf').oninput = function () { L.hfo = +this.value / 100; labDraw(); };
+  }
+
+  /* ---------------- GAME ---------------- */
+  var RUNGS = { cannula: 'Nasal cannula 2 L/min', v28: 'Venturi mask 28%', nrb: 'Non-rebreather 15 L/min', hfno: 'High-flow nasal oxygen', cpap: 'CPAP', bipap: 'BiPAP', icu: 'Call ICU: prepare to intubate', none: 'No oxygen: observe', v24: 'Venturi mask 24%', wait: 'Wait and review in 2 hours' };
+  var CASES = [
+    { t: 'COPD on the ward', intro: '68-year-old with COPD, flare. Target 88 to 92%.', vit: 'SpO2 83% air, RR 24, CO2 52, pH 7.36',
+      steps: [
+        { q: 'He needs oxygen. Which first?', o: [['v28', 'best', 'A controlled, fixed percentage aims at 88 to 92% without overshooting.', 'SpO2 90%, RR 22, CO2 56, pH 7.35'], ['cannula', 'ok', 'Nasal prongs at 0.5 to 2 L/min are acceptable too, but the percentage varies with his breathing.', 'SpO2 88%, RR 24'], ['nrb', 'harm', 'Too much oxygen: his SpO2 goes to 99% and he becomes drowsy as CO2 climbs.', 'SpO2 99%, RR 12, CO2 90, drowsy'], ['hfno', 'poor', 'High-flow at a high percentage is more oxygen than he needs and not a controlled dose.', 'SpO2 98%, CO2 75']] },
+        { q: 'An hour later: on Venturi 28%, he is drowsy. Gas: pH 7.23, CO2 84. What next?', o: [['bipap', 'best', 'A high CO2 with acidosis is a ventilation problem. BiPAP pushes each breath and blows off CO2.', 'pH 7.33, CO2 66, more alert'], ['nrb', 'harm', 'More oxygen does not fix a high CO2 and can worsen it.', 'CO2 95, unresponsive'], ['cpap', 'poor', 'CPAP is one steady pressure: it does not push each breath, so it does little for CO2.', 'pH 7.22, CO2 85'], ['wait', 'poor', 'He is acidotic and drowsy now. Do not wait.', 'pH 7.18, CO2 92']] }
+      ] },
+    { t: 'Wet lungs at 3 am', intro: '79-year-old, pulmonary oedema, cannot lie flat, RR 36. Normal CO2.', vit: 'SpO2 82% air, RR 36, CO2 36',
+      steps: [
+        { q: 'He is hypoxic and working hard. First move?', o: [['cpap', 'best', 'CPAP keeps wet air spaces open and eases the work of breathing. Sit him up, call for help, and treat the cause.', 'SpO2 93%, RR 26'], ['nrb', 'ok', 'It treats the hypoxia while you set up, but does not open the air spaces.', 'SpO2 90%, RR 34'], ['cannula', 'poor', 'Far too little oxygen: diluted by room air at this breathing rate.', 'SpO2 84%, RR 36'], ['v24', 'poor', 'Wrong target: he is not a CO2 retainer and needs more than 24%.', 'SpO2 85%, RR 36']] },
+        { q: 'On CPAP: SpO2 94%, RR 24, CO2 38. What now?', o: [['cpap', 'best', 'Keep CPAP on and treat the cause per your heart failure protocol, with senior review.', 'SpO2 95%, RR 20'], ['cannula', 'poor', 'Taking CPAP off too early risks relapse.', 'SpO2 88%, RR 30'], ['bipap', 'ok', 'BiPAP would also give pressure, but his CO2 is normal: CPAP is the simpler fit.', 'SpO2 95%']] }
+      ] },
+    { t: 'Pneumonia, getting tired', intro: '55-year-old, lobar pneumonia, normal CO2. On a non-rebreather.', vit: 'SpO2 88% on 15 L, RR 34, CO2 34',
+      steps: [
+        { q: 'Still hypoxic and breathing hard. Next rung?', o: [['hfno', 'best', 'High-flow nasal oxygen meets his breathing demand so the percentage is not diluted. Call your senior.', 'SpO2 93%, RR 28'], ['cannula', 'poor', 'A step down: it will be diluted.', 'SpO2 84%'], ['v24', 'poor', 'He is not a CO2 retainer and needs more oxygen, not 24%.', 'SpO2 85%'], ['cpap', 'ok', 'CPAP is a reasonable alternative here, usually chosen with your senior.', 'SpO2 94%, RR 26']] },
+        { q: 'Two hours later on maximum high-flow he is drowsy and exhausted, SpO2 88%.', o: [['icu', 'best', 'Tiring, drowsy and failing support: call ICU now and prepare to intubate.', 'Handed over to ICU'], ['wait', 'harm', 'Waiting while he tires risks a collapse.', 'SpO2 80%, RR 8'], ['cannula', 'poor', 'This is going backwards.', 'SpO2 82%']] }
+      ] },
+    { t: 'Fine after surgery', intro: '45-year-old, day 1 after surgery, a bit breathless but comfortable.', vit: 'SpO2 94% air, RR 18, normal chest',
+      steps: [
+        { q: 'The nurse asks if he should have oxygen.', o: [['none', 'best', 'His saturation is in the normal range. Oxygen is for hypoxia, not for breathlessness alone. Look for the cause.', 'Stable on air'], ['nrb', 'poor', 'Not needed, and high oxygen has no benefit when he is not hypoxic.', 'SpO2 100%'], ['hfno', 'poor', 'No indication.', 'SpO2 100%']] }
+      ] },
+    { t: 'Drowsy on a high mask', intro: 'COPD patient put on a 10 L mask for SpO2 84%. Now drowsy, RR 9.', vit: 'SpO2 99% on 10 L mask, RR 9',
+      steps: [
+        { q: 'What do you do first?', o: [['v28', 'best', 'Call for help, step down to a controlled Venturi and get a gas. His 99% is above target and he is retaining CO2.', 'SpO2 91%, RR 12'], ['nrb', 'harm', 'More oxygen will deepen the CO2 retention.', 'SpO2 100%, RR 6'], ['none', 'poor', 'He was hypoxic: stay within the target range, do not stop all oxygen.', 'SpO2 78%']] },
+        { q: 'Gas on Venturi: pH 7.19, CO2 92.', o: [['bipap', 'best', 'Respiratory acidosis despite controlled oxygen: start BiPAP and review at an hour, with ICU aware.', 'pH 7.29, CO2 72'], ['cpap', 'poor', 'CPAP does not give each breath a push.', 'pH 7.18'], ['wait', 'poor', 'He is acidotic: act now.', 'pH 7.14']] }
+      ] }
+  ];
+  var G = { ci: 0, si: 0, pts: 0, log: [], done: false, pick: null };
+  var PTS = { best: 2, ok: 1, poor: 0, harm: -1 }, LBL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
+  function gameDraw() {
+    if (G.done) {
+      var max = CASES.reduce(function (a, c) { return a + c.steps.length * 2; }, 0), p = Math.max(0, G.pts);
+      $('#game').innerHTML = '<div class="card stack"><span class="mono">Shift debrief</span><h2>' + p + ' of ' + max + ' points</h2><ul class="tight">' + G.log.map(function (x) { return '<li><b>' + x.c + ':</b> ' + LBL[x.q] + '. ' + x.f + '</li>'; }).join('') + '</ul><div><button class="btn primary" id="again">Play again</button></div></div>';
+      $('#again').onclick = function () { G = { ci: 0, si: 0, pts: 0, log: [], done: false, pick: null }; gameDraw(); }; return;
+    }
+    var c = CASES[G.ci], s = c.steps[G.si];
+    var h = '<div class="card stack"><span class="mono">Patient ' + (G.ci + 1) + ' of ' + CASES.length + '</span><h2>' + c.t + '</h2><p>' + c.intro + '</p><div class="vit"><span>' + c.vit + '</span></div><p class="say" style="font-size:18px">' + s.q + '</p><div class="opts2">';
+    s.o.forEach(function (o, i) { var cl = ''; if (G.pick !== null) { cl = o[1] === 'best' ? ' right' : (i === G.pick ? ' wrong' : ''); } h += '<button class="btn' + cl + '" data-i="' + i + '"' + (G.pick !== null ? ' disabled' : '') + '>' + RUNGS[o[0]] + '</button>'; });
+    h += '</div>';
+    if (G.pick !== null) { var o = s.o[G.pick]; h += '<div class="msg ' + (o[1] === 'best' ? 'good' : o[1] === 'ok' ? 'warn' : 'bad') + '"><b>' + LBL[o[1]] + '.</b> ' + o[2] + '<br><span class="hint">Result: ' + o[3] + '</span></div><div><button class="btn primary" id="gnext">' + (G.si + 1 < c.steps.length || G.ci + 1 < CASES.length ? 'Next' : 'Finish') + '</button></div>'; }
+    $('#game').innerHTML = h + '</div>';
+    document.querySelectorAll('#game .opts2 .btn').forEach(function (b) { b.onclick = function () { if (G.pick !== null) return; G.pick = +b.getAttribute('data-i'); var o = s.o[G.pick]; G.pts += PTS[o[1]]; G.log.push({ c: c.t + ' (' + (G.si + 1) + ')', q: o[1], f: o[2] }); gameDraw(); }; });
+    if ($('#gnext')) $('#gnext').onclick = function () { G.pick = null; if (G.si + 1 < c.steps.length) G.si++; else { G.si = 0; G.ci++; if (G.ci >= CASES.length) G.done = true; } gameDraw(); window.scrollTo(0, 0); };
+  }
+
+  function tab(w) { var lab = w === 'lab'; $('#lab').hidden = !lab; $('#game').hidden = lab; $('#tlab').setAttribute('aria-selected', lab); $('#tgame').setAttribute('aria-selected', !lab); try { history.replaceState(null, '', '#' + w); } catch (e) {} }
+  $('#tlab').onclick = function () { tab('lab'); }; $('#tgame').onclick = function () { tab('game'); };
+  labDraw(); gameDraw(); tab(location.hash === '#game' ? 'game' : 'lab');
+})();
+</script></body></html>
