@@ -371,7 +371,8 @@
     var added = S.added[t.id] || [], sg = (RC[t.id] || { sg: [] }).sg.filter(function (x) { return added.indexOf(x.id) < 0; });
     if (sg.length) h += '<h3>Suggested subtopics</h3><ul class="list">' + sg.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.t) + '</span><small>' + SECT[x.g || 'Y'] + ': ' + esc(x.k) + '</small></span><button class="btn small" data-addsg="' + x.id + '" data-tp="' + t.id + '">Add</button></div></li>'; }).join('') + '</ul>';
     var hl = pendingHighlights(t.id);
-    if (hl.length) h += '<h3>Your highlights, waiting for Claude</h3><p class="meta">Claude turns these into recall cards in the right section when you ask in chat, or in the Sunday refresh.</p><ul class="list">' + hl.map(function (x) { return '<li><div class="row static"><span class="t"><span>' + esc(x.text) + '</span><small>' + esc(x.toolLabel || '') + (x.where ? ', ' + esc(x.where) : '') + ', ' + nice(iso(new Date(x.at))) + '</small></span><button class="link danger" data-delhl="' + x.id + '">Delete</button></div></li>'; }).join('') + '</ul>';
+    if (hl.length) h += '<h3>Your highlights, waiting for Claude</h3><p class="meta">Claude turns these into recall cards in the right section when you ask in chat, or in the every-other-day refresh. Pasted notes are checked against Australian sources first.</p><ul class="list">' + hl.map(function (x) { var shown = x.tool === 'paste' && x.text.length > 240 ? x.text.slice(0, 240) + '...' : x.text; return '<li><div class="row static"><span class="t"><span>' + esc(shown) + '</span><small>' + esc(x.toolLabel || '') + (x.where ? ', ' + esc(x.where) : '') + ', ' + nice(iso(new Date(x.at))) + '</small></span><button class="link danger" data-delhl="' + x.id + '">Delete</button></div></li>'; }).join('') + '</ul>';
+    h += '<h3>Paste from another source</h3><p class="meta">Paste an answer to a doubt from Gemini, a book or a senior. Claude checks it against Australian sources and turns it into recall cards at the next refresh.</p><form id="pasteform" class="form"><label><span>What you are pasting</span><textarea id="pastetext" rows="5" maxlength="8000" placeholder="Paste the explanation here"></textarea></label><div class="inline"><label><span>Where it came from</span><input type="text" id="pastesrc" placeholder="Gemini, Harrison, my registrar" autocomplete="off"></label><button class="btn primary" type="submit">Save for Claude</button></div></form>';
     h += '<h3>Add your own subtopic</h3><form id="itform" class="form"><label><span>Subtopic</span><input type="text" id="ittitle" placeholder="Digoxin toxicity signs" autocomplete="off"></label><label><span>Key point to recall</span><textarea id="itkey" rows="2" placeholder="Optional"></textarea></label><div class="inline"><label><span>Section</span><select id="itsec"><option value="R">Recognise</option><option value="A">Assess and investigate</option><option value="T" selected>Treat now</option><option value="C">Complications and traps</option><option value="F">After and follow-up</option></select></label><label class="check"><input type="checkbox" id="itmust"> Must know</label><button class="btn primary" type="submit">Add subtopic</button></div></form>';
 
     h += '<h2>Read</h2><ul class="list">';
@@ -498,6 +499,13 @@
     wireTool();
     var st = document.getElementById('status');
     if (st) st.addEventListener('change', function () { ts(topicId()).status = st.value; touch(topicId()); save(); keepScroll = true; render(); });
+    var pf = document.getElementById('pasteform');
+    if (pf) pf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = document.getElementById('pastetext').value.trim(); if (!v) return;
+      var src = document.getElementById('pastesrc').value.trim() || 'Pasted note';
+      S.highlights.push({ id: 'h' + Date.now(), topic: topicId(), tool: 'paste', toolLabel: src, where: 'Pasted doubt', text: v, at: Date.now() }); save(); keepScroll = true; render();
+    });
     var f = document.getElementById('errform');
     if (f) f.addEventListener('submit', function (e) {
       e.preventDefault();

@@ -13,4 +13,5 @@ pend = [h for h in st.get('highlights', []) if h['id'] not in done]
 if not pend: print('No new highlights.'); sys.exit()
 for h in pend:
     d = datetime.datetime.fromtimestamp(h['at'] / 1000).strftime('%d %b')
-    print(f"{h['id']}  [{h['topic']}]  {h.get('toolLabel','')} > {h.get('where','')}  ({d})\n    {h['text']}\n")
+    kind = 'PASTED from ' + h.get('toolLabel', '') + ' (unverified, check every claim)' if h.get('tool') == 'paste' else h.get('toolLabel', '') + ' > ' + h.get('where', '')
+    print(f"{h['id']}  [{h['topic']}]  {kind}  ({d})\n    {h['text']}\n")
