@@ -57,7 +57,7 @@
   var SECT = { R: 'Recognise', A: 'Assess and investigate', T: 'Treat now', C: 'Complications and traps', F: 'After and follow-up', Y: 'Your subtopics' };
   var GORD = { R: 0, A: 1, T: 2, C: 3, F: 4, Y: 5 };
   var PRI = { 1: 'Must know', 2: 'Good to know', 3: 'Detail' };
-  var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance', n: 'Your own notes, checked where an Australian source is named' };
+  var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance', n: 'Your own notes, checked where an Australian source is named', q: 'A Test yourself question you saved' };
   var openSet = {}, revealed = false;
   function topicItems(tid) {
     var rc = RC[tid] || { items: [], sg: [] }, out = [], added = S.added[tid] || [];
@@ -163,7 +163,25 @@
     q.forEach(function (x) { if (x && x.id && !have[x.id]) S.attempts.push(x); });
     save();
   }
-  window.addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.rmoAttempt) drainAttempts(); if (e.origin === location.origin && e.data && e.data.rmoStar) drainStars(); });
+  window.addEventListener('message', function (e) { if (e.origin === location.origin && e.data && e.data.rmoAttempt) drainAttempts(); if (e.origin === location.origin && e.data && e.data.rmoStar) drainStars(); if (e.origin === location.origin && e.data && e.data.rmoCard) drainCards(); });
+
+  /* ---------- Test yourself questions saved as recall cards (custom items with qk = the question's key) ---------- */
+  function mirrorCards() {
+    try { var m = {}; Object.keys(S.custom).forEach(function (t) { (S.custom[t] || []).forEach(function (x) { if (x.qk) m[x.qk] = 1; }); }); localStorage.setItem('rmo-qcards', JSON.stringify(m)); } catch (e) {}
+  }
+  function drainCards() {
+    var q = [];
+    try { q = JSON.parse(localStorage.getItem('rmo-card-queue') || '[]'); localStorage.removeItem('rmo-card-queue'); } catch (e) { return; }
+    var changed = false;
+    q.forEach(function (x, i) {
+      if (!x || !x.tid || !x.key) return;
+      var L = S.custom[x.tid] = S.custom[x.tid] || [], ex = L.filter(function (y) { return y.qk === x.key; })[0];
+      if (x.on && !ex) { L.push({ id: 'u' + (Date.now() + i), p: 2, g: x.g || 'T', s: 'q', t: x.t, k: x.k, qk: x.key }); changed = true; }
+      if (!x.on && ex) { S.custom[x.tid] = L.filter(function (y) { return y.id !== ex.id; }); delete S.items[ex.id]; S.dead[ex.id] = Date.now(); changed = true; }
+    });
+    if (changed) save();
+    mirrorCards();
+  }
 
   /* ---------- starred night-shift cases (synced; the refresh writes similar new cases for them) ---------- */
   function mirrorStars() {
@@ -211,7 +229,7 @@
       return api('/rest/v1/rmo_revision_state?select=data&user_id=eq.' + sess.uid, { auth: true });
     }).then(function (rows) {
       var remote = rows && rows[0] ? rows[0].data : {};
-      S = merge(S, remote); fix(); store(); mirrorStars();
+      S = merge(S, remote); fix(); store(); mirrorStars(); mirrorCards();
       return api('/rest/v1/rmo_revision_state', { method: 'POST', auth: true, headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: sess.uid, data: S, updated_at: new Date().toISOString() } });
     }).then(function () {
       busy = false; setSync('ok');
@@ -570,10 +588,10 @@
     save(); keepScroll = true; render();
   });
 
-  drainAttempts(); drainStars();
+  drainAttempts(); drainStars(); drainCards(); mirrorCards();
   render();
   if (sess) syncNow();
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); if (sess) syncNow(); } });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 })();

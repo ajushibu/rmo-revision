@@ -138,14 +138,27 @@ svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
   function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
   function card(cls, h3, ps) { return '<div class="card ' + cls + '"><h3>' + h3 + '</h3>' + ps.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</div>'; }
 
+  var TOPIC = 'acute-decompensated-heart-failure';
   var QUIZ = [
-    { q: 'A patient with a swollen gut is not responding to her usual oral furosemide. What is the first change?', o: ['Give the furosemide IV', 'Add a thiazide first', 'Stop the diuretic because the creatinine rose', 'Switch to acetazolamide'], a: 0, f: 'Oral absorption is unpredictable and a swollen gut absorbs less. IV starts in about 5 minutes.' },
-    { q: 'Which diuretic is most likely to cause a high potassium?', o: ['Furosemide', 'Hydrochlorothiazide', 'Spironolactone', 'Acetazolamide'], a: 2, f: 'Spironolactone blocks aldosterone, so potassium and hydrogen are kept. Loops and thiazides waste potassium.' },
-    { q: 'Which class is the classic drug cause of low sodium?', o: ['Thiazides', 'Loop diuretics', 'Spironolactone', 'Acetazolamide'], a: 0, f: 'Thiazides, usually in older people. Spironolactone and loops can contribute, but thiazides are the classic cause.' },
-    { q: 'After three days of IV furosemide he is still congested and has a metabolic alkalosis. Which add-on tends to correct the alkalosis?', o: ['Hydrochlorothiazide', 'Acetazolamide', 'More loop diuretic by mouth', 'Spironolactone'], a: 1, f: 'Acetazolamide loses bicarbonate, so it pushes towards acidosis. It is an add-on, not a starter (ADVOR trial).' },
-    { q: 'Why does adding a second class of diuretic help in resistance?', o: ['It makes the loop diuretic last longer', 'The later parts of the nephron take back extra sodium when one part is blocked, so you block a second site', 'It raises the GFR', 'It stops the gut swelling'], a: 1, f: 'This is sequential nephron blockade. It treats downstream catch-up, not braking, which needs more frequent doses or an infusion.' }
+    { id: 'iv-gut', g: 'T', q: 'A patient with a swollen gut is not responding to her usual oral furosemide. What is the first change?', o: ['Give the furosemide IV', 'Add a thiazide first', 'Stop the diuretic because the creatinine rose', 'Switch to acetazolamide'], a: 0, f: 'Oral absorption is unpredictable and a swollen gut absorbs less. IV starts in about 5 minutes.' },
+    { id: 'spiro-k', g: 'C', q: 'Which diuretic is most likely to cause a high potassium?', o: ['Furosemide', 'Hydrochlorothiazide', 'Spironolactone', 'Acetazolamide'], a: 2, f: 'Spironolactone blocks aldosterone, so potassium and hydrogen are kept. Loops and thiazides waste potassium.' },
+    { id: 'thiazide-na', g: 'C', q: 'Which class is the classic drug cause of low sodium?', o: ['Thiazides', 'Loop diuretics', 'Spironolactone', 'Acetazolamide'], a: 0, f: 'Thiazides, usually in older people. Spironolactone and loops can contribute, but thiazides are the classic cause.' },
+    { id: 'acetaz-alk', g: 'T', q: 'After three days of IV furosemide he is still congested and has a metabolic alkalosis. Which add-on tends to correct the alkalosis?', o: ['Hydrochlorothiazide', 'Acetazolamide', 'More loop diuretic by mouth', 'Spironolactone'], a: 1, f: 'Acetazolamide loses bicarbonate, so it pushes towards acidosis. It is an add-on, not a starter (ADVOR trial).' },
+    { id: 'second-class', g: 'C', q: 'Why does adding a second class of diuretic help in resistance?', o: ['It makes the loop diuretic last longer', 'The later parts of the nephron take back extra sodium when one part is blocked, so you block a second site', 'It raises the GFR', 'It stops the gut swelling'], a: 1, f: 'This is sequential nephron blockade. It treats downstream catch-up, not braking, which needs more frequent doses or an infusion.' }
   ];
   var qi = 0, qs = 0, qd = false;
+  /* save a question as a recall card: the app turns it into a card in this topic (synced) */
+  function cardMap() { try { return JSON.parse(localStorage.getItem('rmo-qcards') || '{}'); } catch (e) { return {}; } }
+  function cardKey(Q) { return 'hf_diuretics:' + Q.id; }
+  function cardBtn(Q) { var on = !!cardMap()[cardKey(Q)]; return '<button class="btn" data-q="card" aria-pressed="' + on + '">' + (on ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card') + '</button>'; }
+  function toggleCard(Q) {
+    var key = cardKey(Q), m = cardMap(), on = !m[key];
+    try {
+      if (on) m[key] = 1; else delete m[key]; localStorage.setItem('rmo-qcards', JSON.stringify(m));
+      var q = JSON.parse(localStorage.getItem('rmo-card-queue') || '[]'); q.push({ tid: TOPIC, key: key, on: on, g: Q.g, t: Q.q, k: 'Answer: ' + Q.o[Q.a] + '. ' + Q.f }); localStorage.setItem('rmo-card-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoCard: true }, location.origin);
+    } catch (e) { /* storage blocked: card not saved */ }
+  }
 
   var STEPS = [
     { h: 'Sodium decides the water', say: 'Water follows sodium. The kidneys filter a huge amount of sodium (over 20,000 mmol a day) and take back about 99% of it. Only about 100 to 150 mmol leaves in the urine, matching what you take in. Diuretics block the take-back at different places, so more sodium, and the water with it, stays in the urine.',
@@ -184,7 +197,7 @@ svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
   function quizHTML() {
     if (qi >= QUIZ.length) return '<p class="q">' + qs + ' out of ' + QUIZ.length + '.</p><p class="say">' + (qs === QUIZ.length ? 'All right. Come back in a few days and try again.' : 'Go back to the step for any you missed, then try again.') + '</p><p><button class="btn" data-q="again">Try again</button></p>';
     var Q = QUIZ[qi];
-    return '<p class="mono">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</p><p class="q">' + Q.q + '</p><div class="opts">' + Q.o.map(function (o, i) { return '<button class="btn" data-q="' + i + '"' + (qd ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div><p class="fb2" id="fb2"></p>' + (qd ? '<p><button class="btn primary" data-q="next">' + (qi + 1 < QUIZ.length ? 'Next question' : 'See score') + '</button></p>' : '');
+    return '<p class="mono">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</p><p class="q">' + Q.q + '</p><p>' + cardBtn(Q) + '</p><div class="opts">' + Q.o.map(function (o, i) { return '<button class="btn" data-q="' + i + '"' + (qd ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div><p class="fb2" id="fb2"></p>' + (qd ? '<p><button class="btn primary" data-q="next">' + (qi + 1 < QUIZ.length ? 'Next question' : 'See score') + '</button></p>' : '');
   }
   function draw() {
     var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
@@ -199,6 +212,7 @@ svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
   $('#next').addEventListener('click', function () { go(n + 1); });
   $('#stage').addEventListener('click', function (e) {
     var b = e.target.closest('[data-q]'); if (!b) return; var v = b.getAttribute('data-q');
+    if (v === 'card') { toggleCard(QUIZ[qi]); var on2 = !!cardMap()[cardKey(QUIZ[qi])]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card'; return; }
     if (v === 'again') { qi = 0; qs = 0; qd = false; draw(); return; }
     if (v === 'next') { qi++; qd = false; draw(); return; }
     if (qd) return; var Q = QUIZ[qi], pick = parseInt(v, 10); qd = true; if (pick === Q.a) qs++;
