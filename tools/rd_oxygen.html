@@ -1,0 +1,210 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oxygen Devices, Simply</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}
+.step h2{font-size:24px}
+.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
+svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
+svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
+svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+</style>
+
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cards .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.cards p{margin:6px 0 0;font-size:15px}
+.cards .card.bad{border-color:var(--a-fill)}.cards .card.good{border-color:var(--good)}
+.q{font-family:var(--display);font-size:21px;line-height:1.35;font-weight:600;max-width:46ch;margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.opts .btn{text-align:left}
+.fb2{font-weight:500;max-width:60ch;min-height:1.5em;margin:0}
+svg .pctbar{fill:var(--b-fill)}svg .thr{stroke:var(--a-fill);stroke-width:1.5;stroke-dasharray:5 4}
+svg .curve{stroke:var(--ink);stroke-width:2.5;fill:none}svg .curve2{stroke:var(--a-fill);stroke-width:2.5;fill:none;stroke-dasharray:6 4}
+svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
+</style>
+
+<main>
+  <header>
+    <h1>Oxygen devices and breathing support, simply</h1>
+    <p class="lede">Why each device on the oxygen ladder is chosen, and when to climb. Seven short steps and a test. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav">
+    <button class="btn" id="back">Back</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button class="btn primary" id="next">Next</button>
+  </div>
+  <p class="foot">Simplified for learning, not a clinical decision tool. The oxygen targets (92 to 96%, or 88 to 92% for CO2 retainers) are from the TSANZ guideline as summarised in the MJA (2015). The device explanations and approximate oxygen percentages are standard teaching, not from an Australian guideline: confirm with your hospital protocol and your senior.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  function box(cls, x, y, w, h, t1, t2) { return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="8"/><text class="big" x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle">' + t1 + '</text>' + (t2 ? '<text x="' + (x + w / 2) + '" y="' + (y + 42) + '" text-anchor="middle">' + t2 + '</text>' : ''); }
+  function arrow(x1, y1, x2, y2) { return '<path class="arr" d="M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2 + '"/><path class="arr" d="M' + (x2 - 7) + ',' + (y2 - 6) + ' L' + x2 + ',' + y2 + ' L' + (x2 - 7) + ',' + (y2 + 6) + '"/>'; }
+  function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
+  function card(cls, h3, ps) { return '<div class="card ' + cls + '"><h3>' + h3 + '</h3>' + ps.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</div>'; }
+
+  var TOPIC = 'respiratory-distress-rapid-response';
+  var QUIZ = [
+    { id: "venturi", g: "T", q: "Why does a Venturi mask suit a COPD patient whose target is 88 to 92%?", o: ["It gives a fixed oxygen percentage however they breathe, so you cannot overshoot", "It gives the highest oxygen percentage of any mask", "It delivers positive pressure to the airways", "It humidifies the oxygen best"], a: 0, f: "A Venturi mask is built to pull in a fixed amount of room air, so the percentage stays at 24% or 28%. A simple mask or a non-rebreather would vary or give too much." },
+    { id: "dilute", g: "R", q: "A breathless patient breathes in much faster than a nasal cannula delivers. What happens to the oxygen percentage they actually breathe in?", o: ["Room air dilutes it, so it is lower and changes with their breathing", "It stays exactly what the flow dial says", "It rises", "It becomes 100%"], a: 0, f: "Low-flow devices only supply part of each breath. The patient makes up the rest from room air, so the real percentage depends on how they breathe." },
+    { id: "cpap", g: "T", q: "Why does CPAP help pulmonary oedema?", o: ["A constant pressure keeps the air spaces open and pushes fluid out of them, and it eases the work of breathing", "It gives an extra push on every breath to clear CO2", "It delivers 100% oxygen", "It replaces the diuretic"], a: 0, f: "CPAP is one steady pressure. It treats an oxygen-transfer problem by opening collapsed or wet air spaces, so oxygen can cross." },
+    { id: "bipap", g: "T", q: "A drowsy COPD patient has a high CO2 and a low pH. Which support fits best?", o: ["BiPAP: a higher pressure as they breathe in gives each breath a push", "Non-rebreather at 15 L/min", "Simple face mask at 5 L/min", "CPAP at a low pressure only"], a: 0, f: "A high CO2 is a problem of too few effective breaths. BiPAP adds a push on every breath in, so CO2 is blown off. A mask alone cannot do that." },
+    { id: "ladder", g: "C", q: "Type 1 failure: SpO2 low, CO2 normal, RR 32, on a non-rebreather and tiring. Which is a sensible next step?", o: ["High-flow nasal oxygen or CPAP, with senior review", "Sedate and wait", "Reduce the oxygen to 88 to 92%", "Change to a nasal cannula"], a: 0, f: "His problem is getting oxygen across, so he needs more flow or an opening pressure. Climb the oxygen-transfer ladder and call for help early." }
+  ];
+  var qi = 0, qs = 0, qd = false;
+  /* save a question as a recall card: the app turns it into a card in this topic (synced) */
+  function cardMap() { try { return JSON.parse(localStorage.getItem('rmo-qcards') || '{}'); } catch (e) { return {}; } }
+  function cardKey(Q) { return 'rd_oxygen:' + Q.id; }
+  function cardBtn(Q) { var on = !!cardMap()[cardKey(Q)]; return '<button class="btn" data-q="card" aria-pressed="' + on + '">' + (on ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card') + '</button>'; }
+  function toggleCard(Q) {
+    var key = cardKey(Q), m = cardMap(), on = !m[key];
+    try {
+      if (on) m[key] = 1; else delete m[key]; localStorage.setItem('rmo-qcards', JSON.stringify(m));
+      var q = JSON.parse(localStorage.getItem('rmo-card-queue') || '[]'); q.push({ tid: TOPIC, key: key, on: on, g: Q.g, t: Q.q, k: 'Answer: ' + Q.o[Q.a] + '. ' + Q.f }); localStorage.setItem('rmo-card-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoCard: true }, location.origin);
+    } catch (e) { /* storage blocked: card not saved */ }
+  }
+
+  var STEPS = [
+    { h: 'Two numbers: percentage and flow', say: 'Every device gives you an <b>oxygen percentage</b> (FiO2) and a <b>flow</b>. Room air is 21%. A breathless patient breathes in very fast, often 30 to 60 litres a minute or more. If the device gives less flow than that, the patient fills the gap from room air, and the oxygen is <b>diluted</b>. So the percentage they really breathe depends on the flow of the device compared with how hard they are breathing.',
+      pic: function () { var rows = [['Nasal cannula, 4 L/min', 4, 'low-flow: mostly room air'], ['Simple mask, 8 L/min', 8, 'low-flow: varies'], ['Non-rebreather, 15 L/min', 15, 'bag stores oxygen: higher'], ['High-flow nasal, 40+ L/min', 40, 'flow meets the breathing: no dilution']], s = '<text class="sm" x="260" y="14">Patient breathes in about 40 L/min (example)</text>', i, y, w;
+        for (i = 0; i < 4; i++) { y = 28 + i * 44; w = rows[i][1] * 10; s += '<text class="big" x="10" y="' + (y + 18) + '">' + rows[i][0] + '</text><rect class="neutral" x="260" y="' + y + '" width="400" height="26" rx="5"/><rect class="pctbar" x="260" y="' + y + '" width="' + w + '" height="26" rx="5"/><text x="' + (w < 160 ? 260 + w + 8 : 270) + '" y="' + (y + 18) + '" style="fill:' + (w < 160 ? 'var(--ink)' : '#fff') + '">' + rows[i][2] + '</text>'; }
+        s += '<text class="sm" x="10" y="212">Blue = device flow. Grey = the gap filled with room air. Illustration only; the numbers are examples.</text>';
+        return svg(760, 222, s, 'Device flow compared with breathing demand'); } },
+    { h: 'Why Venturi for CO2 retainers', say: 'A <b>Venturi mask</b> is built so that the air it pulls in is always in the same proportion to the oxygen. It also has a high total flow, so the percentage barely changes however the patient breathes. You choose 24% or 28% and that is what they get. A COPD patient needs a <b>small, exact</b> dose to land in the 88 to 92% range. A simple mask or a non-rebreather would give a variable or a high amount, which is why they are not the first choice here.',
+      html: function () { return '<div class="cards">' + card('good', 'Venturi', ['Fixed percentage: 24%, 28%, and higher settings.', 'Predictable, so you can aim at a target.', 'Best when too much oxygen is a danger.']) + card('', 'Simple face mask', ['Roughly 35 to 50% at 5 to 10 L/min (approximate).', 'Varies with breathing. Needs at least 5 L/min so the patient does not rebreathe their own CO2.']) + card('bad', 'Non-rebreather', ['Reservoir bag stores oxygen, so a high percentage.', 'For critical illness while you find the cause, not for CO2 retainers unless the senior asks.']) + '</div>'; } },
+    { h: 'High-flow nasal oxygen: why it helps type 1 failure', say: 'In type 1 failure the lung struggles to get oxygen into the blood, so the patient needs a <b>high percentage</b> and breathes hard. High-flow nasal oxygen gives warm, humid gas at a flow that meets or exceeds how fast they breathe in, so there is no dilution: the percentage you set is the percentage they get. It also washes CO2 out of the upper airway, so less breathing effort is wasted, and it gives a small positive pressure. It is comfortable, so patients keep it on. It does <b>not</b> take over the work of breathing, so it is not the answer for a high CO2 with acidosis.',
+      html: function () { return '<div class="cards">' + card('good', 'What it does', ['Meets the breathing demand.', 'Humid and warm: comfortable.', 'Small positive pressure.']) + card('bad', 'What it does not do', ['It does not push each breath.', 'So not the main treatment for a high CO2 with a low pH.']) + '</div>'; } },
+    { h: 'CPAP and BiPAP: one pressure or two', say: '<b>CPAP</b> is one steady pressure all the time. It keeps the air spaces open and pushes fluid out of them, which treats an <b>oxygen-transfer</b> problem such as pulmonary oedema or pneumonia. <b>BiPAP</b> has two pressures: a higher one as the patient breathes in, which pushes each breath, and a lower one as they breathe out. That extra push blows off CO2, so BiPAP treats a <b>ventilation</b> problem such as COPD with a high CO2.',
+      pic: function () { return svg(760, 190, '<text class="big" x="10" y="22">CPAP: one steady pressure</text><path class="curve" d="M10,70 L350,70"/><text class="big" x="400" y="22">BiPAP: higher in, lower out</text><path class="curve" d="M400,100 L440,100 L440,60 L500,60 L500,100 L560,100 L560,60 L620,60 L620,100 L680,100 L680,60 L740,60"/><text class="sm" x="10" y="130">Keeps air spaces open.</text><text class="sm" x="10" y="148">Treats low oxygen from wet or collapsed lung.</text><text class="sm" x="400" y="130">Each breath in gets a push.</text><text class="sm" x="400" y="148">Treats a high CO2 from too few breaths.</text><text class="sm" x="10" y="170">Both are called non-invasive ventilation (NIV).</text>', 'CPAP is a flat pressure; BiPAP alternates a high and a low pressure'); } },
+    { h: 'Two ladders, not one', say: 'The right rung depends on the <b>type</b> of failure. Read the gas, then pick the ladder. If the patient is not improving on one rung, or is tiring, climb.',
+      html: function () { return '<div class="cards">' + card('', 'Type 1: low oxygen, normal CO2', ['Nasal cannula or mask, then non-rebreather.', 'Then high-flow nasal oxygen.', 'Then CPAP.', 'Then intubation.']) + card('', 'Type 2: high CO2, low pH', ['Controlled oxygen with a Venturi, aim 88 to 92%.', 'Then BiPAP.', 'Then intubation.', 'A mask alone cannot fix a high CO2.']) + '</div>'; } },
+    { h: 'When to climb, and when to call', say: 'Climb when the SpO2 stays below target on the current device, the breathing rate is rising, the patient is using accessory muscles, or they are getting drowsy. After a change, recheck in about an hour: the gas, the rate and the effort should be better. The top rung is <b>intubation</b>: for a patient who is tiring, drowsy, cannot protect the airway or is failing NIV. Call your senior and ICU before that point, not at it.',
+      html: function () { return '<div class="cards">' + card('good', 'Signs it is working', ['Rate falling, less effort.', 'SpO2 in the target range.', 'For type 2: pH rising.']) + card('bad', 'Signs it is failing', ['Drowsy or exhausted.', 'Rising CO2 or falling pH.', 'Not better at about an hour on NIV.']) + '</div>'; } },
+    { h: 'Test yourself', quiz: true }
+  ];
+  var n = 0;
+  function quizHTML() {
+    if (qi >= QUIZ.length) return '<p class="q">' + qs + ' out of ' + QUIZ.length + '.</p><p class="say">' + (qs === QUIZ.length ? 'All right. Come back in a few days and try again.' : 'Go back to the step for any you missed, then try again.') + '</p><p><button class="btn" data-q="again">Try again</button></p>';
+    var Q = QUIZ[qi];
+    return '<p class="mono">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</p><p class="q">' + Q.q + '</p><p>' + cardBtn(Q) + '</p><div class="opts">' + Q.o.map(function (o, i) { return '<button class="btn" data-q="' + i + '"' + (qd ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div><p class="fb2" id="fb2"></p>' + (qd ? '<p><button class="btn primary" data-q="next">' + (qi + 1 < QUIZ.length ? 'Next question' : 'See score') + '</button></p>' : '');
+  }
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    if (s.quiz) h += quizHTML();
+    else { h += '<p class="say">' + s.say + '</p>'; h += s.html ? s.html() : s.pic(); }
+    $('#stage').innerHTML = h;
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-q]'); if (!b) return; var v = b.getAttribute('data-q');
+    if (v === 'card') { toggleCard(QUIZ[qi]); var on2 = !!cardMap()[cardKey(QUIZ[qi])]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card'; return; }
+    if (v === 'again') { qi = 0; qs = 0; qd = false; draw(); return; }
+    if (v === 'next') { qi++; qd = false; draw(); return; }
+    if (qd) return; var Q = QUIZ[qi], pick = parseInt(v, 10); qd = true; if (pick === Q.a) qs++;
+    draw();
+    var bs = document.querySelectorAll('.opts .btn'); bs.forEach(function (x, i) { if (i === Q.a) x.classList.add('right'); else if (i === pick) x.classList.add('wrong'); });
+    var fb = $('#fb2'); fb.className = 'fb2 ' + (pick === Q.a ? 'fb good' : 'fb bad'); fb.textContent = (pick === Q.a ? 'Right. ' : 'Not quite. ') + Q.f;
+  });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script></body></html>
