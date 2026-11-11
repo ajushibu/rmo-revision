@@ -1,0 +1,209 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Right Heart, Simply</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}
+.step h2{font-size:24px}
+.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
+svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
+svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
+svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+</style>
+
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cards .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.cards p{margin:6px 0 0;font-size:15px}
+.cards .card.bad{border-color:var(--a-fill)}.cards .card.good{border-color:var(--good)}
+.q{font-family:var(--display);font-size:21px;line-height:1.35;font-weight:600;max-width:46ch;margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.opts .btn{text-align:left}
+.fb2{font-weight:500;max-width:60ch;min-height:1.5em;margin:0}
+svg .pctbar{fill:var(--b-fill)}svg .thr{stroke:var(--a-fill);stroke-width:1.5;stroke-dasharray:5 4}
+svg .curve{stroke:var(--ink);stroke-width:2.5;fill:none}svg .curve2{stroke:var(--a-fill);stroke-width:2.5;fill:none;stroke-dasharray:6 4}
+svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
+</style>
+
+<main>
+  <header>
+    <h1>The right heart in massive PE, simply</h1>
+    <p class="lede">Why the right ventricle fails in a big clot, and why intubation, big fluid boluses and sedatives can tip it over. Eight short steps. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav">
+    <button class="btn" id="back">Back</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button class="btn primary" id="next">Next</button>
+  </div>
+  <p class="foot">Simplified for learning, not a clinical decision tool. This explains the Point of Care Medicine advice on massive PE. The physiology is standard teaching. I did not check the drug choices (ketamine, a vasopressor ready) or the fluid volume against an Australian guideline: follow your hospital protocol and your senior.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  function box(cls, x, y, w, h, t1, t2) { return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="8"/><text class="big" x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle">' + t1 + '</text>' + (t2 ? '<text x="' + (x + w / 2) + '" y="' + (y + 42) + '" text-anchor="middle">' + t2 + '</text>' : ''); }
+  function arrow(x1, y1, x2, y2) { return '<path class="arr" d="M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2 + '"/><path class="arr" d="M' + (x2 - 7) + ',' + (y2 - 6) + ' L' + x2 + ',' + y2 + ' L' + (x2 - 7) + ',' + (y2 + 6) + '"/>'; }
+  function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
+  function card(cls, h3, ps) { return '<div class="card ' + cls + '"><h3>' + h3 + '</h3>' + ps.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</div>'; }
+
+  var TOPIC = 'pulmonary-embolism-and-vte';
+  var QUIZ = [
+    { id: "intub", g: "C", q: "Why can intubating a patient with a massive PE make them collapse?", o: ["Positive-pressure breaths cut the blood returning to the right heart and raise the pressure it must push against, and induction drugs drop the BP", "The tube blocks the clot from moving", "Oxygen is toxic to the right ventricle", "It causes a second clot"], a: 0, f: "Three hits at once: less filling of the right ventricle, a higher load for it, and a lower blood pressure feeding it. A failing right ventricle cannot cope with all three." },
+    { id: "hfnc", g: "T", q: "A hypoxic patient with a massive PE is still breathing on their own. Which option gives oxygen without positive-pressure breaths?", o: ["High-flow nasal oxygen", "Intubation and ventilation", "BiPAP with high pressures", "Rapid sequence induction"], a: 0, f: "High-flow nasal oxygen adds only a small back-pressure and needs no sedation, so it treats hypoxia without the three hits. It buys time; it does not remove the clot." },
+    { id: "fluid", g: "C", q: "BP 80/50 in a massive PE with a swollen right ventricle. What is the safe view on fluids?", o: ["Only a small, cautious bolus (the page says about 500 mL at most); large volumes can overstretch the right ventricle", "Give 2 litres quickly to fill the right heart", "Fluids are the main treatment", "Never give any fluid or vasopressor"], a: 0, f: "A right ventricle that is already stretched pushes the septum into the left ventricle when overfilled, so the left side fills less and the BP falls further. The volume limit is from the Point of Care page." },
+    { id: "induce", g: "C", q: "You must intubate a patient with a massive PE. Which preparation is best?", o: ["The most experienced operator, a steadier induction agent such as ketamine, and a vasopressor ready before induction", "A large dose of propofol so the tube goes in smoothly", "Fluid bolus of 2 litres as the only preparation", "Intubate on the ward without help"], a: 0, f: "The aim is to keep the BP up through induction and the first breaths. Ketamine and a vasopressor ready are the Point of Care advice (US teaching: the page says epinephrine; check your hospital and senior)." },
+    { id: "spiral", g: "R", q: "Why does a falling blood pressure make a failing right ventricle worse?", o: ["Its own blood supply depends on the BP, so a lower BP starves it and its output falls further", "Low BP makes the clot bigger", "Low BP raises the lung pressure", "The right ventricle has no blood supply"], a: 0, f: "This is the spiral: less output, lower BP, less blood to the right ventricle, even less output." }
+  ];
+  var qi = 0, qs = 0, qd = false;
+  /* save a question as a recall card: the app turns it into a card in this topic (synced) */
+  function cardMap() { try { return JSON.parse(localStorage.getItem('rmo-qcards') || '{}'); } catch (e) { return {}; } }
+  function cardKey(Q) { return 'pe_rv:' + Q.id; }
+  function cardBtn(Q) { var on = !!cardMap()[cardKey(Q)]; return '<button class="btn" data-q="card" aria-pressed="' + on + '">' + (on ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card') + '</button>'; }
+  function toggleCard(Q) {
+    var key = cardKey(Q), m = cardMap(), on = !m[key];
+    try {
+      if (on) m[key] = 1; else delete m[key]; localStorage.setItem('rmo-qcards', JSON.stringify(m));
+      var q = JSON.parse(localStorage.getItem('rmo-card-queue') || '[]'); q.push({ tid: TOPIC, key: key, on: on, g: Q.g, t: Q.q, k: 'Answer: ' + Q.o[Q.a] + '. ' + Q.f }); localStorage.setItem('rmo-card-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoCard: true }, location.origin);
+    } catch (e) { /* storage blocked: card not saved */ }
+  }
+
+  var STEPS = [
+    { h: 'The right heart is a thin pump', say: 'The right ventricle (RV) sends blood through the lungs. That is a <b>low-pressure</b> job, so its wall is thin. The left ventricle (LV) sends blood to the whole body against a high pressure, so its wall is thick. The RV is good at moving a lot of blood easily. It is bad at pushing against a sudden wall.',
+      html: function () { return '<div class="cards">' + card('', 'Right ventricle', ['Thin wall, built for low pressure.', 'Needs to be filled by the veins.', 'Tires fast if the lung pressure jumps.']) + card('', 'Left ventricle', ['Thick wall, built for high pressure.', 'Fills from the lungs.', 'Copes well with a higher load.']) + '</div>'; } },
+    { h: 'What a massive PE does to it', say: 'A big clot blocks the lung arteries. The pressure the RV must push against shoots up. The thin RV swells and tires. It then sends less blood to the left side, so the BP falls. The swollen RV also bows the wall between the two ventricles (the septum) into the LV, so the LV fills even less.',
+      pic: function () { return svg(760, 130, box('stop', 10, 30, 130, 60, 'Clot', 'lung arteries blocked') + arrow(140, 60, 160, 60) + box('amb', 164, 30, 140, 60, 'Lung pressure', 'goes up') + arrow(304, 60, 324, 60) + box('amb', 328, 30, 130, 60, 'RV swells', 'and tires') + arrow(458, 60, 478, 60) + box('amb', 482, 30, 130, 60, 'Less blood', 'reaches the LV') + arrow(612, 60, 632, 60) + box('stop', 636, 30, 118, 60, 'BP falls', ''), 'Massive PE chain from clot to low blood pressure'); } },
+    { h: 'The spiral', say: 'The RV gets its own blood supply from the aorta, so it depends on the <b>blood pressure</b>. A fall in BP starves the RV, its output falls further, and the BP falls again. A failing RV is on a downward spiral. Everything you do should break the spiral, not feed it.',
+      pic: function () { return svg(760, 170, box('amb', 10, 20, 170, 56, 'Low output') + arrow(180, 48, 230, 48) + box('stop', 234, 20, 170, 56, 'BP falls') + arrow(404, 48, 454, 48) + box('stop', 458, 20, 290, 56, 'RV blood supply falls', 'RV weaker') + '<path class="arr" d="M600,76 L600,120 L95,120 L95,80"/><path class="arr" d="M88,86 L95,78 L102,86"/><text class="big" x="150" y="150">Each lap makes the next one worse</text>', 'The downward spiral'); } },
+    { h: 'Why big fluid boluses can hurt', say: 'It seems logical to fill a patient with low BP. But the RV is already stretched. More fluid overstretches it, it pushes the septum further into the LV, and the LV fills less. The Point of Care page says about <b>500 mL at most</b> if hypotensive. After that, think vasopressor and treating the clot, not more fluid.',
+      html: function () { return '<div class="cards">' + card('good', 'Small cautious bolus', ['About 500 mL at most (Point of Care page).', 'Then reassess.']) + card('bad', 'Large boluses', ['Overstretch the RV.', 'The septum bows into the LV: the BP can fall further.']) + '</div>'; } },
+    { h: 'Why intubation is dangerous', say: 'Three things happen together. <b>1.</b> Positive-pressure breaths raise the pressure in the chest and squeeze the veins, so less blood comes back to the RV. <b>2.</b> Inflating the lungs squeezes the lung vessels, so the RV has an even higher wall to push against. <b>3.</b> The drugs used to put the patient to sleep lower the BP, so the RV loses its blood supply. A failing RV cannot take all three, and the patient can arrest.',
+      html: function () { return '<div class="cards">' + card('bad', '1. Less filling', ['Chest pressure up.', 'Less blood back to the RV.']) + card('bad', '2. Higher load', ['Lung vessels squeezed.', 'The RV pushes against more.']) + card('bad', '3. Lower BP', ['Sedatives and induction drugs relax vessels.', 'The RV is starved.']) + '</div>'; } },
+    { h: 'High-flow nasal oxygen instead', say: 'A high-flow nasal cannula gives warm, humid oxygen at a high flow through the nose. The patient keeps breathing on their own, so there are <b>no positive-pressure breaths</b>, only a small back-pressure, and no sedation. It treats the low oxygen without the three hits. It does not remove the clot: it buys time while the team decides on reperfusion.',
+      html: function () { return '<div class="cards">' + card('good', 'High-flow nasal oxygen', ['Own breaths, no induction drugs.', 'Only a small back-pressure.', 'Buys time.']) + card('bad', 'Intubation and ventilation', ['Positive-pressure breaths.', 'Induction drugs.', 'Last resort.']) + '</div>'; } },
+    { h: 'If you must intubate', say: 'Sometimes the patient is tiring or arresting and there is no choice. The aim is to keep the BP up through the whole process. The Point of Care page advises <b>ketamine</b> (it tends to keep the BP steadier than other induction drugs) and a vasopressor at the bedside. The page names epinephrine; in Australia the same drug is adrenaline, and noradrenaline is commonly used for RV failure. I could not check this against an Australian guideline.',
+      html: function () { return '<div class="cards">' + card('good', 'Before induction', ['Most experienced operator.', 'A vasopressor running or ready, drawn up and labelled.', 'A steadier induction agent such as ketamine.']) + card('good', 'After the tube', ['Gentle ventilation: low volumes and low PEEP (standard teaching).', 'Discuss reperfusion (for example thrombolysis) with your senior at once.']) + '</div>'; } },
+    { h: 'Test yourself', quiz: true }
+  ];
+  var n = 0;
+  function quizHTML() {
+    if (qi >= QUIZ.length) return '<p class="q">' + qs + ' out of ' + QUIZ.length + '.</p><p class="say">' + (qs === QUIZ.length ? 'All right. Come back in a few days and try again.' : 'Go back to the step for any you missed, then try again.') + '</p><p><button class="btn" data-q="again">Try again</button></p>';
+    var Q = QUIZ[qi];
+    return '<p class="mono">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</p><p class="q">' + Q.q + '</p><p>' + cardBtn(Q) + '</p><div class="opts">' + Q.o.map(function (o, i) { return '<button class="btn" data-q="' + i + '"' + (qd ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div><p class="fb2" id="fb2"></p>' + (qd ? '<p><button class="btn primary" data-q="next">' + (qi + 1 < QUIZ.length ? 'Next question' : 'See score') + '</button></p>' : '');
+  }
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    if (s.quiz) h += quizHTML();
+    else { h += '<p class="say">' + s.say + '</p>'; h += s.html ? s.html() : s.pic(); }
+    $('#stage').innerHTML = h;
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-q]'); if (!b) return; var v = b.getAttribute('data-q');
+    if (v === 'card') { toggleCard(QUIZ[qi]); var on2 = !!cardMap()[cardKey(QUIZ[qi])]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 In your recall cards (tap to remove)' : '\u2606 Make this a recall card'; return; }
+    if (v === 'again') { qi = 0; qs = 0; qd = false; draw(); return; }
+    if (v === 'next') { qi++; qd = false; draw(); return; }
+    if (qd) return; var Q = QUIZ[qi], pick = parseInt(v, 10); qd = true; if (pick === Q.a) qs++;
+    draw();
+    var bs = document.querySelectorAll('.opts .btn'); bs.forEach(function (x, i) { if (i === Q.a) x.classList.add('right'); else if (i === pick) x.classList.add('wrong'); });
+    var fb = $('#fb2'); fb.className = 'fb2 ' + (pick === Q.a ? 'fb good' : 'fb bad'); fb.textContent = (pick === Q.a ? 'Right. ' : 'Not quite. ') + Q.f;
+  });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script></body></html>
