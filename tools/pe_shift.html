@@ -1,4 +1,8 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}</style><title>PE Night Shift</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}body{margin:0}.cs-new { display: inline-block; width: auto; color: #9A5B00; background: #FBEFD9; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; font-family: inherit; margin-left: 6px; }
+.cs-played { color: #2E7D4F; font-weight: 600; }
+.cs-unplayed { color: #9A5B00; }
+@media (prefers-color-scheme: dark) { .cs-new { color: #E3B162; background: #382D1A; } .cs-played { color: #74C495; } .cs-unplayed { color: #E3B162; } }
+</style><title>PE Night Shift</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Source+Serif+4:wght@600&display=swap">
 <style>
@@ -156,6 +160,12 @@ S.newFacts.map(function (f) { return '<li class="new">New: ' + f + '</li>'; }).j
 
   /* ---------- star a case: the next refresh writes similar new cases (synced through the app) ---------- */
   function starMap() { try { return JSON.parse(localStorage.getItem('rmo-stars') || '{}'); } catch (e) { return {}; } }
+  var SEEN_FILE = TOOL.replace('_shift', '');
+  function caseIsNew(id) { try { var r = JSON.parse(localStorage.getItem('rmo-seen') || 'null'); return !!(r && r.bs && !r.cases[SEEN_FILE + ':' + id]); } catch (e) { return false; } }
+  function caseStatus(c, b) {
+    if (b !== undefined) return '<p class="cs-played">Played. Best on this device: ' + b + '%</p>';
+    return '<p class="cs-unplayed">' + (caseIsNew(c.id) ? 'New, not played yet' : 'Not played yet') + '</p>';
+  }
   function starBtn(c) {
     var on = !!starMap()[TOOL + ':' + c.id];
     return '<button class="star" data-a="star" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '\u2605 Starred' : '\u2606 Star this case') + '</button>';
@@ -249,7 +259,7 @@ return b ? '<p><b>Best move:</b> ' + b.t + '</p>' : '';
 function homeHTML() {
 var cards = CASES.map(function (c, i) {
 var b = bestStore(c.id);
-return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span><h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + (b !== undefined ? '<p>Best on this device: ' + b + '%</p>' : '') + '<div class="btns" style="margin-top:4px"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button>' + starBtn(c) + '</div></div>';
+return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span>' + (b === undefined && caseIsNew(c.id) ? ' <span class="cs-new">New</span>' : '') + '<h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + caseStatus(c, b) + '<div class="btns" style="margin-top:4px"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button>' + starBtn(c) + '</div></div>';
 }).join('');
 return '<div class="card"><h2>You are the RMO on nights</h2><p style="max-width:62ch">Three pages, fourteen decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
 }

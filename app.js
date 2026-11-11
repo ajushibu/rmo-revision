@@ -300,7 +300,10 @@
   function markSeenTopic(tid) {
     var ch = false;
     newCardsIn(tid).forEach(function (x) { seen.cards[x.id] = 1; ch = true; });
-    var t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) caseIds[m[1]].forEach(function (id) { if (!seen.cases[id]) { seen.cases[id] = 1; ch = true; } }); });
+    if (ch) saveSeen();
+  }
+  function markSeenCases(tid) { // cases count as seen once you have been through the night-shift page
+    var ch = false, t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) caseIds[m[1]].forEach(function (id) { if (!seen.cases[id]) { seen.cases[id] = 1; ch = true; } }); });
     if (ch) saveSeen();
   }
   function markAllSeen() { allCardIds().forEach(function (x) { seen.cards[x.id] = 1; }); Object.keys(caseIds || {}).forEach(function (k) { caseIds[k].forEach(function (id) { seen.cases[id] = 1; }); }); saveSeen(); }
@@ -512,14 +515,14 @@
     else h = home();
     var sideY = 0, sd = document.querySelector('.side'); if (sd) sideY = sd.scrollTop;
     app.innerHTML = h;
-    viewing = r[0] === 't' ? r[1] : null;
+    viewing = r[0] === 't' ? r[1] : null; viewingTool = r[0] === 'tool' ? r[1] : null;
     var sd2 = document.querySelector('.side'); if (sd2) sd2.scrollTop = sideY;
     window.scrollTo(0, keepScroll ? y : 0);
     keepScroll = false;
     wire();
   }
-  var viewing = null;
-  window.addEventListener('hashchange', function () { revealed = false; if (viewing) { markSeenTopic(viewing); viewing = null; } render(); });
+  var viewing = null, viewingTool = null;
+  window.addEventListener('hashchange', function () { revealed = false; if (viewing) { markSeenTopic(viewing); viewing = null; } if (viewingTool) { markSeenCases(viewingTool); viewingTool = null; } render(); });
   function topicId() { return route[1]; }
 
   var lastSel = null;
