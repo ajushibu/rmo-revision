@@ -176,12 +176,14 @@ window.RECALL = {
 ]},
 
 "atrial-fibrillation": { items: [
+{id:"af-h4",g:"A",p:1,s:"p",from:["h1794311934960"],t:"AF is a sign of something: find the trigger",k:"Look for the cause: thyroid, alcohol, sepsis, ischaemia, valve disease (also low K or Mg, PE, heart failure, recent surgery). Send TFTs, electrolytes with K and Mg, troponin and creatinine. The creatinine you send now also decides the anticoagulant dose."},
 {id:"af2",g:"A",p:1,s:"p",t:"CHA2DS2-VASc points",k:"Heart failure 1, hypertension 1, age 75+ 2, diabetes 1, stroke or TIA 2, vascular disease 1, age 65-74 1, female 1."},
 {id:"af1",g:"A",p:1,s:"p",t:"Who gets anticoagulated",k:"CHA2DS2-VASc 2 or more in men, 3 or more in women (stroke risk 2% a year or more)."},
 {id:"af13",g:"A",p:2,s:"p",from:["h1794308278402"],t:"Bleeding scores: fix risks, do not withhold",k:"Do not use a bleeding score (HAS-BLED) to withhold anticoagulation. Find and fix the modifiable risks: uncontrolled hypertension, alcohol, NSAIDs, antiplatelets, anaemia, labile INR."},
 {id:"af4",g:"T",p:1,s:"p",t:"Rate control: target and first-line drugs",k:"Target under 110 (under 80 if LV dysfunction or symptoms). Beta-blocker or diltiazem/verapamil. No non-dihydropyridine CCB with moderate or severe LV systolic dysfunction."},
 {id:"af5",g:"T",p:1,s:"p",t:"Second-line rate control and the WPW trap",k:"Ordinary AF: digoxin (slow, about 2 hours) or amiodarone as backup. Pre-excited AF (WPW): no AV-nodal blockers and avoid IV amiodarone too. Unstable: synchronised shock. Stable: procainamide (RACGP); availability in your hospital not confirmed, follow your protocol."},
 {id:"af8",g:"T",p:2,s:"p",t:"Who benefits from rhythm control",k:"Symptomatic despite rate control, first episode, heart failure (especially HFrEF), young, athletes, patient preference."},
+{id:"af-h5",g:"T",p:1,s:"b",from:["h1794310611494"],t:"Shock or drug: can this AF be cardioverted now?",k:"Unstable: shock now; do not wait for a TOE or anticoagulation. Stable, onset under 48 hours: cardioversion can proceed (with mild symptoms, rate control and watching is also fine). Stable, over 48 hours or unknown: exclude left atrial thrombus with TOE first, or anticoagulate for weeks (ANZCOR 11.9)."},
 {id:"af6",g:"T",p:1,s:"p",t:"Electrical cardioversion technique",k:"Sedate, anteroposterior pads, synchronise to the QRS, start about 100 J biphasic. Never defibrillate AF."},
 {id:"af9",g:"T",p:2,s:"p",t:"Drug cardioversion and the structural-heart rule",k:"Flecainide or propafenone only without structural heart disease or coronary disease. Amiodarone, dofetilide or ibutilide otherwise."},
 {id:"af3",g:"F",p:1,s:"p",from:["h1794308329681"],t:"DOACs first line, and warfarin only for",k:"DOAC for non-valvular AF. Warfarin (INR 2-3) for moderate to severe mitral stenosis, mechanical valves, or CrCl under 15 if apixaban not possible. Aspirin alone is not enough."},
@@ -204,6 +206,7 @@ window.RECALL = {
 "bradycardia": { items: [
 {id:"br13",g:"R",p:3,s:"p",t:"Definitions",k:"Bradycardia is under 60 but symptoms usually start under 50. Sick sinus syndrome is SA node dysfunction. Junctional rhythm starts in the AV node. Athletes and sleep can be physiological."},
 {id:"br7",g:"R",p:1,s:"p",t:"The four heart blocks",k:"First degree: long fixed PR. Mobitz I: PR lengthens then a drop. Mobitz II: fixed PR, sudden drops. Complete: atria and ventricles independent."},
+{id:"br-h1",g:"R",p:2,s:"p",from:["h1794313233298"],t:"Complete block: the backup (escape) rhythm",k:"Nothing gets through, so a backup pacemaker below the block sets the beat. The higher the backup, the better. Block at the AV node: junctional escape, 40-60 a minute, narrow QRS, steadier. Block in the wires below: ventricular escape, 20-40 a minute, wide QRS, unreliable (LITFL)."},
 {id:"br1",g:"R",p:1,s:"a",t:"Who is unstable (adverse signs)",k:"Systolic BP under 90, heart rate under 40, ventricular arrhythmia, heart failure. The US page also lists confusion, chest pain and breathlessness."},
 {id:"br8",g:"R",p:1,s:"a",t:"Asystole-risk markers",k:"Recent asystole, Mobitz II, complete block with a broad QRS or rate under 40, a pause over 3 seconds: pads on and call cardiology even if the patient looks well."},
 {id:"br11",g:"A",p:2,s:"p",t:"First-hour work-up",k:"Telemetry, 12-lead ECG, CBC, BMP (potassium), TSH, troponin, echo. Check prior ECG, the drug chart and prior heart disease."},

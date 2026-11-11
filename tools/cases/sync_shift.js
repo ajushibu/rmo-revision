@@ -78,5 +78,32 @@ decisions: [
 ] }
 ],
 ends: { hi: "You found the drugs behind the falls and fixed them.", mid: "He improved, but a step added risk.", lo: "Review steps 5 and 6 of the Study Kit." }
+},
+{
+id: "c20261111a", title: "Down on the commode", where: "Medical ward", time: "03:15", blurb: "An older woman with pneumonia faints while straining. Tests whether you sort the kind of syncope before you treat, and the drugs that hurt in aortic stenosis.",
+intro: "Nurse call: 83-year-old woman found slumped on the commode, came round within a minute. 'Probably just straining, but can you see her?'",
+vit: { hr: 92, sbp: 98, dbp: 60, spo2: 93, rr: 22 },
+facts: ["83F; day 2 of community-acquired pneumonia", "Known aortic stenosis: echo 2 years ago 'moderate to severe'", "Usual furosemide and perindopril given this morning; BP usually 130s", "Harsh ejection systolic murmur; fine basal crackles"],
+decisions: [
+{ tag: "kind", scene: "The nurse thinks it was straining. Which kind of syncope do you work on tonight?", opts: [
+{ q: "best", t: "Possible cardiac syncope until shown otherwise: known significant aortic stenosis and a lower BP than usual. Straining may be the trigger, but it does not explain it away", fb: "With known aortic stenosis, syncope is a red flag. Reflex is a diagnosis you reach after cardiac causes are reasonably excluded." },
+{ q: "ok", t: "Orthostatic: her diuretic and ACE inhibitor plus being unwell", fb: "A likely contributor, but with aortic stenosis you cannot stop there." },
+{ q: "poor", t: "Situational reflex syncope: reassure and go back to bed", fb: "The setting sounds benign, but her valve makes it dangerous." }
+] },
+{ tag: "tests", scene: "What do you do now?", opts: [
+{ q: "best", t: "ECG, telemetry, lying and standing BP if safe, glucose, Hb, electrolytes, troponin, and ask for an inpatient echo (the last one is 2 years old)", reveal: ["ECG: sinus rhythm, LVH, no block. Hb 118. Creatinine up from her baseline."], fb: "Telemetry covers arrhythmia; the echo tells you how tight the valve is now." },
+{ q: "poor", t: "Nothing tonight; outpatient echo", fb: "Syncope with known significant AS needs inpatient work-up." }
+] },
+{ tag: "kind", scene: "She is breathless with crackles; BP 96/58. The day team's plan says: GTN patch tonight and an extra IV furosemide dose. What do you do?", opts: [
+{ q: "best", t: "Hold the GTN and tonight's perindopril, do not give a big diuretic dose, and call your registrar. A cautious diuretic only if she is clearly overloaded", vit: { sbp: 104, dbp: 62 }, fb: "In severe AS output is fixed and depends on filling. Vasodilators and over-diuresis can drop the BP and cause another collapse. (Standard teaching; I did not find an Australian source that states it.)" },
+{ q: "poor", t: "Give the GTN patch and the furosemide as planned", vit: { sbp: 76, dbp: 46, hr: 108 }, fb: "This is the same mistake as the man on the stairs: both lower filling or afterload, and with a tight valve the BP falls." },
+{ q: "poor", t: "Give a 1 litre fluid bolus fast", vit: { spo2: 88, rr: 28 }, fb: "She has crackles. If she is dry, small careful boluses with senior input; not a fast litre." }
+] },
+{ tag: "flags", reveal: ["Echo next morning: severe aortic stenosis, LV function preserved."], scene: "Echo shows severe aortic stenosis. What next?", opts: [
+{ q: "best", t: "Refer to cardiology for valve assessment (surgery or TAVI); syncope in severe AS is a reason to act now", fb: "Symptomatic severe AS (syncope, angina, breathlessness) is an indication for valve intervention." },
+{ q: "poor", t: "Restart all her usual medicines and review in clinic in 6 months", fb: "Symptomatic severe AS carries a high risk of sudden death. It needs prompt cardiology review." }
+] }
+],
+ends: { hi: "You found the valve behind the 'straining' and kept the GTN off.", mid: "She was looked after, but one step risked another collapse.", lo: "Review steps 2 and 3 of the Study Kit and replay." }
 }
 ];

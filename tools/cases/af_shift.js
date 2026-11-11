@@ -129,5 +129,33 @@ decisions: [
 ] }
 ],
 ends: { hi: "He is in sinus rhythm, watched by cardiology, and the verapamil stayed in the bag.", mid: "He survives the night, but at one point the plan was less safe than it needed to be.", lo: "A drug from your list nearly caused VF. Go back to the Shock or drug tab in the Study Kit, read the pre-excited AF scenario, and play again." }
+},
+{
+id: "c20261111a", title: "Day 3 and falling", where: "Surgical ward", time: "22:40", blurb: "New fast AF after bowel surgery that becomes unstable. Tests how to deliver the shock, what to do when it fails, and the trigger.",
+intro: "MET call: 67-year-old man, day 3 after a bowel resection. New AF at 168, BP 82/50, clammy and confused.",
+vit: { hr: 168, sbp: 82, dbp: 50, spo2: 93, rr: 26 },
+facts: ["67M; day 3 after right hemicolectomy", "Sinus rhythm on this morning's observations", "Temperature 38.3; abdomen more tender tonight", "Afternoon bloods: K 3.2 mmol/L"],
+decisions: [
+{ tag: "unstable", scene: "Rate 168, BP 82/50, confused. What is your plan?", opts: [
+{ q: "best", t: "Unstable AF: pads on, call your registrar and the anaesthetic or ICU team, prepare for urgent synchronised cardioversion", fb: "Low BP and confusion caused by the rate make this unstable. Onset was today, so the 48-hour rule is met anyway." },
+{ q: "poor", t: "IV metoprolol to slow the rate first", vit: { hr: 150, sbp: 72, dbp: 42 }, fb: "A negative inotrope in a hypotensive patient. Unstable AF needs the shock." },
+{ q: "poor", t: "Wait for a TOE", fb: "Never delay a shock for TOE when the patient is unstable." }
+] },
+{ tag: "shock", scene: "The anaesthetist is sedating him. You have the defibrillator. How do you set it up?", opts: [
+{ q: "best", t: "Synchronised mode on, check the sync markers sit on each R wave, start around 100 J biphasic and escalate per protocol", fb: "Least energy that works, stepped up if needed. In Queensland the ambulance protocol steps 100, 150, 200 J; follow your hospital device protocol." },
+{ q: "ok", t: "Synchronised 200 J for the first shock", fb: "Same as last time: it may work, but start lower and escalate." },
+{ q: "harm", t: "Unsynchronised shock to save time", fb: "A shock on the T wave can cause VF. Sync is one button." }
+] },
+{ tag: "shock", vit: { hr: 160, sbp: 80, dbp: 48, spo2: 93, rr: 26 }, reveal: ["After the first shock: still AF at 160, BP 80/48"], scene: "First shock: still in AF. What next?", opts: [
+{ q: "best", t: "Check sync is back on (many defibrillators switch it off after each shock), then shock again at the next energy step; consider changing the pad position", vit: { hr: 98, sbp: 106, dbp: 64, spo2: 95, rr: 20 }, reveal: ["Sinus rhythm 98, BP 106/64"], fb: "Escalate energy; re-select sync before each shock on devices that reset. Check your own hospital's defibrillator." },
+{ q: "harm", t: "Shock again straight away at the same energy without checking the mode", fb: "If the device has reset to unsynchronised, this shock can land on a T wave." },
+{ q: "poor", t: "Abandon shocks and load digoxin", fb: "Digoxin takes hours. He is unstable now." }
+] },
+{ tag: "first", scene: "Sinus rhythm, BP 106/64. What now?", opts: [
+{ q: "best", t: "Find and fix the trigger: sepsis from a possible anastomotic leak (cultures, lactate, antibiotics, urgent surgical review and imaging), replace potassium and check magnesium, review fluids", fb: "Post-operative AF is usually a sign of something. Fix the cause or it will come back." },
+{ q: "poor", t: "Start an amiodarone infusion and leave it at that", fb: "It may hold the rhythm, but it misses the leak and the low potassium." }
+] }
+],
+ends: { hi: "Right shock, right energy, sync re-checked, and the trigger found.", mid: "He is in sinus rhythm, but one step was riskier than it needed to be.", lo: "Review the shock steps in the Study Kit and replay." }
 }
 ];

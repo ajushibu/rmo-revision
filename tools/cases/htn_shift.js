@@ -74,5 +74,33 @@ decisions: [
 ] }
 ],
 ends: { hi: "You avoided the beta-blocker trap and treated the cause.", mid: "He settled, but one step was risky.", lo: "Review step 4 of the Study Kit." }
+},
+{
+id: "c20261111a", title: "Spells on the ward", where: "Medical ward", time: "01:40", blurb: "A young woman labelled anxious, with BP spikes and an adrenal mass. Tests secondary causes and the beta-blocker trap in a different setting.",
+intro: "Nurse call: 36-year-old woman, BP 232/128, heart rate 128, pounding headache and drenched in sweat. 'She has PRN metoprolol charted. Can I give it?'",
+vit: { hr: 128, sbp: 232, dbp: 128, spo2: 98, rr: 20 },
+facts: ["36F; GP diagnosed 'panic attacks' 3 months ago", "Spells of headache, sweating and a pounding heart; BP 128/80 between spells", "CT abdomen today for flank pain: 4 cm right adrenal mass", "PRN oral metoprolol charted by day team for heart rate over 120"],
+decisions: [
+{ tag: "cause", scene: "Spells of headache, sweating and palpitations, BP spikes, and an adrenal mass. What are you thinking?", opts: [
+{ q: "best", t: "Phaeochromocytoma until proven otherwise: the classic triad plus an adrenal mass", fb: "Headache, sweating and palpitations in spells is the classic triad. An adrenal mass is itself a reason to test for phaeochromocytoma (Medicine Today, Australia)." },
+{ q: "ok", t: "Probably a panic attack, but I will look for a cause later", fb: "Panic is possible, but with spells and an adrenal mass the cause has to be excluded first." },
+{ q: "poor", t: "Nothing more: she already has a diagnosis of anxiety", fb: "Same trap as before: an existing label stops you looking. Young, paroxysmal hypertension with a mass needs a secondary cause excluded." }
+] },
+{ tag: "drug", scene: "She is still 230/128 and 128 a minute. The nurse has the metoprolol ready.", opts: [
+{ q: "best", t: "Hold the metoprolol. No beta-blocker before alpha-blockade. See her, look for organ damage, and call your registrar and ICU about a titratable IV agent per your hospital protocol", fb: "Beta-blockade before alpha-blockade leaves alpha stimulation unopposed and can precipitate a hypertensive crisis (Medicine Today, Australia)." },
+{ q: "harm", t: "Give the metoprolol as charted: the heart rate is the problem", vit: { hr: 112, sbp: 256, dbp: 142 }, fb: "Unopposed alpha: the BP climbs. This is the same trap as the stimulant case. A fast heart rate with catecholamine excess is not treated with a beta-blocker alone." },
+{ q: "poor", t: "Give a dose of IV hydralazine and recheck in the morning", vit: { hr: 140, sbp: 150, dbp: 84 }, fb: "Unpredictable, untitrated, and you have not looked for organ damage or called for help." }
+] },
+{ tag: "cause", reveal: ["ECG: sinus tachycardia, no ischaemia. Troponin normal. No neurological signs. Spell settles: BP 148/88."], scene: "The spell settles. Which test confirms or excludes the diagnosis?", opts: [
+{ q: "best", t: "Plasma free metanephrines (or 24-hour urine metanephrines), and refer to endocrinology", fb: "First-line in Australia: fasting plasma free metanephrines, or 24-hour urine metanephrines. Levels over three times the upper limit are rarely false positive." },
+{ q: "ok", t: "Aldosterone to renin ratio only", fb: "Worth doing in hypertension with an adrenal mass, but on its own it misses phaeochromocytoma." },
+{ q: "poor", t: "No test needed: send her to the surgeons for the mass", fb: "Biochemistry first. Most adrenal masses are not phaeochromocytomas (about 5% are), and surgery without preparation is dangerous if it is one." }
+] },
+{ tag: "drug", reveal: ["Plasma metanephrines over 4 times the upper limit. Endocrinology plan surgery."], scene: "Endocrinology plan adrenalectomy. In what order do the tablets go in before theatre?", opts: [
+{ q: "best", t: "Alpha-blocker first (phenoxybenzamine or prazosin, dose per endocrinology), and a beta-blocker only after adequate alpha-blockade if the heart rate needs it", fb: "Alpha-blockade starts 1 to 2 weeks before surgery; the beta-blocker comes after (Medicine Today, Australia)." },
+{ q: "harm", t: "Beta-blocker first to settle the heart rate, then add the alpha-blocker", fb: "Wrong order. Beta first can trigger a crisis." }
+] }
+],
+ends: { hi: "You saw past the anxiety label and kept the beta-blocker in the drawer.", mid: "She is safe, but one step risked a crisis or missed the cause.", lo: "Review steps 4 and 6 of the Study Kit, then replay." }
 }
 ];
