@@ -1,0 +1,211 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diuretics, Simply</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}
+.step h2{font-size:24px}
+.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
+svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
+svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
+svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+</style>
+
+<style>
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.cards .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.cards p{margin:6px 0 0;font-size:15px}
+.cards .card.bad{border-color:var(--a-fill)}.cards .card.good{border-color:var(--good)}
+.q{font-family:var(--display);font-size:21px;line-height:1.35;font-weight:600;max-width:46ch;margin:0}
+.opts{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.opts .btn{text-align:left}
+.fb2{font-weight:500;max-width:60ch;min-height:1.5em;margin:0}
+svg .pctbar{fill:var(--b-fill)}svg .thr{stroke:var(--a-fill);stroke-width:1.5;stroke-dasharray:5 4}
+svg .curve{stroke:var(--ink);stroke-width:2.5;fill:none}svg .curve2{stroke:var(--a-fill);stroke-width:2.5;fill:none;stroke-dasharray:6 4}
+svg .amb{fill:var(--diff-t);stroke:var(--diff);stroke-width:2}
+</style>
+
+<main>
+  <header>
+    <h1>Diuretics, simply</h1>
+    <p class="lede">Nine short steps on how each diuretic works and why it fails. Built from your own notes, checked against Australian sources where marked. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav">
+    <button class="btn" id="back">Back</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button class="btn primary" id="next">Next</button>
+  </div>
+  <p class="foot">Simplified for learning, not a clinical decision tool. Sources: the Australian Lasix product information, Medicine Today (July 2026) on diuretics in heart failure, and your own notes. The percentages of sodium taken back are standard physiology, not from an Australian source. Check doses against eTG and your hospital protocol.</p>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  function box(cls, x, y, w, h, t1, t2) { return '<rect class="' + cls + '" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="8"/><text class="big" x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle">' + t1 + '</text>' + (t2 ? '<text x="' + (x + w / 2) + '" y="' + (y + 42) + '" text-anchor="middle">' + t2 + '</text>' : ''); }
+  function arrow(x1, y1, x2, y2) { return '<path class="arr" d="M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2 + '"/><path class="arr" d="M' + (x2 - 7) + ',' + (y2 - 6) + ' L' + x2 + ',' + y2 + ' L' + (x2 - 7) + ',' + (y2 + 6) + '"/>'; }
+  function svg(w, h, inner, alt) { return '<svg viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="' + alt + '" style="width:100%;height:auto;max-width:760px">' + inner + '</svg>'; }
+  function card(cls, h3, ps) { return '<div class="card ' + cls + '"><h3>' + h3 + '</h3>' + ps.map(function (p) { return '<p>' + p + '</p>'; }).join('') + '</div>'; }
+
+  var QUIZ = [
+    { q: 'A patient with a swollen gut is not responding to her usual oral furosemide. What is the first change?', o: ['Give the furosemide IV', 'Add a thiazide first', 'Stop the diuretic because the creatinine rose', 'Switch to acetazolamide'], a: 0, f: 'Oral absorption is unpredictable and a swollen gut absorbs less. IV starts in about 5 minutes.' },
+    { q: 'Which diuretic is most likely to cause a high potassium?', o: ['Furosemide', 'Hydrochlorothiazide', 'Spironolactone', 'Acetazolamide'], a: 2, f: 'Spironolactone blocks aldosterone, so potassium and hydrogen are kept. Loops and thiazides waste potassium.' },
+    { q: 'Which class is the classic drug cause of low sodium?', o: ['Thiazides', 'Loop diuretics', 'Spironolactone', 'Acetazolamide'], a: 0, f: 'Thiazides, usually in older people. Spironolactone and loops can contribute, but thiazides are the classic cause.' },
+    { q: 'After three days of IV furosemide he is still congested and has a metabolic alkalosis. Which add-on tends to correct the alkalosis?', o: ['Hydrochlorothiazide', 'Acetazolamide', 'More loop diuretic by mouth', 'Spironolactone'], a: 1, f: 'Acetazolamide loses bicarbonate, so it pushes towards acidosis. It is an add-on, not a starter (ADVOR trial).' },
+    { q: 'Why does adding a second class of diuretic help in resistance?', o: ['It makes the loop diuretic last longer', 'The later parts of the nephron take back extra sodium when one part is blocked, so you block a second site', 'It raises the GFR', 'It stops the gut swelling'], a: 1, f: 'This is sequential nephron blockade. It treats downstream catch-up, not braking, which needs more frequent doses or an infusion.' }
+  ];
+  var qi = 0, qs = 0, qd = false;
+
+  var STEPS = [
+    { h: 'Sodium decides the water', say: 'Water follows sodium. The kidneys filter a huge amount of sodium (over 20,000 mmol a day) and take back about 99% of it. Only about 100 to 150 mmol leaves in the urine, matching what you take in. Diuretics block the take-back at different places, so more sodium, and the water with it, stays in the urine.',
+      pic: function () {
+        var rows = [['Proximal tubule', 'acetazolamide', 65, 'about 65%'], ['Loop of Henle (thick limb)', 'loop diuretics', 25, 'about 25%'], ['Distal tubule', 'thiazides', 5, 'about 5%'], ['Collecting duct', 'spironolactone', 5, 'about 3 to 5%']], s = '', i, y;
+        for (i = 0; i < 4; i++) { y = 14 + i * 46; s += '<text class="big" x="10" y="' + (y + 14) + '">' + rows[i][0] + '</text><text class="sm" x="10" y="' + (y + 32) + '">' + rows[i][1] + '</text><rect class="pctbar" x="250" y="' + y + '" width="' + rows[i][2] * 4.4 + '" height="30" rx="5"/><text x="' + (250 + rows[i][2] * 4.4 + 10) + '" y="' + (y + 20) + '">' + rows[i][3] + '</text>'; }
+        return svg(760, 205, s, 'Share of sodium taken back in each part of the nephron'); } },
+    { h: 'Loop diuretics: the strongest', say: 'Furosemide (frusemide) works in the thick limb of the loop of Henle, where about a quarter of the sodium is taken back. It is the strongest class, so it is the first choice for congestion. It has a <b>steep dose-response</b>: below a threshold dose almost nothing happens. A dose that is too small is wasted. In kidney disease less drug reaches the tubule, so the threshold is higher.',
+      pic: function () { return svg(760, 215, '<path d="M60,175 L700,175 M60,175 L60,20" stroke="var(--line)" stroke-width="1.5" fill="none"/><text x="560" y="200">Dose of loop diuretic</text><text x="68" y="30">Sodium in the urine</text>' +
+        '<path class="curve" d="M60,172 L200,168 Q260,150 310,80 Q340,40 420,32 L640,28"/><path class="curve2" d="M60,172 L300,168 Q380,150 430,80 Q460,40 540,32 L680,28"/>' +
+        '<path class="thr" d="M200,175 L200,20"/><text class="sm" x="206" y="46">threshold, normal kidneys</text><text class="sm" x="436" y="108">dashed: kidney disease needs a higher dose</text>', 'Dose-response curve'); } },
+    { h: 'Why IV in congestion', say: 'Oral furosemide is absorbed unpredictably. The Australian product information gives a mean of about 60% in healthy men, and the spread between people is wide. A swollen gut absorbs even less. IV starts in about 5 minutes, oral in about an hour. So when the patient is congested, give it IV. For IV, keep the rate under 4 mg a minute to protect hearing (Australian product information).',
+      pic: function () { var X = function (h) { return 130 + h * 75; }; return svg(760, 175, '<path d="M130,120 L700,120" stroke="var(--line)" stroke-width="1.5"/><text x="10" y="55" class="big">Oral</text><text x="10" y="105" class="big">IV</text>' +
+        '<rect class="pctbar" x="' + X(1) + '" y="38" width="' + (X(7) - X(1)) + '" height="24" rx="6"/><text x="' + (X(1) + 8) + '" y="55" style="fill:#fff">starts about 1 hour, lasts 6 to 8 hours</text>' +
+        '<rect class="amb" x="' + X(0.08) + '" y="88" width="' + (X(2) - X(0.08)) + '" height="24" rx="6"/><text x="' + (X(2) + 8) + '" y="105">starts in 5 minutes, lasts about 2 hours</text>' +
+        '<text class="sm" x="' + X(0) + '" y="140">0</text><text class="sm" x="' + X(2) + '" y="140">2 h</text><text class="sm" x="' + X(4) + '" y="140">4 h</text><text class="sm" x="' + X(6) + '" y="140">6 h</text><text class="sm" x="' + X(8) + '" y="140">8 h</text>' +
+        '<text class="sm" x="10" y="165">From the Australian Lasix product information.</text>', 'Onset and duration, oral versus IV furosemide'); } },
+    { h: 'The loop family, and what loops cost you', say: 'Loop diuretics make you lose <b>sodium, potassium, chloride, calcium and magnesium</b>, and hydrogen too. So you get a low potassium and a metabolic (contraction) alkalosis. They do not keep potassium and hydrogen. Check potassium and magnesium daily in heart failure and replace them.',
+      html: function () { return '<div class="cards">' + card('', 'Furosemide', ['Half-life about 1.5 to 2 hours, longer in kidney or liver disease. Oral lasts 6 to 8 hours, IV about 2.', 'The standard loop in Australia. Sulfonamide cross-sensitivity warning in the product information.']) +
+        card('', 'Bumetanide', ['Absorbed almost completely. Half-life about 1 hour (your notes).', 'Registered in Australia (Burinex) but not PBS-listed for heart failure, so check with your hospital.']) +
+        card('', 'Torasemide', ['Half-life about 3 to 6 hours, absorbed well, once daily (your notes).', 'I could not confirm it is marketed in Australia. Do not plan around it until your pharmacy confirms.']) + '</div>'; } },
+    { h: 'Thiazides: weaker, with a different price', say: 'Thiazides work in the distal tubule, where only about 5% of the sodium is taken back, so they are weaker. They are first-line for blood pressure. In heart failure they are an <b>add-on</b> for resistance, not a routine drug. They work poorly at a low GFR.',
+      html: function () { return '<div class="cards">' + card('bad', 'What they lose', ['Sodium, potassium and hydrogen: low potassium and alkalosis.', '<b>Low sodium:</b> thiazides are the classic drug cause of hyponatraemia.']) + card('good', 'What they keep', ['Calcium: less is lost in the urine, which helps in calcium kidney stones.']) +
+        card('', 'In Australia', ['Medicine Today (July 2026) lists hydrochlorothiazide 12.5 to 25 mg daily as an add-on. Metolazone is not PBS-listed for heart failure. Chlorthalidone (Hygroton) appears in the Australian medicines listing, but I could not confirm it is available.']) + '</div>'; } },
+    { h: 'Spironolactone: the opposite of a loop', say: 'It works at the end of the tubule by blocking <b>aldosterone</b>. Aldosterone makes you keep sodium and dump potassium and hydrogen, so blocking it does the opposite: you lose a little sodium but <b>keep potassium and hydrogen</b>. It is a weak diuretic, but it improves survival in HFrEF, which is why it is one of the four pillars.',
+      html: function () { return '<div class="cards">' + card('bad', 'Loop diuretic', ['Potassium lost. Hydrogen lost.', 'Low potassium, alkalosis.']) + card('bad', 'Spironolactone', ['Potassium kept. Hydrogen kept.', '<b>High potassium, acidosis</b>, sometimes low sodium.', 'Check potassium and creatinine. Be cautious if potassium is over 5.0 (see the Study Kit).']) + '</div>'; } },
+    { h: 'Acetazolamide: the proximal tubule', say: 'It blocks <b>carbonic anhydrase</b>, an enzyme that helps turn CO2 and water into hydrogen and bicarbonate. Bicarbonate is taken back with sodium, so blocking the enzyme loses bicarbonate and sodium, and gives a <b>metabolic acidosis</b>. It is also used for altitude sickness and for raised eye pressure. In heart failure it is <b>not a starter</b>. It is an add-on when loops alone are not enough (the ADVOR trial), especially if the patient is alkalotic. Medicine Today lists 250 to 500 mg daily.',
+      pic: function () { return svg(760, 150, box('neutral', 10, 40, 150, 56, 'CO2 + water') + arrow(160, 68, 246, 68) + box('neutral', 250, 40, 130, 56, 'H2CO3') + arrow(380, 68, 456, 68) + box('gate', 460, 40, 290, 56, 'Hydrogen + bicarbonate', 'bicarbonate goes back with sodium') +
+        '<text class="big" x="170" y="30">carbonic anhydrase</text><path d="M180,48 L226,88 M226,48 L180,88" stroke="var(--a-fill)" stroke-width="4"/><text class="big" x="150" y="122" fill="var(--a-fill)" style="fill:var(--a-fill)">acetazolamide blocks this: bicarbonate and sodium are lost</text>', 'Carbonic anhydrase blocked by acetazolamide'); } },
+    { h: 'Why diuretics stop working', say: 'Four causes. <b>1. Braking:</b> the drug wears off and the kidney grabs sodium back, so short gaps between doses are undone. Fix: more often, or an infusion. <b>2. Catch-up downstream:</b> block one segment and the later ones take back more. Fix: add a second class (thiazide, spironolactone or acetazolamide). <b>3. Poor absorption</b> from a swollen gut: give it IV. <b>4. Poor kidney function:</b> a higher threshold dose. Acetazolamide is not the long-acting fix for braking. It is a second site of action.',
+      pic: function () { return svg(760, 150, box('neutral', 10, 40, 160, 60, 'Proximal tubule', 'upstream, unchanged') + arrow(170, 70, 196, 70) + box('stop', 200, 40, 160, 60, 'Loop (blocked)', 'furosemide') + arrow(360, 70, 386, 70) + box('amb', 390, 40, 160, 60, 'Distal tubule', 'takes back more') + arrow(550, 70, 576, 70) + box('amb', 580, 40, 170, 60, 'Collecting duct', 'takes back more') +
+        '<text class="big" x="10" y="130">Block one part and the others catch up. So block a second part.</text>', 'Downstream catch-up'); } },
+    { h: 'Test yourself', quiz: true }
+  ];
+  var n = 0;
+  function quizHTML() {
+    if (qi >= QUIZ.length) return '<p class="q">' + qs + ' out of ' + QUIZ.length + '.</p><p class="say">' + (qs === QUIZ.length ? 'All right. Come back in a few days and try again.' : 'Go back to the step for any you missed, then try again.') + '</p><p><button class="btn" data-q="again">Try again</button></p>';
+    var Q = QUIZ[qi];
+    return '<p class="mono">Question ' + (qi + 1) + ' of ' + QUIZ.length + '</p><p class="q">' + Q.q + '</p><div class="opts">' + Q.o.map(function (o, i) { return '<button class="btn" data-q="' + i + '"' + (qd ? ' disabled' : '') + '>' + o + '</button>'; }).join('') + '</div><p class="fb2" id="fb2"></p>' + (qd ? '<p><button class="btn primary" data-q="next">' + (qi + 1 < QUIZ.length ? 'Next question' : 'See score') + '</button></p>' : '');
+  }
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    if (s.quiz) h += quizHTML();
+    else { h += '<p class="say">' + s.say + '</p>'; h += s.html ? s.html() : s.pic(); }
+    $('#stage').innerHTML = h;
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-q]'); if (!b) return; var v = b.getAttribute('data-q');
+    if (v === 'again') { qi = 0; qs = 0; qd = false; draw(); return; }
+    if (v === 'next') { qi++; qd = false; draw(); return; }
+    if (qd) return; var Q = QUIZ[qi], pick = parseInt(v, 10); qd = true; if (pick === Q.a) qs++;
+    draw();
+    var bs = document.querySelectorAll('.opts .btn'); bs.forEach(function (x, i) { if (i === Q.a) x.classList.add('right'); else if (i === pick) x.classList.add('wrong'); });
+    var fb = $('#fb2'); fb.className = 'fb2 ' + (pick === Q.a ? 'fb good' : 'fb bad'); fb.textContent = (pick === Q.a ? 'Right. ' : 'Not quite. ') + Q.f;
+  });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script></body></html>
