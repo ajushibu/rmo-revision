@@ -256,5 +256,96 @@ window.RECALL = {
 {id:"tcs5",g:"R",p:1,s:"p",t:"Wide: regular or irregular?",k:"Wide, regular, same shape every beat: think VT (one focus firing like a metronome). Wide, irregular, shape changing beat to beat: think AF down an accessory pathway or AF with block. (My suggestion.)"},
 {id:"tcs6",g:"A",p:1,s:"p",t:"Clues for pre-excited AF",k:"Young patient, past episodes of fast palpitations, old ECG with a delta wave, irregular rate over 200 with a QRS width that changes beat to beat. Find his old ECGs. (My suggestion.)"},
 {id:"tcs2",g:"F",p:2,s:"p",t:"After conversion",k:"Repeat the 12-lead (delta wave?), check K and Mg, find the cause, tell your senior or cardiology. (My suggestion.)"}
+]},
+"respiratory-distress-rapid-response": { items: [
+{id:"rd1",g:"R",p:1,s:"g",t:"Look first: airway, breathing, circulation, disability",k:"Talking? Rate, effort, SpO2, pulse, BP, drowsiness. Sit up, monitor, IV access and call for help early."},
+{id:"rd2",g:"R",p:1,s:"g",t:"Oxygen targets",k:"Most acutely unwell adults 92 to 96%; COPD or CO2 retainers 88 to 92% (TSANZ). Oxygen is not for breathlessness without hypoxia."},
+{id:"rd3",g:"R",p:2,s:"g",t:"Stridor or swelling: airway first",k:"Upper airway obstruction or anaphylaxis: IM adrenaline, call anaesthetics early."},
+{id:"rd4",g:"R",p:1,s:"g",t:"Tension pneumothorax is a clinical diagnosis",k:"Breathless, absent air entry one side, low BP, high airway pressures: decompress without waiting for imaging."},
+{id:"rd5",g:"A",p:1,s:"g",t:"Read a gas: pH, CO2, bicarbonate, oxygen",k:"Type 1: low O2 with normal or low CO2. Type 2: high CO2. High CO2 with low pH is acute; a high bicarbonate means chronic."},
+{id:"rd6",g:"A",p:2,s:"g",t:"Venous or arterial gas",k:"A venous gas gives pH and an approximate CO2 but cannot assess oxygenation (MJA 2015)."},
+{id:"rd7",g:"A",p:2,s:"g",t:"Bedside tests in the first minutes",k:"12-lead ECG, glucose, bloods, chest X-ray or bedside ultrasound."},
+{id:"rd8",g:"T",p:1,s:"g",t:"Match the first move to the clue",k:"Wheeze: bronchodilator. Oedema: sit up and CPAP. Anaphylaxis: IM adrenaline. Opioid excess: support breathing and titrated naloxone per protocol."},
+{id:"rd9",g:"T",p:1,s:"g",t:"Oxygen ladder",k:"Cannula, Venturi or simple mask, non-rebreather, high-flow, CPAP or BiPAP, intubation. Move up one rung at a time."},
+{id:"rd10",g:"T",p:1,s:"g",t:"CPAP for pulmonary oedema, BiPAP for hypercapnic acidosis",k:"Match the support to the type of failure."},
+{id:"rd11",g:"C",p:1,s:"g",t:"Do not sedate a breathless patient",k:"Anxiety and agitation are often hypoxia or high CO2."},
+{id:"rd12",g:"C",p:2,s:"g",t:"Sudden low saturation, clear chest, recent surgery",k:"Think pulmonary embolism before pneumonia."},
+{id:"rd13",g:"F",p:1,s:"g",t:"When to call ICU outreach",k:"Drowsy, silent chest, rising CO2 or falling pH, hypotension, or oxygen need rising. Check treatment limits early."},
+{id:"rd14",g:"F",p:2,s:"g",t:"Handover in 20 seconds",k:"Who, what you see, what you think, what you have done, what you need. Include the gas."}
+], sg: [
+{id:"rds1",g:"A",p:2,s:"g",t:"Anion gap in a deep, fast breather",k:"Kussmaul breathing with a clear chest: look for metabolic acidosis (DKA, sepsis, toxins)."}
+]},
+"asthma-exacerbation": { items: [
+{id:"as1",g:"R",p:1,s:"g",t:"Grade severity by the worst feature",k:"Mild to moderate: full sentences, SpO2 over 94%. Severe: cannot finish a sentence, accessory muscles, SpO2 94% or below. Life-threatening: drowsy, exhausted, cyanosed, poor effort or SpO2 under 92%."},
+{id:"as2",g:"R",p:1,s:"g",t:"Silent chest, drowsy or exhausted",k:"Life-threatening: little air is moving. Call ICU and your senior."},
+{id:"as3",g:"A",p:2,s:"g",t:"Look for the cause or complication",k:"Pneumothorax if suddenly worse or unequal air entry, anaphylaxis, pneumonia, beta-blocker or NSAID."},
+{id:"as4",g:"A",p:2,s:"g",t:"Chest X-ray is not routine",k:"Only if you suspect pneumothorax or pneumonia."},
+{id:"as5",g:"T",p:1,s:"g",t:"Mild to moderate: salbutamol",k:"4 to 12 puffs (100 micrograms each) by pMDI and spacer; repeat every 20 minutes in the first hour if needed, then every 4 to 6 hours."},
+{id:"as6",g:"T",p:1,s:"g",t:"Severe: salbutamol and ipratropium",k:"12 puffs by spacer every 20 minutes in the first hour (or a 5 mg nebule if no spacer) plus ipratropium 8 puffs (21 micrograms each) every 20 minutes; then 4 to 6 hourly."},
+{id:"as7",g:"T",p:1,s:"g",t:"Life-threatening: continuous nebulisation",k:"2 x 5 mg salbutamol nebules, oxygen-driven, with ipratropium 500 micrograms every 20 minutes for the first hour. Immediate transfer to higher-level care."},
+{id:"as8",g:"T",p:1,s:"g",t:"Oxygen",k:"Start if SpO2 under 92%. Target 92 to 96%, or 88 to 92% if CO2 retention is a risk."},
+{id:"as9",g:"T",p:1,s:"g",t:"Oral prednisolone early",k:"Australian Prescriber: 50 mg first dose then 25 mg twice daily, about 7 to 10 days. Confirm in your hospital protocol."},
+{id:"as10",g:"C",p:1,s:"g",t:"A normal or rising CO2 means tiring",k:"In a breathless asthmatic, a normal CO2 is not reassuring."},
+{id:"as11",g:"C",p:1,s:"g",t:"Magnesium is a senior decision",k:"IV magnesium for severe attacks that are not responding: dose per your hospital protocol (not verified here)."},
+{id:"as12",g:"C",p:1,s:"g",t:"Never sedate",k:"Benzodiazepines and opioids can precipitate respiratory arrest in a tiring asthmatic."},
+{id:"as13",g:"C",p:1,s:"g",t:"Sudden worsening: think tension pneumothorax",k:"Absent air entry on one side, hypotension, neck veins: decompress, do not send for an X-ray first."},
+{id:"as14",g:"F",p:1,s:"g",t:"Discharge: preventer, plan, technique, review",k:"Never discharge on a reliever alone. Preventer with an inhaled steroid, written action plan, spacer technique, GP review within a few days."},
+{id:"as15",g:"F",p:2,s:"g",t:"Reassess often",k:"At 20 minutes, one hour and after each change. Not improving at one hour: escalate."}
+], sg: [
+{id:"ass1",g:"T",p:3,s:"g",t:"Children are different",k:"Use the RCH guideline for paediatric dosing, not the adult page."}
+]},
+"copd-exacerbation": { items: [
+{id:"co1",g:"R",p:1,s:"g",t:"A flare: more breathless, more sputum, purulent sputum",k:"Ask why: infection is common but look for heart failure, pneumonia, pneumothorax, PE and arrhythmia."},
+{id:"co2",g:"R",p:1,s:"g",t:"Ask about treatment limits early",k:"Is ICU or intubation appropriate for this patient?"},
+{id:"co3",g:"A",p:1,s:"g",t:"Arterial gas if drowsy, severe or low saturation",k:"Look at pH and CO2 before and after oxygen changes."},
+{id:"co4",g:"A",p:2,s:"g",t:"Tests",k:"Chest X-ray, ECG, bloods, sputum culture if purulent; troponin and BNP if unclear."},
+{id:"co5",g:"T",p:1,s:"g",t:"Controlled oxygen: 88 to 92%",k:"Nasal prongs 0.5 to 2 L/min or Venturi 24% or 28%. Avoid excess oxygen: it can worsen hypercapnia."},
+{id:"co6",g:"T",p:1,s:"g",t:"Bronchodilators",k:"Salbutamol by spacer 400 to 800 micrograms or nebulised 2.5 to 5 mg; ipratropium by spacer 80 micrograms or nebulised 500 micrograms; titrate hourly to six-hourly."},
+{id:"co7",g:"T",p:1,s:"g",t:"Prednisolone 40 to 50 mg daily",k:"NSW ACI: up to two weeks is adequate; shorter courses are common. Follow your protocol."},
+{id:"co8",g:"T",p:2,s:"g",t:"Antibiotic if purulent sputum",k:"Cover typical and atypical organisms; agent and dose per eTG and your hospital protocol."},
+{id:"co9",g:"T",p:1,s:"g",t:"Consider NIV",k:"Respiratory acidosis (NSW ACI: pH under 7.3 or worsening; many protocols start under 7.35 with a raised CO2), drowsiness, severe breathlessness, persistent hypoxaemia."},
+{id:"co10",g:"C",p:1,s:"g",t:"Over-oxygenation causes drowsiness",k:"Drowsy on high oxygen with a slow rate: reduce to the target and check a gas."},
+{id:"co11",g:"C",p:1,s:"g",t:"NIV not working at one hour",k:"Call ICU and discuss intubation within agreed limits."},
+{id:"co12",g:"C",p:2,s:"g",t:"Wheeze that does not respond is not always COPD",k:"Think heart failure, pneumothorax, PE and arrhythmia."},
+{id:"co13",g:"F",p:1,s:"g",t:"Admit criteria",k:"Marked symptoms plus failure at home, loss of mobility, cannot eat or sleep, altered mental state, worsening hypoxaemia, right heart failure or new arrhythmia."},
+{id:"co14",g:"F",p:2,s:"g",t:"Before discharge",k:"Inhaler technique, preventer plan, smoking cessation, vaccines, pulmonary rehabilitation, written action plan and early review."}
+], sg: [
+{id:"cos1",g:"C",p:2,s:"g",t:"Nebulise with air in CO2 retainers",k:"Give controlled oxygen by nasal prongs alongside (standard teaching)."}
+]},
+"community-acquired-pneumonia": { items: [
+{id:"pn1",g:"R",p:1,s:"g",t:"Pneumonia: fever, cough, focal signs, new shadow",k:"Mimics: heart failure, PE, aspiration, lung cancer and TB."},
+{id:"pn2",g:"R",p:1,s:"g",t:"Red flags for hospital",k:"RR over 22, confusion, HR over 100, SBP under 90, SpO2 under 92%, multilobar X-ray, vomiting, no social support, unstable comorbidities."},
+{id:"pn3",g:"A",p:1,s:"g",t:"Score severity",k:"CURB-65: above 1 inpatient; above 2 consider HDU or ICU. CORB: confusion, SaO2 90% or below, RR 30 or more, low BP."},
+{id:"pn4",g:"A",p:1,s:"g",t:"Tests before antibiotics",k:"Chest X-ray, bloods, blood cultures (if no delay), sputum culture. Urine antigens and viral PCR if admitted and sick."},
+{id:"pn5",g:"T",p:1,s:"g",t:"Mild CAP",k:"Amoxicillin 1 g orally 8-hourly; doxycycline 100 mg 12-hourly or clarithromycin 500 mg 12-hourly if atypical suspected or penicillin allergy; 5 to 7 days (TG v16)."},
+{id:"pn6",g:"T",p:1,s:"g",t:"Moderate CAP: admit",k:"IV benzylpenicillin 1.2 g 6-hourly plus doxycycline; step down to oral amoxicillin when improving (2011 summary; check eTG)."},
+{id:"pn7",g:"T",p:1,s:"g",t:"Severe CAP",k:"Ceftriaxone 1 g IV daily plus azithromycin 500 mg IV daily; HDU or ICU; ID if allergic, a returned traveller or Staph aureus risk (2011 summary; check eTG)."},
+{id:"pn8",g:"T",p:2,s:"g",t:"Oxygen",k:"Give if SpO2 under 92%, to the target range."},
+{id:"pn9",g:"C",p:1,s:"g",t:"Sepsis with pneumonia",k:"Shock, high lactate or organ dysfunction: sepsis pathway and antibiotics without delay."},
+{id:"pn10",g:"C",p:1,s:"g",t:"No response at 48 hours",k:"Reassess, repeat the X-ray and cultures; in mild CAP add doxycycline or clarithromycin."},
+{id:"pn11",g:"C",p:1,s:"g",t:"No improvement at 5 days",k:"Look for empyema or lung abscess with ultrasound or CT."},
+{id:"pn12",g:"F",p:2,s:"g",t:"Step down to oral antibiotics",k:"When clinically improving; complete the course."},
+{id:"pn13",g:"F",p:2,s:"g",t:"Repeat X-ray at about 6 weeks",k:"If the first film was abnormal (TG via Medicine Today)."},
+{id:"pn14",g:"F",p:3,s:"g",t:"Vaccines and smoking cessation",k:"Offer before discharge."}
+], sg: [
+{id:"pns1",g:"A",p:2,s:"g",t:"Penicillin allergy",k:"Immediate reaction: discuss with ID. Non-immediate: ceftriaxone may be possible (2011 summary)."}
+]},
+"pneumothorax": { items: [
+{id:"px1",g:"R",p:1,s:"g",t:"Tension pneumothorax is a clinical diagnosis",k:"Shock, severe breathlessness, absent air entry one side, high airway pressures if ventilated. Do not wait for imaging."},
+{id:"px2",g:"R",p:2,s:"g",t:"Types",k:"Primary (young, tall, thin), secondary (lung disease), traumatic, iatrogenic, tension."},
+{id:"px3",g:"A",p:1,s:"g",t:"Confirm",k:"Upright chest X-ray; bedside ultrasound (no lung sliding, lung point); CT if unclear and stable."},
+{id:"px4",g:"T",p:1,s:"g",t:"Tension: decompress, then drain",k:"14 or 16 gauge cannula; adult site per your protocol (the Australian paediatric guideline uses the second intercostal space, mid-clavicular line, 90 degrees); a second attempt about 1 cm away if no improvement."},
+{id:"px5",g:"T",p:1,s:"g",t:"Small, quiet primary: observe",k:"Little or no breathlessness: observe; discharge with early review if they can come back easily (NSW ACI)."},
+{id:"px6",g:"T",p:1,s:"g",t:"Large or symptomatic primary, stable: aspirate",k:"14 to 16 gauge; stop at resistance, excessive cough or 2.5 L; repeat X-ray; 2 to 6 hours observation if symptom-free."},
+{id:"px7",g:"T",p:1,s:"g",t:"Failed aspiration or secondary: small-bore drain and admit",k:"All secondary pneumothoraces are admitted. Large or symptomatic: small-bore drain."},
+{id:"px8",g:"T",p:2,s:"g",t:"Drain site",k:"Fifth intercostal space, anterior to the mid-axillary line; incision above the lower rib to avoid the nerve and vessels (PCH guideline)."},
+{id:"px9",g:"C",p:1,s:"g",t:"No routine suction",k:"It risks re-expansion pulmonary oedema (NSW ACI)."},
+{id:"px10",g:"C",p:1,s:"g",t:"Never clamp a bubbling drain",k:"Keep the bottle below chest level and upright."},
+{id:"px11",g:"C",p:1,s:"g",t:"Quiet tube and a worse patient",k:"Check for a kink, blockage or disconnection; X-ray; call your senior. A blocked tube can lead to tension."},
+{id:"px12",g:"C",p:2,s:"g",t:"Ventilated patients",k:"A sudden rise in airway pressure with hypotension: think tension pneumothorax."},
+{id:"px13",g:"F",p:2,s:"g",t:"Remove when the lung is up and there is no leak",k:"A persistent leak for days: involve cardiothoracic surgery."},
+{id:"px14",g:"F",p:2,s:"g",t:"Advice",k:"Stop smoking; recurrence is common; flying and diving advice per your respiratory team."}
+], sg: [
+{id:"pxs1",g:"T",p:3,s:"g",t:"Oxygen speeds resolution",k:"High-flow oxygen may speed resolution (NSW ACI); use the controlled target in CO2 retainers."}
 ]}
 };

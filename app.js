@@ -57,7 +57,7 @@
   var SECT = { R: 'Recognise', A: 'Assess and investigate', T: 'Treat now', C: 'Complications and traps', F: 'After and follow-up', Y: 'Your subtopics' };
   var GORD = { R: 0, A: 1, T: 2, C: 3, F: 4, Y: 5 };
   var PRI = { 1: 'Must know', 2: 'Good to know', 3: 'Detail' };
-  var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance', n: 'Your own notes, checked where an Australian source is named', q: 'A Test yourself question you saved' };
+  var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance', n: 'Your own notes, checked where an Australian source is named', q: 'A Test yourself question you saved', g: 'Australian guidance (Asthma Handbook, TSANZ, NSW ACI, Therapeutic Guidelines); the Study Kit says what could not be verified' };
   var openSet = {}, revealed = false;
   function topicItems(tid) {
     var rc = RC[tid] || { items: [], sg: [] }, out = [], added = S.added[tid] || [];

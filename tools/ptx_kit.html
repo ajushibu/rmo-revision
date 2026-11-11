@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pneumothorax, step by step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Pneumothorax, one decision at a time</h1>
+    <p class="lede">Tension first, then observe, aspirate or drain, then look after the tube. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> Management of stable spontaneous pneumothorax is from the NSW ACI treatment-options page. The Australian needle site I could read is a paediatric guideline (Perth Children's Hospital: second intercostal space, mid-clavicular line, 14 or 16 gauge cannula, 90 degrees). The adult site is not verified here: use the site your hospital or trauma protocol teaches. The size threshold for a "large" pneumothorax is not on the page I read; use your unit's value.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: "Which kind is it?", body: function () { return "<div class=\"scroll\"><table><thead><tr><th>Type</th><th>Clue</th></tr></thead><tbody><tr><td>Primary spontaneous</td><td>Young, tall, thin, often a smoker, no lung disease</td></tr><tr><td>Secondary spontaneous</td><td>Underlying lung disease: COPD, cystic fibrosis, interstitial disease, TB, pneumocystis</td></tr><tr><td>Traumatic</td><td>Chest injury or rib fracture</td></tr><tr><td>Iatrogenic</td><td>After a line, biopsy, aspiration or on a ventilator</td></tr><tr><td>Tension</td><td>Any of the above plus shock: this is a clinical emergency</td></tr></tbody></table></div><div class=\"rx \"><h3>How to confirm</h3><ul class=\"tight\"><li>Upright chest X-ray.</li><li>Bedside ultrasound: no lung sliding, a lung point.</li><li>CT if the diagnosis is unclear and the patient is stable.</li><li><b>Never delay a tension pneumothorax for imaging.</b></li></ul></div>"; } },
+    { h: "Tension: act now", body: function () { return "<p class=\"say\">Tension pneumothorax is a clinical diagnosis. The air cannot escape, the lung collapses and the mediastinum shifts. Venous return falls and the patient arrests.</p><div class=\"rx \"><h3>Signs</h3><ul class=\"tight\"><li>Severe breathlessness, tachycardia, hypotension.</li><li>Absent or reduced air entry on one side, hyper-resonance.</li><li>Distended neck veins; tracheal deviation is a late sign.</li><li>In ventilated patients: rising airway pressures, falling saturation, sudden hypotension.</li></ul></div><div class=\"rx stop\"><h3>Treatment</h3><ul class=\"tight\"><li>Call for help. Oxygen.</li><li>Needle decompression, then a chest drain.</li><li>Australian paediatric guideline (Perth Children's Hospital): second intercostal space, mid-clavicular line, lower half of the space, 90 degrees to the chest wall, 14 or 16 gauge cannula; if no improvement, a second attempt about 1 cm from the first.</li><li>Adult site: use your hospital or trauma protocol. Standard adult teaching is the fourth or fifth intercostal space, anterior axillary line, but I could not verify that from an Australian source.</li></ul></div>"; } },
+    { h: "Stable: observe, aspirate or drain", body: function () { return "<p class=\"say\">Stable means no shock, and able to speak and move.</p><div class=\"scroll\"><table><thead><tr><th>Situation (NSW ACI)</th><th>Plan</th></tr></thead><tbody><tr><td>Primary, small, little or no breathlessness</td><td>Observe. Discharge with early review if they can return easily if worse</td></tr><tr><td>Primary, large, or small with symptoms</td><td>Needle or cannula aspiration (14 to 16 gauge), as safe and effective as a drain with shorter admission. Stop at resistance, excessive cough or 2.5 L withdrawn</td></tr><tr><td>After aspiration</td><td>Repeat chest X-ray and observe; 2 to 6 hours is enough if symptom-free and the lung is up or the pneumothorax small</td></tr><tr><td>Aspiration fails</td><td>Small-bore chest drain and admit</td></tr><tr><td>Secondary</td><td>Admit all. Large or symptomatic: small-bore drain. Small: aspiration may be tried first</td></tr></tbody></table></div><p class=\"hint\">\"Large\" is usually defined by a size on the X-ray (BTS uses 2 cm). The page I read does not give it: use your unit's value.</p>"; } },
+    { h: "Chest drain basics", body: function () { return "<div class=\"rx \"><h3>Where and how</h3><ul class=\"tight\"><li>Fifth intercostal space, anterior to the mid-axillary line (Perth Children's Hospital guideline); incision above the lower rib to avoid the nerve and vessels.</li><li>Small-bore drains are used for pneumothorax. Traumatic blood needs a larger drain: ask your senior; sizes per your protocol.</li></ul></div><div class=\"rx \"><h3>Looking after the tube</h3><ul class=\"tight\"><li>Keep the bottle below chest level and upright.</li><li>Water seal. Bubbling means an air leak; swinging means the tube is patent.</li><li>No routine suction: it risks re-expansion pulmonary oedema (NSW ACI).</li><li>Never clamp a tube that is bubbling.</li></ul></div><div class=\"rx warn\"><h3>If the tube stops swinging or bubbling and the patient is worse</h3><p>Check for a kink, blockage or disconnection, then get a chest X-ray and call your senior. A blocked tube can lead to a tension pneumothorax.</p></div>"; } },
+    { h: "After the drain: go home safely", body: function () { return "<div class=\"rx \"><h3>Removal and follow-up</h3><ul class=\"tight\"><li>Remove when the lung is up on X-ray and there is no air leak, as per your senior or the unit.</li><li>A persistent air leak for several days: talk to the cardiothoracic team about further options.</li><li>Oxygen may speed resolution (NSW ACI), but in patients at risk of CO2 retention use the controlled target.</li></ul></div><div class=\"rx \"><h3>Counselling</h3><ul class=\"tight\"><li>Stop smoking.</li><li>Recurrence is common.</li><li>Flying and diving: not verified here. Avoid flying until cleared and no diving without definitive treatment (standard teaching): follow your respiratory team.</li></ul></div>"; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [["decomp", "Needle decompression now"], ["obs", "Observe with early review"], ["asp", "Needle aspiration"], ["drain", "Small-bore chest drain"], ["check", "Check the tube and bottle, then X-ray"], ["xray", "Chest X-ray first"]];
+  var ITEMS = [
+    { t: "Ventilated ICU patient, sudden hypotension, high airway pressures, absent air entry on the left.", a: "decomp", why: "Tension pneumothorax: decompress immediately, then insert a drain." },
+    { t: "22M, tall, mild pain, not breathless, small apical pneumothorax.", a: "obs", why: "Small primary and not breathless: observe with early review." },
+    { t: "25M breathless with a large pneumothorax, BP 120/80.", a: "asp", why: "Large primary and stable: needle aspiration." },
+    { t: "68F with COPD and a pneumothorax, breathless.", a: "drain", why: "Secondary and symptomatic: admit and insert a small-bore drain." },
+    { t: "Aspiration failed; the lung has not re-expanded.", a: "drain", why: "After failed aspiration: a small-bore chest drain and admission." },
+    { t: "The drain stopped bubbling, the tube looks kinked, and the patient is more breathless.", a: "check", why: "Check for kink, blockage or disconnection, X-ray and call your senior." }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>

@@ -1,0 +1,322 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asthma On Call</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: left column is the patient (monitor + chart), right column is the decision. The monitor is the one dark, high-contrast object; everything else stays quiet. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --best: #2e6b45; --best-t: #d9eadf; --ok: #86690a; --ok-t: #f2e9c9; --poor: #b85a0f; --poor-t: #f6e4d4; --harm: #b3261e; --harm-t: #f6dddb;
+  --on: #ffffff;
+  --mon-bg: #0b1218; --mon-line: #22323f; --mon-dim: #6f8798; --mon-ok: #5de08a; --mon-warn: #f2c14e; --mon-bad: #ff6b5e; --mon-cyan: #62d6ff;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+    --on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --best: #62b58a; --best-t: #1a3226; --ok: #d9b43a; --ok-t: #352e14; --poor: #f08a45; --poor-t: #3a2716; --harm: #e5645a; --harm-t: #3a1f1e;
+  --on: #12100a; --mon-bg: #05090d; --mon-line: #1c2a35;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button { font: inherit; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn { font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 9px 18px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* monitor */
+.monitor { background: var(--mon-bg); color: var(--mon-cyan); border-radius: 8px; padding: 14px 16px; border: 1px solid var(--mon-line); }
+.monitor .head { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mon-dim); margin-bottom: 8px; }
+.vit { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.vit div { border-top: 1px solid var(--mon-line); padding-top: 6px; }
+.vit .l { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--mon-dim); display: flex; align-items: center; gap: 6px; }
+.vit .v { font-family: var(--mono); font-weight: 600; font-size: 34px; line-height: 1.1; transition: color .4s; }
+.vit .u { font-size: 12px; color: var(--mon-dim); margin-left: 4px; font-weight: 500; }
+.v.ok { color: var(--mon-ok); } .v.warn { color: var(--mon-warn); } .v.bad { color: var(--mon-bad); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mon-ok); animation: beat 1s infinite; }
+@keyframes beat { 0%, 100% { opacity: 1; } 50% { opacity: .15; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } .vit .v { transition: none; } }
+
+.chart ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.chart li.new { font-weight: 600; }
+
+/* decision */
+.scene { font-size: 16px; margin: 0 0 14px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 11px 14px; cursor: pointer; line-height: 1.45; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt:disabled { cursor: default; opacity: .62; }
+.opt.chosen { opacity: 1; border-width: 2px; }
+.opt.chosen.best { border-color: var(--best); } .opt.chosen.ok { border-color: var(--ok); }
+.opt.chosen.poor { border-color: var(--poor); } .opt.chosen.harm { border-color: var(--harm); }
+.fb { border-radius: 6px; padding: 12px 14px; margin-top: 12px; }
+.fb .tag { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; }
+.fb p { margin: 4px 0 12px; }
+.fb.best { background: var(--best-t); } .fb.ok { background: var(--ok-t); } .fb.poor { background: var(--poor-t); } .fb.harm { background: var(--harm-t); }
+.fb.best .tag { color: var(--best); } .fb.ok .tag { color: var(--ok); } .fb.poor .tag { color: var(--poor); } .fb.harm .tag { color: var(--harm); }
+.pager { border-left: 6px solid var(--ink); background: var(--n-tint); border-radius: 4px; padding: 12px 14px; }
+.pager b { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; }
+
+/* home + debrief */
+.cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.case-card { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.case-card h3 { margin: 0; font-size: 16px; }
+.case-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.star { background: none; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font: inherit; font-size: 13px; color: var(--muted); cursor: pointer; }
+.star[aria-pressed="true"] { color: #b7791f; border-color: #b7791f; font-weight: 600; }
+.star-note { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.case-card .btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; }
+.meter { height: 8px; background: var(--n-tint); border-radius: 4px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--best); }
+.meter i.mid { background: var(--ok); } .meter i.low { background: var(--harm); }
+.row { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr) 56px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.row .name { font-weight: 500; }
+.row .num { font-family: var(--mono); font-size: 13px; text-align: right; }
+.revisit { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+@media (max-width: 560px) { .row { grid-template-columns: minmax(0, 1fr) 56px; } .row .meter { grid-column: 1 / -1; order: 3; } }
+.big { font-family: var(--display); font-size: 44px; font-weight: 600; line-height: 1; }
+a { color: inherit; }
+.note { font-size: 13px; color: var(--muted); max-width: 70ch; }
+.cs-new { display: inline-block; width: auto; color: #9A5B00; background: #FBEFD9; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; font-family: inherit; margin-left: 6px; }
+.cs-played { color: #2E7D4F; font-weight: 600; }
+.cs-unplayed { color: #9A5B00; }
+@media (prefers-color-scheme: dark) { .cs-new { color: #E3B162; background: #382D1A; } .cs-played { color: #74C495; } .cs-unplayed { color: #E3B162; } }
+</style>
+
+<main>
+  <div class="top">
+    <h1>Asthma On Call</h1>
+    <span class="mono" id="progress"></span>
+  </div>
+  <div id="view"></div>
+  <p class="note">Study aid, not a clinical decision tool. Doses for salbutamol and ipratropium are from the Australian Asthma Handbook adult ED page. The steroid regimen is from Australian Prescriber and the magnesium dose is not given: check your hospital protocol and eTG.</p>
+</main>
+
+<script src="cases/asth_shift.js"></script>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var PTS = { best: 2, ok: 1, poor: 0, harm: -1 };
+  var LABEL = { best: 'Best move', ok: 'Acceptable', poor: 'Poor choice', harm: 'Harmful' };
+  var KIT = 'asth_kit.html';
+  var CONCEPTS = window.RMO_CONCEPTS;
+  var CASES = (window.RMO_CASES || []).filter(function (c) { return !c.retired; });
+
+  /* ---------- state ---------- */
+  var S = { mode: 'home', run: [], ci: 0, di: 0, vit: {}, facts: [], newFacts: [], order: [], picked: null, results: {}, t0: 0 };
+
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function merge(a, b) { var o = {}; for (var k in a) o[k] = a[k]; for (var k2 in b) o[k2] = b[k2]; return o; }
+  function bestStore(id, val) { try { if (val !== undefined) { var cur = JSON.parse(localStorage.getItem('shift-best-' + location.pathname) || '{}'); if (cur[id] === undefined || val > cur[id]) { cur[id] = val; localStorage.setItem('shift-best-' + location.pathname, JSON.stringify(cur)); } } return JSON.parse(localStorage.getItem('shift-best-' + location.pathname) || '{}')[id]; } catch (e) { return undefined; } }
+
+  /* ---------- monitor ---------- */
+  function cls(k, v) {
+    if (v === 0) return 'bad';
+    if (k === 'spo2') return v < 88 ? 'bad' : v < 92 ? 'warn' : 'ok';
+    if (k === 'hr') return v > 130 || v < 40 ? 'bad' : v > 100 ? 'warn' : 'ok';
+    if (k === 'sbp') return v < 90 ? 'bad' : v < 100 ? 'warn' : 'ok';
+    if (k === 'rr') return v > 30 ? 'bad' : v > 24 ? 'warn' : 'ok';
+    return 'ok';
+  }
+  function monitorHTML(c) {
+    var v = S.vit;
+    var arrest = v.hr === 0;
+    var dur = arrest ? 0 : Math.max(0.35, 60 / v.hr);
+    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div><div class="vit">' +
+      '<div><span class="l"><i class="dot" style="' + (arrest ? 'animation:none;background:var(--mon-bad)' : 'animation-duration:' + dur.toFixed(2) + 's') + '"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + (arrest ? '--' : v.hr) + '<span class="u">bpm</span></span></div>' +
+      '<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + (arrest ? '--/--' : v.sbp + '/' + v.dbp) + '<span class="u">mmHg</span></span></div>' +
+      '<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + (arrest ? '--' : v.spo2) + '<span class="u">%</span></span></div>' +
+      '<div><span class="l">RR</span><span class="v ' + cls('rr', v.rr) + '">' + (arrest ? '--' : v.rr) + '<span class="u">/min</span></span></div>' +
+      '</div></div>';
+  }
+  function chartHTML() {
+    return '<div class="card chart"><span class="mono">Chart</span><ul>' +
+      S.facts.map(function (f) { return '<li>' + f + '</li>'; }).join('') +
+      S.newFacts.map(function (f) { return '<li class="new">New: ' + f + '</li>'; }).join('') + '</ul></div>';
+  }
+
+  /* ---------- flow ---------- */
+
+  /* ---------- report attempts to the app (synced, used for weak-point analysis) ---------- */
+  var TOOL = (location.pathname.split('/').pop() || '').replace('.html', '');
+  function report(c) {
+    try {
+      var r = S.results[c.id] || [], pts = 0;
+      r.forEach(function (x) { pts += PTS[x.q]; });
+      var rec = { id: 'a' + Date.now() + Math.random().toString(36).slice(2, 6), tool: TOOL, cs: c.id, title: c.title, at: Date.now(), pts: Math.max(0, pts), max: c.decisions.length * 2,
+        d: r.map(function (x) { return { tag: x.tag, q: x.q, c: x.c }; }) };
+      var q = JSON.parse(localStorage.getItem('rmo-attempt-queue') || '[]'); q.push(rec); localStorage.setItem('rmo-attempt-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoAttempt: true }, location.origin);
+    } catch (e) { /* storage blocked: attempt not recorded */ }
+  }
+
+  /* ---------- star a case: the next refresh writes similar new cases (synced through the app) ---------- */
+  function starMap() { try { return JSON.parse(localStorage.getItem('rmo-stars') || '{}'); } catch (e) { return {}; } }
+  var SEEN_FILE = TOOL.replace('_shift', '');
+  function caseIsNew(id) { try { var r = JSON.parse(localStorage.getItem('rmo-seen') || 'null'); return !!(r && r.bs && !r.cases[SEEN_FILE + ':' + id]); } catch (e) { return false; } }
+  function caseStatus(c, b) {
+    if (b !== undefined) return '<p class="cs-played">Played. Best on this device: ' + b + '%</p>';
+    return '<p class="cs-unplayed">' + (caseIsNew(c.id) ? 'New, not played yet' : 'Not played yet') + '</p>';
+  }
+  function starBtn(c) {
+    var on = !!starMap()[TOOL + ':' + c.id];
+    return '<button class="star" data-a="star" data-id="' + c.id + '" aria-pressed="' + on + '">' + (on ? '\u2605 Starred' : '\u2606 Star this case') + '</button>';
+  }
+  function toggleStar(id) {
+    var c = CASES.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+    try {
+      var key = TOOL + ':' + id, m = starMap(), on = !m[key]; if (on) m[key] = 1; else delete m[key]; localStorage.setItem('rmo-stars', JSON.stringify(m));
+      var q = JSON.parse(localStorage.getItem('rmo-star-queue') || '[]'); q.push({ id: key, on: on, t: Date.now(), tool: TOOL, title: c.title }); localStorage.setItem('rmo-star-queue', JSON.stringify(q));
+      if (window.parent !== window) window.parent.postMessage({ rmoStar: true }, location.origin);
+    } catch (e) { /* storage blocked: star not saved */ }
+  }
+  function start(idxs) {
+    S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
+    startCase();
+  }
+  function startCase() {
+    var c = CASES[S.run[S.ci]];
+    S.di = 0; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.picked = null;
+    S.results[c.id] = [];
+    S.mode = 'intro'; render();
+  }
+  function beginDecision() {
+    var c = CASES[S.run[S.ci]], d = c.decisions[S.di];
+    if (d.vit) S.vit = merge(S.vit, d.vit);
+    if (d.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = d.reveal.slice(); }
+    else { S.facts = S.facts.concat(S.newFacts); S.newFacts = []; }
+    S.order = shuffle(d.opts.map(function (o, i) { return i; }));
+    S.picked = null; S.mode = 'decide'; render();
+  }
+  function pick(i) {
+    var c = CASES[S.run[S.ci]], d = c.decisions[S.di], o = d.opts[i];
+    if (S.picked !== null) return;
+    S.picked = i;
+    if (o.vit) S.vit = merge(S.vit, o.vit);
+    if (o.reveal) { S.facts = S.facts.concat(S.newFacts); S.newFacts = o.reveal.slice(); }
+    S.results[c.id][S.di] = { q: o.q, tag: d.tag, c: String(o.t).slice(0, 90) };
+    render();
+  }
+  function next() {
+    var c = CASES[S.run[S.ci]];
+    if (S.di + 1 < c.decisions.length) { S.di++; beginDecision(); }
+    else { S.mode = 'caseend'; report(c); render(); }
+  }
+  function caseScore(c) {
+    var r = S.results[c.id] || [], pts = 0;
+    r.forEach(function (x) { pts += PTS[x.q]; });
+    return Math.max(0, pts);
+  }
+  function caseMax(c) { return c.decisions.length * 2; }
+  function afterCase() {
+    if (S.ci + 1 < S.run.length) { S.ci++; startCase(); } else { S.mode = 'debrief'; render(); }
+  }
+
+  /* ---------- views ---------- */
+  function render() {
+    var v = $('#view'), p = $('#progress');
+    window.scrollTo(0, 0);
+    if (S.mode === 'home') { p.textContent = ''; v.innerHTML = homeHTML(); return; }
+    var c = CASES[S.run[S.ci]];
+    if (S.mode === 'debrief') { p.textContent = 'Debrief'; v.innerHTML = debriefHTML(); return; }
+    p.textContent = 'Case ' + (S.ci + 1) + ' of ' + S.run.length + (S.mode === 'decide' ? ' · Decision ' + (S.di + 1) + ' of ' + c.decisions.length : '');
+    if (S.mode === 'intro') {
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><h2>' + c.title + '</h2><div class="pager"><b>' + c.time + ' · ' + c.where.toUpperCase() + '</b><p style="margin:6px 0 0">' + c.intro + '</p></div><div class="btns" style="margin-top:14px"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+      return;
+    }
+    if (S.mode === 'decide') {
+      var d = c.decisions[S.di], o = S.picked !== null ? d.opts[S.picked] : null;
+      var opts = S.order.map(function (i) {
+        var oo = d.opts[i], chosen = S.picked === i;
+        return '<button class="opt' + (chosen ? ' chosen ' + oo.q : '') + '" data-i="' + i + '"' + (S.picked !== null ? ' disabled' : '') + '>' + oo.t + '</button>';
+      }).join('');
+      var fb = '';
+      if (o) {
+        var last = (S.di + 1 === c.decisions.length);
+        fb = '<div class="fb ' + o.q + '" role="status"><span class="tag">' + LABEL[o.q] + '</span><p>' + o.fb + '</p>' + bestHint(d, o) + '<button class="btn primary" data-a="next">' + (last ? 'Hand over' : 'Next') + '</button></div>';
+      }
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><p class="scene">' + d.scene + '</p><div class="opts">' + opts + '</div>' + fb + '</div></div></div>';
+      return;
+    }
+    if (S.mode === 'caseend') {
+      var sc = caseScore(c), mx = caseMax(c), pct = Math.round(sc / mx * 100);
+      var end = pct >= 80 ? c.ends.hi : pct >= 50 ? c.ends.mid : c.ends.lo;
+      var bestPrev = bestStore(c.id, pct);
+      v.innerHTML = '<div class="grid"><div class="col">' + monitorHTML(c) + chartHTML() + '</div><div class="col"><div class="card"><span class="mono">Handover</span><h2>' + c.title + '</h2><p class="big">' + pct + '%</p><p class="muted" style="margin:4px 0 12px">' + sc + ' of ' + mx + ' points' + (bestPrev !== undefined ? ' · best on this device ' + bestPrev + '%' : '') + '</p><p>' + end + '</p><div class="btns"><button class="btn primary" data-a="after">' + (S.ci + 1 < S.run.length ? 'Next case' : 'See debrief') + '</button></div><p style="margin:12px 0 0">' + starBtn(c) + '</p><p class="star-note">Star it to get more cases like this at the next refresh, even if you got it all right.</p></div></div></div>';
+    }
+  }
+  function bestHint(d, o) {
+    if (o.q === 'best') return '';
+    var b = d.opts.filter(function (x) { return x.q === 'best'; })[0];
+    return b ? '<p><b>Best move:</b> ' + b.t + '</p>' : '';
+  }
+  function homeHTML() {
+    var cards = CASES.map(function (c, i) {
+      var b = bestStore(c.id);
+      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span>' + (b === undefined && caseIsNew(c.id) ? ' <span class="cs-new">New</span>' : '') + '<h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + caseStatus(c, b) + '<div class="btns" style="margin-top:4px"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button>' + starBtn(c) + '</div></div>';
+    }).join('');
+    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">' + CASES.length + ' patients, ' + CASES.reduce(function (n, c) { return n + c.decisions.length; }, 0) + ' decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div><div class="cases">' + cards + '</div></div>';
+  }
+  function debriefHTML() {
+    var byTag = {}, tot = 0, mx = 0;
+    S.run.forEach(function (ci) {
+      var c = CASES[ci];
+      (S.results[c.id] || []).forEach(function (r) {
+        byTag[r.tag] = byTag[r.tag] || { p: 0, m: 0 };
+        byTag[r.tag].p += Math.max(0, PTS[r.q]); byTag[r.tag].m += 2;
+      });
+      tot += caseScore(c); mx += caseMax(c);
+    });
+    var pct = Math.round(tot / mx * 100);
+    var rows = Object.keys(byTag).map(function (k) {
+      var x = byTag[k], f = Math.round(x.p / x.m * 100), cn = CONCEPTS[k];
+      var cl = f >= 80 ? '' : f >= 50 ? 'mid' : 'low';
+      return '<div class="row"><span class="name">' + cn.n + '</span><div class="meter"><i class="' + cl + '" style="width:' + f + '%"></i></div><span class="num">' + x.p + '/' + x.m + '</span>' +
+        (f < 80 ? '<div class="revisit"><b>Revisit:</b> ' + cn.r + ' <a href="' + KIT + '#' + cn.tab + '" target="_blank" rel="noopener">Open in the Study Kit</a></div>' : '') + '</div>';
+    }).join('');
+    var verdict = pct >= 85 ? 'Solid. The pathway is in your head. Replay in two days to see what stuck.' : pct >= 60 ? 'Decent base with gaps. The red and amber bars below are your next study session.' : 'Not there yet, and that is useful to know. Work through the rows below, then replay.';
+    return '<div class="card"><span class="mono">Shift debrief</span><p class="big" style="margin-top:6px">' + pct + '%</p><p class="muted" style="margin:4px 0 14px">' + tot + ' of ' + mx + ' points. ' + verdict + '</p>' + rows + '<div class="btns" style="margin-top:16px"><button class="btn primary" data-a="all">Replay the whole shift</button><button class="btn" data-a="home">Pick a case</button></div></div>';
+  }
+
+  $('#view').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var a = b.getAttribute('data-a');
+    if (b.classList.contains('opt')) { pick(Number(b.getAttribute('data-i'))); return; }
+    if (a === 'all') start([0, 1, 2]);
+    else if (a === 'one') start([Number(b.getAttribute('data-i'))]);
+    else if (a === 'go') beginDecision();
+    else if (a === 'next') next();
+    else if (a === 'after') afterCase();
+    else if (a === 'home') { S.mode = 'home'; render(); }
+else if (a === 'star') { toggleStar(b.getAttribute('data-id')); var on2 = !!starMap()[TOOL + ':' + b.getAttribute('data-id')]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 Starred' : '\u2606 Star this case'; }
+  });
+  render();
+})();
+</script>

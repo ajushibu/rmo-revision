@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acute asthma, step by step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Acute asthma, one decision at a time</h1>
+    <p class="lede">Severity, bronchodilators, steroids and when to call ICU, built on the Australian Asthma Handbook. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> Severity criteria, salbutamol and ipratropium doses and oxygen targets are from the Australian Asthma Handbook adult ED page. I could not read the Handbook pages on oral steroids or magnesium: the steroid regimen is from an Australian Prescriber article, and the magnesium dose is left to your hospital protocol. Check both.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: "How severe is it?", body: function () { return "<p class=\"say\">Severity decides everything: the dose, the route and who you call. Use the worst feature present.</p><div class=\"scroll\"><table><thead><tr><th></th><th>Features (adults and adolescents)</th></tr></thead><tbody><tr><td>Mild to moderate</td><td>Walks and speaks whole sentences in one breath; SpO2 on room air over 94%</td></tr><tr><td>Severe</td><td>Any of: cannot finish a sentence in one breath, accessory muscle use or obvious distress, SpO2 94% or below on room air</td></tr><tr><td>Life-threatening</td><td>Any of: drowsy or collapsed, exhausted, confused or agitated, cyanosed, poor respiratory effort, SpO2 under 92% on room air</td></tr></tbody></table></div><div class=\"rx stop\"><h3>A silent chest is not a good sign</h3><p>It means little air is moving. A tired asthmatic stops wheezing, then stops breathing.</p></div><p class=\"hint\">Peak flow is not needed to decide in the first minutes.</p>"; } },
+    { h: "Bronchodilators and oxygen", body: function () { return "<p class=\"say\">Salbutamol is the core. Give it early, repeat it often and add ipratropium when it is severe.</p><div class=\"scroll\"><table><thead><tr><th>Severity</th><th>Salbutamol</th><th>Ipratropium</th></tr></thead><tbody><tr><td>Mild to moderate</td><td>4 to 12 puffs (100 micrograms each) by pMDI and spacer; repeat every 20 minutes in the first hour if needed, then every 4 to 6 hours</td><td>Not routine</td></tr><tr><td>Severe</td><td>12 puffs by spacer every 20 minutes in the first hour (or a 5 mg nebule if a spacer cannot be used); then 4 to 6 hourly for 24 hours</td><td>8 puffs (21 micrograms each) by spacer every 20 minutes for the first hour, or 500 micrograms added to the nebuliser</td></tr><tr><td>Life-threatening</td><td>Continuous nebulisation, 2 x 5 mg nebules, oxygen-driven</td><td>500 micrograms in the nebuliser every 20 minutes for the first hour; arrange immediate transfer to higher-level care</td></tr></tbody></table></div><div class=\"rx \"><h3>Oxygen</h3><p>Start if SpO2 is under 92%. Target 92 to 96%, or 88 to 92% if there is a risk of CO2 retention.</p></div><p class=\"hint\">All of the above are from the Australian Asthma Handbook, adult ED page.</p>"; } },
+    { h: "Steroids and the rest", body: function () { return "<div class=\"rx \"><h3>Oral corticosteroid early</h3><ul class=\"tight\"><li>Prednisolone by mouth is as effective as IV and should be given early in all but the mildest attacks (standard teaching).</li><li>Australian Prescriber article: <b>50 mg</b> prednisolone as the first dose, then 25 mg twice a day, stopping after about <b>7 to 10 days</b>.</li><li>I could not read the Asthma Handbook steroid page: confirm the regimen in your hospital protocol.</li></ul></div><div class=\"rx \"><h3>Severe and not responding</h3><ul class=\"tight\"><li>IV magnesium is a senior or ICU decision. <b>Dose per your hospital protocol</b>: I could not verify one from an Australian source.</li><li>Adrenaline IM if anaphylaxis is possible.</li></ul></div><div class=\"rx stop\"><h3>Not routine</h3><ul class=\"tight\"><li>Chest X-ray: only if you suspect pneumothorax or pneumonia.</li><li>Antibiotics: only with signs of bacterial infection.</li><li>Sedatives: never.</li></ul></div>"; } },
+    { h: "Danger signs and escalation", body: function () { return "<div class=\"rx \"><h3>Call ICU and your senior now if</h3><ul class=\"tight\"><li>Life-threatening features, or any severe attack that is not improving after the first hour of treatment.</li><li>Drowsiness, exhaustion, silent chest, or SpO2 falling on oxygen.</li><li>A normal or rising CO2 on a gas in a breathless asthmatic: this is a sign of tiring (standard teaching).</li></ul></div><div class=\"rx \"><h3>Look for the cause</h3><ul class=\"tight\"><li>Pneumothorax: sudden worsening, unequal air entry.</li><li>Anaphylaxis: hives, swelling, hypotension.</li><li>Pneumonia, or a beta-blocker or NSAID.</li></ul></div><p class=\"hint\">Intubation is a last resort and should be done by the most experienced person available.</p>"; } },
+    { h: "Reassess and send home safely", body: function () { return "<p class=\"say\">Reassess at 20 minutes, one hour and after each change. Improving is not the same as safe.</p><div class=\"rx \"><h3>Before discharge</h3><ul class=\"tight\"><li>Symptoms settled, speaking easily, a good peak flow or SpO2 on air, and stable for a period of observation set by your protocol.</li><li>Never leave on a reliever alone: start or check a regular preventer that contains an inhaled corticosteroid (consistent with Asthma Handbook teaching; I did not read that page here).</li><li>Check inhaler and spacer technique, give a written action plan, finish the steroid course and arrange GP review within a few days.</li></ul></div><div class=\"rx \"><h3>Come back if</h3><p>Needing the reliever more often than every 4 hours, waking at night, or unable to speak in full sentences.</p></div>"; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [["mild", "Spacer salbutamol 4 to 12 puffs"], ["sev", "Salbutamol 12 puffs, ipratropium 8 puffs, oxygen if SpO2 under 92%"], ["icu", "Continuous nebulised salbutamol and call ICU now"], ["pred", "Oral prednisolone now"], ["prev", "Add a preventer and action plan before discharge"], ["decomp", "Look for pneumothorax: decompress if tension"]];
+  var ITEMS = [
+    { t: "Walks in, speaks full sentences, SpO2 97% on air.", a: "mild", why: "Mild to moderate: salbutamol 4 to 12 puffs by spacer, repeated every 20 minutes in the first hour if needed." },
+    { t: "One-word replies, accessory muscles, SpO2 90% on air.", a: "sev", why: "Severe: 12 puffs every 20 minutes, ipratropium 8 puffs, oxygen to 92 to 96%." },
+    { t: "Drowsy, quiet chest, SpO2 88% on oxygen.", a: "icu", why: "Life-threatening: continuous nebulised salbutamol with ipratropium, oxygen, and call ICU immediately." },
+    { t: "Severe attack, first salbutamol given, no steroid yet.", a: "pred", why: "Give oral prednisolone early: it needs hours to work." },
+    { t: "Improved after treatment; the plan is to discharge on a reliever only.", a: "prev", why: "A preventer containing an inhaled corticosteroid, a written plan and review before discharge." },
+    { t: "Severe asthma suddenly worse after nebulisers: absent air entry on one side, BP falling.", a: "decomp", why: "This is a tension pneumothorax: decompress, then a chest drain." }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>

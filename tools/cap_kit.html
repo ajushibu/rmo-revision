@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Community-acquired pneumonia, step by step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Pneumonia, one decision at a time</h1>
+    <p class="lede">Severity, tests, the right antibiotic and when it is not working, on the Australian Therapeutic Guidelines. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> The mild-CAP antibiotics and duration are from Therapeutic Guidelines v16 as described in Medicine Today (2024). The moderate and severe regimens and the CORB and SMART-COP definitions come from an older page (dated 2011 to 2012). Antibiotic guidance changes: check the current eTG and your hospital protocol before prescribing.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: "Is it pneumonia, and how sick?", body: function () { return "<p class=\"say\">Fever, cough, breathlessness or pleuritic pain, focal crackles, and a new shadow on the chest X-ray. Then judge how sick the patient is.</p><div class=\"rx \"><h3>Mimics to keep in mind</h3><p>Heart failure, pulmonary embolism, aspiration, lung cancer, TB.</p></div><div class=\"rx \"><h3>Red flags for hospital (Therapeutic Guidelines, via Medicine Today)</h3><ul class=\"tight\"><li>Respiratory rate over 22, confusion, heart rate over 100, systolic BP under 90.</li><li>SpO2 under 92%, or below baseline in chronic lung disease.</li><li>Multilobar changes on X-ray, vomiting, no social support, unstable comorbidities.</li></ul></div><div class=\"rx warn\"><h3>Sepsis?</h3><p>Check for shock, a high lactate and organ dysfunction. If septic, give antibiotics without delay and follow your sepsis pathway.</p></div>"; } },
+    { h: "Severity scores", body: function () { return "<p class=\"say\">Tick what applies to work out a CURB-65 score.</p><ul class=\"checks\" id=\"cb\"><li><label><input type=\"checkbox\"> Confusion (new)</label></li><li><label><input type=\"checkbox\"> Urea over 7 mmol/L</label></li><li><label><input type=\"checkbox\"> Respiratory rate 30 or more</label></li><li><label><input type=\"checkbox\"> Systolic BP under 90 or diastolic 60 or less</label></li><li><label><input type=\"checkbox\"> Age over 65</label></li></ul><div class=\"result\" id=\"cres\"></div><div class=\"scroll\"><table><thead><tr><th>Score</th><th>What it is</th><th>Note</th></tr></thead><tbody><tr><td>CORB</td><td>Confusion, SaO2 90% or below, RR 30 or more, low BP</td><td>Above 1 suggests intensive-care-level risk (2011 page)</td></tr><tr><td>CURB-65</td><td>Adds urea over 7 and age over 65</td><td>Above 1 suggests inpatient care; above 2 consider HDU or ICU</td></tr><tr><td>SMART-COP</td><td>Seven or more clinical variables</td><td>5 or more: high risk of needing ICU support</td></tr></tbody></table></div><p class=\"hint\">Australian guidance favours the Pneumonia Severity Index for the site of care, but you will mostly use CURB-65 or CORB on the ward.</p>"; }, after: function () { var bx = document.querySelectorAll('#cb input'), out = document.getElementById('cres'); function upd() { var s = 0; bx.forEach(function (b) { if (b.checked) s++; }); var t = s <= 1 ? 'Score ' + s + ': low risk. Community care may be possible if the patient is well and has support (check the red flags and your protocol).' : s === 2 ? 'Score 2: admit for treatment.' : 'Score ' + s + ': severe. Discuss with your senior; consider HDU or ICU.'; out.className = 'result ' + (s <= 1 ? 'ok' : s === 2 ? 'diff' : 'go'); out.textContent = t; } bx.forEach(function (b) { b.addEventListener('change', upd); }); upd(); } },
+    { h: "Tests before the first dose", body: function () { return "<div class=\"rx \"><h3>Everyone admitted</h3><ul class=\"tight\"><li>Chest X-ray, FBC, urea and electrolytes, CRP, oxygen saturation.</li><li>Blood cultures before antibiotics, if they will not delay treatment.</li><li>Sputum culture if you can get one.</li></ul></div><div class=\"rx \"><h3>Admitted and sick</h3><ul class=\"tight\"><li>Urine Legionella and pneumococcal antigens.</li><li>Throat or nasal swab for viral PCR (influenza, COVID, RSV) in season.</li><li>Arterial gas and lactate if severe.</li></ul></div><p class=\"hint\">The 2011 page aimed to start antibiotics within 4 hours. In shock, start as soon as possible.</p>"; } },
+    { h: "Which antibiotic", body: function () { return "<p class=\"say\">Match the regimen to severity. Check eTG for the current choice and the doses below.</p><div class=\"scroll\"><table><thead><tr><th>Severity</th><th>Regimen</th></tr></thead><tbody><tr><td>Mild (outpatient)</td><td>Amoxicillin 1 g orally 8-hourly (TG v16). If atypical organisms are suspected or penicillin allergy: doxycycline 100 mg orally 12-hourly or clarithromycin 500 mg orally 12-hourly. 5 to 7 days if uncomplicated</td></tr><tr><td>Moderate (admit)</td><td>Benzylpenicillin 1.2 g IV 6-hourly plus doxycycline (2011 page). Step down to oral amoxicillin when improving</td></tr><tr><td>Severe (HDU or ICU)</td><td>Ceftriaxone 1 g IV daily plus azithromycin 500 mg IV daily (2011 page); call ID if the patient is a returned traveller, allergic, or has Staph aureus risks</td></tr></tbody></table></div><div class=\"rx \"><h3>If there is no response at 48 hours</h3><p>Reassess, get a chest X-ray and sputum culture. In mild CAP, add doxycycline or clarithromycin to amoxicillin (TG v16 via Medicine Today).</p></div><div class=\"rx warn\"><h3>Penicillin allergy</h3><p>If the reaction was immediate, discuss with Infectious Diseases. A non-immediate reaction may allow ceftriaxone (2011 page).</p></div>"; } },
+    { h: "Complications and follow-up", body: function () { return "<div class=\"rx \"><h3>Not improving</h3><ul class=\"tight\"><li>No improvement at 5 days: look for empyema or lung abscess (ultrasound or CT).</li><li>Parapneumonic effusion: sample if more than a small amount, with your senior.</li><li>Worsening hypoxia or sepsis: escalate.</li></ul></div><div class=\"rx \"><h3>Recovery</h3><ul class=\"tight\"><li>Step down to oral antibiotics when clinically improving.</li><li>Repeat chest X-ray at about six weeks if the first film was abnormal (TG via Medicine Today).</li><li>Offer vaccination and smoking cessation.</li></ul></div>"; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [["amox", "Oral amoxicillin, review in 48 hours"], ["peni", "Admit: IV benzylpenicillin plus doxycycline"], ["ceft", "Ceftriaxone plus azithromycin, consider ICU"], ["emp", "Look for empyema: ultrasound or CT"], ["atyp", "Add doxycycline or clarithromycin and review"], ["sep", "Sepsis pathway now"]];
+  var ITEMS = [
+    { t: "45M, no comorbidities, HR 90, RR 18, SpO2 97%, CORB 0.", a: "amox", why: "Mild: oral amoxicillin 1 g 8-hourly, with a plan to review in 48 hours." },
+    { t: "68M with diabetes, RR 24, SpO2 92%, needs admission, CORB 1.", a: "peni", why: "Moderate: admit and give IV benzylpenicillin plus doxycycline (per the page and eTG)." },
+    { t: "75M, confused, RR 34, BP 85/50, SpO2 86%.", a: "ceft", why: "Severe: ceftriaxone plus azithromycin, oxygen, fluids, and call your senior for HDU or ICU." },
+    { t: "Day 5 of amoxicillin, still febrile, new dullness at the right base.", a: "emp", why: "No improvement at 5 days with new dullness: look for empyema or a parapneumonic effusion." },
+    { t: "Mild CAP not improving at 48 hours on amoxicillin alone.", a: "atyp", why: "Add doxycycline or clarithromycin, and check the chest X-ray and cultures." },
+    { t: "Pneumonia with BP 80/45, lactate 4.", a: "sep", why: "Treat as sepsis now: fluids, antibiotics without delay, and senior or ICU review." }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>

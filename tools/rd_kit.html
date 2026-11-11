@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Respiratory distress, step by step</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:wght@600&display=swap">
+<style>
+/* Layout: header, five-tab toolbar, one panel at a time. The first tab is the Australian version of the facts; the other tabs practise them. Amber marks where Australia differs from the US site. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+    --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+    --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+  padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel[hidden] { display: none; }
+.split { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.flag b { color: var(--diff); }
+.checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
+.result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
+.fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
+.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn.primary { background: var(--ink); color: var(--bg); }
+.btn.right { border-color: var(--good); border-width: 2px; opacity: 1; }
+.btn.wrong { border-color: var(--a-fill); border-width: 2px; opacity: 1; }
+.fb { font-weight: 500; min-height: 1.5em; max-width: 64ch; }
+.fb.good { color: var(--good); } .fb.bad { color: var(--a-fill); }
+.bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td:first-child { font-weight: 500; width: 24%; }
+td.aus { background: var(--diff-t); }
+.scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+svg .sm { font-size: 11px; fill: var(--muted); }
+svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
+svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
+svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
+svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .m-n { fill: var(--ink); }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figure { margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+</style>
+<style>
+.step{display:flex;flex-direction:column;gap:14px}.step h2{font-size:24px}
+.say{font-size:17px;line-height:1.55;max-width:60ch;margin:0}.say b{font-weight:600}
+.dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
+.nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 6px}.seg button{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:7px 14px;cursor:pointer}.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--n-tint);font-weight:600}
+.lab{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.rx{border-left:4px solid var(--b-fill);background:var(--n-tint);border-radius:6px;padding:10px 14px}.rx h3{font-family:var(--display);font-size:18px;margin:0 0 4px}.rx p{margin:4px 0}
+.rx.stop{border-left-color:var(--a-fill)}.rx.warn{border-left-color:var(--diff)}
+ul.tight{margin:6px 0 0;padding-left:20px}ul.tight li{margin:3px 0}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+svg text{font-size:13px}
+</style>
+
+<main>
+  <header>
+    <h1>Respiratory distress, one decision at a time</h1>
+    <p class="lede">The first ten minutes of a breathless patient on the ward, in six short steps. Press Next.</p>
+  </header>
+  <div class="card step" id="stage" aria-live="polite"></div>
+  <div class="nav"><button class="btn" id="back">Back</button><div class="dots" id="dots" aria-hidden="true"></div><button class="btn primary" id="next">Next</button></div>
+  <div class="flag"><b>How far to trust this.</b> Oxygen targets are from the TSANZ guideline as summarised in the MJA (2015). Gas interpretation, the escalation triggers and the ladder of oxygen devices are standard teaching, not quoted from an Australian guideline. Confirm doses and local escalation criteria in your hospital protocol.</div>
+</main>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var STEPS = [
+    { h: "First two minutes: look before you label", body: function () { return "<p class=\"say\">A breathless patient needs a quick look, a call for help and oxygen if hypoxic. The cause comes after.</p><div class=\"rx \"><h3>Look, listen, measure</h3><ul class=\"tight\"><li><b>Airway:</b> can they talk? Stridor, gurgling, a swollen tongue?</li><li><b>Breathing:</b> rate, effort, accessory muscles, one-word speech, silent chest, SpO2.</li><li><b>Circulation:</b> pulse, BP, JVP, cool peripheries.</li><li><b>Disability:</b> drowsy or confused means tiring or high CO2; check glucose.</li></ul></div><div class=\"rx \"><h3>Do at once</h3><ul class=\"tight\"><li>Sit them up, call your senior or the rapid response team early, monitor, IV access.</li><li>Oxygen only if hypoxic. Breathlessness without low saturation is not an indication (TSANZ).</li><li>12-lead ECG, bloods with an arterial gas, chest X-ray or bedside ultrasound.</li></ul></div><div class=\"rx warn\"><h3>Oxygen targets (TSANZ)</h3><ul class=\"tight\"><li>Most acutely unwell adults: <b>92 to 96%</b>.</li><li>COPD or others who retain CO2: <b>88 to 92%</b>.</li><li>Use a prescribed device and range, and recheck. Rising oxygen need means medical review.</li></ul></div>"; } },
+    { h: "The big causes and the first move", body: function () { return "<div class=\"scroll\"><table><thead><tr><th>Clue</th><th>Think</th><th>First move</th></tr></thead><tbody><tr><td>Wheeze, speaking in words</td><td>Asthma or COPD</td><td>Bronchodilator with spacer, oxygen to target (see those kits)</td></tr><tr><td>Crackles, raised JVP, cannot lie flat</td><td>Pulmonary oedema</td><td>Sit up, oxygen, treat as acute heart failure, consider CPAP</td></tr><tr><td>Absent air entry one side, low BP, high airway pressures</td><td>Tension pneumothorax</td><td>Decompress now, then a chest drain</td></tr><tr><td>Fever, focal crackles, cough</td><td>Pneumonia</td><td>Cultures, antibiotics, see the pneumonia kit</td></tr><tr><td>Sudden, clear chest, calf swelling, recent surgery</td><td>Pulmonary embolism</td><td>Oxygen, ECG, risk score, imaging, anticoagulation as per your protocol</td></tr><tr><td>Stridor, hives, swelling</td><td>Upper airway obstruction or anaphylaxis</td><td>IM adrenaline, call anaesthetics early</td></tr><tr><td>Deep, fast breathing, clear chest</td><td>Metabolic acidosis (DKA, sepsis)</td><td>Gas, ketones, lactate: treat the cause</td></tr><tr><td>Slow breathing, small pupils, drowsy</td><td>Opioid or sedative excess</td><td>Stimulate, support breathing, titrated naloxone per protocol</td></tr></tbody></table></div><p class=\"hint\">Treat the immediately life-threatening cause first. Do not wait for imaging if the patient is dying in front of you.</p>"; } },
+    { h: "Blood gases, simply", body: function () { return "<p class=\"say\">Read a gas in this order: <b>pH</b>, then <b>CO2</b>, then bicarbonate, then oxygen.</p><div class=\"scroll\"><table><thead><tr><th></th><th>Type 1 failure</th><th>Type 2 failure</th></tr></thead><tbody><tr><td>Oxygen (PaO2)</td><td>Low</td><td>Low</td></tr><tr><td>CO2 (PaCO2)</td><td>Normal or low</td><td><b>High</b> (over about 45 mmHg)</td></tr><tr><td>What is wrong</td><td>Lung is not getting oxygen into blood: pneumonia, oedema, PE</td><td>Not enough breaths: COPD, sedatives, neuromuscular, obesity</td></tr><tr><td>Support</td><td>Oxygen, high-flow, CPAP</td><td>Controlled oxygen, NIV (BiPAP) if acidotic</td></tr></tbody></table></div><div class=\"rx \"><h3>Acute or chronic CO2 retention?</h3><p>High CO2 with a low pH is acute: the patient is failing now. High CO2 with a near-normal pH and a high bicarbonate is chronic: this is their baseline, so do not overtreat the number.</p></div><div class=\"rx warn\"><h3>Venous or arterial?</h3><p>A venous gas gives a reasonable pH and CO2 but cannot tell you about oxygenation (the MJA article makes the same point). Use an arterial gas when oxygenation or CO2 matters.</p></div><p class=\"hint\">A drowsy patient with a rising CO2 is tiring, not calm.</p>"; } },
+    { h: "The oxygen ladder", body: function () { return "<p class=\"say\">Move up one rung at a time. Reassess after each change.</p><div class=\"scroll\"><table><thead><tr><th>Step</th><th>What it is for</th></tr></thead><tbody><tr><td>Nasal cannula, low flow</td><td>Mild hypoxia; comfortable; the preferred starting device in the MJA article</td></tr><tr><td>Venturi mask (24% or 28%)</td><td>Fixed, controlled oxygen for patients who retain CO2</td></tr><tr><td>Simple face mask</td><td>Moderate hypoxia</td></tr><tr><td>Non-rebreather bag at about 15 L/min</td><td>Critical illness while you find the cause; not for CO2 retainers unless needed</td></tr><tr><td>High-flow nasal oxygen</td><td>Higher, humidified flow; useful in type 1 failure</td></tr><tr><td>CPAP or BiPAP</td><td>CPAP for pulmonary oedema; BiPAP for hypercapnic acidosis</td></tr><tr><td>Intubation</td><td>Tiring, drowsy, failing NIV: call ICU and anaesthetics</td></tr></tbody></table></div><div class=\"rx stop\"><h3>Do not</h3><ul class=\"tight\"><li>Sedate a breathless, anxious patient to settle them.</li><li>Turn oxygen up and walk away in a patient at risk of CO2 retention.</li></ul></div>"; } },
+    { h: "When to call for help", body: function () { return "<div class=\"rx \"><h3>Call your senior and ICU outreach now if any of these</h3><ul class=\"tight\"><li>Tiring, drowsy, confused or agitated.</li><li>Silent chest, exhaustion or very slow breathing.</li><li>SpO2 falling despite oxygen, or oxygen needs rising.</li><li>Rising CO2 with falling pH on repeat gases.</li><li>Hypotension, or a cause you cannot treat on the ward.</li></ul></div><div class=\"rx \"><h3>Handover in 20 seconds</h3><p>Who, what you see (rate, SpO2 on what oxygen, BP, HR, GCS), what you think it is, what you have done, what you need. Include the gas.</p></div><p class=\"hint\">Check the patient's treatment limits early: some patients are not for intubation or ICU.</p>"; } },
+    { h: 'Check yourself', drill: true }
+  ];
+  var OPTS = [["neb", "Bronchodilator plus oxygen to target"], ["lowo2", "Reduce oxygen, aim 88 to 92%, arterial gas"], ["decomp", "Needle decompression now"], ["adr", "IM adrenaline"], ["cpap", "CPAP or NIV"], ["none", "No oxygen: reassure and look for the cause"]];
+  var ITEMS = [
+    { t: "Wheezy, speaking in words, SpO2 91% on air.", a: "neb", why: "Wheeze plus hypoxia: bronchodilator with spacer and oxygen to the target range." },
+    { t: "Known COPD, drowsy, SpO2 99% on a 10 L mask, RR 10.", a: "lowo2", why: "Over-oxygenated and retaining CO2. Turn down to 88 to 92% and get an arterial gas." },
+    { t: "Trauma, absent breath sounds right, trachea shifted, BP 70/40.", a: "decomp", why: "Tension pneumothorax is a clinical diagnosis. Decompress now." },
+    { t: "Hives, stridor and BP 70/40 after an antibiotic infusion.", a: "adr", why: "Anaphylaxis: IM adrenaline first, then airway and fluids." },
+    { t: "Pulmonary oedema, RR 36, SpO2 85% on a non-rebreather, cannot lie flat.", a: "cpap", why: "CPAP improves oxygenation and work of breathing in cardiogenic pulmonary oedema." },
+    { t: "SpO2 94% on air, anxious, RR 20, normal chest exam.", a: "none", why: "No hypoxia, so no oxygen. Reassure, look for the cause and do not give oxygen for the sake of it (TSANZ)." }
+  ];
+
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0;
+  function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }
+  function drillHTML() {
+    if (pos >= order.length) { var h = '<div class="say"><b>' + fc + ' of ' + total + '</b> right first time</div>'; h += missed.length ? '<p class="hint">Missed: ' + missed.map(function (i) { return i.t; }).join(' | ') + '</p><div class="btns"><button class="btn primary" data-act="missed">Practise the missed ones</button><button class="btn" data-act="all">Start again</button></div>' : '<p class="hint">No misses. Try again in a day or two.</p><div class="btns"><button class="btn primary" data-act="all">Start again</button></div>'; return h; }
+    var it = order[pos];
+    return '<span class="mono">Scenario ' + (pos + 1) + ' of ' + order.length + '</span><div class="drill"><div class="item">' + it.t + '</div><div class="btns">' + OPTS.map(function (o) { var c = ''; if (ans) { if (o[0] === it.a) c = ' right'; else if (o[0] === ans) c = ' wrong'; } return '<button class="btn' + c + '" data-ans="' + o[0] + '"' + (ans ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>' + (ans ? '<div class="fb ' + (ans === it.a ? 'good' : 'bad') + '">' + (ans === it.a ? 'Correct. ' : 'Not quite. ') + it.why + '</div><button class="btn primary" data-act="next">Next</button>' : '') + '</div>';
+  }
+  function drawD() { $('#dr').innerHTML = drillHTML(); }
+  var n = 0;
+  function draw() {
+    var s = STEPS[n], h = '<span class="mono">Step ' + (n + 1) + ' of ' + STEPS.length + '</span><h2>' + s.h + '</h2>';
+    h += s.drill ? '<p class="hint">' + ITEMS.length + ' scenarios. Wrong ones come back.</p><div id="dr"></div>' : s.body();
+    $('#stage').innerHTML = h;
+    if (s.after) s.after();
+    if (s.drill) { startD(ITEMS); }
+    $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
+    $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+  }
+  $('#stage').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !$('#dr')) return;
+    if (b.hasAttribute('data-ans') && !ans) { var it = order[pos], pick = b.getAttribute('data-ans'); if (pick === it.a) { if (missed.indexOf(it) < 0) fc++; } else if (missed.indexOf(it) < 0) missed.push(it); ans = pick; drawD(); }
+    else if (b.getAttribute('data-act') === 'next') { pos++; ans = null; drawD(); }
+    else if (b.getAttribute('data-act') === 'missed') startD(missed);
+    else if (b.getAttribute('data-act') === 'all') startD(ITEMS);
+  });
+  function go(i) { n = Math.max(0, Math.min(STEPS.length - 1, i)); try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {} draw(); }
+  $('#back').addEventListener('click', function () { go(n - 1); });
+  $('#next').addEventListener('click', function () { go(n + 1); });
+  var h0 = parseInt(location.hash.slice(1), 10); go(isNaN(h0) ? 0 : h0 - 1);
+})();
+</script>
