@@ -287,7 +287,7 @@
     h += q.all.length ? '<p><a class="btn primary big" href="#/revise">Start revising</a></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
     if (q.all.length) {
       h += '<h2>Up next</h2><ul class="list">' + q.all.slice(0, 8).map(function (x) {
-        var t = byId(x.tid); return row('#/t/' + x.tid, esc(x.it.t), itState(x.it.id).k === 'due' ? '<span class="tag due">Due</span>' : '<span class="tag">New</span>', esc(t.name));
+        var t = byId(x.tid); return row('#/t/' + x.tid, esc(x.it.t), itState(x.it.id).k === 'due' ? '<span class="tag due">Due</span>' : '<span class="tag">New</span>', esc(t.name) + noteLine(x.it.id));
       }).join('') + '</ul>' + (q.all.length > 8 ? '<p class="meta"><a href="#/revise">' + plural(q.all.length - 8, 'more item', 'more items') + ' in Revise</a></p>' : '');
     }
     if (rv.length) {
@@ -320,6 +320,7 @@
   }
   function noteOf(id) { var n = S.notes[id]; return n && n.text ? n.text : ''; }
   function setNote(id, text) { text = (text || '').trim(); if (text === noteOf(id)) return; S.notes[id] = { text: text, t: Date.now() }; }
+  function noteLine(id) { var n = noteOf(id); if (!n) return ''; return '<span class="rownote"><b>Your note:</b> ' + esc(n.length > 110 ? n.slice(0, 110) + '...' : n) + '</span>'; }
   function noteBox(id, label) {
     return '<label class="note"><span>' + label + '</span><textarea rows="2" data-note="' + id + '" placeholder="What did you miss? Next time it shows before the answer.">' + esc(noteOf(id)) + '</textarea></label>';
   }
@@ -389,7 +390,7 @@
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer</button>';
     else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)') + rateButtons(x.it.id);
     h += '</section>';
-    if (q.all.length > 1) h += '<h2>Coming up</h2><ul class="list">' + q.all.slice(1, 9).map(function (y) { return row('#/t/' + y.tid, esc(y.it.t), '', esc(byId(y.tid).name)); }).join('') + '</ul>';
+    if (q.all.length > 1) h += '<h2>Coming up</h2><ul class="list">' + q.all.slice(1, 9).map(function (y) { return row('#/t/' + y.tid, esc(y.it.t), '', esc(byId(y.tid).name) + noteLine(y.it.id)); }).join('') + '</ul>';
     return shell(h, { page: 'revise' });
   }
   function tool(id, i) {
