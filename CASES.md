@@ -38,7 +38,7 @@ In any study tool the user can select text and press "Save highlight". Highlight
 
 1. Read the state as above and run `python3 scripts/highlights.py state.json`.
 2. For each pending highlight, add one card to that topic in `recall.js` (or merge several highlights that cover the same point into one card):
-   - `t`: a short recall cue, written as the thing to recall (for example "Atropine dose in Australia"), not a copy of the highlight.
+   - `t`: a full question that the answer fully answers, so the card can be recalled from the question alone (for example "Atropine for bradycardia: what dose in Australia, how often, and up to what maximum?"), not a copy of the highlight. See "Card question rule" below.
    - `k`: the key point in plain sentences, based on the highlight, checked against an Australian source. If it cannot be verified, keep the user's wording and add "(check your hospital protocol)".
    - `g`: the section it belongs in (R, A, T, C, F) and place it in recall order inside that section; `p: 1` if it is must-know.
    - `s`: `p`, `a` or `b` as for other items.
@@ -61,6 +61,15 @@ In any study tool the user can select text and press "Save highlight". Highlight
 4. A retired built-in card gets `dup:"<keeper id>"` and stays in `recall.js`, so a highlight pointing at it (`from`) stays processed and the user's old rating is not orphaned. The app hides cards that have `dup`. An unadded suggestion (`sg`) that is covered can simply be removed.
 5. Cards that overlap but ask for different things (a list versus a detail, a rule versus its reason) stay as they are. Say which pairs you left and why.
 6. Tell the user what was merged, in plain words. A card the user had rated and that was merged will be new to rate again; say so.
+
+# Card question rule (every card, including new ones from a refresh)
+
+Agreed with the user on 12 Nov 2026 after they found that short cue titles ("What loop diuretics cost you") were not enough to recall the answer.
+- `t` is a full question ending in "?" that names every part the answer covers ("Which electrolytes do loop diuretics waste, what acid-base change follows, and how do you protect against it?").
+- `k` answers that question and nothing more: trim facts the question does not ask for, or split them into their own card. Never trim a source line, "not verified" flag or "(My suggestion...)" note.
+- Nothing needed to answer may live only in the title: if the old title held part of the answer ("Prednisolone 40 to 50 mg daily"), move it into `k`.
+- Use the user's "what did you miss" notes (`notes`) to see which part a question failed to ask, and add that part to the question. Keep the notes.
+- Use Australian terms (adrenaline, noradrenaline, FBC, UEC, group and hold).
 
 # New-item nudge (app behaviour, nothing to do in the refresh)
 
