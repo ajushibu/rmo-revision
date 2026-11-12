@@ -191,3 +191,13 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .newnote { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; margin-bottom: 14px; border-radius: 10px; background: var(--shaky-t); color: var(--shaky); font-size: 14px; }
 .newnote b { font-weight: 600; }
 .newnote .link { white-space: nowrap; }
+
+/* revise timer */
+.rt { margin: 8px 0 0; font-size: 14px; color: var(--mut); }
+.rt b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+#rtstate { margin-left: 6px; color: var(--shaky); }
+.rgoal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; color: var(--mut); }
+.rgoal b { color: var(--ink); font-weight: 600; }
+#rgleft { font-variant-numeric: tabular-nums; }
+.rgoal.done { padding: 10px 14px; border-radius: 10px; background: var(--good-t); color: var(--ink); justify-content: space-between; }
+.rgoal.done .btns { display: flex; gap: 8px; }

@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -151,6 +151,9 @@
     out.stars = {};
     [a.stars || {}, b.stars || {}].forEach(function (st) { Object.keys(st).forEach(function (k) { if (!out.stars[k] || (st[k].t || 0) > (out.stars[k].t || 0)) out.stars[k] = st[k]; }); });
     Object.keys(out.stars).forEach(function (k) { if ((out.stars[k].t || 0) < r) delete out.stars[k]; });
+    var seenP = {}; out.pace = [];
+    (a.pace || []).concat(b.pace || []).forEach(function (x) { if (!x || !x.id || seenP[x.id] || out.dead[x.id] || (x.at || 0) < r || !(x.ms > 0)) return; seenP[x.id] = 1; out.pace.push(x); });
+    out.pace.sort(function (x, y) { return x.at - y.at; }); out.pace = out.pace.slice(-60);
     return out;
   }
 
@@ -318,6 +321,96 @@
     return '<div class="newnote" role="status"><span><b>' + bits.join(' and ') + '</b> since you last looked' + (where.length ? ': ' + esc(where.slice(0, 4).join(', ')) + (where.length > 4 ? ' and more' : '') : '') + '. No hurry. They show a yellow tag in the topic.</span><button class="link" data-act="seenall">Got it</button></div>';
   }
 
+  /* ---------- revise timer ----------
+     Counts only active time on the Revise page while a card is showing: stops when the app is hidden,
+     after 2 minutes without a touch or key, and ignores any gap over 5 s between ticks (sleep, throttling,
+     clock changes). Durations use performance.now(), which does not jump when the wall clock is changed.
+     Today's total and an optional short goal live on this device (rmo-revtime); per-card times (capped
+     at 2 min) are synced in S.pace, and the estimate uses the median of the last 40 so one slow card
+     does not skew it. Only one tab counts at a time. */
+  var RT_KEY = 'rmo-revtime', RT_IDLE = 120000, RT_MAXDT = 5000, RT_CAP = 120000, RT_MIN = 1000, RT_DEF = 25000;
+  var rtTab = Math.random().toString(36).slice(2), rtLast = null, rtInput = performance.now(), rtShown = null, rtMem = null, rtLastRate = null, rtTouched = true, rtMsAtInput = 0, rtWasIdle = false, RT_GRACE = 30000;
+  function rtFresh() { return { day: today(), ms: 0, cards: 0, card: null, cardAt: 0, goal: null, owner: null, beat: 0 }; }
+  function rtLoad() {
+    var s = rtMem;
+    try { var v = localStorage.getItem(RT_KEY); if (v) s = JSON.parse(v); } catch (e) {}
+    if (!s || s.day !== today() || typeof s.ms !== 'number' || !(s.ms >= 0)) s = rtFresh();
+    return s;
+  }
+  function rtSave(s) { rtMem = s; try { localStorage.setItem(RT_KEY, JSON.stringify(s)); } catch (e) {} }
+  function rtOther(s) { return s.owner && s.owner !== rtTab && Math.abs(Date.now() - (s.beat || 0)) < 4000; }
+  function rtTick(force) {
+    var now = performance.now(), dt = rtLast == null ? 0 : now - rtLast; rtLast = now;
+    var on = route[0] === 'revise' && rtShown && (force || document.visibilityState === 'visible');
+    if (!on) return;
+    var s = rtLoad(), idle = now - rtInput > RT_IDLE;
+    if (rtOther(s)) { rtPaint(s, 'other'); return; }
+    s.owner = rtTab; s.beat = Date.now();
+    if (rtTouched) { rtTouched = false; rtMsAtInput = s.ms; }
+    if (dt > 0 && dt <= RT_MAXDT && !idle) s.ms += dt;
+    if (idle && !rtWasIdle) { s.ms = Math.max(0, Math.min(s.ms, rtMsAtInput + RT_GRACE)); s.cardAt = Math.min(s.cardAt, s.ms); if (s.goal) s.goal.start = Math.min(s.goal.start, s.ms); } // walked away: keep only 30 s after the last touch
+    rtWasIdle = idle;
+    if (s.card !== rtShown) { s.card = rtShown; s.cardAt = s.ms; }
+    rtSave(s); rtPaint(s, idle ? 'idle' : '');
+  }
+  function rtPace() {
+    var p = (S.pace || []).slice(-40).map(function (x) { return x.ms; }).filter(function (m) { return m > 0; }).sort(function (a, b) { return a - b; });
+    if (p.length < 3) return { ms: RT_DEF, rough: true };
+    var m = p.length >> 1;
+    return { ms: p.length % 2 ? p[m] : (p[m - 1] + p[m]) / 2, rough: p.length < 8 };
+  }
+  function rtClock(ms) { var t = Math.floor(Math.max(0, ms) / 1000), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = t % 60; return (h ? h + ':' + pad(m) : m) + ':' + pad(x); }
+  function rtAbout(ms) { var m = Math.round(ms / 60000); if (m < 1) return 'under a minute'; if (m < 60) return 'about ' + m + ' min'; return 'about ' + Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + m % 60 + ' min' : ''); }
+  function rtEstimate(n) {
+    var p = rtPace();
+    return rtAbout(n * p.ms) + ' at ' + (p.rough ? 'a typical pace (a rough guess until you have done a few cards)' : 'your pace, ' + Math.round(p.ms / 1000) + ' s a card');
+  }
+  function rtGoalLeft(s) { return s.goal ? s.goal.min * 60000 - (s.ms - s.goal.start) : 0; }
+  function rtGoalHTML(s, n) {
+    if (!s.goal) return '<div class="rgoal" data-k="none"><span>Short session:</span>' + [5, 10, 15].map(function (m) { return '<button class="btn small" data-act="rtgoal" data-min="' + m + '">' + m + ' min</button>'; }).join('') + '</div>';
+    if (rtGoalLeft(s) > 0) return '<div class="rgoal" data-k="run"><span><b>' + s.goal.min + '-minute session:</b> <span id="rgleft">' + rtClock(rtGoalLeft(s)) + '</span> left, <span id="rgfit">' + rtFit(s, n) + '</span></span><button class="link" data-act="rtgoaloff">Cancel</button></div>';
+    var done = s.cards - s.goal.cards0;
+    return '<div class="rgoal done" data-k="done"><span><b>' + s.goal.min + ' minutes done.</b> You did ' + plural(done, 'card', 'cards') + '. You can stop here, and the rest will wait.</span><span class="btns"><button class="btn small primary" data-act="rtstop">Stop here</button><button class="btn small" data-act="rtgoaloff">Keep going</button></span></div>';
+  }
+  function rtFit(s, n) { var k = Math.max(1, Math.min(n, Math.floor(rtGoalLeft(s) / rtPace().ms))); return k >= n ? 'enough for all ' + plural(n, 'card', 'cards') : 'about ' + plural(k, 'more card', 'more cards'); }
+  function rtPaint(s, state) {
+    var c = document.getElementById('rtclock'); if (!c) return;
+    c.textContent = rtClock(s.ms);
+    var st = document.getElementById('rtstate'), msg = state === 'idle' ? 'paused: tap anywhere to carry on' : state === 'other' ? 'counting in your other window' : '';
+    if (st && st.textContent !== msg) st.textContent = msg;
+    var g = document.getElementById('rgoal'); if (!g) return;
+    var n = +g.getAttribute('data-n') || 0, want = !s.goal ? 'none' : rtGoalLeft(s) > 0 ? 'run' : 'done', box = g.firstElementChild;
+    if (!box || box.getAttribute('data-k') !== want) { g.innerHTML = rtGoalHTML(s, n); return; }
+    if (want === 'run') { var l = document.getElementById('rgleft'), f = document.getElementById('rgfit'); if (l) l.textContent = rtClock(rtGoalLeft(s)); if (f) { var fv = rtFit(s, n); if (f.textContent !== fv) f.textContent = fv; } }
+  }
+  function rtBlock(n) {
+    var s = rtLoad();
+    return '<p class="rt">Revising today: <b id="rtclock">' + rtClock(s.ms) + '</b> <span id="rtstate"></span></p><div id="rgoal" data-n="' + n + '">' + rtGoalHTML(s, n) + '</div>';
+  }
+  function rtRated(id) {
+    rtLastRate = null;
+    if (route[0] !== 'revise') return false;
+    rtTick(true);
+    var s = rtLoad(); if (s.card !== id || rtOther(s)) return false;
+    var d = Math.max(0, s.ms - s.cardAt), smp = null;
+    s.cards++; s.card = null; rtSave(s);
+    if (d >= RT_MIN) { smp = { id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), ms: Math.round(Math.min(d, RT_CAP)) }; S.pace.push(smp); if (S.pace.length > 60) S.pace = S.pace.slice(-60); }
+    rtLastRate = { id: id, d: d, smp: smp };
+    return !!smp;
+  }
+  function rtUndo(id) {
+    var r = rtLastRate; rtLastRate = null;
+    if (!r || r.id !== id) return;
+    if (r.smp) { S.pace = S.pace.filter(function (x) { return x.id !== r.smp.id; }); S.dead[r.smp.id] = Date.now(); }
+    var s = rtLoad(); s.cards = Math.max(0, s.cards - 1); s.card = id; s.cardAt = Math.max(0, s.ms - r.d); rtSave(s);
+  }
+  function rtActive() { rtInput = performance.now(); rtTouched = true; }
+  ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, rtActive, { passive: true, capture: true }); });
+  window.addEventListener('scroll', rtActive, { passive: true });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } } else { rtLast = performance.now(); rtActive(); } });
+  window.addEventListener('pagehide', function () { rtTick(true); rtLast = null; var ps = rtLoad(); if (ps.owner === rtTab) { ps.beat = 0; rtSave(ps); } });
+  setInterval(function () { rtTick(false); }, 1000);
+
   /* ---------- shell ---------- */
   var route = [];
   function navLink(href, label, on, count, extra) {
@@ -455,12 +548,13 @@
     return shell(h, { page: 'topic', sys: t.system, topic: t.id });
   }
   function revise() {
-    var q = queue(), h = '<header class="head"><h1>Revise</h1><p class="meta">' + (q.all.length ? q.due.length + ' due and ' + q.fresh.length + ' new' : 'All caught up') + '</p></header>';
+    var q = queue(), h = '<header class="head"><h1>Revise</h1><p class="meta">' + (q.all.length ? q.due.length + ' due and ' + q.fresh.length + ' new. To finish: ' + rtEstimate(q.all.length) + '.' : 'All caught up') + '</p>' + (q.all.length ? rtBlock(q.all.length) : '') + '</header>';
     if (!q.all.length) {
       h += '<p class="meta">Nothing to recall right now. Items you rate come back on their date. To add a topic, open it and press "Studied today".</p><p><a class="btn" href="#/topics">Browse topics</a></p>';
       return shell(h, { page: 'revise' });
     }
     var x = q.all[0], t = byId(x.tid), st = itState(x.it.id);
+    rtShown = x.it.id;
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer</button>';
@@ -504,7 +598,7 @@
   function render() {
     var r = location.hash.replace(/^#\/?/, '').split('/'), h, y = 0;
     if (keepScroll) y = window.scrollY;
-    route = r; app.className = '';
+    route = r; app.className = ''; rtShown = null;
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
     else if (r[0] === 'tool') { h = tool(r[1], +r[2]); app.className = 'tool'; }
@@ -520,6 +614,7 @@
     window.scrollTo(0, keepScroll ? y : 0);
     keepScroll = false;
     wire();
+    rtTick(false);
   }
   var viewing = null, viewingTool = null;
   window.addEventListener('hashchange', function () { revealed = false; if (viewing) { markSeenTopic(viewing); viewing = null; } if (viewingTool) { markSeenCases(viewingTool); viewingTool = null; } render(); });
@@ -612,7 +707,7 @@
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } if (rtRated(iid)) save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delhl]'))) { var hid = el.getAttribute('data-delhl'); S.highlights = S.highlights.filter(function (x) { return x.id !== hid; }); S.dead[hid] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -631,7 +726,10 @@
       return;
     }
     if (a === 'highlight') { saveHighlight(); return; }
-    if (a === 'undo') { undoRate(); keepScroll = true; render(); return; }
+    if (a === 'undo') { var uid = undo && undo.id; undoRate(); if (uid) { rtUndo(uid); save(); } keepScroll = true; render(); return; }
+    if (a === 'rtgoal') { var gs = rtLoad(); gs.goal = { min: +el.getAttribute('data-min'), start: gs.ms, cards0: gs.cards }; rtSave(gs); rtPaint(gs, ''); return; }
+    if (a === 'rtgoaloff') { var go = rtLoad(); go.goal = null; rtSave(go); rtPaint(go, ''); return; }
+    if (a === 'rtstop') { var gt = rtLoad(); gt.goal = null; rtSave(gt); location.hash = '#/'; return; }
     if (a === 'seenall') { markAllSeen(); keepScroll = true; render(); return; }
     if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
@@ -642,7 +740,7 @@
     }
     else if (a === 'reset') {
       if (el.getAttribute('data-sure') !== '1') { el.setAttribute('data-sure', '1'); el.textContent = 'Press again to delete everything'; return; }
-      S = { topics: {}, errors: [] }; fix(); S.resetAt = Date.now(); save(); location.hash = '#/'; render();
+      S = { topics: {}, errors: [] }; fix(); S.resetAt = Date.now(); save(); rtMem = null; try { localStorage.removeItem(RT_KEY); } catch (e) {} location.hash = '#/'; render();
     }
   });
   app.addEventListener('change', function (e) {
