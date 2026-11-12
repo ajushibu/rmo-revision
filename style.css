@@ -193,11 +193,21 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .newnote .link { white-space: nowrap; }
 
 /* revise timer */
-.rt { margin: 8px 0 0; font-size: 14px; color: var(--mut); }
-.rt b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
-#rtstate { margin-left: 6px; color: var(--shaky); }
-.rgoal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; color: var(--mut); }
-.rgoal b { color: var(--ink); font-weight: 600; }
-#rgleft { font-variant-numeric: tabular-nums; }
-.rgoal.done { padding: 10px 14px; border-radius: 10px; background: var(--good-t); color: var(--ink); justify-content: space-between; }
-.rgoal.done .btns { display: flex; gap: 8px; }
+.rtline { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; margin: 8px 0 0; font-size: 15px; color: var(--mut); }
+.rtline .dot, .rgoal .dot { margin: 0 8px; opacity: .5; }
+.rtline b, .rgoal b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+#rtstate.warn { color: var(--shaky); }
+.rtbtn[hidden] { display: none; }
+.rtbtn { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 99px; border: 1px solid transparent; background: none; color: var(--mut); cursor: pointer; }
+.rtbtn:hover, .rtbtn.on { background: var(--hover); color: var(--ink); }
+.rgoal { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 14px; color: var(--mut); }
+.rlab { margin-right: 4px; }
+.rpill { min-height: 32px; padding: 4px 14px; border-radius: 99px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.rpill:hover { background: var(--hover); }
+.rpill.on { background: var(--hover); }
+.rrun { display: inline-flex; align-items: center; gap: 6px; }
+.rrun svg { opacity: .7; }
+.rx { width: 28px; height: 28px; border-radius: 99px; border: 0; background: none; color: var(--mut); font-size: 18px; line-height: 1; cursor: pointer; }
+.rx:hover { background: var(--hover); color: var(--ink); }
+.rgoal.done { padding: 8px 8px 8px 14px; border-radius: 12px; background: var(--good-t); color: var(--ink); justify-content: space-between; }
+.rgoal.done .btns { display: flex; gap: 6px; }
