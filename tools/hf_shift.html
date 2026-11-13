@@ -309,7 +309,7 @@ a { color: inherit; }
     if (!b) return;
     var a = b.getAttribute('data-a');
     if (b.classList.contains('opt')) { pick(Number(b.getAttribute('data-i'))); return; }
-    if (a === 'all') start([0, 1, 2]);
+    if (a === 'all') start(CASES.map(function (c, i) { return i; }));
     else if (a === 'one') start([Number(b.getAttribute('data-i'))]);
     else if (a === 'go') beginDecision();
     else if (a === 'next') next();
