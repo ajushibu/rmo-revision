@@ -216,3 +216,8 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .updpill { white-space: nowrap; position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 20; display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 99px; border: 1px solid var(--line); background: var(--pane); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; box-shadow: 0 6px 24px rgba(0,0,0,.25); cursor: pointer; }
 .updpill span { color: var(--acc); font-weight: 500; }
 @media (max-width: 760px) { .updpill { bottom: calc(80px + env(safe-area-inset-bottom)); } }
+
+/* keyboard hints (shown only after a key press) */
+.kh { display: none; margin-left: 10px; padding: 1px 7px; border-radius: 6px; border: 1px solid currentColor; font: inherit; font-size: 12px; font-weight: 600; line-height: 1.5; opacity: .55; vertical-align: 2px; }
+html.kbd .kh { display: inline-block; }
+@media (hover: none) and (pointer: coarse) { html:not(.kbd) .kh { display: none; } }

@@ -106,10 +106,11 @@
     if (st.s.r === 'shaky') return '<span class="tag shaky">Shaky, ' + nice(st.s.due) + '</span>';
     return '<span class="tag">Next ' + nice(st.s.due) + '</span>';
   }
-  function rateButtons(id) {
+  function KH(k) { return '<kbd class="kh" aria-hidden="true">' + k + '</kbd>'; }
+  function rateButtons(id, keys) {
     var st = itState(id);
     if (st.k === 'ok') return '<p class="src">Next review ' + nice(st.s.due) + '. You can mark it known again on that day, so the spacing stays honest.</p><button class="link" data-rate="shaky" data-it="' + id + '">I have forgotten this: bring it back tomorrow</button>';
-    return '<div class="rate"><button class="b got" data-rate="got" data-it="' + id + '">Got it</button><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky</button></div>';
+    return '<div class="rate"><button class="b got" data-rate="got" data-it="' + id + '">Got it' + (keys ? KH('K') : '') + '</button><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky' + (keys ? KH('J') : '') + '</button></div>';
   }
 
 
@@ -503,8 +504,8 @@
   function noteOf(id) { var n = S.notes[id]; return n && n.text ? n.text : ''; }
   function setNote(id, text) { text = (text || '').trim(); if (text === noteOf(id)) return; S.notes[id] = { text: text, t: Date.now() }; }
   function noteLine(id) { var n = noteOf(id); if (!n) return ''; return '<span class="rownote"><b>Your note:</b> ' + esc(n.length > 110 ? n.slice(0, 110) + '...' : n) + '</span>'; }
-  function noteBox(id, label) {
-    return '<label class="note"><span>' + label + '</span><textarea rows="2" data-note="' + id + '" placeholder="What did you miss? Next time it shows before the answer.">' + esc(noteOf(id)) + '</textarea></label>';
+  function noteBox(id, label, keys) {
+    return '<label class="note"><span>' + label + (keys ? ' ' + KH('N') : '') + '</span><textarea rows="2" data-note="' + id + '" placeholder="What did you miss? Next time it shows before the answer.">' + esc(noteOf(id)) + '</textarea></label>';
   }
   var cardFrom = null;
   function processedHighlights() {
@@ -571,8 +572,8 @@
     rtShown = x.it.id;
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
-    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer</button>';
-    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)') + rateButtons(x.it.id);
+    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button>';
+    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + rateButtons(x.it.id, true);
     h += '</section>';
     if (q.all.length > 1) h += '<h2>Coming up</h2><ul class="list">' + q.all.slice(1, 9).map(function (y) { return row('#/t/' + y.tid, esc(y.it.t), '', esc(byId(y.tid).name) + noteLine(y.it.id)); }).join('') + '</ul>';
     return shell(h, { page: 'revise' });
@@ -775,6 +776,29 @@
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
+  /* Keyboard shortcuts on Revise: Space shows the answer, J = Shaky, K = Got it, N = note box, Esc leaves the box.
+     Ignored while typing, with modifier keys, and on key repeat. Key hints show once a key is pressed, and hide on touch. */
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key && e.key.length === 1 || e.key === 'Escape' || e.key === 'Enter') document.documentElement.classList.add('kbd');
+    if (route[0] !== 'revise') return;
+    var t = e.target, typing = t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
+    if (typing) { if (e.key === 'Escape') t.blur(); return; }
+    if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
+    var k = e.key === ' ' ? 'space' : (e.key || '').toLowerCase(), el = null;
+    if (k === 'space') el = document.querySelector('[data-act="reveal"]');
+    else if (k === 'j') el = document.querySelector('.flash [data-rate="shaky"]');
+    else if (k === 'k') el = document.querySelector('.flash [data-rate="got"]');
+    else if (k === 'n') { var nb = document.querySelector('.flash textarea[data-note]'); if (nb) { e.preventDefault(); nb.focus(); } return; }
+    else return;
+    if (k === 'space') e.preventDefault();   // no page scroll, and no double press on a focused button
+    if (!el) return;
+    if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) document.activeElement.blur();
+    el.click();
+  });
+  document.addEventListener('keyup', function (e) { if (e.key === ' ' && route[0] === 'revise' && !(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) e.preventDefault(); });
+  document.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch') document.documentElement.classList.remove('kbd'); }, { passive: true });
+
   /* Updates: the service worker activates new versions straight away, but an open page keeps its old code until reloaded.
      Check for a new version whenever the app comes back to the front, and offer a one-tap reload. */
   if ('serviceWorker' in navigator) {
