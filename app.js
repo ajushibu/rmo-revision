@@ -466,6 +466,7 @@
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.status === 'done') done++; if (s.studied) studied++; });
     var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small" id="syncline">' + syncLine() + '</p></header>';
     h += newNote();
+    h += (window.RMOFocus ? window.RMOFocus.line() : '');
     h += '<div class="stats"><div><b>' + q.due.length + '</b><span>due to recall</span></div><div><b>' + q.fresh.length + '</b><span>new to rate</span></div><div><b>' + studied + '</b><span>topics studied</span></div><div><b>' + done + '</b><span>of ' + TOP.length + ' done</span></div></div>';
     h += q.all.length ? '<p><a class="btn primary big" href="#/revise">Start revising</a></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
     if (q.all.length) {
@@ -781,7 +782,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key && e.key.length === 1 || e.key === 'Escape' || e.key === 'Enter') document.documentElement.classList.add('kbd');
-    if (route[0] !== 'revise') return;
+    if (route[0] !== 'revise' || (window.RMOFocus && window.RMOFocus.isOpen())) return;
     var t = e.target, typing = t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
     if (typing) { if (e.key === 'Escape') t.blur(); return; }
     if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }

@@ -221,3 +221,33 @@ h3.sect { font-size: 15px; font-weight: 600; color: var(--mut); margin: 20px 0 8
 .kh { display: none; margin-left: 10px; padding: 1px 7px; border-radius: 6px; border: 1px solid currentColor; font: inherit; font-size: 12px; font-weight: 600; line-height: 1.5; opacity: .55; vertical-align: 2px; }
 html.kbd .kh { display: inline-block; }
 @media (hover: none) and (pointer: coarse) { html:not(.kbd) .kh { display: none; } }
+
+/* focus block */
+.ffab { position: fixed; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 12; min-height: 44px; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--line); background: var(--pane); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; box-shadow: 0 4px 18px rgba(0,0,0,.2); cursor: pointer; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ffab.run { background: var(--acc); color: #fff; border-color: transparent; }
+:root[data-theme="dark"] .ffab.run { color: #0E1620; }
+.ffab.brk { background: var(--good-t); color: var(--good); }
+.ffab.done { background: var(--shaky-t); color: var(--shaky); }
+@media (max-width: 760px) { .ffab { bottom: calc(74px + env(safe-area-inset-bottom)); } }
+.ftoast { position: fixed; left: 50%; transform: translateX(-50%); top: calc(14px + env(safe-area-inset-top)); z-index: 14; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 12px; background: var(--ink); color: var(--bg); font-size: 15px; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+.ftoast[hidden] { display: none; }
+.fback { position: fixed; inset: 0; z-index: 15; background: rgba(0,0,0,.45); }
+.fsheet { position: fixed; z-index: 16; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, calc(100vw - 24px)); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--pane); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px 20px; box-shadow: 0 16px 48px rgba(0,0,0,.35); outline: none; }
+.fsheet h2 { margin: 0 0 4px; font-size: 20px; }
+.fx { position: absolute; right: 8px; top: 6px; width: 44px; height: 44px; border: 0; background: none; color: var(--mut); font-size: 26px; cursor: pointer; }
+.fbig { font-size: 52px; font-weight: 700; margin: 6px 0; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.fseg { display: flex; gap: 8px; margin: 14px 0; }
+.fseg button { flex: 1; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--pane); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.fseg button.on { background: var(--acc-t); color: var(--acc); border-color: var(--acc); }
+.flab { display: block; font-size: 14px; color: var(--mut); margin-bottom: 10px; }
+.flab input, .fpark input { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; }
+.fcheck { list-style: none; padding: 0; margin: 0 0 14px; }
+.fcheck label { display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.fcheck input { width: 20px; height: 20px; }
+.fpark { display: flex; gap: 8px; align-items: flex-end; margin: 12px 0; }
+.fpark input { margin-top: 0; }
+.fparked { margin: 4px 0 10px; padding-left: 20px; color: var(--mut); }
+.furge { padding: 12px 14px; border-radius: 12px; background: var(--acc-t); margin: 8px 0; }
+.furge b { font-size: 28px; font-variant-numeric: tabular-nums; }
+.furge p { margin: 4px 0 0; font-size: 15px; }
+.fsheet .btns { display: flex; gap: 8px; flex-wrap: wrap; }
