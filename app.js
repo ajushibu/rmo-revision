@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -154,6 +154,9 @@
     var seenP = {}; out.pace = [];
     (a.pace || []).concat(b.pace || []).forEach(function (x) { if (!x || !x.id || seenP[x.id] || out.dead[x.id] || (x.at || 0) < r || !(x.ms > 0)) return; seenP[x.id] = 1; out.pace.push(x); });
     out.pace.sort(function (x, y) { return x.at - y.at; }); out.pace = out.pace.slice(-60);
+    out.revtime = {};
+    [a.revtime || {}, b.revtime || {}].forEach(function (src) { Object.keys(src).forEach(function (day) { var d = src[day] || {}; Object.keys(d).forEach(function (dev) { var v = d[dev]; if (!v || !(v.ms >= 0) || (v.t || 0) < r) return; var o = out.revtime[day] || (out.revtime[day] = {}); if (!o[dev] || v.ms > o[dev].ms) o[dev] = { ms: v.ms, t: v.t }; }); }); });
+    Object.keys(out.revtime).sort().slice(0, -14).forEach(function (day) { delete out.revtime[day]; });
     return out;
   }
 
@@ -334,10 +337,20 @@
   function rtLoad() {
     var s = rtMem;
     try { var v = localStorage.getItem(RT_KEY); if (v) s = JSON.parse(v); } catch (e) {}
-    if (!s || s.day !== today() || typeof s.ms !== 'number' || !(s.ms >= 0)) s = rtFresh();
+    if (!s || s.day !== today() || typeof s.ms !== 'number' || !(s.ms >= 0)) { s = rtFresh(); var mine = ((S.revtime || {})[s.day] || {})[rtDev]; if (mine && mine.ms > 0) s.ms = mine.ms; }
     return s;
   }
   function rtSave(s) { rtMem = s; try { localStorage.setItem(RT_KEY, JSON.stringify(s)); } catch (e) {} }
+  /* Today's total across devices: each device writes its own total into S.revtime[day][device] (synced; merge keeps the larger). */
+  var rtDev = (function () { var d = null; try { d = localStorage.getItem('rmo-dev'); if (!d) { d = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); localStorage.setItem('rmo-dev', d); } } catch (e) { d = 'd-mem'; } return d; })();
+  function rtOthers() { var d = (S.revtime || {})[today()] || {}, t = 0; Object.keys(d).forEach(function (k) { if (k !== rtDev && d[k] && d[k].ms > 0) t += d[k].ms; }); return t; }
+  function rtPublish(push) {
+    var s = rtLoad(); if (!(s.ms > 0)) return;
+    S.revtime = S.revtime || {}; var day = S.revtime[s.day] || (S.revtime[s.day] = {}), cur = day[rtDev];
+    if (cur && cur.ms >= Math.round(s.ms)) return;
+    day[rtDev] = { ms: Math.round(s.ms), t: Date.now() };
+    if (push) save(); else store();
+  }
   function rtOther(s) { return s.owner && s.owner !== rtTab && Math.abs(Date.now() - (s.beat || 0)) < 4000; }
   function rtTick(force) {
     var now = performance.now(), dt = rtLast == null ? 0 : now - rtLast; rtLast = now;
@@ -373,7 +386,7 @@
   function rtFit(s, n) { var k = Math.max(1, Math.min(n, Math.floor(rtGoalLeft(s) / rtPace().ms))); return k >= n ? 'all ' + n + ' cards' : '~' + plural(k, 'card', 'cards'); }
   function rtPaint(s, state) {
     var c = document.getElementById('rtclock'); if (!c) return;
-    c.textContent = rtClock(s.ms);
+    c.textContent = rtClock(s.ms + rtOthers());
     var st = document.getElementById('rtstate'), msg = state === 'idle' ? 'paused' : state === 'other' ? 'in other window' : 'today';
     if (st && st.textContent !== msg) { st.textContent = msg; st.classList.toggle('warn', msg !== 'today'); }
     var b = document.querySelector('.rtbtn'); if (b) { b.hidden = !!s.goal; b.setAttribute('aria-expanded', rtMenu ? 'true' : 'false'); b.classList.toggle('on', rtMenu); }
@@ -384,7 +397,7 @@
   }
   function rtBlock(q) {
     var s = rtLoad(), n = q.all.length;
-    return '<div class="rtline"><span>' + [q.due.length ? q.due.length + ' due' : '', q.fresh.length ? q.fresh.length + ' new' : ''].filter(Boolean).join(' + ') + '</span><span class="dot">·</span><span>' + rtAbout(n * rtPace().ms) + ' left</span><span class="dot">·</span><span><b id="rtclock">' + rtClock(s.ms) + '</b> <span id="rtstate">today</span></span>' +
+    return '<div class="rtline"><span>' + [q.due.length ? q.due.length + ' due' : '', q.fresh.length ? q.fresh.length + ' new' : ''].filter(Boolean).join(' + ') + '</span><span class="dot">·</span><span>' + rtAbout(n * rtPace().ms) + ' left</span><span class="dot">·</span><span><b id="rtclock">' + rtClock(s.ms + rtOthers()) + '</b> <span id="rtstate">today</span></span>' +
       '<button class="rtbtn' + (rtMenu ? ' on' : '') + '" data-act="rtmenu" aria-label="Short session" aria-expanded="' + rtMenu + '"' + (s.goal ? ' hidden' : '') + '>' + RT_ICON + '</button></div>' +
       '<div id="rgoal" data-n="' + n + '">' + rtGoalHTML(s, n) + '</div>';
   }
@@ -408,8 +421,8 @@
   function rtActive() { rtInput = performance.now(); rtTouched = true; }
   ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, rtActive, { passive: true, capture: true }); });
   window.addEventListener('scroll', rtActive, { passive: true });
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } } else { rtLast = performance.now(); rtActive(); } });
-  window.addEventListener('pagehide', function () { rtTick(true); rtLast = null; var ps = rtLoad(); if (ps.owner === rtTab) { ps.beat = 0; rtSave(ps); } });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } rtPublish(false); if (sess) syncNow(); } else { rtLast = performance.now(); rtActive(); } });
+  window.addEventListener('pagehide', function () { rtTick(true); rtLast = null; var ps = rtLoad(); if (ps.owner === rtTab) { ps.beat = 0; rtSave(ps); } rtPublish(false); });
   setInterval(function () { rtTick(false); }, 1000);
 
   /* ---------- shell ---------- */
@@ -708,7 +721,7 @@
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } if (rtRated(iid)) save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delhl]'))) { var hid = el.getAttribute('data-delhl'); S.highlights = S.highlights.filter(function (x) { return x.id !== hid; }); S.dead[hid] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -762,5 +775,19 @@
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
-  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  /* Updates: the service worker activates new versions straight away, but an open page keeps its old code until reloaded.
+     Check for a new version whenever the app comes back to the front, and offer a one-tap reload. */
+  if ('serviceWorker' in navigator) {
+    var swHad = !!navigator.serviceWorker.controller, swReg = null, swChecked = 0;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!swHad) { swHad = true; return; }
+      if (document.getElementById('updpill')) return;
+      var b = document.createElement('button'); b.id = 'updpill'; b.className = 'updpill'; b.type = 'button';
+      b.innerHTML = 'Update ready <span>Tap to refresh</span>';
+      b.onclick = function () { rtTick(true); rtPublish(false); location.reload(); };
+      document.body.appendChild(b);
+    });
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').then(function (r) { swReg = r; swChecked = Date.now(); }).catch(function () {}); });
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && swReg && Date.now() - swChecked > 60000) { swChecked = Date.now(); swReg.update().catch(function () {}); } });
+  }
 })();
