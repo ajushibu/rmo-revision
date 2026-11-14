@@ -25,7 +25,7 @@
     var res = { min: st.min, leaves: st.leaves, away: st.away, early: !!early, intent: st.intent || '', parked: st.parked || [], done: Math.min(stop - st.start, st.min * 60000) };
     var l = logs(); l.push({ t: st.start, d: day(st.start), min: st.min, leaves: res.leaves, away: res.away, early: res.early }); put(LOG, l.slice(-60));
     st = { ph: 'done', res: res, last: st.min };
-    save(); releaseLock(); sure = false; paint(true);
+    save(); releaseLock(); sure = false; if (!early) { note = 'Focus block done. Open Focus for your summary and break.'; noteT = Date.now() + 12000; } paint(true);
     try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(early ? 0 : [200, 100, 200]); } catch (e) {}
   }
   function away() { if (st && st.ph === 'run' && !st.awayAt) { st.awayAt = Date.now(); save(); } }
@@ -58,10 +58,9 @@
   }
 
   /* ---------- view ---------- */
-  var fab = document.createElement('button'); fab.id = 'ffab'; fab.type = 'button'; fab.className = 'ffab';
   var toast = document.createElement('div'); toast.id = 'ftoast'; toast.className = 'ftoast'; toast.setAttribute('role', 'status'); toast.hidden = true;
   var host = document.createElement('div'); host.id = 'fhost';
-  document.body.appendChild(fab); document.body.appendChild(toast); document.body.appendChild(host);
+  document.body.appendChild(toast); document.body.appendChild(host);
 
   function remaining() { return st && (st.ph === 'run' || st.ph === 'brk') ? st.end - Date.now() : 0; }
   function fabText() {
@@ -99,9 +98,14 @@
     return h + '</div>';
   }
   function paint(full) {
-    fab.textContent = fabText();
-    fab.className = 'ffab' + (st && st.ph === 'run' ? ' run' : st && st.ph === 'brk' ? ' brk' : st && st.ph === 'done' ? ' done' : '');
-    fab.setAttribute('aria-label', st && st.ph === 'run' ? 'Focus block running. ' + fabText() : 'Focus block');
+    var ph = st ? st.ph : 'idle', full = fabText(), short = ph === 'run' ? clock(remaining()) : ph === 'brk' ? 'Break ' + clock(remaining()) : ph === 'done' ? 'Done' : 'Focus';
+    var els = document.querySelectorAll('[data-focus]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i], kind = el.getAttribute('data-focus'), lab = el.querySelector('[data-focus-label]');
+      if (lab) lab.textContent = kind === 'full' ? (ph === 'idle' ? '' : full) : short;
+      el.className = el.className.replace(/ ?\bf-(run|brk|done)\b/g, '') + (ph === 'run' || ph === 'brk' || ph === 'done' ? ' f-' + ph : '');
+      el.setAttribute('aria-label', ph === 'run' ? 'Focus block running. ' + full : ph === 'idle' ? 'Start a focus block' : full);
+    }
     if (note && Date.now() < noteT) { toast.textContent = note; toast.hidden = false; } else { toast.hidden = true; note = null; }
     if (full || !open) {
       if (open) { var keep = document.getElementById('fintent'); var v = keep ? keep.value : null; host.innerHTML = sheet(); var k2 = document.getElementById('fintent'); if (k2 && v) k2.value = v; }
@@ -111,9 +115,9 @@
     var u = document.getElementById('furge'); if (u) { if (urgeEnd > Date.now()) u.textContent = clock(urgeEnd - Date.now()); else { urgeEnd = 0; host.innerHTML = sheet(); } }
   }
   function openSheet() { open = true; paint(true); var s = document.getElementById('fsheet'); if (s) s.focus(); }
-  function closeSheet() { open = false; sure = false; paint(true); try { fab.focus(); } catch (e) {} }
+  function closeSheet() { open = false; sure = false; paint(true); try { var b = document.querySelector('[data-focus]'); if (b) b.focus(); } catch (e) {} }
 
-  fab.addEventListener('click', function () { open ? closeSheet() : openSheet(); });
+  document.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-focus]') : null; if (b) { e.preventDefault(); open ? closeSheet() : openSheet(); } });
   host.addEventListener('click', function (e) {
     var el = e.target.closest ? e.target.closest('[data-f]') : null; if (!el) return;
     var a = el.getAttribute('data-f');
@@ -153,5 +157,5 @@
   if (st && st.ph === 'run') { back(); if (st && st.ph === 'run') { if (Date.now() >= st.end) finish(false); else { getLock(); } } }
   if (st && st.ph === 'brk' && Date.now() >= st.end) { st = null; save(); }
   paint(true);
-  window.RMOFocus = { line: line, running: function () { return !!(st && st.ph === 'run'); }, isOpen: function () { return open; } };
+  window.RMOFocus = { line: line, paint: function () { paint(false); }, running: function () { return !!(st && st.ph === 'run'); }, isOpen: function () { return open; } };
 })();
