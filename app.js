@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -155,6 +155,8 @@
     var seenP = {}; out.pace = [];
     (a.pace || []).concat(b.pace || []).forEach(function (x) { if (!x || !x.id || seenP[x.id] || out.dead[x.id] || (x.at || 0) < r || !(x.ms > 0)) return; seenP[x.id] = 1; out.pace.push(x); });
     out.pace.sort(function (x, y) { return x.at - y.at; }); out.pace = out.pace.slice(-60);
+    out.caseSkip = {};
+    [a.caseSkip || {}, b.caseSkip || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if ((src[k] || 0) >= r) out.caseSkip[k] = Math.max(out.caseSkip[k] || 0, src[k]); }); });
     out.revtime = {};
     [a.revtime || {}, b.revtime || {}].forEach(function (src) { Object.keys(src).forEach(function (day) { var d = src[day] || {}; Object.keys(d).forEach(function (dev) { var v = d[dev]; if (!v || !(v.ms >= 0) || (v.t || 0) < r) return; var o = out.revtime[day] || (out.revtime[day] = {}); if (!o[dev] || v.ms > o[dev].ms) o[dev] = { ms: v.ms, t: v.t }; }); }); });
     Object.keys(out.revtime).sort().slice(0, -14).forEach(function (day) { delete out.revtime[day]; });
@@ -271,58 +273,44 @@
 
 
   /* ---------- soft "new" nudge (yellow, per device, never blocks anything) ---------- */
-  var SEEN_KEY = 'rmo-seen', seen = { cards: {}, cases: {}, bc: false, bs: false }, caseIds = null;
-  try { var rs = JSON.parse(localStorage.getItem(SEEN_KEY) || 'null'); if (rs) seen = { cards: rs.cards || {}, cases: rs.cases || {}, bc: !!rs.bc, bs: !!rs.bs }; } catch (e) {}
-  function saveSeen() { try { localStorage.setItem(SEEN_KEY, JSON.stringify(seen)); } catch (e) {} }
-  function allCardIds() { var o = []; Object.keys(RC).forEach(function (tid) { (RC[tid].items || []).forEach(function (x) { if (!x.dup) o.push({ id: x.id, tid: tid }); }); }); return o; }
-  if (!seen.bc) { allCardIds().forEach(function (x) { seen.cards[x.id] = 1; }); seen.bc = true; saveSeen(); } // first visit on this device: nothing is "new"
-  function isNewCard(id) { return !seen.cards[id] && !S.items[id]; }
-  function newCardsIn(tid) { return ((RC[tid] || {}).items || []).filter(function (x) { return !x.dup && isNewCard(x.id); }); }
-  function newCardCount() { return allCardIds().filter(function (x) { return isNewCard(x.id); }).length; }
-  function caseFile(f) { for (var i = 0; i < TOP.length; i++) { var ts_ = TOP[i].tools || []; for (var j = 0; j < ts_.length; j++) if (ts_[j].file === f + '_shift.html') return TOP[i]; } return null; }
-  function newCases() { // [{f, topic, ids}]
-    if (!caseIds || !seen.bs) return [];
-    var o = []; Object.keys(caseIds).forEach(function (f) { var ids = caseIds[f].filter(function (id) { return !seen.cases[id]; }); if (ids.length) o.push({ f: f, topic: caseFile(f), ids: ids }); });
-    return o;
-  }
-  function newCaseCount() { return newCases().reduce(function (a, x) { return a + x.ids.length; }, 0); }
-  function newTotal() { return newCardCount() + newCaseCount(); }
-  function loadCaseIds() {
-    var files = []; TOP.forEach(function (t) { (t.tools || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m) files.push(m[1]); }); });
+  /* ---------- new on-call cases ----------
+     The case refresh gives each new case an id with its date (c20261115a). A dated case shows on Today
+     until it is played (synced attempts) or skipped (synced S.caseSkip). Cases without a date are the
+     originals and never show as new. New recall cards are silent: they appear in the topic checklist. */
+  var caseAll = false, caseData = null; // { asth: [{id, title, blurb, where}] }
+  function caseFile(f) { for (var i = 0; i < TOP.length; i++) { var ts_ = TOP[i].tools || []; for (var j = 0; j < ts_.length; j++) if (ts_[j].file === f + '_shift.html') return { topic: TOP[i], i: j }; } return null; }
+  function loadCases() {
+    var files = []; TOP.forEach(function (t) { (t.tools || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && files.indexOf(m[1]) < 0) files.push(m[1]); }); });
     var out = {}, left = files.length;
-    if (!left) return;
+    if (!left) { caseData = {}; return; }
     files.forEach(function (f) {
       fetch('tools/cases/' + f + '_shift.js').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
-        var ids = [], re = /(?:^|[\s,{])id\s*:\s*["']([^"']+)["']/g, m;
-        while ((m = re.exec(txt))) ids.push(m[1]);
-        if (txt) out[f] = ids.map(function (id) { return f + ':' + id; });
-        if (--left === 0) {
-          caseIds = out;
-          if (!seen.bs) { Object.keys(out).forEach(function (k) { out[k].forEach(function (id) { seen.cases[id] = 1; }); }); seen.bs = true; saveSeen(); }
-          else if (newCaseCount()) render();
-        }
+        try { var w = {}; if (txt) new Function('window', txt)(w); out[f] = (w.RMO_CASES || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '' }; }); } catch (e) { /* a broken case file: skip it */ }
+        if (--left === 0) { caseData = out; if (newCaseList().length && (route[0] || '') === '') render(); }
       });
     });
   }
-  function markSeenTopic(tid) {
-    var ch = false;
-    newCardsIn(tid).forEach(function (x) { seen.cards[x.id] = 1; ch = true; });
-    if (ch) saveSeen();
+  function playedCase(f, id) { return (S.attempts || []).some(function (x) { return x && x.tool === f + '_shift' && x.cs === id; }); }
+  function newCaseList() {
+    if (!caseData) return [];
+    var o = [];
+    Object.keys(caseData).forEach(function (f) {
+      var loc = caseFile(f); if (!loc) return;
+      caseData[f].forEach(function (c) {
+        var m = /^c(\d{8})/.exec(c.id);
+        if (!m || playedCase(f, c.id) || (S.caseSkip || {})[f + ':' + c.id]) return;
+        o.push({ f: f, id: c.id, title: c.title, blurb: c.blurb, where: c.where, topic: loc.topic, i: loc.i, d: m[1] });
+      });
+    });
+    return o.sort(function (x, y) { return x.d < y.d ? 1 : x.d > y.d ? -1 : x.id < y.id ? -1 : 1; });
   }
-  function markSeenCases(tid) { // cases count as seen once you have been through the night-shift page
-    var ch = false, t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) caseIds[m[1]].forEach(function (id) { if (!seen.cases[id]) { seen.cases[id] = 1; ch = true; } }); });
-    if (ch) saveSeen();
-  }
-  function markAllSeen() { allCardIds().forEach(function (x) { seen.cards[x.id] = 1; }); Object.keys(caseIds || {}).forEach(function (k) { caseIds[k].forEach(function (id) { seen.cases[id] = 1; }); }); saveSeen(); }
-  function newTopicCount(tid) { var n = newCardsIn(tid).length; var t = byId(tid); ((t && t.tools) || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && caseIds && caseIds[m[1]]) n += caseIds[m[1]].filter(function (id) { return !seen.cases[id]; }).length; }); return n; }
-  function newPill(n) { return n && seen.bc ? '<span class="n new" title="New since you last looked">' + n + ' new</span>' : ''; }
-  function newNote() {
-    var c = newCardCount(), cs = newCases(), k = newCaseCount();
-    if (!c && !k) return '';
-    var bits = []; if (c) bits.push(plural(c, 'new recall card', 'new recall cards')); if (k) bits.push(plural(k, 'new on-call case', 'new on-call cases'));
-    var where = []; allCardIds().filter(function (x) { return isNewCard(x.id); }).forEach(function (x) { var t = byId(x.tid); if (t && where.indexOf(t.name) < 0) where.push(t.name); });
-    cs.forEach(function (x) { if (x.topic && where.indexOf(x.topic.name) < 0) where.push(x.topic.name); });
-    return '<div class="newnote" role="status"><span><b>' + bits.join(' and ') + '</b> since you last looked' + (where.length ? ': ' + esc(where.slice(0, 4).join(', ')) + (where.length > 4 ? ' and more' : '') : '') + '. No hurry. They show a yellow tag in the topic.</span><button class="link" data-act="seenall">Got it</button></div>';
+  function newCasesHTML() {
+    var l = newCaseList(); if (!l.length) return '';
+    var shown = caseAll ? l : l.slice(0, 3);
+    return '<section class="ncases" aria-label="New on-call cases"><h2>New on-call cases <span class="n nc">' + l.length + '</span></h2><p class="meta">Short refreshers written from your weak points. About 5 minutes each.</p><ul class="list">' + shown.map(function (c) {
+      return '<li class="ncase"><div class="nct"><span class="ncm">' + esc(c.topic.name) + (c.where ? ' · ' + esc(c.where) : '') + '</span><b>' + esc(c.title) + '</b>' + (c.blurb ? '<span class="ncb">' + esc(c.blurb) + '</span>' : '') + '</div>' +
+        '<div class="ncbtn"><a class="btn primary small" href="#/tool/' + c.topic.id + '/' + c.i + '/' + encodeURIComponent(c.id) + '">Play</a><button class="link" data-skipcase="' + esc(c.f + ':' + c.id) + '">Skip</button></div></li>';
+    }).join('') + '</ul>' + (l.length > shown.length ? '<p><button class="link" data-act="allcases">Show ' + (l.length - shown.length) + ' more</button></p>' : '') + '</section>';
   }
 
   /* ---------- revise timer ----------
@@ -434,21 +422,21 @@
   function sidebar(cur) {
     var q = queue(), curSys = cur.sys || '';
     var h = '<aside class="side" aria-label="Navigation"><a class="brand" href="#/">RMO Revision</a><nav class="nav">' +
-      navLink('#/', 'Today', cur.page === 'home') +
-      navLink('#/revise', 'Revise', cur.page === 'revise', q.all.length, newPill(newCardCount())) +
+      navLink('#/', 'Today', cur.page === 'home', 0, newCaseList().length ? '<span class="n nc">' + newCaseList().length + '</span>' : '') +
+      navLink('#/revise', 'Revise', cur.page === 'revise', q.all.length) +
       '<button type="button" class="navfocus" data-focus="full"><span>Focus</span><span class="ns fl" data-focus-label></span></button>' + '</nav><nav class="nav sys" aria-label="Systems">';
     SYS.forEach(function (s) {
       var open = s.id === curSys, tps = TOP.filter(function (t) { return t.system === s.id; });
       var d = tps.reduce(function (a, t) { return a + topicDueCount(t.id); }, 0);
-      h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + newPill(tps.reduce(function (a, t) { return a + newTopicCount(t.id); }, 0)) + '</span></a>';
+      h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + '</span></a>';
       if (open) h += tps.map(function (t) { var c = topicDueCount(t.id); return '<a href="#/t/' + t.id + '" class="sub' + (cur.topic === t.id ? ' on' : '') + '"><span>' + esc(t.name) + '</span>' + (c ? '<span class="n">' + c + '</span>' : '') + '</a>'; }).join('');
     });
     return h + '</nav><a class="foot" href="#/settings">Sync and backup</a></aside>';
   }
   function tabbar(cur) {
     var n = queue().all.length;
-    function tab(href, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + (nw && seen.bc ? ' <span class="n new">' + nw + '</span>' : '') + '</a>'; }
-    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home') + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n, newTotal()) + '<button type="button" class="navfocus" data-focus="short"><span data-focus-label>Focus</span></button></nav>';
+    function tab(href, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + (nw ? ' <span class="n nc">' + nw + '</span>' : '') + '</a>'; }
+    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home', 0, newCaseList().length) + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n) + '<button type="button" class="navfocus" data-focus="short"><span data-focus-label>Focus</span></button></nav>';
   }
   function undoBar() {
     if (!undo || Date.now() - undo.at > 8000) return '';
@@ -465,7 +453,7 @@
     var q = queue(), studied = 0;
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.studied) studied++; });
     var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small" id="syncline">' + syncLine() + '</p></header>';
-    h += newNote();
+    h += newCasesHTML();
     h += (window.RMOFocus ? window.RMOFocus.line() : '');
     h += '<div class="stats"><div><b>' + q.due.length + '</b><span>due to recall</span></div><div><b>' + q.fresh.length + '</b><span>new to rate</span></div><div><b>' + studied + '</b><span>of ' + TOP.length + ' topics studied</span></div></div>';
     h += q.all.length ? '<p class="startrow"><a class="btn primary big" href="#/revise">Start revising</a><span class="meta">' + plural(q.all.length, 'card', 'cards') + ', ' + rtAbout(q.all.length * rtPace().ms) + '</span></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
@@ -513,7 +501,7 @@
   function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); if (isNewCard(it.id)) bits.push('<b class="newtag">New</b>'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
     if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -522,7 +510,7 @@
     var s = sysById(t.system), st = ts(t.id), dy = D.days[t.day] || {}, its = topicItems(t.id);
     var rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
     var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
-    if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { var mm = /^(.*)_shift\.html$/.exec(x.file), nc = mm && caseIds && caseIds[mm[1]] ? caseIds[mm[1]].filter(function (id) { return !seen.cases[id]; }).length : 0; return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + (nc ? ' <span class="n new">' + nc + ' new</span>' : '') + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
+    if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) +  + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
 
     h += '<h2>Recall checklist</h2>';
     if (its.length) h += st.studied ? '<p class="meta">In Revise since ' + nice(st.studied) + '. <button class="link" data-act="unstudy">Take out of Revise</button></p>' : '<p class="studyrow"><button class="btn primary" data-act="studied">Studied today</button><span class="meta">Puts these cards into Revise.</span></p>';
@@ -561,10 +549,10 @@
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
-  function tool(id, i) {
+  function tool(id, i, cs) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
     var n = pendingHighlights(t.id).length;
-    return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + '"></iframe>';
+    return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) : '') + '"></iframe>';
   }
   function settings() {
     var h = '<header class="head"><h1>Sync and backup</h1></header>';
@@ -590,14 +578,13 @@
     route = r; app.className = ''; rtShown = null;
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
-    else if (r[0] === 'tool') { h = tool(r[1], +r[2]); app.className = 'tool'; }
+    else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3]); app.className = 'tool'; }
     else if (r[0] === 'topics') h = topicsPage();
     else if (r[0] === 'revise') h = revise();
     else if (r[0] === 'settings') h = settings();
     else h = home();
     var sideY = 0, sd = document.querySelector('.side'); if (sd) sideY = sd.scrollTop;
     app.innerHTML = h;
-    viewing = r[0] === 't' ? r[1] : null; viewingTool = r[0] === 'tool' ? r[1] : null;
     var sd2 = document.querySelector('.side'); if (sd2) sd2.scrollTop = sideY;
     window.scrollTo(0, keepScroll ? y : 0);
     keepScroll = false;
@@ -605,8 +592,7 @@
     if (window.RMOFocus) window.RMOFocus.paint();
     rtTick(false);
   }
-  var viewing = null, viewingTool = null;
-  window.addEventListener('hashchange', function () { revealed = false; if (viewing) { markSeenTopic(viewing); viewing = null; } if (viewingTool) { markSeenCases(viewingTool); viewingTool = null; } render(); });
+  window.addEventListener('hashchange', function () { revealed = false;  render(); });
   function topicId() { return route[1]; }
 
   var lastSel = null;
@@ -689,6 +675,7 @@
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delhl]'))) { var hid = el.getAttribute('data-delhl'); S.highlights = S.highlights.filter(function (x) { return x.id !== hid; }); S.dead[hid] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -712,7 +699,7 @@
     if (a === 'rtgoal') { rtMenu = false; var gs = rtLoad(); gs.goal = { min: +el.getAttribute('data-min'), start: gs.ms, cards0: gs.cards }; rtSave(gs); rtPaint(gs, ''); return; }
     if (a === 'rtgoaloff') { rtMenu = false; var go = rtLoad(); go.goal = null; rtSave(go); rtPaint(go, ''); return; }
     if (a === 'rtstop') { var gt = rtLoad(); gt.goal = null; rtSave(gt); location.hash = '#/'; return; }
-    if (a === 'seenall') { markAllSeen(); keepScroll = true; render(); return; }
+    if (a === 'allcases') { caseAll = true; keepScroll = true; render(); return; }
     if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; t.t = Date.now(); save(); keepScroll = true; render(); }
@@ -737,7 +724,7 @@
   });
 
   drainAttempts(); drainStars(); drainCards(); mirrorCards();
-  loadCaseIds();
+  loadCases();
   render();
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
