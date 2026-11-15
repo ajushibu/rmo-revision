@@ -110,7 +110,7 @@
   function rateButtons(id, keys) {
     var st = itState(id);
     if (st.k === 'ok') return '<p class="src">Next review ' + nice(st.s.due) + '. You can mark it known again on that day, so the spacing stays honest.</p><button class="link" data-rate="shaky" data-it="' + id + '">I have forgotten this: bring it back tomorrow</button>';
-    return '<div class="rate"><button class="b got" data-rate="got" data-it="' + id + '">Got it' + (keys ? KH('K') : '') + '</button><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky' + (keys ? KH('J') : '') + '</button></div>';
+    return '<div class="rate"><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky' + (keys ? KH('J') : '') + '</button><button class="b got" data-rate="got" data-it="' + id + '">Got it' + (keys ? KH('K') : '') + '</button></div>';
   }
 
 
