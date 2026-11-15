@@ -337,5 +337,132 @@ window.RMO_CASES = [
    "mid": "She was treated, but a step was slow.",
    "lo": "Review steps 1 and 2 of the Study Kit."
   }
+ },
+ {
+  "id": "c20261115a",
+  "from": "c2",
+  "title": "Breathless during the second unit",
+  "where": "General medical ward",
+  "time": "23:40",
+  "blurb": "An older woman with heart failure gets wheezy and hypoxic during a blood transfusion. Tests transfusion overload and the fluid trap.",
+  "intro": "Nurse call: 81-year-old woman, admitted after a fall with a haemoglobin of 68. Halfway through her second unit of red cells, now breathless and wheezy. \"Should I give her some Ventolin?\"",
+  "vit": {
+   "hr": 112,
+   "sbp": 182,
+   "dbp": 96,
+   "spo2": 87,
+   "rr": 32
+  },
+  "facts": [
+   "81F; heart failure and chronic kidney disease",
+   "Second unit of red cells started 50 minutes ago; first unit finished at 21:00",
+   "Wheeze and crackles at both bases; JVP raised",
+   "Temperature 37.2; no rash, no lip swelling"
+  ],
+  "decisions": [
+   {
+    "tag": "look",
+    "scene": "She is sitting forward, gasping, with the blood still running. First moves?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Stop the transfusion now and keep the IV line open, call for help, sit her up, give oxygen, monitor, and check her identity against the bag",
+      "fb": "Lifeblood: stop the transfusion immediately in any suspected reaction, then assess and support.",
+      "vit": {
+       "spo2": 89
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Slow the transfusion down and give salbutamol",
+      "fb": "Slowing still adds volume, and salbutamol does not treat the cause."
+     },
+     {
+      "q": "harm",
+      "t": "Run the rest of the unit in quickly so she gets her blood, then assess",
+      "fb": "More volume into an overloaded circulation.",
+      "vit": {
+       "spo2": 82,
+       "rr": 36
+      }
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "High BP, raised JVP, crackles and wheeze during a transfusion. What is the working diagnosis?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Transfusion-associated circulatory overload (TACO): pulmonary oedema from the volume",
+      "fb": "Lifeblood: TACO is pulmonary oedema during or up to 12 hours after transfusion. High BP is a constant feature. Older age, heart failure and kidney disease are risk factors."
+     },
+     {
+      "q": "poor",
+      "t": "TRALI (transfusion lung injury)",
+      "fb": "It can look similar and can coexist, but high BP is infrequent in TRALI and constant in TACO (Lifeblood). Her raised JVP and heart failure fit overload."
+     },
+     {
+      "q": "poor",
+      "t": "Asthma or COPD: nebulised salbutamol",
+      "fb": "Wheeze is not always the airways. A wet chest with a high JVP is cardiac wheeze."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "On a non-rebreather she stays at 88% with a RR of 32. Next step?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "CPAP or NIV with senior and ICU review, plus IV diuretic and heart failure treatment as per your protocol",
+      "fb": "Lifeblood: sit up, oxygen, diuretics and other heart failure therapy; ventilation and ICU in serious cases.",
+      "vit": {
+       "spo2": 95,
+       "rr": 24
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Keep the non-rebreather on and recheck in an hour",
+      "fb": "She is failing on maximal mask oxygen. She needs pressure support now."
+     },
+     {
+      "q": "harm",
+      "t": "Lie her flat for a portable chest X-ray first",
+      "fb": "She cannot tolerate lying flat and will worsen.",
+      "vit": {
+       "spo2": 80
+      }
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "An hour later she is better. The team still wants her haemoglobin higher. What do you do about the rest of the blood?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Do not restart that unit. Report the reaction to the blood bank as per protocol, and discuss with your senior whether more blood is needed; if so, give it slowly, one unit at a time, with a diuretic considered and close observations",
+      "fb": "Lifeblood: in patients at risk, transfuse slowly and consider a diuretic. The volume caused this, so the volume is what you change."
+     },
+     {
+      "q": "poor",
+      "t": "Restart the same unit at the old rate and give furosemide on top",
+      "fb": "The same trap as running fluids with a diuretic on top: you keep adding the cause and chase it with a drug. Stop or slow the cause first."
+     },
+     {
+      "q": "poor",
+      "t": "Restart it and just watch closely",
+      "fb": "Watching does not stop the overload. Change the rate and the plan."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You recognised TACO, stopped the cause and supported her breathing.",
+   "mid": "She improved, but a step kept the cause going.",
+   "lo": "Review steps 2 and 4 of the Study Kit."
+  }
  }
 ];

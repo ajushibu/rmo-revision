@@ -302,7 +302,7 @@ window.RECALL = {
 {id:"ass1",g:"T",p:3,s:"g",t:"Asthma in children: which guideline for dosing?",k:"Use the RCH guideline for paediatric dosing, not the adult page."}
 ]},
 "copd-exacerbation": { items: [
-{id:"co1",g:"R",p:1,s:"g",t:"What defines a COPD flare, and what other causes do you look for?",k:"More breathless, more sputum, purulent sputum. Infection is common, but look for heart failure, pneumonia, pneumothorax, PE and arrhythmia."},
+{id:"co1",g:"R",p:1,s:"g",t:"What defines a COPD flare, which conditions mimic it, and which drug causes do you check for?",k:"More breathless, more sputum, purulent sputum. Infection is common, but rule out the mimics: heart failure, pneumonia, pneumothorax, PE and a new arrhythmia such as AF (chest X-ray and ECG pick most of these up, NSW ACI). Drug causes: missed inhalers, a newly started beta-blocker, or a sedative (opioid or benzodiazepine) that slows breathing (drug list not in the NSW ACI page; check your hospital protocol). Think of the mimics again if a flare is not responding to treatment.",from:["h1794638971179"]},
 {id:"co2",g:"R",p:1,s:"g",t:"COPD flare: what do you ask about early?",k:"Treatment limits: is ICU or intubation appropriate for this patient?"},
 {id:"co3",g:"A",p:1,s:"g",t:"COPD flare: when do you do an arterial gas, and what do you look at?",k:"If drowsy, severe or low saturation. Look at pH and CO2 before and after oxygen changes."},
 {id:"co4",g:"A",p:2,s:"g",t:"COPD flare: which tests?",k:"Chest X-ray, ECG, bloods, sputum culture if purulent; troponin and BNP if unclear."},
@@ -312,8 +312,8 @@ window.RECALL = {
 {id:"co8",g:"T",p:2,s:"g",t:"COPD flare: when do you give an antibiotic, and which?",k:"If the sputum is purulent. Cover typical and atypical organisms; agent and dose per eTG and your hospital protocol."},
 {id:"co9",g:"T",p:1,s:"g",t:"COPD flare: when do you consider NIV?",k:"Respiratory acidosis (NSW ACI: pH under 7.3 or worsening; many protocols start under 7.35 with a raised CO2), drowsiness, severe breathlessness, persistent hypoxaemia."},
 {id:"co10",g:"C",p:1,s:"g",t:"COPD patient drowsy on high oxygen with a slow rate: what is happening, and what do you do?",k:"Over-oxygenation. Reduce to the target and check a gas."},
-{id:"co11",g:"C",p:1,s:"g",t:"COPD on NIV not improving at one hour: what do you do?",k:"Call ICU and discuss intubation within agreed limits."},
-{id:"co12",g:"C",p:2,s:"g",t:"Wheeze not responding to COPD treatment: what else could it be?",k:"Not always COPD: think heart failure, pneumothorax, PE and arrhythmia."},
+{id:"co11",g:"C",p:1,s:"g",t:"COPD on NIV: what do you recheck and when, what should happen, and what if it does not?",k:"Recheck the gas, breathing rate and effort, usually within an hour (timing per your unit's NIV protocol). They should improve. Not improving, or getting worse: call ICU and discuss intubation within the agreed treatment limits.",from:["h1794639154135"]},
+{id:"co12",g:"C",p:2,s:"g",dup:"co1",t:"Wheeze not responding to COPD treatment: what else could it be?",k:"Not always COPD: think heart failure, pneumothorax, PE and arrhythmia."},
 {id:"co13",g:"F",p:1,s:"g",t:"COPD flare: what are the admission criteria?",k:"Marked symptoms plus failure at home, loss of mobility, cannot eat or sleep, altered mental state, worsening hypoxaemia, right heart failure or new arrhythmia."},
 {id:"co14",g:"F",p:2,s:"g",t:"COPD: what must happen before discharge?",k:"Inhaler technique, preventer plan, smoking cessation, vaccines, pulmonary rehabilitation, written action plan and early review."}
 ], sg: [

@@ -331,5 +331,133 @@ window.RMO_CASES = [
    "mid": "He recovered, but a step cost time.",
    "lo": "Review step 4 of the Study Kit and the pneumothorax kit."
   }
+ },
+ {
+  "id": "c20261115a",
+  "from": "c1",
+  "title": "Talking, but not fine",
+  "where": "Medical ward",
+  "time": "01:20",
+  "blurb": "A woman admitted for cellulitis gets wheezy overnight. The nurse says she is fine because she is talking. Tests severity, doses and reassessment.",
+  "intro": "Nurse call: 34-year-old woman, admitted yesterday with leg cellulitis. Known asthma. Wheezy for an hour. \"She's talking to me, so I think she's OK.\"",
+  "vit": {
+   "hr": 118,
+   "sbp": 132,
+   "dbp": 80,
+   "spo2": 93,
+   "rr": 26
+  },
+  "facts": [
+   "34F; asthma, uses her reliever most days, no preventer",
+   "Talks, but stops for breath every few words",
+   "Neck muscles working; widespread wheeze",
+   "SpO2 93% on air; alert and orientated"
+  ],
+  "decisions": [
+   {
+    "tag": "sev",
+    "scene": "She is talking and alert. How severe is this attack?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Severe: she cannot finish a sentence in one breath, she is using her neck muscles, and her SpO2 is 94% or below on air",
+      "fb": "Any one of these makes it severe (Australian Asthma Handbook). Talking is not the test: whole sentences in one breath is."
+     },
+     {
+      "q": "poor",
+      "t": "Mild to moderate: she is talking, alert, and her SpO2 is over 92%",
+      "fb": "Mild to moderate needs all of: whole sentences in one breath and SpO2 over 94% on air. She has neither."
+     },
+     {
+      "q": "ok",
+      "t": "Life-threatening: put out a MET call",
+      "fb": "Not life-threatening (she is alert, SpO2 not under 92%, good effort). Getting help early is never wrong, but know the grades."
+     }
+    ]
+   },
+   {
+    "tag": "bd",
+    "scene": "What do you start?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Salbutamol 12 puffs (100 microg each) by spacer and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. No oxygen yet: start it if SpO2 falls under 92%",
+      "fb": "This is the Asthma Handbook ED plan for severe asthma. Oxygen starts under 92% and is titrated to 92 to 96%.",
+      "vit": {
+       "hr": 110,
+       "spo2": 95,
+       "rr": 22
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Two puffs of her reliever and review in the morning",
+      "fb": "Underdosed for a severe attack, and she needs reassessment within the hour.",
+      "vit": {
+       "spo2": 91,
+       "rr": 30
+      }
+     },
+     {
+      "q": "poor",
+      "t": "High-flow oxygen by non-rebreather to get her SpO2 to 100%",
+      "fb": "She does not need oxygen at 93%, and over-oxygenation in adults raises the risk of CO2 retention (Asthma Handbook). Bronchodilators are the treatment."
+     }
+    ]
+   },
+   {
+    "tag": "steroid",
+    "scene": "Which drug do you add now?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Oral prednisolone 37.5 to 50 mg now, then each morning for 5 to 10 days in total",
+      "fb": "Australian Asthma Handbook dose. Steroids take hours to work, so give them early, at night too."
+     },
+     {
+      "q": "poor",
+      "t": "Leave the steroid for the day team to decide",
+      "fb": "Delay makes the next hours worse. Start it now."
+     }
+    ]
+   },
+   {
+    "tag": "sev",
+    "scene": "Forty minutes later she speaks whole sentences in one breath, SpO2 95% on air, HR 104. She wants to sleep. What now?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "She is now mild to moderate, but she was severe an hour ago: reassess at one hour, keep salbutamol going as needed, keep her on observations, and escalate if she slips back",
+      "fb": "Grade again after treatment. Improvement in the first hour is a good sign, not the end of watching."
+     },
+     {
+      "q": "poor",
+      "t": "She is better: stop the observations until the morning",
+      "fb": "She was severe 40 minutes ago. Asthma can relapse as the salbutamol wears off."
+     }
+    ]
+   },
+   {
+    "tag": "home",
+    "scene": "Two days later the cellulitis is better and she is going home. What about her asthma?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Start a preventer with an inhaled steroid, check her spacer and inhaler technique, give a written action plan, and arrange GP review",
+      "fb": "Reliever most days with no preventer is why this happened. Fix the gap before she leaves."
+     },
+     {
+      "q": "poor",
+      "t": "Nothing extra: she came in for cellulitis",
+      "fb": "An acute attack in hospital is a marker of poor control. Use the admission to fix it."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You looked past 'she is talking' and graded her right, then treated and rechecked.",
+   "mid": "She recovered, but a step was missed. Review the severity grades.",
+   "lo": "Review steps 1, 2 and 5 of the Study Kit."
+  }
  }
 ];
