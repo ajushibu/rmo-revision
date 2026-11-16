@@ -304,12 +304,18 @@
     });
     return o.sort(function (x, y) { return x.d < y.d ? 1 : x.d > y.d ? -1 : x.id < y.id ? -1 : 1; });
   }
+  function caseHref(c) { return '#/tool/' + c.topic.id + '/' + c.i + '/' + encodeURIComponent(c.id) + '/today'; }
+  // Called from inside a case page (same origin) when a case started from Today ends.
+  window.RMOCases = {
+    left: function (cur) { return newCaseList().filter(function (c) { return c.f + ':' + c.id !== cur; }).length; },
+    next: function (cur) { var l = newCaseList().filter(function (c) { return c.f + ':' + c.id !== cur; }); location.hash = l.length ? caseHref(l[0]) : '#/'; }
+  };
   function newCasesHTML() {
     var l = newCaseList(); if (!l.length) return '';
     var shown = caseAll ? l : l.slice(0, 3);
-    return '<section class="ncases" aria-label="New on-call cases"><h2>New on-call cases <span class="n nc">' + l.length + '</span></h2><p class="meta">Short refreshers written from your weak points. About 5 minutes each.</p><ul class="list">' + shown.map(function (c) {
+    return '<section class="ncases" aria-label="New on-call cases"><div class="nchead"><h2>New on-call cases <span class="n nc">' + l.length + '</span></h2>' + (l.length > 1 ? '<a class="btn small" href="' + caseHref(l[0]) + '">Play all ' + l.length + '</a>' : '') + '</div><p class="meta">Short refreshers written from your weak points. About 5 minutes each.</p><ul class="list">' + shown.map(function (c) {
       return '<li class="ncase"><div class="nct"><span class="ncm">' + esc(c.topic.name) + (c.where ? ' · ' + esc(c.where) : '') + '</span><b>' + esc(c.title) + '</b>' + (c.blurb ? '<span class="ncb">' + esc(c.blurb) + '</span>' : '') + '</div>' +
-        '<div class="ncbtn"><a class="btn primary small" href="#/tool/' + c.topic.id + '/' + c.i + '/' + encodeURIComponent(c.id) + '">Play</a><button class="link" data-skipcase="' + esc(c.f + ':' + c.id) + '">Skip</button></div></li>';
+        '<div class="ncbtn"><a class="btn primary small" href="' + caseHref(c) + '">Play</a><button class="link" data-skipcase="' + esc(c.f + ':' + c.id) + '">Skip</button></div></li>';
     }).join('') + '</ul>' + (l.length > shown.length ? '<p><button class="link" data-act="allcases">Show ' + (l.length - shown.length) + ' more</button></p>' : '') + '</section>';
   }
 
@@ -563,10 +569,10 @@
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
-  function tool(id, i, cs) {
+  function tool(id, i, cs, fromToday) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
     var n = pendingHighlights(t.id).length;
-    return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) : '') + '"></iframe>';
+    return '<div class="toolbar">' + (fromToday ? '<a class="back" href="#/">Today</a>' : '<a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a>') + '<b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) + (fromToday ? '&run=today' : '') : '') + '"></iframe>';
   }
   function settings() {
     var h = '<header class="head"><h1>Settings</h1></header>';
@@ -597,7 +603,7 @@
     route = r; app.className = ''; rtShown = null;
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
-    else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3]); app.className = 'tool'; }
+    else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3], r[4] === 'today'); app.className = 'tool'; }
     else if (r[0] === 'topics') h = topicsPage();
     else if (r[0] === 'revise') h = revise();
     else if (r[0] === 'settings') h = settings();

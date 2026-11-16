@@ -138,7 +138,8 @@ a.row:hover, button.row:hover { background: var(--hover); }
 .vn i { font: 600 13px/1 var(--sans); letter-spacing: 0; color: var(--mon-dim); margin-left: 4px; }
 .vitals .btn.primary { width: 100%; background: var(--mon-ink); border-color: var(--mon-ink); color: var(--mon-bg); }
 .vnone { margin: 0; font-size: 14px; color: var(--mon-dim); }
-.ncases h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.nchead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 2px; }
+.ncases h2 { display: flex; align-items: center; gap: 8px; margin: 0; }
 .ncases > .meta { margin: 0 0 12px; }
 .ncases > p:last-child { margin: 8px 0 0; }
 .ncase { display: flex; align-items: center; gap: 16px; padding: 14px 18px; }

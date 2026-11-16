@@ -35,11 +35,26 @@
     btn.addEventListener('click', function () { showAll = true; hide.forEach(function (li) { li.hidden = false; }); btn.remove(); });
     ul.parentNode.appendChild(btn);
   }
+  // Started from Today: at the end of the case, offer the next new case instead of the case menu.
+  var RUN = false, CUR = null;
+  try { var qs = new URLSearchParams(location.search); RUN = qs.get('run') === 'today'; CUR = (location.pathname.split('/').pop() || '').replace('_shift.html', '') + ':' + qs.get('case'); } catch (e) {}
+  function nextBtn() {
+    if (!RUN || view.querySelector('.nextcase')) return;
+    var btns = view.querySelector('[data-a="after"]'); btns = btns && btns.parentNode; if (!btns) return;
+    var P = null; try { P = window.parent !== window && window.parent.RMOCases ? window.parent.RMOCases : null; } catch (e) {}
+    if (!P) return;
+    var left = P.left(CUR), b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn primary nextcase';
+    b.textContent = left ? 'Next case (' + left + ' left)' : 'Done: back to Today';
+    b.addEventListener('click', function () { P.next(CUR); });
+    var old = btns.querySelector('[data-a="after"]'); old.classList.remove('primary'); old.textContent = 'See debrief';
+    btns.insertBefore(b, btns.firstChild);
+  }
   function sync() {
     if (busy) return; busy = true;
     var m = mode(); d.setAttribute('data-mode', m);
     if (m === 'home' || m === 'intro') showAll = false;
-    pips(); pager(); fold();
+    pips(); pager(); fold(); if (m === 'caseend') nextBtn();
     var fb = view.querySelector('.fb'), key = m + '|' + (prog ? prog.textContent : '') + '|' + (fb ? 'fb' : '');
     if (key !== lastKey) {
       lastKey = key;
