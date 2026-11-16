@@ -1,0 +1,115 @@
+/* Shared look for every study tool (kits, explainers, on-call cases). Loaded after each tool's own styles.
+   look.js sets data-look (paper | night | classic) and data-theme (light | dark) on <html>. */
+@font-face { font-family: "Atkinson Next"; font-weight: 200 800; font-display: swap; src: url(../fonts/ahn.woff2) format("woff2"); }
+@font-face { font-family: "Atkinson Mono"; font-weight: 200 800; font-display: swap; src: url(../fonts/ahm.woff2) format("woff2"); }
+:root {
+  --display: "Atkinson Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "Atkinson Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Atkinson Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-look="paper"] {
+  --bg: #F2F4F1; --surface: #FFFFFF; --ink: #15232A; --muted: #56686D; --line: #D6DDD8; --n-tint: #E7ECE8;
+  --best: #1D7445; --best-t: #DBEFE2; --ok: #7A5500; --ok-t: #FAEDC0; --poor: #A04A08; --poor-t: #F9E3CF; --harm: #AE2A1F; --harm-t: #FADFDB; --on: #FFFFFF;
+  --a-fill: #AE2A1F; --a-tint: #FADFDB; --b-fill: #0E5E6C; --b-tint: #DDEBEC; --diff: #7A5500; --diff-t: #FAEDC0; --good: #1D7445; --good-t: #DBEFE2; --go-t: #F9E3CF;
+  --mon-bg: #0B1316; --mon-line: #1F3138;
+}
+:root[data-look="night"] {
+  --bg: #0D1518; --surface: #142025; --ink: #E7EEEC; --muted: #93A6A9; --line: #25363D; --n-tint: #1B2B31;
+  --best: #82D49A; --best-t: #183324; --ok: #EDC163; --ok-t: #382D14; --poor: #F2A460; --poor-t: #3A2817; --harm: #F48875; --harm-t: #3A211D; --on: #0D1518;
+  --a-fill: #F48875; --a-tint: #3A211D; --b-fill: #86D9E7; --b-tint: #16323A; --diff: #EDC163; --diff-t: #382D14; --good: #82D49A; --good-t: #183324; --go-t: #3A2817;
+  --mon-bg: #060B0D; --mon-line: #18272D;
+}
+body { font-size: 16px; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, .big { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; }
+.mono { font-family: var(--body); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.btn { border-radius: 12px; min-height: 44px; font-weight: 600; border-color: var(--line); }
+.btn.primary { border-color: var(--ink); }
+.card { border-radius: 16px; }
+
+/* ================= on-call cases ================= */
+html[data-shift] body { padding-block: 22px 56px; }
+html[data-shift] main { max-width: 1080px; gap: 16px; }
+html[data-shift] .top { align-items: center; }
+html[data-shift] .top h1 { font-size: clamp(24px, 3.4vw, 34px); }
+html[data-shift] #progress { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); }
+.pips { display: inline-flex; gap: 4px; }
+.pips i { width: 18px; height: 4px; border-radius: 4px; background: var(--line); }
+.pips i.done { background: var(--muted); }
+.pips i.now { background: var(--ink); }
+html[data-shift] .monitor { border-radius: 16px; padding: 14px 18px 16px; }
+html[data-shift] .monitor .head { font-family: var(--body); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+html[data-shift] .vit .l { font-family: var(--body); font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+html[data-shift] .vit .v { font-weight: 700; font-size: 38px; letter-spacing: -.04em; }
+html[data-shift] .vit .u { font-family: var(--body); letter-spacing: 0; }
+html[data-shift] .chart ul { font-size: 15px; gap: 5px; margin-top: 6px; }
+html[data-shift] .chart li.new { color: var(--ink); font-weight: 700; }
+html[data-shift] .chart .more { margin: 6px 0 0; padding: 4px 0; background: none; border: 0; color: var(--muted); font: 600 13px var(--body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+html[data-shift] .scene { font-size: 18px; font-weight: 600; line-height: 1.4; margin-bottom: 16px; text-wrap: pretty; }
+html[data-shift] .opts { gap: 10px; }
+html[data-shift] .opt { border-radius: 12px; padding: 14px 16px; min-height: 52px; font-size: 16px; line-height: 1.4; transition: border-color .12s, background .12s; }
+html[data-shift] .opt:hover:not(:disabled) { background: var(--n-tint); }
+html[data-shift] .opt:disabled { opacity: .5; }
+html[data-shift] .opt.chosen { opacity: 1; font-weight: 600; }
+html[data-shift] .opt.chosen.best { background: var(--best-t); } html[data-shift] .opt.chosen.ok { background: var(--ok-t); }
+html[data-shift] .opt.chosen.poor { background: var(--poor-t); } html[data-shift] .opt.chosen.harm { background: var(--harm-t); }
+html[data-shift] .fb { border-radius: 12px; padding: 14px 16px 16px; margin-top: 14px; scroll-margin: 96px 0 96px; }
+html[data-shift] .fb .tag { font-family: var(--body); font-size: 14px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+html[data-shift] .pager { border-left-width: 4px; border-radius: 4px 12px 12px 4px; padding: 14px 16px; }
+html[data-shift] .pager b { font-family: var(--body); font-size: 13px; letter-spacing: 0; color: var(--muted); }
+html[data-shift] .cases { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+html[data-shift] .case-card { border-radius: 14px; padding: 16px; gap: 6px; }
+html[data-shift] .case-card h3 { font-size: 17px; }
+html[data-shift] .case-card p { font-size: 14px; }
+html[data-shift] .case-card .btn { padding: 6px 16px; }
+html[data-shift] .star { border-radius: 12px; min-height: 44px; padding: 6px 14px; font-size: 14px; }
+html[data-shift] .star[aria-pressed="true"] { color: var(--ok); border-color: var(--ok); }
+html[data-shift] .cs-new { color: var(--ok); background: var(--ok-t); }
+html[data-shift] .cs-played { color: var(--best); }
+html[data-shift] .cs-unplayed { color: var(--muted); }
+html[data-shift] .big { font-family: var(--mono); font-size: 56px; letter-spacing: -.04em; }
+html[data-shift] .row .num { font-size: 14px; }
+html[data-shift] .note { font-size: 13px; }
+
+/* phone: the monitor becomes a strip pinned to the top; the question, options and feedback stay on screen */
+@media (max-width: 760px) {
+  html[data-shift] body { padding-block: 14px 40px; padding-left: 14px; padding-right: 14px; }
+  html[data-shift] main { gap: 12px; }
+  html[data-shift]:not([data-mode="home"]) .top h1 { display: none; }
+  html[data-shift]:not([data-mode="home"]) .note { display: none; }
+  html[data-shift]:not([data-mode="home"]) body { padding-top: 0; padding-bottom: 112px; }
+  html[data-shift] .grid, html[data-shift] .col { gap: 10px; }
+  html[data-shift]:not([data-mode="home"]) .top { order: 2; justify-content: flex-start; }
+  html[data-shift][data-mode="debrief"] .top, html[data-shift][data-mode="caseend"] .top { display: none; }
+  html[data-shift]:not([data-mode="home"]) main { display: flex; }
+  html[data-shift] .monitor { position: sticky; top: 0; z-index: 5; margin: 0 -14px; border-radius: 0 0 16px 16px; border-width: 0 0 1px; padding: 8px 14px 10px; padding-top: calc(8px + env(safe-area-inset-top)); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  html[data-shift] .monitor .head { margin-bottom: 6px; font-size: 12px; }
+  html[data-shift] .vit { grid-template-columns: 1fr 1.5fr 1fr 1fr; gap: 0 12px; }
+  html[data-shift] .vit div { padding-top: 5px; display: flex; flex-direction: column; }
+  html[data-shift] .vit .v { font-size: 25px; white-space: nowrap; }
+  html[data-shift] .vit .u { display: none; }
+  html[data-shift] .card { padding: 14px; border-radius: 14px; }
+  html[data-shift] .chart { background: none; border: 0; padding: 4px 2px 0; }
+  html[data-shift] .chart .mono { display: none; }
+  html[data-shift] .chart ul { margin-top: 0; font-size: 14px; }
+  html[data-shift] .scene { font-size: 17px; margin-bottom: 12px; }
+  html[data-shift] .opt { padding: 13px 14px; }
+  html[data-shift][data-mode="decide"] .fb .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: 17px; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  html[data-shift] .fb p:last-of-type { margin-bottom: 0; }
+  html[data-shift] .card:has(> .cases) { background: none; border: 0; padding: 0; }
+  html[data-shift] .cases { grid-template-columns: 1fr; gap: 10px; }
+  html[data-shift] .btns .btn.primary { flex: 1; min-height: 50px; }
+  html[data-shift] .big { font-size: 48px; }
+}
+@media (min-width: 1500px) {
+  html[data-shift] body { font-size: 17px; padding-block: 40px 64px; }
+  html[data-shift] main { max-width: 1280px; gap: 22px; }
+  html[data-shift] .grid { gap: 28px; }
+  html[data-shift] .monitor { padding: 20px 24px 22px; }
+  html[data-shift] .vit .v { font-size: 52px; }
+  html[data-shift] .vit { gap: 14px 24px; }
+  html[data-shift] .card { padding: 26px; }
+  html[data-shift] .chart ul { font-size: 17px; }
+  html[data-shift] .scene { font-size: 22px; }
+  html[data-shift] .opt { font-size: 18px; padding: 16px 20px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

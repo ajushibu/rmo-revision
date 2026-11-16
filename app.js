@@ -431,19 +431,25 @@
       h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + '</span></a>';
       if (open) h += tps.map(function (t) { var c = topicDueCount(t.id); return '<a href="#/t/' + t.id + '" class="sub' + (cur.topic === t.id ? ' on' : '') + '"><span>' + esc(t.name) + '</span>' + (c ? '<span class="n">' + c + '</span>' : '') + '</a>'; }).join('');
     });
-    return h + '</nav><a class="foot" href="#/settings">Sync and backup</a></aside>';
+    return h + '</nav><a class="foot" href="#/settings">Settings</a></aside>';
   }
+  var IC = {
+    today: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2.5-6 4 12 2.5-6h5"/></svg>',
+    topics: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
+    revise: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="13" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v10"/></svg>',
+    focus: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 9.5V13l2.2 1.6M9.5 3h5"/></svg>'
+  };
   function tabbar(cur) {
     var n = queue().all.length;
-    function tab(href, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '">' + label + (c ? ' <span class="n">' + c + '</span>' : '') + (nw ? ' <span class="n nc">' + nw + '</span>' : '') + '</a>'; }
-    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'Today', cur.page === 'home', 0, newCaseList().length) + tab('#/topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'Revise', cur.page === 'revise', n) + '<button type="button" class="navfocus" data-focus="short"><span data-focus-label>Focus</span></button></nav>';
+    function tab(href, ic, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span class="ti">' + IC[ic] + (c ? '<span class="n">' + c + '</span>' : '') + (nw ? '<span class="n nc">' + nw + '</span>' : '') + '</span><span class="tl">' + label + '</span></a>'; }
+    return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'today', 'Today', cur.page === 'home', 0, newCaseList().length) + tab('#/topics', 'topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'revise', 'Revise', cur.page === 'revise', n) + '<button type="button" class="navfocus" data-focus="short"><span class="ti">' + IC.focus + '</span><span class="tl" data-focus-label>Focus</span></button></nav>';
   }
   function undoBar() {
     if (!undo || Date.now() - undo.at > 8000) return '';
     var it = S.items[undo.id];
     return '<div class="undo" role="status"><span>Marked ' + (undo.how === 'got' ? 'Got it' : 'Shaky') + (it ? '. Next review ' + nice(it.due) : '') + '.</span><button class="link" data-act="undo">Undo</button></div>';
   }
-  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main" id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
+  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '" id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
   function row(href, title, right, sub) {
     return '<li><a class="row" href="' + href + '"><span class="t"><span>' + title + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + (right || '') + '</a></li>';
   }
@@ -452,31 +458,37 @@
   function home() {
     var q = queue(), studied = 0;
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.studied) studied++; });
-    var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small" id="syncline">' + syncLine() + '</p></header>';
-    h += newCasesHTML();
-    h += (window.RMOFocus ? window.RMOFocus.line() : '');
-    h += '<div class="stats"><div><b>' + q.due.length + '</b><span>due to recall</span></div><div><b>' + q.fresh.length + '</b><span>new to rate</span></div><div><b>' + studied + '</b><span>of ' + TOP.length + ' topics studied</span></div></div>';
-    h += q.all.length ? '<p class="startrow"><a class="btn primary big" href="#/revise">Start revising</a><span class="meta">' + plural(q.all.length, 'card', 'cards') + ', ' + rtAbout(q.all.length * rtPace().ms) + '</span></p>' : '<p class="meta">Nothing to recall. Open a topic you have studied and press "Studied today", or rate its checklist.</p>';
+    var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small"><span id="syncline">' + syncLine() + '</span> <a class="phone-only-i" href="#/settings">Settings</a></p></header>';
+    var mins = Math.max(1, Math.round(q.all.length * rtPace().ms / 60000));
+    var side = '<section class="vitals" aria-label="Today\'s revision"><div class="vrow">' +
+      '<div class="vt"><span class="vl">Due</span><b class="vn' + (q.due.length ? ' v-due' : '') + '">' + q.due.length + '</b></div>' +
+      '<div class="vt"><span class="vl">New</span><b class="vn v-new">' + q.fresh.length + '</b></div>' +
+      '<div class="vt"><span class="vl">About</span><b class="vn v-time">' + (q.all.length ? mins : 0) + '<i>min</i></b></div></div>' +
+      (q.all.length ? '<a class="btn primary big" href="#/revise">Start revising</a>' : '<p class="vnone">Nothing to recall. Open a topic you have studied and press "Studied today".</p>') + '</section>' +
+      '<p class="meta small">' + studied + ' of ' + TOP.length + ' topics studied.</p>' + (window.RMOFocus ? window.RMOFocus.line() : '');
+    var mainc = newCasesHTML();
     if (q.all.length) {
       var by = {}, order = [];
       q.all.forEach(function (x) { if (!by[x.tid]) { by[x.tid] = { due: 0, fresh: 0 }; order.push(x.tid); } if (itState(x.it.id).k === 'due') by[x.tid].due++; else by[x.tid].fresh++; });
-      h += '<h2>In today\'s queue</h2><ul class="list">' + order.map(function (tid) {
+      mainc += '<section><h2>In today\'s queue</h2><ul class="list">' + order.map(function (tid) {
         var c = by[tid]; return row('#/t/' + tid, esc(byId(tid).name), '<span class="tags">' + (c.due ? '<span class="tag due">' + c.due + ' due</span>' : '') + (c.fresh ? '<span class="tag">' + c.fresh + ' new</span>' : '') + '</span>');
-      }).join('') + '</ul>';
+      }).join('') + '</ul></section>';
     }
+    if (!mainc) mainc = '<section><h2>No new cases today</h2><p class="meta">New on-call cases appear here after each refresh. Every topic\'s cases are under its Study tools.</p></section>';
+    h += '<div class="today"><aside class="tside">' + side + '</aside><div class="tmain">' + mainc + '</div></div>';
     h += '<h2 class="phone-only">Systems</h2><ul class="list phone-only">' + SYS.map(function (s) { return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + TOP.filter(function (t) { return t.system === s.id; }).length + '</span>'); }).join('') + '</ul>';
     h += '<p class="fine">Study aid, not a clinical decision tool. Check every dose against eTG and your hospital guideline.</p>';
     return shell(h, { page: 'home' });
   }
   function topicsPage() {
-    var h = '<header class="head"><h1>Topics</h1><p class="meta">' + TOP.length + ' topics in ' + SYS.length + ' systems</p></header><ul class="list">' +
+    var h = '<header class="head"><h1>Topics</h1><p class="meta">' + TOP.length + ' topics in ' + SYS.length + ' systems</p></header><ul class="list cols">' +
       SYS.map(function (s) { var n = TOP.filter(function (t) { return t.system === s.id; }).length; return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + n + '</span>'); }).join('') + '</ul>';
     return shell(h, { page: 'topics' });
   }
   function system(id) {
     var s = sysById(id); if (!s) return notFound();
     var list = TOP.filter(function (t) { return t.system === id; });
-    var h = '<a class="back" href="#/topics">Topics</a><header class="head"><h1>' + esc(s.name) + '</h1><p class="meta">' + plural(list.length, 'topic', 'topics') + '</p></header><ul class="list">' + list.map(function (t) {
+    var h = '<a class="back" href="#/topics">Topics</a><header class="head"><h1>' + esc(s.name) + '</h1><p class="meta">' + plural(list.length, 'topic', 'topics') + '</p></header><ul class="list cols">' + list.map(function (t) {
       var st = S.topics[t.id] || {}, its = topicItems(t.id), d = topicDueCount(t.id), rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
       var sub = ['Plan day ' + t.day];
       if (its.length) sub.push(rated + ' of ' + its.length + ' rated');
@@ -510,7 +522,9 @@
     var s = sysById(t.system), st = ts(t.id), dy = D.days[t.day] || {}, its = topicItems(t.id);
     var rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
     var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
-    if (t.tools.length) h += '<div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) +  + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div>';
+    h += '<div class="tgrid">';
+    if (t.tools.length) h += '<section class="tg-tools"><h2>Study tools</h2><div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div></section>';
+    h += '<div class="tg-main">';
 
     h += '<h2>Recall checklist</h2>';
     if (its.length) h += st.studied ? '<p class="meta">In Revise since ' + nice(st.studied) + '. <button class="link" data-act="unstudy">Take out of Revise</button></p>' : '<p class="studyrow"><button class="btn primary" data-act="studied">Studied today</button><span class="meta">Puts these cards into Revise.</span></p>';
@@ -524,14 +538,14 @@
     var hl = pendingHighlights(t.id);
     if (hl.length) h += '<h3>Your highlights, waiting for Claude</h3><p class="meta">Claude turns these into recall cards in the right section when you ask in chat, or in the every-other-day refresh. Pasted notes are checked against Australian sources first.</p><ul class="list">' + hl.map(function (x) { var shown = x.tool === 'paste' && x.text.length > 240 ? x.text.slice(0, 240) + '...' : x.text; return '<li><div class="row static"><span class="t"><span>' + esc(shown) + '</span><small>' + esc(x.toolLabel || '') + (x.where ? ', ' + esc(x.where) : '') + ', ' + nice(iso(new Date(x.at))) + '</small></span><button class="link danger" data-delhl="' + x.id + '">Delete</button></div></li>'; }).join('') + '</ul>';
 
-    h += '<h2>Read</h2><ul class="list">';
+    h += '</div><section class="tg-more"><h2>Read</h2><ul class="list">';
     if (t.url) h += '<li><a class="row" href="' + esc(t.url) + '" target="_blank" rel="noopener"><span class="t"><span>Point of Care Medicine template</span><small>Opens in a new tab</small></span></a></li>';
     if (t.rch) h += '<li><a class="row" href="https://www.rch.org.au/clinicalguide/" target="_blank" rel="noopener"><span class="t"><span>Royal Children\'s Hospital guidelines</span><small>Opens in a new tab</small></span></a></li>';
     if (t.pages) h += '<li><div class="row static"><span class="t"><span>Rosen and Barkin</span><small>PDF pages ' + esc(t.pages) + '</small></span></div></li>';
     h += '</ul>';
     if (dy.done || dy.dont) h += '<div class="plan">' + (dy.done ? '<p><b>Done when</b> ' + esc(dy.done) + '</p>' : '') + (dy.dont ? '<p><b>Skip</b> ' + esc(dy.dont.replace(/^[Dd]on't /, '')) + '</p>' : '') + '</div>';
 
-    h += '<details class="fold"><summary>Paste a note for Claude</summary><p class="meta">Paste an answer from Gemini, a book or a senior. Claude checks it against Australian sources and turns it into cards at the next refresh.</p><form id="pasteform" class="form"><label><span>What you are pasting</span><textarea id="pastetext" rows="5" maxlength="8000" placeholder="Paste the explanation here"></textarea></label><div class="inline"><label><span>Where it came from</span><input type="text" id="pastesrc" placeholder="Gemini, Harrison, my registrar" autocomplete="off"></label><button class="btn primary" type="submit">Save for Claude</button></div></form></details>';
+    h += '<details class="fold"><summary>Paste a note for Claude</summary><p class="meta">Paste an answer from Gemini, a book or a senior. Claude checks it against Australian sources and turns it into cards at the next refresh.</p><form id="pasteform" class="form"><label><span>What you are pasting</span><textarea id="pastetext" rows="5" maxlength="8000" placeholder="Paste the explanation here"></textarea></label><div class="inline"><label><span>Where it came from</span><input type="text" id="pastesrc" placeholder="Gemini, Harrison, my registrar" autocomplete="off"></label><button class="btn primary" type="submit">Save for Claude</button></div></form></details></section></div>';
     return shell(h, { page: 'topic', sys: t.system, topic: t.id });
   }
   function revise() {
@@ -555,17 +569,22 @@
     return '<div class="toolbar"><a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a><b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) : '') + '"></iframe>';
   }
   function settings() {
-    var h = '<header class="head"><h1>Sync and backup</h1></header>';
+    var h = '<header class="head"><h1>Settings</h1></header>';
+    var lk = window.RMOLook ? window.RMOLook.get() : 'auto';
+    h += '<h2>Look</h2><p class="meta">Applies to the app, the cases and the study kits on this device.</p><div class="looks" role="radiogroup" aria-label="Look">' +
+      [['auto', 'Match device', 'Chart paper by day, Night ward when your device is dark'], ['night', 'Night ward', 'Dark. Colour only where it means something'], ['paper', 'Chart paper', 'Light, like an observation chart'], ['classic', 'Classic blue', 'The earlier blue look']].map(function (x) {
+        return '<button type="button" class="look lk-' + x[0] + (lk === x[0] ? ' on' : '') + '" role="radio" aria-checked="' + (lk === x[0]) + '" data-look-set="' + x[0] + '"><span class="sw" aria-hidden="true"><i></i><i></i><i></i></span><b>' + x[1] + '</b><small>' + x[2] + '</small></button>';
+      }).join('') + '</div>';
     h += '<h2>Sync between devices</h2>';
     if (sess) {
-      h += '<p class="meta" id="syncline">' + syncLine() + '</p><p class="meta">Your ratings, topic progress, error log and your own subtopics are kept the same on every device where you sign in with this account. Changes made offline sync when you reconnect.</p><p class="btns"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="signout">Sign out on this device</button></p>';
+      h += '<p class="meta" id="syncline">' + syncLine() + '</p><p class="meta">Your ratings, notes, highlights, case results and topic progress are kept the same on every device where you sign in with this account. Changes made offline sync when you reconnect.</p><p class="btns"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="signout">Sign out on this device</button></p>';
     } else {
       h += '<p class="meta">Sign in on each device with the same account. Use the email and password you already use for your other apps on this Supabase account (Stride, Margin).</p>' + (syncState.msg ? '<p class="meta" style="color:var(--due)">' + esc(syncState.msg) + '</p>' : '') +
         '<form id="signin" class="form"><label><span>Email</span><input type="email" id="si-email" autocomplete="username" required></label><label><span>Password</span><input type="password" id="si-pass" autocomplete="current-password"></label><div class="btns"><button class="btn primary" type="submit">Sign in and sync</button><button class="btn" type="button" data-act="sendcode">Email me a code instead</button></div></form>' +
         '<div id="codebox" hidden><p class="meta">Check your email. Type the code here, or open the link on this device.</p><form id="codeform" class="form"><label><span>Code from the email</span><input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code"></label><div><button class="btn primary" type="submit">Sign in</button></div></form></div><p class="meta" id="simsg"></p>';
     }
     h += '<h2>Backup file</h2><p class="meta">A copy you keep yourself. Importing merges it with what is on this device.</p><p class="btns"><button class="btn" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
-      '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and the error log' + (sess ? ' on every synced device' : ' on this device') + '.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
+      '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and notes' + (sess ? ' on every synced device' : ' on this device') + '.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
     return shell(h, { page: 'settings' });
   }
   function notFound() { return shell('<header class="head"><h1>Page not found</h1></header><p><a class="btn" href="#/">Go to Today</a></p>', { page: '' }); }
@@ -675,6 +694,7 @@
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-delitem]'))) { var tq = el.getAttribute('data-tp'), did = el.getAttribute('data-delitem'); S.custom[tq] = (S.custom[tq] || []).filter(function (x) { return x.id !== did; }); delete S.items[did]; S.dead[did] = Date.now(); save(); keepScroll = true; render(); return; }
