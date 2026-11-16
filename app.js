@@ -434,7 +434,7 @@
     SYS.forEach(function (s) {
       var open = s.id === curSys, tps = TOP.filter(function (t) { return t.system === s.id; });
       var d = tps.reduce(function (a, t) { return a + topicDueCount(t.id); }, 0);
-      h += '<a href="#/s/' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + '</span></a>';
+      h += '<a href="#/s/' + s.id + '" data-sys="' + s.id + '" class="grp' + (open && cur.page === 'system' ? ' on' : '') + '"><span>' + esc(s.name) + '</span><span class="ns">' + (d ? '<span class="n">' + d + '</span>' : '') + '</span></a>';
       if (open) h += tps.map(function (t) { var c = topicDueCount(t.id); return '<a href="#/t/' + t.id + '" class="sub' + (cur.topic === t.id ? ' on' : '') + '"><span>' + esc(t.name) + '</span>' + (c ? '<span class="n">' + c + '</span>' : '') + '</a>'; }).join('');
     });
     return h + '</nav><a class="foot" href="#/settings">Settings</a></aside>';
@@ -455,9 +455,9 @@
     var it = S.items[undo.id];
     return '<div class="undo" role="status"><span>Marked ' + (undo.how === 'got' ? 'Got it' : 'Shaky') + (it ? '. Next review ' + nice(it.due) : '') + '.</span><button class="link" data-act="undo">Undo</button></div>';
   }
-  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '" id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
-  function row(href, title, right, sub) {
-    return '<li><a class="row" href="' + href + '"><span class="t"><span>' + title + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + (right || '') + '</a></li>';
+  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '"' + (cur.sys ? ' data-sys="' + cur.sys + '"' : '') + ' id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
+  function row(href, title, right, sub, sys) {
+    return '<li' + (sys ? ' data-sys="' + sys + '"' : '') + '><a class="row" href="' + href + '"><span class="t"><span>' + title + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + (right || '') + '</a></li>';
   }
 
   /* ---------- views ---------- */
@@ -482,13 +482,13 @@
     }
     if (!mainc) mainc = '<section><h2>No new cases today</h2><p class="meta">New on-call cases appear here after each refresh. Every topic\'s cases are under its Study tools.</p></section>';
     h += '<div class="today"><aside class="tside">' + side + '</aside><div class="tmain">' + mainc + '</div></div>';
-    h += '<h2 class="phone-only">Systems</h2><ul class="list phone-only">' + SYS.map(function (s) { return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + TOP.filter(function (t) { return t.system === s.id; }).length + '</span>'); }).join('') + '</ul>';
+    h += '<h2 class="phone-only">Systems</h2><ul class="list phone-only">' + SYS.map(function (s) { return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + TOP.filter(function (t) { return t.system === s.id; }).length + '</span>', '', s.id); }).join('') + '</ul>';
     h += '<p class="fine">Study aid, not a clinical decision tool. Check every dose against eTG and your hospital guideline.</p>';
     return shell(h, { page: 'home' });
   }
   function topicsPage() {
     var h = '<header class="head"><h1>Topics</h1><p class="meta">' + TOP.length + ' topics in ' + SYS.length + ' systems</p></header><ul class="list cols">' +
-      SYS.map(function (s) { var n = TOP.filter(function (t) { return t.system === s.id; }).length; return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + n + '</span>'); }).join('') + '</ul>';
+      SYS.map(function (s) { var n = TOP.filter(function (t) { return t.system === s.id; }).length; return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + n + '</span>', '', s.id); }).join('') + '</ul>';
     return shell(h, { page: 'topics' });
   }
   function system(id) {
@@ -500,7 +500,7 @@
       if (its.length) sub.push(rated + ' of ' + its.length + ' rated');
       if (t.tools.length) sub.push(plural(t.tools.length, 'tool', 'tools'));
       var right = d ? '<span class="tag due">' + d + ' due</span>' : st.studied ? '<span class="tag good">Studied</span>' : '';
-      return row('#/t/' + t.id, esc(t.name), right, sub.join(', '));
+      return row('#/t/' + t.id, esc(t.name), right, sub.join(', '), id);
     }).join('') + '</ul>';
     return shell(h, { page: 'system', sys: id });
   }

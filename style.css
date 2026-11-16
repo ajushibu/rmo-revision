@@ -10,6 +10,7 @@
 :root {
   --bg: #F2F4F1; --pane: #FFFFFF; --raise: #F6F8F5; --ink: #15232A; --mut: #56686D; --line: #D6DDD8; --hover: #EAEEEA;
   --acc: #0E5E6C; --acc-t: #DDEBEC;
+  --sat: 62%; --lit: 34%; --tsat: 55%; --tlit: 92%; --on-sy: #FFFFFF;
   --due: #AE2A1F; --due-t: #FADFDB; --shaky: #7A5500; --shaky-t: #FAEDC0; --good: #1D7445; --good-t: #DBEFE2;
   --btn: #15232A; --btn-ink: #FFFFFF; --sel: #15232A; --sel-t: #E3E8E4;
   --mon-bg: #0B1316; --mon-line: #1F3138; --mon-dim: #7F979E; --mon-ink: #E8F1F0; --mon-due: #FF8271; --mon-new: #72D9F0; --mon-ok: #74E09D;
@@ -21,6 +22,7 @@
 :root[data-look="night"] {
   --bg: #0D1518; --pane: #142025; --raise: #1A292F; --ink: #E7EEEC; --mut: #93A6A9; --line: #25363D; --hover: #1B2B31;
   --acc: #86D9E7; --acc-t: #16323A;
+  --sat: 68%; --lit: 70%; --tsat: 38%; --tlit: 17%; --on-sy: #0D1518;
   --due: #F48875; --due-t: #3A211D; --shaky: #EDC163; --shaky-t: #382D14; --good: #82D49A; --good-t: #183324;
   --btn: #E7EEEC; --btn-ink: #0D1518; --sel: #E7EEEC; --sel-t: #1F3037;
   --mon-bg: #060B0D; --mon-line: #18272D; --mon-dim: #6F878E;
@@ -37,6 +39,7 @@
 :root[data-look="classic"][data-theme="dark"] {
   --bg: #12181F; --pane: #19212B; --raise: #1E2833; --ink: #E4EAF1; --mut: #98A6B5; --line: #2A3542; --hover: #212B37;
   --acc: #7DB0E8; --acc-t: #1E3147;
+  --sat: 68%; --lit: 70%; --tsat: 38%; --tlit: 17%; --on-sy: #0D1518;
   --due: #F07A6E; --due-t: #3A2220; --shaky: #E3B162; --shaky-t: #382D1A; --good: #74C495; --good-t: #1C3326;
   --btn: #7DB0E8; --btn-ink: #0E1620; --sel: #7DB0E8; --sel-t: #1E3147;
   --mon-bg: #0A1017; --mon-line: #1C2836; --mon-dim: #7C8DA1;
@@ -371,3 +374,24 @@ html.kbd .kh { display: inline-block; }
   .vn { font-size: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+
+/* Colour by body system: each system has its own hue; it shows on the sidebar, the page header, section labels and tools. */
+[data-sys] { --sy: hsl(var(--h, 190) var(--sat) var(--lit)); --sy-t: hsl(var(--h, 190) var(--tsat) var(--tlit)); }
+[data-sys="cardio"] { --h: 355; } [data-sys="resp"] { --h: 200; } [data-sys="resus"] { --h: 25; } [data-sys="renal"] { --h: 225; }
+[data-sys="endo"] { --h: 295; } [data-sys="neuro"] { --h: 258; } [data-sys="psych"] { --h: 322; } [data-sys="gi"] { --h: 82; }
+[data-sys="surg"] { --h: 42; } [data-sys="inf"] { --h: 140; } [data-sys="paeds"] { --h: 168; } [data-sys="obs"] { --h: 346; } [data-sys="tests"] { --h: 210; --sat: 12%; }
+.nav a.grp::before { content: ""; flex: none; width: 9px; height: 9px; margin-right: 10px; border-radius: 3px; background: var(--sy); }
+.nav a.grp { justify-content: flex-start; } .nav a.grp .ns { margin-left: auto; }
+.nav a.grp.on { background: var(--sy-t); color: var(--ink); }
+.nav a.sub.on { border-left-color: var(--sy); }
+.main[data-sys] .head::before { content: ""; display: block; width: 48px; height: 6px; margin-bottom: 14px; border-radius: 3px; background: var(--sy); }
+.main[data-sys] .back:hover { color: var(--sy); }
+.main[data-sys] h3.sect { color: var(--sy); }
+.main[data-sys] h3.sect::after { background: var(--sy); opacity: .35; }
+.main[data-sys] .tools a { border-left: 5px solid var(--sy); background: linear-gradient(90deg, var(--sy-t), var(--pane) 70%); }
+.main[data-sys] .tools b { color: var(--sy); }
+.main[data-sys] .tools a:hover { border-color: var(--sy); }
+.main[data-sys] .btn.primary { background: var(--sy); border-color: var(--sy); color: var(--on-sy); }
+.main[data-sys] .link { color: var(--sy); }
+.list.cols > li[data-sys] { border-left: 5px solid var(--sy); background: linear-gradient(90deg, var(--sy-t), var(--pane) 60%); }
+.list.cols > li[data-sys] .row { background: none; }
