@@ -401,4 +401,5 @@ html.kbd .kh { display: inline-block; }
 .tb-new { background: var(--shaky-t); color: var(--shaky); }
 .tb-new i { width: 8px; height: 8px; border-radius: 50%; background: #F2B632; box-shadow: 0 0 0 2px var(--shaky-t); }
 .tb-done { background: var(--good-t); color: var(--good); }
+.tb-easy { background: var(--shaky-t); color: var(--shaky); } /* Easy played, Hard still to do: same amber as the new-case dot */
 .tools .tb .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

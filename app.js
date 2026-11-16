@@ -291,12 +291,15 @@
     if (!left) { caseData = {}; return; }
     files.forEach(function (z) {
       fetch(z.js).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
-        try { var w = {}; if (txt) new Function('window', txt)(w); var arr = z.ward ? (w.WARD && w.WARD.cases) : w.RMO_CASES; out[z.f] = (arr || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '' }; }); } catch (e) { /* a broken case file: skip it */ }
+        try { var w = {}; if (txt) new Function('window', txt)(w); var arr = z.ward ? (w.WARD && w.WARD.cases) : w.RMO_CASES; out[z.f] = (arr || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '', hard: !!(c.hard && c.hard.steps && !z.ward) }; }); } catch (e) { /* a broken case file: skip it */ }
         if (--left === 0) { caseData = out; var r0 = route[0] || ''; if ((r0 === '' && newCaseList().length) || r0 === 't') render(); }
       });
     });
   }
-  function playedCase(f, id) { return (S.attempts || []).some(function (x) { return x && (x.tool === f + '_shift' || x.tool === f) && x.cs === id; }); }
+  /* An attempt belongs to a case file when its tool is <f>_shift (Easy), <f>_ward (Hard order sheet) or <f> itself (resp_ward). */
+  function caseTries(f, id) { return (S.attempts || []).filter(function (x) { return x && (x.tool === f + '_shift' || x.tool === f + '_ward' || x.tool === f) && x.cs === id; }); }
+  function playedCase(f, id) { return caseTries(f, id).length > 0; }
+  function hardTried(f, id) { return caseTries(f, id).some(function (x) { return x.mode === 'hard' || x.tool === f + '_ward'; }); }
   function newCaseList() {
     if (!caseData) return [];
     var o = [];
@@ -320,8 +323,11 @@
     if (!caseData || !caseData[m[1]] || !caseData[m[1]].length) return '';
     var f = m[1], nw = newCaseList().filter(function (c) { return c.f === f; }).length;
     if (nw) return '<span class="tb tb-new" title="' + nw + ' new ' + (nw === 1 ? 'case' : 'cases') + '"><i></i>' + nw + '<span class="sr"> new ' + (nw === 1 ? 'case' : 'cases') + '</span></span>';
-    var last = 0, all = caseData[f].every(function (c) { var hit = (S.attempts || []).filter(function (a) { return a && (a.tool === f + '_shift' || a.tool === f) && a.cs === c.id; }); hit.forEach(function (a) { last = Math.max(last, a.at || 0); }); return hit.length; });
-    return all && last ? '<span class="tb tb-done">' + CLOCK + 'Done ' + esc(shortDay(last)) + '</span>' : '';
+    var last = 0, all = caseData[f].every(function (c) { var hit = caseTries(f, c.id); hit.forEach(function (a) { last = Math.max(last, a.at || 0); }); return hit.length; });
+    if (!all || !last) return '';
+    // A case with a Hard version is only done once it has been played Hard. Easy alone shows "Easy done".
+    var easyOnly = caseData[f].some(function (c) { return c.hard && !hardTried(f, c.id); });
+    return '<span class="tb tb-done' + (easyOnly ? ' tb-easy' : '') + '"' + (easyOnly ? ' title="Played in Easy. Try Hard to finish it."' : '') + '>' + CLOCK + (easyOnly ? 'Easy done ' : 'Done ') + esc(shortDay(last)) + '</span>';
   }
   function caseHref(c) { return '#/tool/' + c.topic.id + '/' + c.i + '/' + encodeURIComponent(c.id) + '/today'; }
   // Called from inside a case page (same origin) when a case started from Today ends.

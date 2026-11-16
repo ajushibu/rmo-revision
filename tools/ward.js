@@ -3,10 +3,20 @@
    The case file grades each order for that step; anything it does not list counts as "not needed now".
    Missing a critical order or placing a harmful one sends the patient down the worse path. */
 (function () {
+  /* A topic case file (window.RMO_CASES) holds both modes: decisions = Easy, hard = this player. Build WARD from it. */
+  if (!window.WARD && window.RMO_CASES) {
+    window.WARD = { duo: true, concepts: {}, cases: window.RMO_CASES.filter(function (c) { return c.hard && c.hard.steps; }).map(function (c) {
+      return { id: c.id, title: c.title, time: c.time, where: c.where, blurb: c.blurb, intro: c.intro, vit: c.vit, facts: c.facts, steps: c.hard.steps, debrief: c.hard.debrief || c.debrief, retired: c.retired };
+    }) };
+  }
   var W = window.WARD || { cases: [] }, CAT = window.RMO_ORDERS || [], BY = {};
   CAT.forEach(function (o) { BY[o.id] = o; });
   var CASES = W.cases.filter(function (c) { return !c.retired; });
   var TOOL = (location.pathname.split('/').pop() || '').replace('.html', '');
+  var DUO = !!W.duo, BASE = TOOL.replace(/_ward$/, ''), SHIFTPAGE = BASE + '_shift.html';
+  function getMode() { try { return localStorage.getItem('rmo-casemode') === 'hard' ? 'hard' : 'easy'; } catch (e) { return 'easy'; } }
+  function setMode(m) { try { localStorage.setItem('rmo-casemode', m); } catch (e) {} }
+  function modeSeg() { return DUO ? '<div class="modeseg" role="radiogroup" aria-label="Case mode"><button type="button" role="radio" data-mode="easy" aria-checked="false">Easy<small>Pick from options</small></button><button type="button" role="radio" data-mode="hard" aria-checked="true">Hard<small>Type your orders</small></button></div>' : ''; }
   var $ = function (s) { return document.querySelector(s); };
   var view = $('#view'), prog = $('#progress');
   var PTS = { need: 2, good: 1, skip: -1, harm: -3 };
@@ -139,8 +149,8 @@
   function report(c) {
     try {
       var pts = 0, max = 0; S.results.forEach(function (r) { pts += r.score; max += r.max; });
-      var rec = { id: 'a' + Date.now() + Math.random().toString(36).slice(2, 6), tool: TOOL, cs: c.id, title: c.title, at: Date.now(), pts: pts, max: max,
-        d: S.results.map(function (r) { var f = r.max ? r.score / r.max : 0; return { tag: r.tag, q: f >= 0.8 ? 'best' : f >= 0.5 ? 'ok' : r.lines.some(function (l) { return l.q === 'harm'; }) ? 'harm' : 'poor', c: r.label || '' }; }) };
+      var rec = { id: 'a' + Date.now() + Math.random().toString(36).slice(2, 6), tool: TOOL, cs: c.id, title: c.title, at: Date.now(), pts: pts, max: max, mode: 'hard',
+        d: S.results.map(function (r) { var f = r.max ? r.score / r.max : 0; return { tag: r.tag, q: f >= 0.8 ? 'best' : f >= 0.5 ? 'ok' : r.lines.some(function (l) { return l.q === 'harm'; }) ? 'harm' : 'poor', c: r.label || '', m: r.miss.map(function (x) { return x.id; }), x: r.lines.filter(function (l) { return l.q === 'harm' || l.q === 'skip'; }).map(function (l) { return l.id; }), pw: (r.plan || []).filter(function (l) { return !l.right; }).map(function (l) { return l.k + ':' + l.pick; }) }; }) };
       var q = JSON.parse(localStorage.getItem('rmo-attempt-queue') || '[]'); q.push(rec); localStorage.setItem('rmo-attempt-queue', JSON.stringify(q));
       if (window.parent !== window) window.parent.postMessage({ rmoAttempt: true }, location.origin);
     } catch (e) { /* storage blocked: not recorded */ }
@@ -224,7 +234,7 @@
     if (S.mode === 'intro') {
       prog.textContent = '';
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><h2>' + esc(c.title) + '</h2><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
-        '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+        '' + modeSeg() + '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'order') {
@@ -268,11 +278,17 @@
       prog.textContent = 'Handover';
       view.innerHTML = '<div class="card endc"><span class="mono">Handover</span><h2>' + esc(c.title) + '</h2><p class="big">' + pct + '%</p><p class="muted">' + pts + ' of ' + mx + ' points' + (prev !== undefined ? ' · best on this device ' + prev + '%' : '') + '</p>' +
         '<ul class="steps">' + S.results.map(function (x, i) { var f = x.max ? Math.round(x.score / x.max * 100) : 0; return '<li><span>' + esc(x.label || 'Step ' + (i + 1)) + '</span><div class="meter"><i class="' + (f >= 80 ? '' : f >= 50 ? 'mid' : 'low') + '" style="width:' + f + '%"></i></div><span class="num">' + x.score + '/' + x.max + '</span></li>'; }).join('') + '</ul>' +
-        (c.debrief ? '<p>' + esc(c.debrief) + '</p>' : '') + (RUN && parentCases() ? (function () { var left = parentCases().left(TOOL + ':' + c.id); return '<div class="btns"><button class="btn primary" data-a="nextcase">' + (left ? 'Next case (' + left + ' left)' : 'Done: back to Today') + '</button><button class="btn" data-a="replay">Replay this case</button></div></div>'; })() : '<div class="btns"><button class="btn primary" data-a="home">Pick a case</button><button class="btn" data-a="replay">Replay this case</button></div></div>');
+        revisit() + (c.debrief ? '<p>' + esc(c.debrief) + '</p>' : '') + (RUN && parentCases() ? (function () { var left = parentCases().left(BASE0 + ':' + c.id); return '<div class="btns"><button class="btn primary" data-a="nextcase">' + (left ? 'Next case (' + left + ' left)' : 'Done: back to Today') + '</button><button class="btn" data-a="replay">Replay this case</button></div></div>'; })() : '<div class="btns"><button class="btn primary" data-a="home">Pick a case</button><button class="btn" data-a="replay">Replay this case</button></div></div>');
     }
   }
+  function revisit() {
+    var CN = window.RMO_CONCEPTS; if (!CN) return '';
+    var seen = {}, rows = S.results.filter(function (x) { return x.max && x.score / x.max < 0.8 && CN[x.tag] && !seen[x.tag] && (seen[x.tag] = 1); });
+    if (!rows.length) return '';
+    return '<h3>Revisit</h3><ul class="rlist">' + rows.map(function (x) { var cn = CN[x.tag]; return '<li class="rl miss"><span class="rk">' + esc(cn.n) + '</span><span class="rw">' + esc(cn.r) + (window.KITFILE ? ' <a href="' + esc(window.KITFILE) + '#' + esc(cn.tab) + '" target="_blank" rel="noopener">Open in the Study Kit</a>' : '') + '</span></li>'; }).join('') + '</ul>';
+  }
   function home() {
-    return '<div class="card"><h2>Order-sheet cases</h2><p class="lead">No options to pick from. Type what you would order, as you would on the ward: tests, drugs with doses, oxygen, calls. Star what you would do first, then sign. Miss something critical and the patient gets worse.</p><div class="cases">' +
+    return '<div class="card"><h2>Order-sheet cases</h2>' + modeSeg() + '<p class="lead">No options to pick from. Type what you would order, as you would on the ward: tests, drugs with doses, oxygen, calls. Star what you would do first, then sign. Miss something critical and the patient gets worse.</p><div class="cases">' +
       CASES.map(function (c, i) { var b = best(c.id); return '<div class="case-card"><span class="mono">' + esc(c.time + ' · ' + c.where) + '</span><h3>' + esc(c.title) + '</h3><p>' + esc(c.blurb) + '</p><p class="' + (b === undefined ? 'cs-unplayed' : 'cs-played') + '">' + (b === undefined ? 'Not played yet' : 'Best on this device: ' + b + '%') + '</p><div class="btns"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div></div>'; }).join('') + '</div></div>';
   }
   function browse() {
@@ -292,6 +308,7 @@
     if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); drawPlaced(); drawResults(); return; }
     if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); if (f) S.plan.callFirst = false; drawPlaced(); drawPlan(); return; }
     if ((el = t.closest('[data-cfirst]'))) { S.plan.callFirst = !S.plan.callFirst; if (S.plan.callFirst) S.placed.forEach(function (p) { p.first = false; }); drawPlaced(); drawPlan(); return; }
+    if ((el = t.closest('button[data-mode]'))) { if (el.getAttribute('data-mode') === 'easy') { setMode('easy'); var cc = S.mode !== 'home' && CASES[S.ci]; location.href = SHIFTPAGE + (cc ? '?case=' + encodeURIComponent(cc.id) + (RUN ? '&run=today' : '') : ''); } return; }
     if (!(el = t.closest('[data-a]'))) return;
     var a = el.getAttribute('data-a');
     if (a === 'one') startCase(+el.getAttribute('data-i'));
@@ -300,7 +317,7 @@
     else if (a === 'cont') cont();
     else if (a === 'home') { S.mode = 'home'; render(); }
     else if (a === 'replay') startCase(S.ci);
-    else if (a === 'nextcase') { var P = parentCases(); if (P) P.next(TOOL + ':' + CASES[S.ci].id); }
+    else if (a === 'nextcase') { var P = parentCases(); if (P) P.next(BASE0 + ':' + CASES[S.ci].id); }
     else if (a === 'browse') browse();
     else if (a === 'bclose') { var w = document.querySelector('.bwrap'); if (w) w.remove(); var q = $('#q'); if (q) q.focus(); }
   });
@@ -322,6 +339,7 @@
   });
 
   function parentCases() { try { return window.parent !== window && window.parent.RMOCases ? window.parent.RMOCases : null; } catch (e) { return null; } }
+  var BASE0 = DUO ? BASE : TOOL;
   var RUN = false; try { RUN = new URLSearchParams(location.search).get('run') === 'today'; } catch (e) {}
   var want = null; try { want = new URLSearchParams(location.search).get('case'); } catch (e) {}
   var ix = -1; if (want) CASES.forEach(function (c, i) { if (c.id === want) ix = i; });
