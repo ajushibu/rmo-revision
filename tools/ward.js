@@ -10,8 +10,16 @@
   var $ = function (s) { return document.querySelector(s); };
   var view = $('#view'), prog = $('#progress');
   var PTS = { need: 2, good: 1, skip: -1, harm: -3 };
+  /* The plan: the same three questions every step. Each is 1 point; wrong is -1 (the step total never goes below 0). */
+  var PQ = [
+    { k: 'call', q: 'Who do you call?', o: [['none', 'No one yet'], ['reg', 'Registrar'], ['icu', 'ICU outreach'], ['met', 'MET call']] },
+    { k: 'monitor', q: 'How do you monitor?', o: [['routine', 'Routine obs'], ['q15', 'Obs every 15 min'], ['spo2', 'Continuous SpO2'], ['spo2ecg', 'SpO2 and ECG']] },
+    { k: 'review', q: 'When do you review next?', o: [['m5', 'Within 5 min'], ['m20', 'In 20 min'], ['h1', 'In 1 hour'], ['h4', 'In 4 hours'], ['am', 'Next morning']] }
+  ];
+  function optName(k, v) { var q = PQ.filter(function (x) { return x.k === k; })[0], r = q.o.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : ''; }
+  function nm(id) { return id === 'call' ? 'Make the call' : BY[id].n; }
 
-  var S = { mode: 'home', ci: 0, si: 0, step: null, vit: {}, facts: [], newFacts: [], placed: [], hint: false, results: [], last: null, sel: 0 };
+  var S = { mode: 'home', ci: 0, si: 0, step: null, vit: {}, facts: [], newFacts: [], placed: [], plan: { call: null, monitor: null, review: null, callFirst: false }, hint: false, results: [], last: null, sel: 0 };
 
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function merge(a, b) { var o = {}, k; for (k in a) o[k] = a[k]; for (k in b || {}) o[k] = b[k]; return o; }
@@ -53,7 +61,7 @@
     S.step = stepAt(c, S.si, failed);
     S.facts = S.facts.concat(S.newFacts); S.newFacts = (S.step.reveal || []).slice();
     if (S.step.vit) S.vit = merge(S.vit, S.step.vit);
-    S.placed = []; S.hint = false; S.mode = 'order'; render();
+    S.placed = []; S.plan = { call: null, monitor: null, review: null, callFirst: false }; S.hint = false; S.mode = 'order'; render();
     var q = $('#q'); if (q && !matchMedia('(hover: none)').matches) q.focus();
   }
   function placedIds() { return S.placed.map(function (p) { return p.id; }); }
@@ -66,6 +74,7 @@
       if (!isAltOnly) max += PTS[g[id].q];
     });
     if ((st.first || []).length) max += 2;
+    if (st.plan) max += PQ.length;
     // which needs are satisfied by an alternative the doctor placed instead
     Object.keys(g).forEach(function (k) {
       if (g[k].q !== 'need' || ids.indexOf(k) >= 0) return;
@@ -93,14 +102,25 @@
       miss.push({ id: id, q: g[id].q, why: g[id].why, crit: !!g[id].crit });
       if (g[id].crit) pass = false;
     });
-    var fp = S.placed.filter(function (p) { return p.first; })[0], firstOk = null;
+    var planLines = [];
+    if (st.plan) PQ.forEach(function (q) {
+      var d = st.plan[q.k] || { best: [], ok: [] }, pick = S.plan[q.k], right = d.best.indexOf(pick) >= 0 || (d.ok || []).indexOf(pick) >= 0;
+      pts += right ? 1 : -1;
+      if (!right && d.crit) pass = false;
+      planLines.push({ k: q.k, q: q.q, pick: pick, right: right, crit: !!(d.crit && !right), best: d.best.map(function (v) { return optName(q.k, v); }), also: (d.ok || []).map(function (v) { return optName(q.k, v); }), why: d.why || '' });
+    });
+    var fp = S.plan.callFirst ? { id: 'call' } : S.placed.filter(function (p) { return p.first; })[0], firstOk = null;
     if ((st.first || []).length) { firstOk = !!(fp && st.first.indexOf(fp.id) >= 0); if (firstOk) pts += 2; }
     if (S.hint) pts -= 2;
     var score = Math.max(0, Math.min(max, pts));
-    return { lines: lines, miss: miss, pass: pass, firstOk: firstOk, firstPick: fp ? fp.id : null, score: score, max: max, hint: S.hint, tag: st.tag, label: st.label };
+    return { lines: lines, plan: planLines, miss: miss, pass: pass, firstOk: firstOk, firstPick: fp ? fp.id : null, score: score, max: max, hint: S.hint, tag: st.tag, label: st.label };
   }
   function sign() {
     if (!S.placed.length) return;
+    if (S.step.plan) {
+      var gap = PQ.filter(function (q) { return !S.plan[q.k]; })[0];
+      if (gap) { PQ.forEach(function (q) { var e = !S.plan[q.k] && document.querySelector('[data-pg="' + q.k + '"]'); if (e) e.classList.add('need'); }); var g = document.querySelector('[data-pg="' + gap.k + '"]'); if (g) { g.classList.add('need'); g.scrollIntoView({ block: 'center' }); var f0 = g.querySelector('input'); if (f0) f0.focus(); } announce('Answer: ' + gap.q); return; }
+    }
     var unset = S.placed.filter(function (p) { return BY[p.id].doses && p.dose === null; });
     if (unset.length) { var el = document.querySelector('[data-dose="' + unset[0].id + '"]'); if (el) { el.focus(); el.classList.add('need'); } announce('Choose a dose for ' + BY[unset[0].id].n + ' first.'); return; }
     var r = grade(); S.last = r; S.results.push(r);
@@ -166,6 +186,16 @@
     var sb = $('#sign'); if (sb) sb.disabled = !S.placed.length;
   }
 
+  function drawPlan() {
+    var box = $('#plan'); if (!box) return;
+    box.innerHTML = PQ.map(function (q) {
+      var cur = S.plan[q.k];
+      return '<fieldset class="pq" data-pg="' + q.k + '"><legend>' + esc(q.q) + '</legend><div class="pchips">' + q.o.map(function (o) {
+        return '<label class="pc"><input type="radio" name="pl-' + q.k + '" data-pk="' + q.k + '" value="' + o[0] + '"' + (cur === o[0] ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>';
+      }).join('') + (q.k === 'call' && cur && cur !== 'none' ? '<button type="button" class="pfirst" data-cfirst="1" aria-pressed="' + S.plan.callFirst + '" title="Do this first">' + (S.plan.callFirst ? 'First' : 'Do first?') + '</button>' : '') + '</div></fieldset>';
+    }).join('');
+  }
+
   /* ---------- views ---------- */
   function pips() {
     var c = CASES[S.ci], h = '';
@@ -181,7 +211,7 @@
     if (S.mode === 'intro') {
       prog.textContent = '';
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><h2>' + esc(c.title) + '</h2><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
-        '<p class="howto">Type to place orders, as in the eMR. Pick doses, star the one you would do first, then sign. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+        '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'order') {
@@ -192,8 +222,9 @@
         '<div class="osearch"><label for="q">Place an order</label><input id="q" type="text" placeholder="Type a test, drug or action" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="ores" aria-expanded="false"><ul id="ores" role="listbox" hidden></ul></div>' +
         '<p class="browse"><button type="button" class="link" data-a="browse">' + (S.hint ? 'Browse orders (hint used)' : 'Stuck on a name? Browse orders (counts as a hint)') + '</button></p>' +
         '<h3 id="ocount"></h3><ul id="placed" class="placed"></ul>' +
+        (st.plan ? '<h3 class="plh">Your plan <span>Answer all three</span></h3><div id="plan" class="plan"></div>' : '') +
         '<div class="btns signrow"><button class="btn primary" id="sign" data-a="sign" disabled>Sign orders</button></div><p class="sr" id="announce" aria-live="polite"></p></div></div></div>';
-      drawPlaced(); drawResults();
+      drawPlaced(); drawResults(); drawPlan();
       return;
     }
     if (S.mode === 'result') {
@@ -205,9 +236,14 @@
         return '<li class="rl ' + m[0] + (l.first ? ' wasfirst' : '') + '"><span class="rk">' + m[1] + (l.first ? ', your first' : '') + '</span><b>' + esc(o.n) + '</b>' + doseBit + '<span class="rw">' + esc(l.why) + '</span></li>';
       }).join('');
       var missed = r.miss.map(function (m) { var o = BY[m.id]; return '<li class="rl ' + (m.q === 'need' ? 'miss' : 'also') + '"><span class="rk">' + (m.crit ? 'Missed, critical' : m.q === 'need' ? 'Missed' : 'Also worth doing') + '</span><b>' + esc(o.n) + '</b>' + (st2.orders[m.id].d && o.doses ? '<span class="rdose">' + esc(st2.orders[m.id].d.map(function (k) { return o.doses[k]; }).join(' or ')) + '</span>' : '') + '<span class="rw">' + esc(m.why) + '</span></li>'; }).join('');
-      var firstLine = r.firstOk === null ? '' : '<p class="fline ' + (r.firstOk ? 'ok' : 'bad') + '"><b>' + (r.firstOk ? 'Right first move.' : r.firstPick ? 'Not the first move.' : 'You did not star a first move.') + '</b> First: ' + esc(st2.first.map(function (id) { return BY[id].n; }).join(' or ')) + '. ' + esc(st2.firstWhy || '') + '</p>';
+      var planRows = (r.plan || []).map(function (l) {
+        var cl = l.right ? 'ok' : l.crit ? 'miss' : 'skip', tag = l.right ? 'Right' : l.crit ? 'Missed, critical' : 'Not best';
+        return '<li class="rl ' + cl + '"><span class="rk">' + tag + ' · ' + esc(l.q) + '</span><b>' + esc(optName(l.k, l.pick)) + '</b><span class="rw">' + esc(l.why) + (l.right ? '' : ' Best: ' + esc(l.best.join(' or ')) + (l.also.length ? ' (also fine: ' + esc(l.also.join(', ')) + ')' : '') + '.') + '</span></li>';
+      }).join('');
+      var firstLine = r.firstOk === null ? '' : '<p class="fline ' + (r.firstOk ? 'ok' : 'bad') + '"><b>' + (r.firstOk ? 'Right first move.' : r.firstPick ? 'Not the first move.' : 'You did not star a first move.') + '</b> First: ' + esc(st2.first.map(nm).join(' or ')) + '. ' + esc(st2.firstWhy || '') + '</p>';
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card result"><div class="rhead"><span class="rscore">' + r.score + '<i>/' + r.max + '</i></span><span>' + esc(st2.label || 'This step') + (r.hint ? ' · hint used' : '') + '</span></div>' +
         firstLine + (rows ? '<h3>Your orders</h3><ul class="rlist">' + rows + '</ul>' : '') + (missed ? '<h3>Not ordered</h3><ul class="rlist">' + missed + '</ul>' : '') +
+        (planRows ? '<h3>Your plan</h3><ul class="rlist">' + planRows + '</ul>' : '') +
         (st2.teach ? '<p class="teach">' + esc(st2.teach) + '</p>' : '') +
         '<div class="out ' + (r.pass ? 'good' : 'bad') + '"><b>' + (r.pass ? 'What happens next' : 'The patient gets worse') + '</b><p>' + esc(out.text) + '</p></div>' +
         '<div class="btns"><button class="btn primary" data-a="cont">' + (S.si + 1 < c.steps.length ? 'Next step' : 'Hand over') + '</button></div></div></div></div>';
@@ -241,7 +277,8 @@
     var t = e.target, el;
     if ((el = t.closest('[data-add]'))) { add(el.getAttribute('data-add')); if (el.classList.contains('bo')) { el.disabled = true; el.classList.add('on'); } return; }
     if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); drawPlaced(); drawResults(); return; }
-    if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); drawPlaced(); return; }
+    if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); if (f) S.plan.callFirst = false; drawPlaced(); drawPlan(); return; }
+    if ((el = t.closest('[data-cfirst]'))) { S.plan.callFirst = !S.plan.callFirst; if (S.plan.callFirst) S.placed.forEach(function (p) { p.first = false; }); drawPlaced(); drawPlan(); return; }
     if (!(el = t.closest('[data-a]'))) return;
     var a = el.getAttribute('data-a');
     if (a === 'one') startCase(+el.getAttribute('data-i'));
@@ -254,6 +291,8 @@
     else if (a === 'bclose') { var w = document.querySelector('.bwrap'); if (w) w.remove(); var q = $('#q'); if (q) q.focus(); }
   });
   document.addEventListener('change', function (e) {
+    var pk = e.target.getAttribute && e.target.getAttribute('data-pk');
+    if (pk) { S.plan[pk] = e.target.value; if (pk === 'call' && e.target.value === 'none') S.plan.callFirst = false; var gp = document.querySelector('[data-pg="' + pk + '"]'); if (gp) gp.classList.remove('need'); drawPlan(); return; }
     var id = e.target.getAttribute && e.target.getAttribute('data-dose'); if (!id) return;
     S.placed.forEach(function (p) { if (p.id === id) p.dose = e.target.value === '' ? null : +e.target.value; });
     e.target.classList.remove('need');

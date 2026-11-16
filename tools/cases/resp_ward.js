@@ -5,6 +5,7 @@
    Sources: Australian Asthma Handbook adult ED page (severity, salbutamol, ipratropium, oxygen), Australian Prescriber (prednisolone 50 mg),
    TSANZ via MJA 2015 (oxygen targets), NSW ACI COPD page and a COPD-X summary (controlled oxygen, bronchodilators, prednisolone 40-50 mg, NIV),
    eMedSA ED handbook (furosemide 80 mg IV or usual dose IV; GTN sublingual then infusion; avoid morphine).
+   plan = the three fixed questions (call, monitor, review): best and ok are option keys (see PQ in ward.js); crit = a wrong call sends the patient down the worse path.
    Not verified against an Australian source: the GTN 400 microgram dose, naloxone in hypercapnia, NSAID-triggered asthma (standard teaching),
    the NIV pH threshold in your hospital, and the 40 mg furosemide option. */
 window.WARD = {
@@ -25,6 +26,11 @@ window.WARD = {
         label: 'First 15 minutes', tag: 'as-first', time: '22:40', window: 'Now: the first 15 minutes',
         scene: 'He is upright, using his neck muscles, and gets out four or five words per breath. What do you order now?',
         first: ['salb_mdi', 'salb_neb', 'o2'], firstWhy: 'Bronchodilator and oxygen go in together in the first minutes.',
+        plan: {
+          call: { best: ['reg'], ok: ['met', 'icu'], why: 'Severe asthma on a ward: tell your registrar now, not at the hour mark.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Continuous oximetry while he is severe.' },
+          review: { best: ['m20'], ok: ['m5'], why: 'Reassess after each round of salbutamol: the answer decides whether you escalate.' }
+        },
         orders: {
           salb_mdi: { q: 'need', d: [2], crit: true, alt: ['salb_neb'], why: 'Severe asthma (cannot finish a sentence, accessory muscles): 12 puffs by spacer every 20 minutes in the first hour (Asthma Handbook).' },
           salb_neb: { q: 'good', d: [1, 3], why: 'A nebuliser is fine if he cannot use a spacer; a spacer works as well for most.' },
@@ -34,9 +40,6 @@ window.WARD = {
           pred: { q: 'need', d: [2], why: 'Oral prednisolone early: 50 mg first dose (Australian Prescriber).' },
           stop_nsaid: { q: 'need', why: 'Wheeze started an hour after his first ibuprofen. Stop it and record it: some adults with asthma react to NSAIDs.' },
           drugchart: { q: 'good', why: 'The drug chart is where the trigger was hiding.' },
-          spo2: { q: 'good', why: 'Continuous oximetry while he is severe.' },
-          rev20: { q: 'good', why: 'Reassess after each round: the answer decides whether you escalate.' },
-          reg: { q: 'good', why: 'Severe asthma: let your registrar know now, not at the hour mark.' },
           cxr: { q: 'skip', why: 'Not routine in asthma. Only if you suspect a pneumothorax or pneumonia.' },
           abg: { q: 'skip', why: 'Not needed while he is talking and saturating. A gas matters if he tires or becomes life-threatening.' },
           ddimer: { q: 'skip', why: 'Nothing here points to a clot; a D-dimer after surgery is raised anyway.' },
@@ -53,14 +56,16 @@ window.WARD = {
       {
         label: 'The first hour', tag: 'as-hour', time: '23:40', window: 'One hour in',
         scene: 'After three rounds: short sentences, wheeze throughout, SpO2 95% on 2 L. The nurse asks for a plan, and something for his wound pain (4/10).',
+        plan: {
+          call: { best: ['reg'], ok: ['none'], why: 'Improving but still severe: update your registrar.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Keep the oximeter on overnight.' },
+          review: { best: ['m20'], ok: ['h1'], why: 'Keep reassessing, spacing it out as he improves. If he is not improving after the first hour, ICU is the next call.' }
+        },
         orders: {
           paracet: { q: 'need', d: [0], why: 'Paracetamol is the safe choice for his pain tonight.' },
           salb_mdi: { q: 'good', why: 'Keep salbutamol going, spacing it out as he improves.' },
           salb_neb: { q: 'good', why: 'Keep a bronchodilator going, spacing it out as he improves.' },
           pef: { q: 'good', why: 'A peak flow gives you a number to follow.' },
-          spo2: { q: 'good', why: 'Keep monitoring overnight.' },
-          reg: { q: 'good', why: 'Update your registrar: improving but still severe.' },
-          rev20: { q: 'good', why: 'Keep reassessing; if he is not improving after the first hour, ICU is the next call.' },
           mgso4: { q: 'skip', why: 'For severe attacks not responding, and a senior decision. He is responding.' },
           hydrocort: { q: 'skip', why: 'He can swallow: oral prednisolone works as well.' },
           cxr: { q: 'skip', why: 'Still not needed: improving, no focal signs.' },
@@ -74,10 +79,13 @@ window.WARD = {
         alt: {
           label: 'Life-threatening', tag: 'as-life', time: '23:00', window: 'Now: he is getting worse',
           scene: 'Single words, drowsy, quiet chest. SpO2 88% on 2 L. HR 134. What do you order now?',
-          first: ['met', 'icu', 'salb_neb'], firstWhy: 'Call for help and start continuous nebulisers at once.',
+          first: ['call', 'salb_neb'], firstWhy: 'Call for help and start continuous nebulisers at once.',
+          plan: {
+            call: { best: ['met'], ok: ['icu'], crit: true, why: 'Drowsy with a quiet chest is life-threatening asthma: MET call or ICU now.' },
+            monitor: { best: ['spo2ecg'], ok: ['spo2'], why: 'Continuous SpO2 and ECG: he is life-threatening and on high-dose salbutamol.' },
+            review: { best: ['m5'], ok: [], why: 'Stay with him and reassess every few minutes.' }
+          },
           orders: {
-            met: { q: 'need', crit: true, alt: ['icu'], why: 'Drowsy with a quiet chest is life-threatening asthma: MET call or ICU now.' },
-            icu: { q: 'good', why: 'ICU now. A MET call does the same.' },
             salb_neb: { q: 'need', d: [3], crit: true, why: 'Life-threatening: continuous nebulised salbutamol, 2 x 5 mg nebules, oxygen-driven (Asthma Handbook).' },
             ipra_neb: { q: 'need', d: [1], why: 'With ipratropium 500 micrograms every 20 minutes for the first hour.' },
             o2: { q: 'need', d: [1], why: 'Oxygen to 92 to 96%.' },
@@ -94,6 +102,11 @@ window.WARD = {
       {
         label: 'Going home', tag: 'as-dc', time: '10:00', window: 'Day 3: discharge planning',
         scene: 'Day 3. Off oxygen, wheeze gone, peak flow 85% of his best. He wants to go home tomorrow. What goes in the plan?',
+        plan: {
+          call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: he is well. Mentioning it to your registrar is fine.' },
+          monitor: { best: ['routine'], ok: [], why: 'Routine observations are enough now.' },
+          review: { best: ['am'], ok: ['h4'], why: 'A review on the morning ward round is enough.' }
+        },
         orders: {
           ics: { q: 'need', why: 'Never send someone home on a reliever alone after a severe attack: start a preventer.' },
           aap: { q: 'need', why: 'A written asthma action plan.' },
@@ -121,14 +134,17 @@ window.WARD = {
         label: 'First 15 minutes', tag: 'co-o2', time: '03:10', window: 'Now: the first 15 minutes',
         scene: 'SpO2 99% on 8 L, RR 10, warm and drowsy. What do you order now?',
         first: ['o2'], firstWhy: 'Turn the oxygen down to target first: excess oxygen is what is pushing his CO2 up.',
+        plan: {
+          call: { best: ['reg'], ok: ['met', 'icu'], why: 'Drowsy with a slow rate: call your registrar now.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Continuous oximetry while you titrate the oxygen.' },
+          review: { best: ['m20'], ok: ['m5'], why: 'Recheck him, and the gas, about 20 minutes after the oxygen change.' }
+        },
         orders: {
           o2: { q: 'need', d: [0, 2], harmDose: [3, 4], crit: true, why: 'Controlled oxygen to 88 to 92% by prongs or a 28% Venturi (TSANZ, NSW ACI).' },
           abg: { q: 'need', crit: true, alt: ['vbg'], why: 'An arterial gas now: drowsy COPD on oxygen (COPD-X summary, NSW ACI).' },
           vbg: { q: 'good', why: 'A venous gas shows pH and CO2, but an arterial gas is the standard here.' },
-          reg: { q: 'need', alt: ['icu', 'met'], why: 'Drowsy with a slow rate: call your registrar now.' },
           drugchart: { q: 'need', why: 'Oxycodone 10 mg at 01:00 is adding to the drowsiness.' },
           gcs: { q: 'good', why: 'Track his conscious level.' },
-          spo2: { q: 'good', why: 'Continuous oximetry while you titrate.' },
           bsl: { q: 'good', why: 'Quick and cheap in any drowsy patient.' },
           nalox: { q: 'good', why: 'If the opioid is contributing and he is hard to rouse, small titrated doses with your registrar (dose not checked here).' },
           o2off: { q: 'harm', why: 'Stopping oxygen completely can drop his oxygen dangerously. Turn it down; do not stop it.' },
@@ -144,12 +160,15 @@ window.WARD = {
       {
         label: 'The gas is back', tag: 'co-niv', time: '03:40', window: 'Next 30 minutes',
         scene: 'pH 7.27 with a CO2 of 72 after 30 minutes of controlled oxygen. Rousable but tired. What now?',
-        first: ['niv', 'reg', 'icu'], firstWhy: 'Respiratory acidosis that persists: start NIV and get your senior.',
+        first: ['niv', 'call'], firstWhy: 'Respiratory acidosis that persists: start NIV and get your senior.',
+        plan: {
+          call: { best: ['reg'], ok: ['icu'], why: 'NIV is started with your registrar or ICU.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg'], why: 'Continuous SpO2 on NIV.' },
+          review: { best: ['h1'], ok: ['m20'], why: 'Repeat the gas about an hour after starting NIV.' }
+        },
         orders: {
           niv: { q: 'need', crit: true, why: 'Respiratory acidosis (pH under 7.35 with a high CO2) despite treatment: NIV lowers death in a COPD flare (NSW ACI). Your hospital may use a different pH cut-off.' },
           limits: { q: 'need', why: 'Before NIV: if it fails, is he for intubation? Decide now, with him if he can.' },
-          reg: { q: 'need', alt: ['icu'], why: 'NIV is started with your registrar or ICU.' },
-          icu: { q: 'good', why: 'Many hospitals run NIV with ICU outreach.' },
           salb_neb: { q: 'need', d: [2], why: 'Bronchodilator, driven by air with prong oxygen alongside, so you do not give him high oxygen through the neb.' },
           ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms nebulised.' },
           pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily (NSW ACI).' },
@@ -165,10 +184,13 @@ window.WARD = {
         alt: {
           label: 'Hard to rouse', tag: 'co-niv', time: '03:30', window: 'Now: he is getting worse',
           scene: 'pH 7.16, PaCO2 95, responds only to pain. What do you order now?',
-          first: ['met', 'icu'], firstWhy: 'This is a MET call.',
+          first: ['call'], firstWhy: 'This is a MET call.',
+          plan: {
+            call: { best: ['met'], ok: ['icu'], crit: true, why: 'Hard to rouse with a pH of 7.16: MET call or ICU now.' },
+            monitor: { best: ['spo2ecg'], ok: ['spo2'], why: 'Continuous SpO2 and ECG while he is critical.' },
+            review: { best: ['m5'], ok: [], why: 'Stay with him until ICU arrive.' }
+          },
           orders: {
-            met: { q: 'need', crit: true, alt: ['icu'], why: 'Hard to rouse with a pH of 7.16: MET call or ICU now.' },
-            icu: { q: 'good', why: 'ICU now. A MET call does the same.' },
             limits: { q: 'need', why: 'Treatment limits decide between NIV, intubation or comfort care.' },
             o2: { q: 'need', d: [0, 2], harmDose: [3, 4], why: 'Oxygen still to 88 to 92%.' },
             niv: { q: 'good', why: 'NIV may still be tried, but at this conscious level ICU decides.' },
@@ -183,6 +205,11 @@ window.WARD = {
       {
         label: 'After the flare', tag: 'co-dc', time: '11:00', window: 'Day 5: before discharge',
         scene: 'Off NIV for two days, on 1 L prongs with SpO2 90%. Home in two days. What goes in the plan?',
+        plan: {
+          call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: he is well.' },
+          monitor: { best: ['routine'], ok: [], why: 'Routine observations are enough now.' },
+          review: { best: ['am'], ok: ['h4'], why: 'The next ward round or the discharge review.' }
+        },
         orders: {
           o2rx: { q: 'need', why: 'Oxygen prescribed with an 88 to 92% target, so no one repeats the 8 L mask.' },
           co2alert: { q: 'good', why: 'A CO2 retention alert in his notes helps the next team.' },
@@ -211,6 +238,11 @@ window.WARD = {
         label: 'First 15 minutes', tag: 'po-first', time: '02:20', window: 'Now: the first 15 minutes',
         scene: 'Breathless at rest, crackles to the mid-zones, BP 176/94. What do you order now?',
         first: ['sit_up', 'o2'], firstWhy: 'Sit her up and give oxygen in the first minute. Everything else follows.',
+        plan: {
+          call: { best: ['reg'], ok: ['met', 'icu'], why: 'Hypoxic pulmonary oedema: call your registrar now.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Continuous oximetry while you treat.' },
+          review: { best: ['m20'], ok: ['m5'], why: 'Recheck about 20 minutes after the furosemide and GTN.' }
+        },
         orders: {
           sit_up: { q: 'need', why: 'Sit her upright: it eases breathing straight away.' },
           o2: { q: 'need', d: [1, 4], crit: true, why: 'SpO2 86%: oxygen to 92 to 96%. Starting on a non-rebreather and titrating down is fine.' },
@@ -219,12 +251,10 @@ window.WARD = {
           gtn: { q: 'need', d: [0], why: 'BP 176: sublingual GTN reduces the load on the heart (eMedSA). The 400 microgram dose was not checked against an Australian source.' },
           ecg: { q: 'need', why: 'Look for ischaemia or a new arrhythmia as the trigger.' },
           cxr: { q: 'need', why: 'Confirms oedema and looks for other causes.' },
-          reg: { q: 'need', alt: ['met', 'icu'], why: 'Hypoxic pulmonary oedema: call your registrar now.' },
           trop: { q: 'good', why: 'Is this a post-op MI?' },
           uec: { q: 'good', why: 'Kidneys and potassium before and after diuretics.' },
           fbc: { q: 'good', why: 'Post-op anaemia worsens breathlessness.' },
           bnp: { q: 'good', why: 'Supports heart failure if the picture is unclear.' },
-          spo2: { q: 'good', why: 'Continuous oximetry.' },
           cpap: { q: 'good', why: 'If oxygen and GTN are not enough, CPAP helps in cardiogenic pulmonary oedema.' },
           ddimer: { q: 'skip', why: 'Always raised after surgery: it cannot help.' },
           ctpa: { q: 'skip', why: 'PE belongs on the list after hip surgery, but crackles, a high JVP, hypertension and 3 L positive point to fluid. Image for PE if this does not fit after treatment.' },
@@ -241,6 +271,11 @@ window.WARD = {
       {
         label: 'The next hour', tag: 'po-after', time: '03:00', window: 'Next hour',
         scene: 'She is better. The results are back. What do you order for the rest of the night?',
+        plan: {
+          call: { best: ['none'], ok: ['reg'], why: 'She is stable: no escalation needed. Updating your registrar is fine.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Keep monitoring overnight.' },
+          review: { best: ['h1'], ok: ['m20', 'h4'], why: 'Reassess within the hour, then every few hours with her fluid balance.' }
+        },
         orders: {
           fbal: { q: 'need', why: 'Strict fluid balance: you need to know what goes in and out.' },
           weigh: { q: 'need', why: 'Daily weights track the fluid better than the chart.' },
@@ -248,7 +283,6 @@ window.WARD = {
           uec: { q: 'good', why: 'Recheck kidneys and potassium in the morning after the diuretic.' },
           echo: { q: 'good', why: 'New heart failure needs an echo during this admission.' },
           team: { q: 'need', why: 'Tell the orthopaedic team: their fluid plan needs to change.' },
-          spo2: { q: 'good', why: 'Keep monitoring overnight.' },
           idc: { q: 'skip', why: 'A catheter adds infection and delirium risk; a fluid chart is usually enough.' },
           kcl: { q: 'skip', why: 'K 3.8 is fine. Recheck after the diuretic.' },
           maint: { q: 'harm', why: 'Restarting fluids undoes the treatment.' }, bolus: { q: 'harm', why: 'More fluid will undo the treatment.' },
@@ -258,10 +292,13 @@ window.WARD = {
         alt: {
           label: 'Getting worse', tag: 'po-after', time: '02:40', window: 'Now: she is getting worse',
           scene: 'Pink frothy sputum, SpO2 84% on a non-rebreather, RR 38, BP 182/98. What do you order now?',
-          first: ['cpap', 'met', 'icu'], firstWhy: 'CPAP and help, now.',
+          first: ['cpap', 'call'], firstWhy: 'CPAP and help, now.',
+          plan: {
+            call: { best: ['met'], ok: ['icu'], crit: true, why: 'Hypoxic on a non-rebreather: MET call or ICU now.' },
+            monitor: { best: ['spo2ecg'], ok: ['spo2'], why: 'Continuous SpO2 and ECG: this may be ischaemia as well as fluid.' },
+            review: { best: ['m5'], ok: [], why: 'Stay with her until help arrives.' }
+          },
           orders: {
-            met: { q: 'need', crit: true, alt: ['icu'], why: 'Hypoxic on a non-rebreather: MET call or ICU now.' },
-            icu: { q: 'good', why: 'ICU now. A MET call does the same.' },
             cpap: { q: 'need', crit: true, alt: ['niv'], why: 'CPAP improves oxygen and work of breathing in cardiogenic pulmonary oedema.' },
             niv: { q: 'good', why: 'BiPAP also works if CPAP is not available.' },
             gtn: { q: 'need', d: [0], alt: ['gtn_inf'], why: 'BP 182: GTN, then an infusion (eMedSA, around 5 to 10 micrograms a minute to start).' },

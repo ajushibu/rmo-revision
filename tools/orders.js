@@ -5,16 +5,12 @@
 window.RMO_ORDERS = [
   // Bedside and monitoring
   { id: 'sit_up', c: 'Bedside', n: 'Sit the patient upright', s: 'position posture sit up' },
-  { id: 'spo2', c: 'Bedside', n: 'Continuous SpO2 monitoring', s: 'pulse oximetry sats saturation monitor' },
-  { id: 'tele', c: 'Bedside', n: 'Cardiac monitoring (telemetry)', s: 'telemetry ecg monitor rhythm' },
-  { id: 'obs15', c: 'Bedside', n: 'Observations every 15 minutes', s: 'vital signs obs frequency vitals' },
   { id: 'gcs', c: 'Bedside', n: 'Neuro observations (GCS)', s: 'glasgow coma scale neuro obs conscious' },
   { id: 'bsl', c: 'Bedside', n: 'Capillary blood glucose', s: 'bgl bsl finger prick glucose sugar' },
   { id: 'pef', c: 'Bedside', n: 'Peak expiratory flow', s: 'pef peak flow' },
   { id: 'fbal', c: 'Bedside', n: 'Strict fluid balance chart', s: 'input output chart i/o intake' },
   { id: 'weigh', c: 'Bedside', n: 'Daily weights', s: 'weight weigh' },
   { id: 'idc', c: 'Bedside', n: 'Indwelling urinary catheter', s: 'idc catheter urinary foley' },
-  { id: 'rev20', c: 'Bedside', n: 'Review the patient again in 20 minutes', s: 'reassess re-review recheck' },
   { id: 'drugchart', c: 'Bedside', n: 'Review the drug chart', s: 'medication chart meds review prescriptions' },
   { id: 'ivc', c: 'Bedside', n: 'Insert IV cannula', s: 'cannula ivc drip access line' },
   { id: 'technique', c: 'Bedside', n: 'Check inhaler and spacer technique', s: 'inhaler technique education puffer' },
@@ -112,9 +108,6 @@ window.RMO_ORDERS = [
   { id: 'frestrict', c: 'Fluids', n: 'Fluid restriction 1.5 L a day', s: 'restrict fluids' },
 
   // Calls, referrals and plans
-  { id: 'reg', c: 'Calls and plans', n: 'Call your registrar', s: 'senior registrar medical reg escalate' },
-  { id: 'met', c: 'Calls and plans', n: 'MET call', s: 'rapid response code blue medical emergency team' },
-  { id: 'icu', c: 'Calls and plans', n: 'Call ICU', s: 'intensive care outreach' },
   { id: 'limits', c: 'Calls and plans', n: 'Clarify treatment limits (goals of care)', s: 'nfr resus status not for resuscitation acp goals of care' },
   { id: 'team', c: 'Calls and plans', n: 'Inform the treating team', s: 'surgeons orthopaedic team admitting team' },
   { id: 'cardio', c: 'Calls and plans', n: 'Cardiology referral', s: 'cardiology cardiologist' },
