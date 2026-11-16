@@ -73,4 +73,6 @@ Agreed with the user on 12 Nov 2026 after they found that short cue titles ("Wha
 
 # New cases on Today (app behaviour, nothing to do in the refresh)
 
+Order-sheet cases (`tools/cases/*_ward.js`, ids `w` + refresh date + letter, e.g. `w20261116a`) follow the same rule: they show on Today until played or skipped, and next to their tool on the topic page as a yellow dot with the count, or "Done <date>" once every case has been played.
+
 Today shows a "New on-call cases" list with a count on the Today tab. A case is listed when its `id` starts with `c` + an 8-digit date, it is not `retired`, it has not been played (synced attempts) and it has not been skipped (synced `caseSkip`). Play opens the case directly (`?case=<id>`). Cases without a dated id never show as new, so always use the dated format. A new shift tool must have a `file` ending `_shift.html` in `data.js` and its case file at `tools/cases/<name>_shift.js`. Do not reuse or rename ids. New recall cards are silent by design: they appear in the topic checklist and enter Revise when the topic is marked studied.

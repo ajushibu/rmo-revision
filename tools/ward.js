@@ -268,7 +268,7 @@
       prog.textContent = 'Handover';
       view.innerHTML = '<div class="card endc"><span class="mono">Handover</span><h2>' + esc(c.title) + '</h2><p class="big">' + pct + '%</p><p class="muted">' + pts + ' of ' + mx + ' points' + (prev !== undefined ? ' · best on this device ' + prev + '%' : '') + '</p>' +
         '<ul class="steps">' + S.results.map(function (x, i) { var f = x.max ? Math.round(x.score / x.max * 100) : 0; return '<li><span>' + esc(x.label || 'Step ' + (i + 1)) + '</span><div class="meter"><i class="' + (f >= 80 ? '' : f >= 50 ? 'mid' : 'low') + '" style="width:' + f + '%"></i></div><span class="num">' + x.score + '/' + x.max + '</span></li>'; }).join('') + '</ul>' +
-        (c.debrief ? '<p>' + esc(c.debrief) + '</p>' : '') + '<div class="btns"><button class="btn primary" data-a="home">Pick a case</button><button class="btn" data-a="replay">Replay this case</button></div></div>';
+        (c.debrief ? '<p>' + esc(c.debrief) + '</p>' : '') + (RUN && parentCases() ? (function () { var left = parentCases().left(TOOL + ':' + c.id); return '<div class="btns"><button class="btn primary" data-a="nextcase">' + (left ? 'Next case (' + left + ' left)' : 'Done: back to Today') + '</button><button class="btn" data-a="replay">Replay this case</button></div></div>'; })() : '<div class="btns"><button class="btn primary" data-a="home">Pick a case</button><button class="btn" data-a="replay">Replay this case</button></div></div>');
     }
   }
   function home() {
@@ -300,6 +300,7 @@
     else if (a === 'cont') cont();
     else if (a === 'home') { S.mode = 'home'; render(); }
     else if (a === 'replay') startCase(S.ci);
+    else if (a === 'nextcase') { var P = parentCases(); if (P) P.next(TOOL + ':' + CASES[S.ci].id); }
     else if (a === 'browse') browse();
     else if (a === 'bclose') { var w = document.querySelector('.bwrap'); if (w) w.remove(); var q = $('#q'); if (q) q.focus(); }
   });
@@ -320,6 +321,8 @@
     else if (e.key === 'Enter') { e.preventDefault(); if (res[S.sel]) add(res[S.sel].id); }
   });
 
+  function parentCases() { try { return window.parent !== window && window.parent.RMOCases ? window.parent.RMOCases : null; } catch (e) { return null; } }
+  var RUN = false; try { RUN = new URLSearchParams(location.search).get('run') === 'today'; } catch (e) {}
   var want = null; try { want = new URLSearchParams(location.search).get('case'); } catch (e) {}
   var ix = -1; if (want) CASES.forEach(function (c, i) { if (c.id === want) ix = i; });
   if (ix >= 0) startCase(ix); else render();

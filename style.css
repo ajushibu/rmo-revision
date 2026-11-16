@@ -395,3 +395,10 @@ html.kbd .kh { display: inline-block; }
 .main[data-sys] .link { color: var(--sy); }
 .list.cols > li[data-sys] { border-left: 5px solid var(--sy); background: linear-gradient(90deg, var(--sy-t), var(--pane) 60%); }
 .list.cols > li[data-sys] .row { background: none; }
+
+.tools a .tr { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tb { position: relative; flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
+.tb-new { background: var(--shaky-t); color: var(--shaky); }
+.tb-new i { width: 8px; height: 8px; border-radius: 50%; background: #F2B632; box-shadow: 0 0 0 2px var(--shaky-t); }
+.tb-done { background: var(--good-t); color: var(--good); }
+.tools .tb .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

@@ -157,6 +157,8 @@
     out.pace.sort(function (x, y) { return x.at - y.at; }); out.pace = out.pace.slice(-60);
     out.caseSkip = {};
     [a.caseSkip || {}, b.caseSkip || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if ((src[k] || 0) >= r) out.caseSkip[k] = Math.max(out.caseSkip[k] || 0, src[k]); }); });
+    out.kitdone = {};
+    [a.kitdone || {}, b.kitdone || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if ((src[k] || 0) >= r) out.kitdone[k] = Math.max(out.kitdone[k] || 0, src[k]); }); });
     out.revtime = {};
     [a.revtime || {}, b.revtime || {}].forEach(function (src) { Object.keys(src).forEach(function (day) { var d = src[day] || {}; Object.keys(d).forEach(function (dev) { var v = d[dev]; if (!v || !(v.ms >= 0) || (v.t || 0) < r) return; var o = out.revtime[day] || (out.revtime[day] = {}); if (!o[dev] || v.ms > o[dev].ms) o[dev] = { ms: v.ms, t: v.t }; }); }); });
     Object.keys(out.revtime).sort().slice(0, -14).forEach(function (day) { delete out.revtime[day]; });
@@ -278,31 +280,48 @@
      until it is played (synced attempts) or skipped (synced S.caseSkip). Cases without a date are the
      originals and never show as new. New recall cards are silent: they appear in the topic checklist. */
   var caseAll = false, caseData = null; // { asth: [{id, title, blurb, where}] }
-  function caseFile(f) { for (var i = 0; i < TOP.length; i++) { var ts_ = TOP[i].tools || []; for (var j = 0; j < ts_.length; j++) if (ts_[j].file === f + '_shift.html') return { topic: TOP[i], i: j }; } return null; }
+  function caseFile(f) { for (var i = 0; i < TOP.length; i++) { var ts_ = TOP[i].tools || []; for (var j = 0; j < ts_.length; j++) if (ts_[j].file === f + '_shift.html' || (/_ward$/.test(f) && ts_[j].file === f + '.html')) return { topic: TOP[i], i: j }; } return null; }
   function loadCases() {
-    var files = []; TOP.forEach(function (t) { (t.tools || []).forEach(function (x) { var m = /^(.*)_shift\.html$/.exec(x.file); if (m && files.indexOf(m[1]) < 0) files.push(m[1]); }); });
+    var files = []; // { f: key used in skip keys, js: case file, ward: order-sheet file }
+    TOP.forEach(function (t) { (t.tools || []).forEach(function (x) {
+      var m = /^(.*)_shift\.html$/.exec(x.file), w = /^(.*_ward)\.html$/.exec(x.file), f = m ? m[1] : w ? w[1] : null;
+      if (f && !files.some(function (z) { return z.f === f; })) files.push({ f: f, js: m ? 'tools/cases/' + f + '_shift.js' : 'tools/cases/' + f + '.js', ward: !m });
+    }); });
     var out = {}, left = files.length;
     if (!left) { caseData = {}; return; }
-    files.forEach(function (f) {
-      fetch('tools/cases/' + f + '_shift.js').then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
-        try { var w = {}; if (txt) new Function('window', txt)(w); out[f] = (w.RMO_CASES || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '' }; }); } catch (e) { /* a broken case file: skip it */ }
-        if (--left === 0) { caseData = out; if (newCaseList().length && (route[0] || '') === '') render(); }
+    files.forEach(function (z) {
+      fetch(z.js).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
+        try { var w = {}; if (txt) new Function('window', txt)(w); var arr = z.ward ? (w.WARD && w.WARD.cases) : w.RMO_CASES; out[z.f] = (arr || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '' }; }); } catch (e) { /* a broken case file: skip it */ }
+        if (--left === 0) { caseData = out; var r0 = route[0] || ''; if ((r0 === '' && newCaseList().length) || r0 === 't') render(); }
       });
     });
   }
-  function playedCase(f, id) { return (S.attempts || []).some(function (x) { return x && x.tool === f + '_shift' && x.cs === id; }); }
+  function playedCase(f, id) { return (S.attempts || []).some(function (x) { return x && (x.tool === f + '_shift' || x.tool === f) && x.cs === id; }); }
   function newCaseList() {
     if (!caseData) return [];
     var o = [];
     Object.keys(caseData).forEach(function (f) {
       var loc = caseFile(f); if (!loc) return;
       caseData[f].forEach(function (c) {
-        var m = /^c(\d{8})/.exec(c.id);
+        var m = /^[cw](\d{8})/.exec(c.id);
         if (!m || playedCase(f, c.id) || (S.caseSkip || {})[f + ':' + c.id]) return;
         o.push({ f: f, id: c.id, title: c.title, blurb: c.blurb, where: c.where, topic: loc.topic, i: loc.i, d: m[1] });
       });
     });
     return o.sort(function (x, y) { return x.d < y.d ? 1 : x.d > y.d ? -1 : x.id < y.id ? -1 : 1; });
+  }
+  var TICK = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CLOCK = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+  function shortDay(ms) { var d = new Date(ms); return d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()]; }
+  // Next to each study tool: a yellow dot with the number of new cases, "Done" with the date once every case is played, or a tick for a kit scrolled to the end.
+  function toolBadge(t, x) {
+    var m = /^(.*)_shift\.html$/.exec(x.file) || /^(.*_ward)\.html$/.exec(x.file);
+    if (!m) { var kd = (S.kitdone || {})[t.id + ':' + x.file]; return kd ? '<span class="tb tb-done" title="Read to the end ' + esc(shortDay(kd)) + '">' + TICK + '<span class="sr">Done</span></span>' : ''; }
+    if (!caseData || !caseData[m[1]] || !caseData[m[1]].length) return '';
+    var f = m[1], nw = newCaseList().filter(function (c) { return c.f === f; }).length;
+    if (nw) return '<span class="tb tb-new" title="' + nw + ' new ' + (nw === 1 ? 'case' : 'cases') + '"><i></i>' + nw + '<span class="sr"> new ' + (nw === 1 ? 'case' : 'cases') + '</span></span>';
+    var last = 0, all = caseData[f].every(function (c) { var hit = (S.attempts || []).filter(function (a) { return a && (a.tool === f + '_shift' || a.tool === f) && a.cs === c.id; }); hit.forEach(function (a) { last = Math.max(last, a.at || 0); }); return hit.length; });
+    return all && last ? '<span class="tb tb-done">' + CLOCK + 'Done ' + esc(shortDay(last)) + '</span>' : '';
   }
   function caseHref(c) { return '#/tool/' + c.topic.id + '/' + c.i + '/' + encodeURIComponent(c.id) + '/today'; }
   // Called from inside a case page (same origin) when a case started from Today ends.
@@ -529,7 +548,7 @@
     var rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
     var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
     h += '<div class="tgrid">';
-    if (t.tools.length) h += '<section class="tg-tools"><h2>Study tools</h2><div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><b>' + esc(x.label) + '</b><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div></section>';
+    if (t.tools.length) h += '<section class="tg-tools"><h2>Study tools</h2><div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><span class="tr"><b>' + esc(x.label) + '</b>' + toolBadge(t, x) + '</span><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div></section>';
     h += '<div class="tg-main">';
 
     h += '<h2>Recall checklist</h2>';
@@ -630,6 +649,14 @@
     var f = document.querySelector('iframe.frame'); if (!f) return;
     function attach() {
       var d; try { d = f.contentDocument; } catch (e) { return; } if (!d) return;
+      var tl0 = byId(route[1]) && byId(route[1]).tools[+route[2]];
+      if (tl0 && !/_shift\.html$|_ward\.html$/.test(tl0.file)) {
+        var kk = route[1] + ':' + tl0.file, doneKit = function () { S.kitdone = S.kitdone || {}; if (S.kitdone[kk]) return; S.kitdone[kk] = Date.now(); save(); };
+        if (!(S.kitdone || {})[kk]) {
+          d.addEventListener('scroll', function (ev) { var el = ev.target && ev.target.nodeType === 1 ? ev.target : d.documentElement; if (el.scrollHeight > el.clientHeight + 40 && el.scrollTop + el.clientHeight >= el.scrollHeight - 48) doneKit(); }, true);
+          setTimeout(function () { try { var e0 = d.documentElement; if (e0.scrollHeight <= e0.clientHeight + 40) doneKit(); } catch (e) {} }, 30000); // a short kit that never scrolls: counts after 30 seconds
+        }
+      }
       d.addEventListener('selectionchange', function () {
         var s = f.contentWindow.getSelection(), txt = s ? String(s).replace(/\s+/g, ' ').trim() : '';
         var b = document.getElementById('hlbtn'); if (!b) return;
