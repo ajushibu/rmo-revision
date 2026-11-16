@@ -16,6 +16,9 @@
     { k: 'monitor', q: 'How do you monitor?', o: [['routine', 'Routine obs'], ['q15', 'Obs every 15 min'], ['spo2', 'Continuous SpO2'], ['spo2ecg', 'SpO2 and ECG']] },
     { k: 'review', q: 'When do you review next?', o: [['m5', 'Within 5 min'], ['m20', 'In 20 min'], ['h1', 'In 1 hour'], ['h4', 'In 4 hours'], ['am', 'Next morning']] }
   ];
+  /* Discharge steps: orders file themselves under the same five headings every time, so an empty heading is the cue. */
+  var DH = [['meds', 'Medicines to go home on'], ['prevent', 'Prevent the next one'], ['follow', 'Follow-up'], ['teach', 'Teach and safety-net'], ['write', 'Write down for the next team']];
+  function headName(id) { var h = BY[id] && BY[id].h, r = DH.filter(function (x) { return x[0] === h; })[0]; return r ? r[1] : ''; }
   function optName(k, v) { var q = PQ.filter(function (x) { return x.k === k; })[0], r = q.o.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : ''; }
   function nm(id) { return id === 'call' ? 'Make the call' : BY[id].n; }
 
@@ -176,13 +179,23 @@
   function drawPlaced() {
     var ul = $('#placed'); if (!ul) return;
     $('#ocount').textContent = S.placed.length ? S.placed.length + (S.placed.length === 1 ? ' order' : ' orders') : 'No orders yet';
-    ul.innerHTML = S.placed.map(function (p) {
+    var heads = !!(S.step && S.step.heads), rows = [];
+    var rowHtml = function (p) {
       var o = BY[p.id];
       return '<li class="po' + (p.first ? ' isfirst' : '') + '"><b class="pon">' + esc(o.n) + '</b>' +
         '<button type="button" class="pfirst" data-first="' + p.id + '" aria-pressed="' + p.first + '" title="Do this first">' + (p.first ? 'First' : 'Do first?') + '</button>' +
         '<button type="button" class="prm" data-rm="' + p.id + '" aria-label="Remove ' + esc(o.n) + '">×</button>' +
         (o.doses ? '<select data-dose="' + p.id + '" aria-label="Dose for ' + esc(o.n) + '"><option value="">Choose dose and route</option>' + o.doses.map(function (d, i) { return '<option value="' + i + '"' + (p.dose === i ? ' selected' : '') + '>' + esc(d) + '</option>'; }).join('') + '</select>' : '') + '</li>';
-    }).join('');
+    };
+    if (!heads) ul.innerHTML = S.placed.map(rowHtml).join('');
+    else {
+      var groups = DH.concat([['', 'Other']]);
+      ul.innerHTML = groups.map(function (g) {
+        var mine = S.placed.filter(function (p) { return (BY[p.id].h || '') === g[0]; });
+        if (!g[0] && !mine.length) return '';
+        return '<li class="hgrp' + (mine.length ? '' : ' empty') + '"><b>' + esc(g[1]) + '</b><span>' + (mine.length ? mine.length : 'Nothing yet') + '</span></li>' + mine.map(rowHtml).join('');
+      }).join('');
+    }
     var sb = $('#sign'); if (sb) sb.disabled = !S.placed.length;
   }
 
@@ -221,7 +234,7 @@
         '<p class="when">' + esc(st.time + ' · ' + st.window) + '</p><p class="scene">' + esc(st.scene) + '</p>' +
         '<div class="osearch"><label for="q">Place an order</label><input id="q" type="text" placeholder="Type a test, drug or action" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="ores" aria-expanded="false"><ul id="ores" role="listbox" hidden></ul></div>' +
         '<p class="browse"><button type="button" class="link" data-a="browse">' + (S.hint ? 'Browse orders (hint used)' : 'Stuck on a name? Browse orders (counts as a hint)') + '</button></p>' +
-        '<h3 id="ocount"></h3><ul id="placed" class="placed"></ul>' +
+        '<h3 id="ocount"></h3>' + (st.heads ? '<p class="hnote">Discharge planning. Your orders file under these headings: fill every heading.</p>' : '') + '<ul id="placed" class="placed"></ul>' +
         (st.plan ? '<h3 class="plh">Your plan <span>Answer all three</span></h3><div id="plan" class="plan"></div>' : '') +
         '<div class="btns signrow"><button class="btn primary" id="sign" data-a="sign" disabled>Sign orders</button></div><p class="sr" id="announce" aria-live="polite"></p></div></div></div>';
       drawPlaced(); drawResults(); drawPlan();
@@ -235,7 +248,7 @@
         if (o.doses && l.dose !== null) doseBit = '<span class="rdose' + (l.doseOk ? '' : ' bad') + '">' + esc(o.doses[l.dose]) + (l.doseOk ? '' : ': wrong dose. Right: ' + esc(l.rightDose.join(' or '))) + '</span>';
         return '<li class="rl ' + m[0] + (l.first ? ' wasfirst' : '') + '"><span class="rk">' + m[1] + (l.first ? ', your first' : '') + '</span><b>' + esc(o.n) + '</b>' + doseBit + '<span class="rw">' + esc(l.why) + '</span></li>';
       }).join('');
-      var missed = r.miss.map(function (m) { var o = BY[m.id]; return '<li class="rl ' + (m.q === 'need' ? 'miss' : 'also') + '"><span class="rk">' + (m.crit ? 'Missed, critical' : m.q === 'need' ? 'Missed' : 'Also worth doing') + '</span><b>' + esc(o.n) + '</b>' + (st2.orders[m.id].d && o.doses ? '<span class="rdose">' + esc(st2.orders[m.id].d.map(function (k) { return o.doses[k]; }).join(' or ')) + '</span>' : '') + '<span class="rw">' + esc(m.why) + '</span></li>'; }).join('');
+      var missed = r.miss.map(function (m) { var o = BY[m.id]; return '<li class="rl ' + (m.q === 'need' ? 'miss' : 'also') + '"><span class="rk">' + (m.crit ? 'Missed, critical' : m.q === 'need' ? 'Missed' : 'Also worth doing') + (st2.heads && headName(m.id) ? ' · ' + esc(headName(m.id)) : '') + '</span><b>' + esc(o.n) + '</b>' + (st2.orders[m.id].d && o.doses ? '<span class="rdose">' + esc(st2.orders[m.id].d.map(function (k) { return o.doses[k]; }).join(' or ')) + '</span>' : '') + '<span class="rw">' + esc(m.why) + '</span></li>'; }).join('');
       var planRows = (r.plan || []).map(function (l) {
         var cl = l.right ? 'ok' : l.crit ? 'miss' : 'skip', tag = l.right ? 'Right' : l.crit ? 'Missed, critical' : 'Not best';
         return '<li class="rl ' + cl + '"><span class="rk">' + tag + ' · ' + esc(l.q) + '</span><b>' + esc(optName(l.k, l.pick)) + '</b><span class="rw">' + esc(l.why) + (l.right ? '' : ' Best: ' + esc(l.best.join(' or ')) + (l.also.length ? ' (also fine: ' + esc(l.also.join(', ')) + ')' : '') + '.') + '</span></li>';

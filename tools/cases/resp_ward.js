@@ -5,6 +5,7 @@
    Sources: Australian Asthma Handbook adult ED page (severity, salbutamol, ipratropium, oxygen), Australian Prescriber (prednisolone 50 mg),
    TSANZ via MJA 2015 (oxygen targets), NSW ACI COPD page and a COPD-X summary (controlled oxygen, bronchodilators, prednisolone 40-50 mg, NIV),
    eMedSA ED handbook (furosemide 80 mg IV or usual dose IV; GTN sublingual then infusion; avoid morphine).
+   heads: true = a discharge step: orders show under five fixed headings (see DH in ward.js).
    plan = the three fixed questions (call, monitor, review): best and ok are option keys (see PQ in ward.js); crit = a wrong call sends the patient down the worse path.
    Not verified against an Australian source: the GTN 400 microgram dose, naloxone in hypercapnia, NSAID-triggered asthma (standard teaching),
    the NIV pH threshold in your hospital, and the 40 mg furosemide option. */
@@ -100,7 +101,7 @@ window.WARD = {
         }
       },
       {
-        label: 'Going home', tag: 'as-dc', time: '10:00', window: 'Day 3: discharge planning',
+        label: 'Going home', tag: 'as-dc', heads: true, time: '10:00', window: 'Day 3: discharge planning',
         scene: 'Day 3. Off oxygen, wheeze gone, peak flow 85% of his best. He wants to go home tomorrow. What goes in the plan?',
         plan: {
           call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: he is well. Mentioning it to your registrar is fine.' },
@@ -203,7 +204,7 @@ window.WARD = {
         }
       },
       {
-        label: 'After the flare', tag: 'co-dc', time: '11:00', window: 'Day 5: before discharge',
+        label: 'After the flare', tag: 'co-dc', heads: true, time: '11:00', window: 'Day 5: before discharge',
         scene: 'Off NIV for two days, on 1 L prongs with SpO2 90%. Home in two days. What goes in the plan?',
         plan: {
           call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: he is well.' },

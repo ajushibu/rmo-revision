@@ -180,6 +180,11 @@ a { color: inherit; }
 .pc input:focus-visible + span { box-shadow: 0 0 0 3px var(--n-tint), 0 0 0 4px var(--ink); }
 .pq.need .pc span { border-color: var(--harm); }
 .pq.need legend { color: var(--harm); }
+.hnote { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+.hgrp { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 6px; padding: 4px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.hgrp b { font-weight: 700; }
+.hgrp span { font-size: 13px; color: var(--muted); }
+.hgrp.empty b { color: var(--muted); font-weight: 600; }
 @media (max-width: 760px) {
   html[data-shift][data-mode="decide"] .signrow .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: 17px; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
   html[data-shift][data-mode="result"] .result .btns .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: 17px; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }

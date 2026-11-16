@@ -1,4 +1,5 @@
 /* Shared ward order catalogue for the order-sheet cases (ward.js).
+   h: which discharge heading it files under (meds, prevent, follow, teach, write).
    id: stable key used by case files. n: name shown. c: category (for Browse). s: other names people type.
    doses: choices shown once the order is placed; the case decides which are right.
    Doses here are choices, not advice: each case file says which source it was checked against. */
@@ -13,7 +14,7 @@ window.RMO_ORDERS = [
   { id: 'idc', c: 'Bedside', n: 'Indwelling urinary catheter', s: 'idc catheter urinary foley' },
   { id: 'drugchart', c: 'Bedside', n: 'Review the drug chart', s: 'medication chart meds review prescriptions' },
   { id: 'ivc', c: 'Bedside', n: 'Insert IV cannula', s: 'cannula ivc drip access line' },
-  { id: 'technique', c: 'Bedside', n: 'Check inhaler and spacer technique', s: 'inhaler technique education puffer' },
+  { id: 'technique', c: 'Bedside', h: 'teach', n: 'Check inhaler and spacer technique', s: 'inhaler technique education puffer' },
   { id: 'chest_exam', c: 'Bedside', n: 'Examine the chest again', s: 'auscultate listen examination' },
 
   // Bloods
@@ -85,7 +86,7 @@ window.RMO_ORDERS = [
   { id: 'oxyc', c: 'Drugs', n: 'Oxycodone oral', s: 'endone opioid analgesia pain' },
   { id: 'paracet', c: 'Drugs', n: 'Paracetamol', s: 'panadol analgesia pain', doses: ['1 g oral'] },
   { id: 'ibup', c: 'Drugs', n: 'Ibuprofen', s: 'nsaid nurofen anti-inflammatory analgesia' },
-  { id: 'stop_nsaid', c: 'Drugs', n: 'Cease NSAIDs and record the reaction', s: 'stop cease withhold ibuprofen nurofen nsaid allergy adverse reaction alert' },
+  { id: 'stop_nsaid', c: 'Drugs', h: 'write', n: 'Cease NSAIDs and record the reaction', s: 'stop cease withhold ibuprofen nurofen nsaid allergy adverse reaction alert' },
   { id: 'midaz', c: 'Drugs', n: 'Midazolam IV', s: 'sedation benzodiazepine' },
   { id: 'diaz', c: 'Drugs', n: 'Diazepam oral', s: 'benzodiazepine valium anxiety sedation' },
   { id: 'halo', c: 'Drugs', n: 'Haloperidol', s: 'antipsychotic sedation agitation' },
@@ -96,10 +97,10 @@ window.RMO_ORDERS = [
   { id: 'enox', c: 'Drugs', n: 'Enoxaparin', s: 'clexane lmwh anticoagulant heparin', doses: ['40 mg subcut daily (prophylaxis)', '1.5 mg/kg subcut daily (treatment)'] },
   { id: 'metop', c: 'Drugs', n: 'Metoprolol', s: 'beta blocker' },
   { id: 'kcl', c: 'Drugs', n: 'Potassium replacement', s: 'kcl potassium chloride' },
-  { id: 'ics', c: 'Drugs', n: 'Start a preventer (inhaled corticosteroid)', s: 'ics budesonide fluticasone preventer symbicort seretide' },
-  { id: 'pred_home', c: 'Drugs', n: 'Finish the prednisolone course at home', s: 'steroid course discharge stop date' },
-  { id: 'nrt', c: 'Drugs', n: 'Nicotine replacement and quit support', s: 'quit smoking nrt patch cessation' },
-  { id: 'vacc', c: 'Drugs', n: 'Influenza and pneumococcal vaccines', s: 'vaccination flu vaccine' },
+  { id: 'ics', c: 'Drugs', h: 'meds', n: 'Start a preventer (inhaled corticosteroid)', s: 'ics budesonide fluticasone preventer symbicort seretide' },
+  { id: 'pred_home', c: 'Drugs', h: 'meds', n: 'Finish the prednisolone course at home', s: 'steroid course discharge stop date' },
+  { id: 'nrt', c: 'Drugs', h: 'prevent', n: 'Nicotine replacement and quit support', s: 'quit smoking nrt patch cessation' },
+  { id: 'vacc', c: 'Drugs', h: 'prevent', n: 'Influenza and pneumococcal vaccines', s: 'vaccination flu vaccine' },
 
   // Fluids
   { id: 'fluids_stop', c: 'Fluids', n: 'Stop IV fluids', s: 'cease halt maintenance fluids drip iv fluids off' },
@@ -112,11 +113,11 @@ window.RMO_ORDERS = [
   { id: 'team', c: 'Calls and plans', n: 'Inform the treating team', s: 'surgeons orthopaedic team admitting team' },
   { id: 'cardio', c: 'Calls and plans', n: 'Cardiology referral', s: 'cardiology cardiologist' },
   { id: 'physio', c: 'Calls and plans', n: 'Physiotherapy referral', s: 'physio' },
-  { id: 'rehab', c: 'Calls and plans', n: 'Pulmonary rehabilitation referral', s: 'rehab pulmonary' },
-  { id: 'gp', c: 'Calls and plans', n: 'GP review within a few days', s: 'follow up general practitioner' },
-  { id: 'aap', c: 'Calls and plans', n: 'Written asthma action plan', s: 'asthma plan action plan' },
-  { id: 'o2rx', c: 'Calls and plans', n: 'Prescribe oxygen with a target range on the chart', s: 'oxygen prescription target chart' },
-  { id: 'co2alert', c: 'Calls and plans', n: 'Record a CO2 retention alert', s: 'hypercapnia alert card' },
-  { id: 'homeneb', c: 'Calls and plans', n: 'Home nebuliser', s: 'nebuliser home machine' },
+  { id: 'rehab', c: 'Calls and plans', h: 'prevent', n: 'Pulmonary rehabilitation referral', s: 'rehab pulmonary' },
+  { id: 'gp', c: 'Calls and plans', h: 'follow', n: 'GP review within a few days', s: 'follow up general practitioner' },
+  { id: 'aap', c: 'Calls and plans', h: 'teach', n: 'Written asthma action plan', s: 'asthma plan action plan' },
+  { id: 'o2rx', c: 'Calls and plans', h: 'write', n: 'Prescribe oxygen with a target range on the chart', s: 'oxygen prescription target chart' },
+  { id: 'co2alert', c: 'Calls and plans', h: 'write', n: 'Record a CO2 retention alert', s: 'hypercapnia alert card' },
+  { id: 'homeneb', c: 'Calls and plans', h: 'meds', n: 'Home nebuliser', s: 'nebuliser home machine' },
   { id: 'dc_now', c: 'Calls and plans', n: 'Discharge home now', s: 'discharge send home' }
 ];
