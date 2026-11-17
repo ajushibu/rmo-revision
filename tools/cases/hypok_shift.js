@@ -9,7 +9,8 @@
     'hypok-cause': { n: 'Grade it and find the cause', tab: 1, r: 'ECG changes or digoxin make a low potassium urgent. Look for gut loss, diuretics and low magnesium.' },
     'hypok-route': { n: 'Oral or IV', tab: 2, r: 'Oral when the gut works and the ECG is normal. IV when severe or symptomatic.' },
     'hypok-safe': { n: 'Give IV potassium safely', tab: 2, r: '10 mmol in 100 mL over an hour, never a push, never added to a running bag.' },
-    'hypok-after': { n: 'Magnesium, recheck, cause', tab: 3, r: 'Check magnesium, recheck the potassium, and fix the cause.' }
+    'hypok-after': { n: 'Magnesium, recheck, cause', tab: 3, r: 'Check magnesium, recheck the potassium, and fix the cause.' },
+    'hypok-aldo': { n: 'High BP with low potassium', tab: 1, r: 'Hypertension with low potassium (even on a diuretic) is a reason to screen for primary aldosteronism: aldosterone and renin once the potassium is corrected.' }
   };
   w.RMO_CASES = [
   {
@@ -119,6 +120,70 @@
           kcl_iv: S('Not needed.', { d: [0], harmDose: [1, 2, 3] }), frestrict: X('Restricting fluids risks dehydration.')
         },
         ok: { text: 'His output settles to 1.2 L with treatment and his potassium stays above 3.7.' }, miss: { text: 'Losses continue and the potassium drifts down again.' } }
+    ] }
+  },
+  {
+    id: 'c20261117i', fromCard: 'hy4', title: 'Thiazide, vomiting and a high BP', time: '23:00', where: 'Medical admissions unit',
+    blurb: 'A man on a thiazide with two days of vomiting, a potassium of 2.6 and a BP that stays high. Tests the first-hour orders and when low potassium points to primary aldosteronism.',
+    intro: '52-year-old man with hypertension on hydrochlorothiazide and amlodipine. Two days of vomiting after a takeaway meal. He feels weak and has cramps. The potassium is 2.6. His BP is 168/98 even though he is dry.',
+    vit: { rhythm: 'sinus+u+flat', hr: 92, sbp: 168, dbp: 98, spo2: 98, rr: 16 },
+    facts: ['52M, hypertension for 6 years: hydrochlorothiazide and amlodipine', 'Vomiting for 2 days, cannot keep fluids down', 'Weak, cramps', 'Potassium 2.6, creatinine 118 (baseline 85), bicarbonate 32', 'ECG: flat T waves and U waves, no ectopics'],
+    decisions: [
+      { tag: 'hypok-cause', scene: 'Potassium 2.6 with U waves on the ECG. How do you see it, and why is it this low?', opts: [
+        o('best', 'Severe with ECG changes: treat now on a monitor. Two losses add up: the thiazide sends more sodium to the collecting duct, and vomiting (volume loss, alkalosis) raises aldosterone', 'Big potassium loss needs both distal sodium and aldosterone. Here he has both.'),
+        o('ok', 'Severe, from the vomiting itself', 'Partly. Gastric fluid holds little potassium: most is lost in the urine, driven by the thiazide and aldosterone.'),
+        o('poor', 'Mild, oral potassium in the morning', 'Too low, with ECG changes, and he is vomiting.'),
+        o('harm', 'Give his usual thiazide tonight to control the BP', 'The thiazide is losing more potassium.')] },
+      { tag: 'hypok-safe', scene: 'The nurse asks how to give the potassium. What do you write?', opts: [
+        o('best', 'Potassium chloride 10 mmol in 100 mL over 1 hour, premixed, peripheral line, on a cardiac monitor; repeat and recheck', 'The safe ward rate. Faster needs a monitored setting and senior sign-off.', { hr: 88 }),
+        o('ok', '40 mmol over 1 hour to catch up', 'Too fast for a general ward line.'),
+        o('poor', 'Oral potassium only', 'He is vomiting and the ECG has changed.'),
+        o('harm', '20 mmol IV push', 'Never push potassium: it can stop the heart.')] },
+      { tag: 'hypok-after', scene: 'The first bag is running. What else goes on the chart in this first hour?', opts: [
+        o('best', 'Magnesium and phosphate, withhold the thiazide, review the whole drug chart, ondansetron, a measured saline bolus, a fluid balance chart, a gas and a glucose', 'Low magnesium stops potassium correcting. Stop the vomiting and the drug that loses potassium, and fill him up carefully.'),
+        o('ok', 'Withhold the thiazide and recheck the potassium', 'Right, but magnesium and the vomiting are not dealt with.'),
+        o('poor', 'Nothing else until the potassium result comes back', 'The first hour is when the other orders matter.'),
+        o('harm', 'Furosemide for the high BP', 'A loop diuretic loses even more potassium.')] },
+      { tag: 'hypok-aldo', scene: 'Next morning: vomiting stopped, potassium 3.4 after replacement, thiazide off. BP 166/100. What do you think about?', opts: [
+        o('best', 'High BP with low potassium (even on a diuretic) is a reason to screen for primary aldosteronism: aldosterone and renin once the potassium is corrected, read with his drugs in mind, and follow-up with his GP or the endocrine team', 'Australian guidance lists hypertension with spontaneous or diuretic-induced low potassium as a screening reason. Low potassium can give a false negative, so correct it first.'),
+        o('ok', 'Blame the vomiting and the thiazide, and stop there', 'They explain tonight, but the BP is still high off the thiazide. Screen.'),
+        o('poor', 'Start spironolactone now and skip the test', 'Spironolactone upsets the aldosterone to renin ratio. Test first unless a specialist says otherwise.'),
+        o('harm', 'Restart the thiazide at a higher dose', 'More potassium loss, and the cause stays hidden.')] }
+    ],
+    ends: { hi: 'Potassium replaced safely, magnesium and the vomiting dealt with, and an aldosterone to renin ratio sent before he leaves.', mid: 'His potassium recovers, but one first-hour order or the screening step was missed.', lo: 'His potassium stays low and the cause of his hypertension is missed.' },
+    hard: { debrief: 'Low potassium on a thiazide with vomiting: IV at 10 mmol an hour on a monitor, then magnesium, the drug chart, the vomiting and the fluids. High BP with low potassium: screen for primary aldosteronism once the potassium is corrected.', steps: [
+      { label: 'The first hour', tag: 'hypok-safe', time: '23:00', window: 'Now: the first hour',
+        scene: 'Potassium 2.6, U waves, on a thiazide, vomiting, dry, BP 168/98. What do you order?',
+        first: ['kcl_iv'], firstWhy: 'Replace it by the safe IV route: this is the treatment.',
+        plan: PL(['reg', ['none'], 'Potassium under 3 with ECG changes: tell your registrar.'], ['spo2ecg', ['q15'], 'A cardiac monitor while the potassium is under 3 with ECG changes.'], ['h1', ['m20'], 'Come back after the first bag with a repeat potassium. Every 5 minutes is not needed: the monitor will alarm if the rhythm changes.']),
+        orders: { kcl: S('Too vague: choose oral or IV, and the dose.'), kcl_iv: N('10 mmol in 100 mL over an hour, peripheral line, on a monitor. Repeat and recheck.', { d: [0], crit: true, harmDose: [1, 2, 3] }),
+          ecg: N('A 12-lead ECG and a continuous monitor.'), uec: N('Repeat the potassium and creatinine after the bags.'),
+          mg: N('Magnesium and phosphate: low magnesium keeps the kidney losing potassium.'),
+          stop_diuretic: N('Withhold the thiazide: it is driving the loss.'),
+          drugchart: N('Review the whole chart for other drugs that lower potassium or interact.'),
+          antiemetic: N('Stop the vomiting: it is one of the two causes and stops oral replacement.', { d: [0] }),
+          bolus250: G('He is dry: a measured bolus, then reassess.', { alt: ['bolus'] }), bolus: G('Fluid is right; give measured boluses.'),
+          fbal: G('Strict fluid balance: intake, vomit and urine.'), vbg: G('A gas gives a quick potassium and shows the alkalosis.'), bsl: G('Glucose check in a vomiting patient.'),
+          arr: S('Right idea for later, but not tonight: low potassium can give a false result. Correct it first.'),
+          kcl_oral: S('He is vomiting: oral alone will not work tonight.', { d: [0] }),
+          insulin_k: X('Insulin pushes potassium down further.', { harmDose: [0, 1, 2, 3, 4] }), salb_k: X('Salbutamol lowers potassium.', { harmDose: [0, 1, 2] }),
+          furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] }), bicarb: X('Bicarbonate lowers potassium and he is already alkalotic.', { harmDose: [0, 1, 2] })
+        },
+        ok: { text: 'Two bags in. The vomiting has stopped and the potassium is 3.0 at 02:00. Magnesium 0.6.', vit: { rhythm: 'sinus+flat', hr: 84, sbp: 160, dbp: 96 }, facts: ['Potassium 3.0', 'Magnesium 0.6 (low)', 'Vomiting settled'] },
+        miss: { text: 'At 02:00 he is still vomiting and the potassium is 2.7. He has new ectopics.', vit: { rhythm: 'sinus+u+pvc+flat', hr: 104 }, facts: ['Potassium 2.7', 'Ventricular ectopics'] } },
+      { label: 'The morning', tag: 'hypok-aldo', time: '08:00', window: 'Next morning',
+        scene: 'Potassium 3.4, magnesium replaced, eating and drinking, thiazide off. BP 166/100. What is new on the chart?',
+        plan: PL(['none', ['reg'], 'Improving: no urgent call. Hand the screening plan to the team.'], ['routine', ['spo2ecg'], 'ECG changes have gone: routine observations.'], ['am', ['h4'], 'Recheck the potassium tomorrow.']),
+        orders: { kcl_oral: N('Oral replacement now that he is eating, per your hospital protocol.', { d: [0], harmDose: [1] }),
+          arr: N('Screen for primary aldosteronism: high BP with low potassium. Australian guidance: correct the potassium first, and read the result with his drugs in mind.'),
+          uec: N('Recheck the potassium tomorrow.'), mg: G('Recheck the magnesium.'), stop_diuretic: N('Keep the thiazide off.'),
+          drugchart: G('Note which of his BP drugs can change the ratio for the team.'), endo_ref: G('If the ratio is raised: endocrine hypertension service (can be outpatient).'),
+          kcl_iv: S('His gut works now: switch to oral.', { d: [0], harmDose: [1, 2, 3] }), antiemetic: S('The vomiting has stopped.', { d: [0] }),
+          bolus: S('He is eating and drinking.'), bolus250: S('He is eating and drinking.'),
+          furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] })
+        },
+        ok: { text: 'His potassium is 4.1 two days later. The aldosterone to renin ratio comes back raised, and the endocrine team takes over his blood pressure.' },
+        miss: { text: 'He goes home on his thiazide. Three months later he is back with a potassium of 2.8 and a BP of 180/105.' } }
     ] }
   }
   ];

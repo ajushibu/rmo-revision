@@ -713,5 +713,255 @@ window.RMO_CASES = [
    "mid": "She recovered, but a step was missed. Review the severity grades.",
    "lo": "Review steps 1, 2 and 5 of the Study Kit."
   }
+ },
+{
+ "id": "c20261117d",
+ "from": "c1",
+ "title": "Short of words on the orthopaedic ward",
+ "where": "Orthopaedic ward",
+ "time": "02:10",
+ "blurb": "A man two days after ankle surgery, whose preventer was never charted. Tests that talking in phrases is severe, even when he says he is fine.",
+ "intro": "Ward call: 31-year-old man, day 2 after fixing a broken ankle. Known asthma. Wheezy for an hour. \"He says he is OK, he is talking to me.\"",
+ "vit": {
+  "hr": 118,
+  "sbp": 132,
+  "dbp": 80,
+  "spo2": 93,
+  "rr": 28
+ },
+ "facts": [
+  "31M; asthma since childhood; preventer and reliever at home",
+  "Preventer not charted on admission; no reliever on the ward since surgery",
+  "Talks in short phrases, has to stop for breath",
+  "SpO2 93% on air; alert; widespread wheeze"
+ ],
+ "decisions": [
+  {
+   "tag": "sev",
+   "scene": "He says \"I am... OK... just... tight\". How severe is this?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Severe: he cannot finish a sentence in one breath and his SpO2 is 94% or below",
+     "fb": "Asthma Handbook: any one severe feature makes it severe. Talking in phrases is not talking in sentences."
+    },
+    {
+     "q": "poor",
+     "t": "Moderate: he is talking and alert",
+     "fb": "Being able to talk is not the test. He cannot finish a sentence: that is a severe feature."
+    },
+    {
+     "q": "ok",
+     "t": "Life-threatening: put out a MET call",
+     "fb": "He is alert with good effort and an SpO2 of 93%, so not life-threatening. Calling for help is still reasonable at night."
+    }
+   ]
+  },
+  {
+   "tag": "bd",
+   "scene": "What do you start?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Salbutamol 12 puffs (100 microg each) and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. No oxygen yet at 93%; start it if the SpO2 falls under 92%, aiming at 92 to 96%",
+     "fb": "Severe asthma gets the severe plan (Asthma Handbook). Oxygen is for an SpO2 under 92%.",
+     "vit": {
+      "hr": 114,
+      "spo2": 95,
+      "rr": 24
+     }
+    },
+    {
+     "q": "poor",
+     "t": "Salbutamol 4 puffs and reassess in the morning",
+     "fb": "Underdosed for severe asthma, and the morning is too late.",
+     "vit": {
+      "spo2": 91,
+      "rr": 32
+     }
+    },
+    {
+     "q": "poor",
+     "t": "High-flow oxygen by non-rebreather and nothing else",
+     "fb": "Oxygen is not the treatment, and he does not need it at 93%."
+    }
+   ]
+  },
+  {
+   "tag": "steroid",
+   "scene": "He is on ibuprofen and paracetamol for the ankle. What about a steroid?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Now: oral prednisolone 37.5 to 50 mg, then each morning for 5 to 10 days in total. Ask whether NSAIDs have ever made his asthma worse, and review the ibuprofen",
+     "fb": "Every severe attack gets an early steroid (Asthma Handbook dose). Some people with asthma react to NSAIDs, so check his history."
+    },
+    {
+     "q": "poor",
+     "t": "Only if he is still wheezy after the salbutamol",
+     "fb": "Waiting loses hours. The steroid takes hours to work."
+    },
+    {
+     "q": "poor",
+     "t": "IV hydrocortisone instead, because he is post-operative",
+     "fb": "He can swallow, and oral prednisolone works as well when the gut works."
+    }
+   ]
+  },
+  {
+   "tag": "home",
+   "scene": "He is better by the morning round. What goes on his discharge plan?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Restart his preventer now and chart a reliever, check his inhaler technique, finish the prednisolone course, a written action plan and GP review within a few days",
+     "fb": "The attack came from stopping his preventer. Fix that and the plan before he leaves."
+    },
+    {
+     "q": "poor",
+     "t": "A new reliever only",
+     "fb": "A reliever alone repeats the problem."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "You graded him by his speech, not by his reassurance, and fixed the missing preventer.",
+  "mid": "He recovered, but a step was missed. Review the severity grades.",
+  "lo": "Review steps 1, 2 and 5 of the Study Kit."
  }
+},
+{
+ "id": "c20261117e",
+ "from": "c20261115a",
+ "title": "Pregnant, talking, and working hard",
+ "where": "Maternity assessment unit",
+ "time": "21:40",
+ "blurb": "A woman at 28 weeks who is talking and has an SpO2 of 95%, but is using her neck muscles. Tests that one severe feature is enough, and that asthma in pregnancy is treated the same way.",
+ "intro": "Midwife call: 27-year-old woman, 28 weeks pregnant, asthma, wheezy since a cold 3 days ago. \"She is chatting with me and her sats are 95%, can she wait for the morning team?\"",
+ "vit": {
+  "hr": 122,
+  "sbp": 118,
+  "dbp": 72,
+  "spo2": 95,
+  "rr": 30
+ },
+ "facts": [
+  "27F, 28 weeks pregnant, first baby",
+  "Asthma; stopped her preventer when she found out she was pregnant",
+  "Talks in sentences but is sitting forward, neck muscles pulling",
+  "SpO2 95% on air; RR 30; widespread wheeze; baby moving normally"
+ ],
+ "decisions": [
+  {
+   "tag": "sev",
+   "scene": "She talks in sentences and her SpO2 is 95%. How severe is this?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Severe: she is using her accessory muscles. Any one severe feature is enough, even with good sats and sentences",
+     "fb": "Asthma Handbook: severe is any severe feature. Grade by the worst feature, not the best ones."
+    },
+    {
+     "q": "poor",
+     "t": "Mild to moderate: she is talking and her SpO2 is over 94%",
+     "fb": "Those are two mild features, but her work of breathing is a severe feature."
+    },
+    {
+     "q": "poor",
+     "t": "Hard to grade in pregnancy, so wait for the obstetric team",
+     "fb": "Severity is graded the same way. Treat now and tell the obstetric team."
+    }
+   ]
+  },
+  {
+   "tag": "bd",
+   "scene": "What do you start?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Salbutamol 12 puffs (100 microg each) and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. Tell the obstetric team and monitor the baby as per your hospital protocol",
+     "fb": "Asthma attacks in pregnancy are treated the same way. Uncontrolled asthma is the bigger risk to the baby than the drugs.",
+     "vit": {
+      "hr": 116,
+      "spo2": 97,
+      "rr": 24
+     }
+    },
+    {
+     "q": "poor",
+     "t": "Hold the salbutamol until the obstetric registrar reviews her, because of the baby",
+     "fb": "Delay is the danger. The usual drugs are used in pregnancy.",
+     "vit": {
+      "spo2": 93,
+      "rr": 34
+     }
+    },
+    {
+     "q": "poor",
+     "t": "Salbutamol 4 puffs as needed",
+     "fb": "Underdosed for severe asthma."
+    }
+   ]
+  },
+  {
+   "tag": "steroid",
+   "scene": "The midwife asks if a steroid is safe in pregnancy.",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Now: oral prednisolone 37.5 to 50 mg, then each morning for 5 to 10 days in total. It is used in pregnancy, and a severe attack needs it",
+     "fb": "Asthma Handbook: treat as for any adult. The steroid takes hours to work, so it goes in early."
+    },
+    {
+     "q": "poor",
+     "t": "Avoid steroids in pregnancy and rely on salbutamol",
+     "fb": "An untreated severe attack is the greater risk. Give the steroid."
+    }
+   ]
+  },
+  {
+   "tag": "sev",
+   "scene": "One hour later: no neck muscle use, whole sentences, SpO2 97% on air, RR 20. HR 112 with a tremor. What now?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "She is now mild to moderate. The fast heart rate and tremor are expected after salbutamol. Space out the salbutamol, keep observing her and her baby, and reassess before any decision to go home",
+     "fb": "Re-grade after treatment by speech, effort, SpO2 and conscious state, not heart rate."
+    },
+    {
+     "q": "poor",
+     "t": "Still severe because of the heart rate: call ICU",
+     "fb": "Tachycardia and tremor after high-dose salbutamol are side effects."
+    },
+    {
+     "q": "poor",
+     "t": "She looks well: send her home now",
+     "fb": "She was severe an hour ago. Observe her first and follow your protocol."
+    }
+   ]
+  },
+  {
+   "tag": "home",
+   "scene": "Before she goes, what do you sort out?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Restart a preventer with an inhaled steroid (explain it is used in pregnancy), check her spacer technique, finish the prednisolone, a written action plan, and early GP and antenatal review",
+     "fb": "Stopping her preventer caused this. Most asthma medicines are continued in pregnancy."
+    },
+    {
+     "q": "poor",
+     "t": "A new reliever only, and stay off the preventer until after the birth",
+     "fb": "That is how this attack happened."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "You graded her by her work of breathing, treated her like any adult, and restarted her preventer.",
+  "mid": "She recovered, but a step was missed. Review the severity grades.",
+  "lo": "Review steps 1, 2, 3 and 5 of the Study Kit."
+ }
+}
 ];

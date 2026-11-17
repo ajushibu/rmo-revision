@@ -302,5 +302,226 @@ window.RMO_CASES = [
    "mid": "He recovered, but you were slow to check the tube.",
    "lo": "Review step 4 of the Study Kit."
   }
+ },
+{
+ "id": "c20261117g",
+ fromCard: "px6",
+ "title": "Breathless at the bus stop",
+ "where": "Emergency department",
+ "time": "19:30",
+ "blurb": "A first primary pneumothorax that is large and symptomatic but stable. Tests needle aspiration: the cannula, when to stop, and what follows.",
+ "intro": "Triage: 24-year-old woman, sudden left chest pain and breathlessness while running for a bus. Chest X-ray shows a large left pneumothorax.",
+ "vit": {
+  "hr": 104,
+  "sbp": 122,
+  "dbp": 76,
+  "spo2": 95,
+  "rr": 24
+ },
+ "facts": [
+  "24F, smoker, no lung disease",
+  "Sudden left pleuritic pain, breathless on walking",
+  "Large left pneumothorax on X-ray, trachea central",
+  "BP normal, alert, no distress at rest"
+ ],
+ "decisions": [
+  {
+   "tag": "type",
+   "scene": "How do you classify this?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Primary spontaneous pneumothorax: young, no lung disease, and stable (no tension)",
+     "fb": "Primary means no known lung disease. Her BP and trachea say no tension."
+    },
+    {
+     "q": "poor",
+     "t": "Tension pneumothorax: decompress now",
+     "fb": "She has a normal BP and a central trachea. Not tension."
+    },
+    {
+     "q": "ok",
+     "t": "Secondary, because she smokes",
+     "fb": "Smoking raises the risk, but without lung disease it is still primary."
+    }
+   ]
+  },
+  {
+   "tag": "stable",
+   "scene": "She is breathless walking to the toilet. What is the plan?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Needle aspiration under local anaesthetic with a 16 to 18 gauge cannula, as a first step for a symptomatic primary pneumothorax",
+     "fb": "BTS 2023 (summarised in a 2024 review): aspiration is a first-line option for a symptomatic primary pneumothorax. Older BTS 2010 guidance said 14 to 16 gauge."
+    },
+    {
+     "q": "ok",
+     "t": "Observe her without a procedure",
+     "fb": "An option for minimal symptoms. She is breathless on walking, so offer aspiration."
+    },
+    {
+     "q": "poor",
+     "t": "A large-bore surgical drain straight away",
+     "fb": "Not needed first for a stable primary pneumothorax."
+    }
+   ]
+  },
+  {
+   "tag": "stable",
+   "scene": "You are aspirating with a 50 mL syringe. When do you stop?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "When you feel resistance, she coughs a lot, or you reach 2.5 L; more than 2.5 L means an ongoing leak, so she usually needs a drain",
+     "fb": "A large volume means air is still leaking in. Stop and plan a small-bore drain."
+    },
+    {
+     "q": "poor",
+     "t": "Keep going until no more air comes, however long it takes",
+     "fb": "Over 2.5 L means a leak: stop."
+    },
+    {
+     "q": "poor",
+     "t": "Stop after 500 mL to be safe",
+     "fb": "Too little to re-expand a large pneumothorax."
+    }
+   ]
+  },
+  {
+   "tag": "after",
+   "scene": "The lung looks up on the repeat X-ray and she feels well. What next?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Observe for a few hours per your hospital protocol, then home if she stays well, with advice to return if breathless, stop smoking, no flying until a doctor confirms it has resolved, and a respiratory follow-up",
+     "fb": "Success means a repeat X-ray showing the lung up and her symptoms gone. Diving needs specialist advice; BTS advises surgery for people who must dive."
+    },
+    {
+     "q": "ok",
+     "t": "Admit her overnight anyway",
+     "fb": "Not wrong, but a well patient with a successful aspiration can usually go after observation."
+    },
+    {
+     "q": "poor",
+     "t": "Home now with no follow-up",
+     "fb": "She needs safety-netting and follow-up."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "Right patient, right cannula, stopped at the right time, and safe advice.",
+  "mid": "She did well, but one step needs review.",
+  "lo": "Review step 3 of the Study Kit."
  }
+},
+{
+ "id": "c20261117h",
+ fromCard: "px13",
+ "title": "Still bubbling on day 5",
+ "where": "Respiratory ward",
+ "time": "10:00",
+ "blurb": "A man with COPD and a secondary pneumothorax whose drain keeps bubbling. Tests when a drain comes out, what not to do, and when to call surgeons.",
+ "intro": "Ward round: 67-year-old man with COPD, day 5 with a small-bore chest drain for a secondary pneumothorax. The nurse says it is still bubbling and he asks when it can come out.",
+ "vit": {
+  "hr": 88,
+  "sbp": 134,
+  "dbp": 78,
+  "spo2": 92,
+  "rr": 18
+ },
+ "facts": [
+  "67M, COPD, ex-smoker",
+  "Right secondary pneumothorax, drain since day 1",
+  "Drain swings and bubbles when he coughs, on water seal",
+  "X-ray today: lung nearly up, small apical rim"
+ ],
+ "decisions": [
+  {
+   "tag": "drain",
+   "scene": "The drain still bubbles. What does that mean, and what do you do with it today?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Air is still leaking from the lung. Keep it on water seal below the chest, and do not clamp a bubbling drain",
+     "fb": "Bubbling means an ongoing air leak. Clamping it risks a tension pneumothorax."
+    },
+    {
+     "q": "harm",
+     "t": "Clamp it to see if the lung stays up",
+     "fb": "Never clamp a bubbling drain."
+    },
+    {
+     "q": "poor",
+     "t": "Remove it, since the lung is nearly up",
+     "fb": "Not while it is still bubbling: the leak will collapse the lung again."
+    }
+   ]
+  },
+  {
+   "tag": "drain",
+   "scene": "It is day 5 with an ongoing leak. Who do you involve?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Discuss with the respiratory consultant and refer to the thoracic surgeons now: an air leak lasting 5 to 7 days is when surgery should be considered (BTS 2023)",
+     "fb": "Many COPD patients are not fit for surgery, so the team may consider other options such as a blood patch or an endobronchial valve."
+    },
+    {
+     "q": "ok",
+     "t": "Wait another week and see",
+     "fb": "Many leaks do settle, but day 5 is the point to involve surgeons."
+    },
+    {
+     "q": "poor",
+     "t": "Add high-pressure suction to force the lung up",
+     "fb": "Suction has not been shown to help, and is not routine."
+    }
+   ]
+  },
+  {
+   "tag": "after",
+   "scene": "Day 8: no bubbling for 24 hours and the lung is fully up on X-ray. What now?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Remove the drain with the team (some units clamp first per local protocol), then repeat the chest X-ray",
+     "fb": "Remove when the lung is up and the leak has stopped. Clamping before removal varies between units."
+    },
+    {
+     "q": "poor",
+     "t": "Leave it in for another week to be sure",
+     "fb": "A drain left in longer adds infection and pain."
+    },
+    {
+     "q": "poor",
+     "t": "Remove it and skip the X-ray",
+     "fb": "Check the lung after removal."
+    }
+   ]
+  },
+  {
+   "tag": "after",
+   "scene": "What does he need to know before going home?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Return at once if breathless or in pain; stop smoking; no flying until a doctor confirms it has resolved; respiratory follow-up, since secondary pneumothorax often comes back",
+     "fb": "Secondary pneumothoraces recur more often and are more dangerous with poor lung reserve."
+    },
+    {
+     "q": "poor",
+     "t": "Nothing special, it is fixed",
+     "fb": "He needs safety-netting and follow-up."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "You left a bubbling drain alone, involved surgeons on time, and removed it at the right point.",
+  "mid": "He did well, but one step needs review.",
+  "lo": "Review steps 4 and 5 of the Study Kit."
+ }
+}
 ];

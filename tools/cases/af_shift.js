@@ -8,6 +8,7 @@ toe: { n: "The 48-hour rule", tab: "cv", r: "AF over 48 hours or of unknown dura
 post: { n: "Anticoagulation after cardioversion", tab: "cv", r: "Anticoagulate for at least 4 weeks (standard teaching; confirm in eTG), then continue by CHA2DS2-VA. Sinus rhythm does not remove the stroke risk." },
 unstable: { n: "Recognising unstable AF", tab: "drill", r: "Hypotension, confusion, ischaemic chest pain or acute pulmonary oedema caused by the rate means urgent synchronised electrical cardioversion. Do not wait for a TOE or anticoagulation." },
 shock: { n: "Doing the shock", tab: "aus", r: "Pads on, sedation per protocol with senior or anaesthetic help, synchronise to the R wave, start around 100 J biphasic and escalate (the Queensland ambulance protocol uses 100, 150, 200 J). Follow your hospital device protocol." },
+chem: { n: "Choosing the cardioversion drug", tab: "cv", r: "Flecainide only without LV systolic dysfunction, moderate LVH or coronary disease, with an AV-nodal blocker given first. Otherwise amiodarone (2018 Australian AF guideline). Not a sequence: the heart decides." },
 wpw: { n: "Pre-excited AF", tab: "drill", r: "Irregular, wide, very fast rhythm in a young person, with a delta wave on an old ECG: no AV-nodal blockers (adenosine, verapamil, diltiazem, beta-blockers, digoxin). Pads on, call your senior and cardiology; electrical cardioversion is the safe default. This is standard teaching; I did not find it in the Australian sources I read." }
 };
 window.RMO_CASES = [
@@ -157,5 +158,125 @@ decisions: [
 ] }
 ],
 ends: { hi: "Right shock, right energy, sync re-checked, and the trigger found.", mid: "He is in sinus rhythm, but one step was riskier than it needed to be.", lo: "Review the shock steps in the Study Kit and replay." }
+},
+{
+ "id": "c20261117f",
+ fromCard: "af9",
+ "title": "Which drug for this heart?",
+ "where": "Emergency department",
+ "time": "03:20",
+ "blurb": "Two people with new AF on the same night: one with a scarred heart, one with a healthy heart. Tests which drug can convert each, and what goes first.",
+ "intro": "Registrar: \"Bed 4 is a 68-year-old man with AF since 17:00 today. Old heart attack, EF 35%. Stable. We want to try drug cardioversion. What do you suggest?\"",
+ "vit": {
+  "rhythm": "af",
+  "hr": 128,
+  "sbp": 128,
+  "dbp": 80,
+  "spo2": 96,
+  "rr": 18
+ },
+ "facts": [
+  "68M; MI 4 years ago, EF 35%; hypertension",
+  "Palpitations since 17:00 (clear onset, 10 hours)",
+  "BP 128/80, no chest pain, chest clear",
+  "Creatinine 105, K 4.2"
+ ],
+ "decisions": [
+  {
+   "tag": "first",
+   "scene": "Before any drug, what do you check?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Electrolytes with K and Mg, TFTs, troponin, creatinine, look for a trigger, and confirm the onset time",
+     "fb": "The onset decides whether cardioversion is safe; the bloods find a cause and set doses."
+    },
+    {
+     "q": "poor",
+     "t": "Nothing: give the drug now while he is in the department",
+     "fb": "A trigger and the onset time matter first."
+    }
+   ]
+  },
+  {
+   "tag": "toe",
+   "scene": "The onset is clearly 10 hours ago. Can he be cardioverted tonight?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Yes, under 48 hours with a clear onset; start anticoagulation now as per your hospital protocol",
+     "fb": "Over 48 hours or unknown would need a TOE or weeks of anticoagulation first (2018 Australian AF guideline)."
+    },
+    {
+     "q": "poor",
+     "t": "No, every cardioversion needs a TOE",
+     "fb": "Only when it is over 48 hours or the onset is unknown."
+    }
+   ]
+  },
+  {
+   "tag": "chem",
+   "scene": "Which drug for him?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Amiodarone IV, dose per your hospital protocol: he has coronary disease and a low EF, so no flecainide",
+     "fb": "Australian guideline: flecainide only without LV systolic dysfunction, moderate LVH or coronary disease. Class Ic drugs can trigger fatal ventricular arrhythmias in a scarred heart."
+    },
+    {
+     "q": "harm",
+     "t": "Flecainide, since it works fastest",
+     "fb": "He has coronary disease and an EF of 35%: flecainide can cause fatal ventricular arrhythmias here."
+    },
+    {
+     "q": "poor",
+     "t": "Flecainide first, and amiodarone if it fails",
+     "fb": "It is not a sequence. The choice depends on the heart."
+    }
+   ]
+  },
+  {
+   "tag": "chem",
+   "scene": "Bed 6: 32-year-old woman, AF for 6 hours, normal echo last year, no delta wave. Cardiology plans oral flecainide. What do you give first?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "An AV-nodal blocker first (a beta-blocker, or diltiazem or verapamil), then the flecainide",
+     "fb": "Flecainide can turn AF into slow flutter that the AV node passes 1 to 1, so the ventricles race. The Australian guideline says give the AV-nodal blocker before flecainide."
+    },
+    {
+     "q": "poor",
+     "t": "Flecainide alone",
+     "fb": "Risk of 1 to 1 flutter with a very fast rate."
+    },
+    {
+     "q": "harm",
+     "t": "Amiodarone and flecainide together",
+     "fb": "Two antiarrhythmics together add risk without need."
+    }
+   ]
+  },
+  {
+   "tag": "post",
+   "scene": "He converts to sinus rhythm on amiodarone. What about anticoagulation?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "At least 4 weeks after cardioversion, then long term: his CHA2DS2-VA is 3 (age 65-74, heart failure, vascular disease)",
+     "fb": "Sinus rhythm does not remove the stroke risk. Score 2 or more: anticoagulate."
+    },
+    {
+     "q": "poor",
+     "t": "Stop it now that he is in sinus rhythm",
+     "fb": "The stroke risk stays, and the atria are stunned for weeks after conversion."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "Right drug for each heart, the blocker before flecainide, and anticoagulation planned.",
+  "mid": "Both converted, but one choice was riskier than it needed to be.",
+  "lo": "Review the cardioversion step in the Study Kit."
+ }
 }
 ];

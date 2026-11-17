@@ -138,6 +138,7 @@ window.RMO_ORDERS = [
   { id: 'ketones', c: 'Bloods', n: 'Blood ketones', s: 'ketone bhb beta hydroxybutyrate' },
   { id: 'spep', c: 'Bloods', n: 'Serum protein electrophoresis and free light chains', s: 'spep myeloma paraprotein light chains' },
   { id: 'cortisol', c: 'Bloods', n: 'Cortisol', s: 'adrenal short synacthen' },
+  { id: 'arr', c: 'Bloods', n: 'Aldosterone and renin (aldosterone to renin ratio)', s: 'aldosterone renin ratio arr conn primary aldosteronism hyperaldosteronism adrenal' },
   { id: 'renal_us', c: 'Imaging and ECG', n: 'Renal tract ultrasound', s: 'kidney ultrasound us hydronephrosis obstruction' },
   { id: 'ctkub', c: 'Imaging and ECG', n: 'CT KUB (non-contrast)', s: 'ct kub stone protocol renal colic ct abdomen' },
   { id: 'ca_gluc', c: 'Drugs', n: 'Calcium gluconate 10% IV', s: 'calcium cardioprotection membrane stabilise', doses: ['10 mL (2.2 mmol) IV over 2 to 3 minutes, on a monitor', '10 mL (2.2 mmol) IV over 30 minutes', '1 mL (0.22 mmol) IV over 2 minutes', '50 mL (11 mmol) IV push'] },
