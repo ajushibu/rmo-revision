@@ -459,5 +459,259 @@ window.RMO_CASES = [
    "mid": "She recovered, but a step was missed. Review the severity grades.",
    "lo": "Review steps 1, 2 and 5 of the Study Kit."
   }
+ },
+ {
+  "id": "c20261117a",
+  "from": "c1",
+  "title": "Storm night",
+  "where": "Emergency department",
+  "time": "23:50",
+  "blurb": "A man with hay fever and no asthma diagnosis, caught outside before a spring thunderstorm. Tests severity, doses, steroids and what he needs before he leaves.",
+  "intro": "Late November, the ED is filling up after an evening thunderstorm. 26-year-old man, hay fever every spring, never told he has asthma. He was walking home in the gusty wind before the storm. Now wheezy and frightened.",
+  "vit": {
+   "hr": 120,
+   "sbp": 134,
+   "dbp": 82,
+   "spo2": 92,
+   "rr": 30
+  },
+  "facts": [
+   "26M; spring hay fever, no asthma diagnosis, no inhalers",
+   "Says a few words, then stops for breath",
+   "Neck muscles working, tracheal tug; widespread wheeze",
+   "SpO2 92% on air; alert"
+  ],
+  "decisions": [
+   {
+    "tag": "sev",
+    "scene": "He has never had asthma. How do you grade this?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Severe acute asthma (thunderstorm asthma): he cannot finish a sentence in one breath, he is using his neck muscles, and his SpO2 is 94% or below on air",
+      "fb": "Any one of these makes it severe (Australian Asthma Handbook). People with hay fever and no asthma diagnosis can get thunderstorm asthma (National Asthma Council)."
+     },
+     {
+      "q": "poor",
+      "t": "Not asthma: he has no diagnosis, so this is panic from the storm",
+      "fb": "Wheeze, accessory muscles and SpO2 92% are not panic. Thunderstorm asthma hits people with hay fever who have never had asthma."
+     },
+     {
+      "q": "poor",
+      "t": "Mild to moderate: his SpO2 is 92%, so he does not even need oxygen",
+      "fb": "Not needing oxygen yet does not make it mild. Mild to moderate needs whole sentences and SpO2 over 94%."
+     }
+    ]
+   },
+   {
+    "tag": "bd",
+    "scene": "What do you start?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Salbutamol 12 puffs (100 microg each) by spacer and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. Oxygen only if SpO2 falls under 92%, then to 92 to 96%",
+      "fb": "This is the Asthma Handbook ED plan for severe asthma.",
+      "vit": {
+       "hr": 112,
+       "spo2": 95,
+       "rr": 24
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Salbutamol 4 puffs once, then back to the waiting room",
+      "fb": "Underdosed for a severe attack, and he needs watching, not the waiting room.",
+      "vit": {
+       "spo2": 90,
+       "rr": 32
+      }
+     },
+     {
+      "q": "harm",
+      "t": "A benzodiazepine for his anxiety",
+      "fb": "Sedation can stop a breathless asthmatic breathing.",
+      "vit": {
+       "spo2": 85,
+       "rr": 16
+      }
+     }
+    ]
+   },
+   {
+    "tag": "steroid",
+    "scene": "Which drug do you add now?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Oral prednisolone 37.5 to 50 mg now, then each morning for 5 to 10 days in total",
+      "fb": "Australian Asthma Handbook dose. A first attack still needs a steroid: it takes hours to work, so give it early."
+     },
+     {
+      "q": "poor",
+      "t": "No steroid: the pollen caused it and it will pass",
+      "fb": "The airway inflammation does not pass with the storm. Without a steroid he is likely to relapse."
+     }
+    ]
+   },
+   {
+    "tag": "home",
+    "scene": "Two hours later he speaks easily, SpO2 97% on air. He wants to go home. What does he need?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "A new asthma diagnosis on his record, a preventer with an inhaled steroid and a reliever, spacer technique checked, a written action plan, GP review in a few days, treatment for his hay fever, and advice to stay inside before and during spring storms",
+      "fb": "He is now a person with asthma. The National Asthma Council advises a preventer through the pollen season and a reliever on him at all times."
+     },
+     {
+      "q": "poor",
+      "t": "A salbutamol puffer only: it was a one-off storm",
+      "fb": "A reliever alone leaves the airway inflammation untreated, and the pollen season is not over."
+     },
+     {
+      "q": "poor",
+      "t": "An antihistamine for the hay fever and home",
+      "fb": "Hay fever treatment does not treat his asthma, and it is not known to prevent thunderstorm asthma."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You called it asthma, graded it severe and sent him home with a preventer and a plan.",
+   "mid": "He recovered, but a step was missed.",
+   "lo": "Review steps 1, 2, 3 and 5 of the Study Kit."
+  }
+ },
+ {
+  "id": "c20261117b",
+  "from": "c20261115a",
+  "title": "Good sats, still severe",
+  "where": "Emergency department, fast track",
+  "time": "18:30",
+  "blurb": "A student put in fast track because her SpO2 is 96% and she is talking. Tests that one severe feature is enough, and what a fast heart rate after salbutamol means.",
+  "intro": "Triage note: 19-year-old woman, asthma, 'talking in sentences, SpO2 96%, fast track'. When you see her, she is sitting forward and her neck is pulling with every breath.",
+  "vit": {
+   "hr": 112,
+   "sbp": 124,
+   "dbp": 76,
+   "spo2": 96,
+   "rr": 28
+  },
+  "facts": [
+   "19F; asthma, reliever most days, stopped her preventer months ago",
+   "Speaks in whole sentences, but clearly working hard",
+   "Tracheal tug and intercostal recession; widespread wheeze",
+   "SpO2 96% on air; alert"
+  ],
+  "decisions": [
+   {
+    "tag": "sev",
+    "scene": "She speaks in sentences and her SpO2 is 96%. How severe is this?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Severe: she is using her accessory muscles, with a tracheal tug and obvious distress. Any one severe feature is enough, even with good sats and sentences",
+      "fb": "Asthma Handbook: severe is any of these features; mild to moderate needs all of the mild features. Accessory muscles alone make it severe."
+     },
+     {
+      "q": "poor",
+      "t": "Mild to moderate: she speaks whole sentences and her SpO2 is over 94%",
+      "fb": "Those are two of the features, but her work of breathing is a severe feature. Grade by the worst feature, not the best ones."
+     },
+     {
+      "q": "ok",
+      "t": "Life-threatening: put out a MET call",
+      "fb": "She is alert, saturating and has good effort, so not life-threatening. Getting help is not wrong, but know the grades."
+     }
+    ]
+   },
+   {
+    "tag": "bd",
+    "scene": "What do you start?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Move her to an acute bed. Salbutamol 12 puffs (100 microg each) and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. No oxygen at 96%",
+      "fb": "Severe asthma gets the severe plan whatever the SpO2 (Asthma Handbook). Oxygen starts only under 92%.",
+      "vit": {
+       "hr": 118,
+       "spo2": 97,
+       "rr": 22
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Salbutamol 4 puffs and back to fast track",
+      "fb": "Underdosed for severe asthma, and fast track is the wrong place for her.",
+      "vit": {
+       "spo2": 94,
+       "rr": 30
+      }
+     },
+     {
+      "q": "poor",
+      "t": "High-flow oxygen by non-rebreather",
+      "fb": "She does not need oxygen at 96%. Bronchodilators are the treatment."
+     }
+    ]
+   },
+   {
+    "tag": "steroid",
+    "scene": "When do you give the steroid?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Now: oral prednisolone 37.5 to 50 mg, then each morning for 5 to 10 days in total",
+      "fb": "Australian Asthma Handbook dose. It takes hours to work, so it goes in with the first salbutamol."
+     },
+     {
+      "q": "poor",
+      "t": "Only if she is not better after the salbutamol",
+      "fb": "Waiting loses hours. Every severe attack gets a steroid early."
+     }
+    ]
+   },
+   {
+    "tag": "sev",
+    "scene": "One hour later: no tug, no recession, whole sentences, SpO2 97% on air. Her heart rate is 118 and her hands shake. What now?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "She is now mild to moderate. The fast heart rate and tremor are expected after high-dose salbutamol, not a sign of severity. Space out the salbutamol, keep observing her and reassess before any discharge",
+      "fb": "The Asthma Handbook grades severity by speech, work of breathing, SpO2 and conscious state, not by heart rate. Re-grade after treatment, then keep watching."
+     },
+     {
+      "q": "poor",
+      "t": "Her heart rate is still high, so she is still severe: call ICU",
+      "fb": "Tachycardia and tremor after salbutamol are side effects. Her work of breathing has settled."
+     },
+     {
+      "q": "poor",
+      "t": "She looks well: discharge her now",
+      "fb": "She was severe an hour ago. Observe her first and follow your ED discharge protocol."
+     }
+    ]
+   },
+   {
+    "tag": "home",
+    "scene": "Later that night she is ready to go. What does she leave with?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Restart a preventer with an inhaled steroid, check her spacer technique, finish the prednisolone course, a written action plan, and GP review within a few days",
+      "fb": "Reliever most days with no preventer is why this happened. Fix it before she leaves."
+     },
+     {
+      "q": "poor",
+      "t": "A new salbutamol puffer only",
+      "fb": "A reliever alone repeats the problem."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You looked past good sats and sentences, graded her severe, and read the heart rate right.",
+   "mid": "She recovered, but a step was missed. Review the severity grades.",
+   "lo": "Review steps 1, 2 and 5 of the Study Kit."
+  }
  }
 ];

@@ -87,6 +87,7 @@ window.RMO_ORDERS = [
   { id: 'paracet', c: 'Drugs', n: 'Paracetamol', s: 'panadol analgesia pain', doses: ['1 g oral'] },
   { id: 'ibup', c: 'Drugs', n: 'Ibuprofen', s: 'nsaid nurofen anti-inflammatory analgesia' },
   { id: 'stop_nsaid', c: 'Drugs', h: 'write', n: 'Cease NSAIDs and record the reaction', s: 'stop cease withhold ibuprofen nurofen nsaid allergy adverse reaction alert' },
+  { id: 'stop_bb', c: 'Drugs', h: 'write', n: 'Cease the beta-blocker (including eye drops) and record the reaction', s: 'stop cease withhold timolol eye drops beta blocker glaucoma adverse reaction alert' },
   { id: 'midaz', c: 'Drugs', n: 'Midazolam IV', s: 'sedation benzodiazepine' },
   { id: 'diaz', c: 'Drugs', n: 'Diazepam oral', s: 'benzodiazepine valium anxiety sedation' },
   { id: 'halo', c: 'Drugs', n: 'Haloperidol', s: 'antipsychotic sedation agitation' },

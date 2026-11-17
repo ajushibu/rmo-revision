@@ -7,6 +7,7 @@
    eMedSA ED handbook (furosemide 80 mg IV or usual dose IV; GTN sublingual then infusion; avoid morphine).
    heads: true = a discharge step: orders show under five fixed headings (see DH in ward.js).
    plan = the three fixed questions (call, monitor, review): best and ok are option keys (see PQ in ward.js); crit = a wrong call sends the patient down the worse path.
+   w20261117a: Asthma Handbook ED and primary care pages (severity, salbutamol, ipratropium, oxygen, prednisolone 37.5 to 50 mg for 5 to 10 days); timolol and asthma from Australian product information.
    Not verified against an Australian source: the GTN 400 microgram dose, naloxone in hypercapnia, NSAID-triggered asthma (standard teaching),
    the NIV pH threshold in your hospital, and the 40 mg furosemide option. */
 window.WARD = {
@@ -316,6 +317,118 @@ window.WARD = {
       }
     ],
     debrief: 'Sit up, oxygen, stop the fluids, IV furosemide and GTN, and call for help early. Morphine and more fluid make it worse.'
+  },
+  {
+    id: 'w20261117a', title: 'Wheezy after the new eye drops', time: '21:50', where: 'Orthopaedic ward',
+    blurb: 'A woman waiting for wrist surgery, wheezy and speaking in phrases, a week after starting glaucoma drops. Tests severe asthma orders, the hidden trigger, and discharge.',
+    intro: '58-year-old woman, admitted this afternoon with a wrist fracture, for surgery tomorrow. Asthma, uses a preventer on and off. The nurse calls: she has been wheezy all evening and now speaks in short phrases. She brought her own eye drops from home.',
+    vit: { hr: 104, sbp: 146, dbp: 88, spo2: 90, rr: 28 },
+    facts: ['58F, wrist fracture, surgery planned tomorrow', 'Asthma; preventer on and off', 'Speaks in short phrases, using neck muscles', 'Widespread wheeze, SpO2 90% on air', 'Own medicines: timolol 0.5% eye drops, started by her eye specialist a week ago for glaucoma; asthma worse since'],
+    steps: [
+      {
+        label: 'First 15 minutes', tag: 'as-first', time: '21:50', window: 'Now: the first 15 minutes',
+        scene: 'Upright, neck muscles working, four or five words per breath, SpO2 90% on air. What do you order now?',
+        first: ['salb_mdi', 'salb_neb', 'o2'], firstWhy: 'Bronchodilator and oxygen go in together in the first minutes.',
+        plan: {
+          call: { best: ['reg'], ok: ['met', 'icu'], why: 'Severe asthma on a ward: tell your registrar now.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Continuous oximetry while she is severe.' },
+          review: { best: ['m20'], ok: ['m5'], why: 'Reassess after each round of salbutamol: the answer decides whether you escalate.' }
+        },
+        orders: {
+          salb_mdi: { q: 'need', d: [2], crit: true, alt: ['salb_neb'], why: 'Severe asthma (cannot finish a sentence, accessory muscles, SpO2 94% or below): 12 puffs by spacer every 20 minutes in the first hour (Asthma Handbook).' },
+          salb_neb: { q: 'good', d: [1, 3], why: 'A 5 mg nebule is the alternative if she cannot use a spacer (Asthma Handbook).' },
+          ipra_mdi: { q: 'need', d: [1], alt: ['ipra_neb'], why: 'Severe asthma: ipratropium 8 puffs every 20 minutes for the first hour (Asthma Handbook).' },
+          ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms in the nebuliser is the alternative to puffs.' },
+          o2: { q: 'need', d: [1], harmDose: [], why: 'SpO2 under 92%: oxygen to 92 to 96% (Asthma Handbook, TSANZ). She is not a CO2 retainer, so 88 to 92% is too low.' },
+          pred: { q: 'need', d: [2], why: 'Oral prednisolone early: 37.5 to 50 mg (Asthma Handbook). It takes hours to work.' },
+          drugchart: { q: 'need', why: 'Check every medicine, including the ones she brought from home. The timolol drops are the likely trigger.' },
+          stop_bb: { q: 'need', why: 'Timolol is a beta-blocker, and drops reach the bloodstream. Australian product information lists asthma as a contraindication. Stop them and record the reaction.' },
+          pef: { q: 'good', why: 'A peak flow, if she can manage it, gives you a number to follow.' },
+          cxr: { q: 'skip', why: 'Not routine in asthma. Only if you suspect a pneumothorax or pneumonia.' },
+          abg: { q: 'skip', why: 'Not needed while she is talking and alert. A gas matters if she tires.' },
+          ddimer: { q: 'skip', why: 'Widespread wheeze with a clear trigger is asthma, not PE.' },
+          ctpa: { q: 'skip', why: 'Widespread wheeze with a clear trigger is asthma, not PE.' },
+          amox: { q: 'skip', why: 'No sign of bacterial infection.' }, ceftri: { q: 'skip', why: 'No sign of bacterial infection.' },
+          metop: { q: 'harm', why: 'Another beta-blocker will worsen the bronchospasm.' },
+          morph: { q: 'harm', why: 'Opioids can tip a tiring asthmatic into respiratory arrest.' },
+          midaz: { q: 'harm', why: 'Never sedate a breathless asthmatic.' }, diaz: { q: 'harm', why: 'Never sedate a breathless asthmatic.' }
+        },
+        ok: { text: 'Twenty minutes and one round later she speaks in short sentences. SpO2 95% on 2 L prongs. Still wheezy.', vit: { hr: 112, spo2: 95, rr: 24 } },
+        miss: { text: 'Twenty minutes on she can only manage single words. She looks tired and her chest is getting quieter.', vit: { hr: 128, spo2: 87, rr: 34 }, facts: ['Single words, drowsy, quieter chest'] }
+      },
+      {
+        label: 'The first hour', tag: 'as-hour', time: '22:50', window: 'One hour in',
+        scene: 'After three rounds: short sentences, still wheezy, SpO2 95% on 2 L. Her wrist hurts (6/10), she is anxious and cannot sleep, and the nurse asks about tomorrow\'s surgery.',
+        plan: {
+          call: { best: ['reg'], ok: ['none'], why: 'Improving but still severe: update your registrar.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Keep the oximeter on overnight.' },
+          review: { best: ['m20'], ok: ['h1'], why: 'Keep reassessing, spacing it out as she improves. If she is not improving after the first hour, ICU is the next call.' }
+        },
+        orders: {
+          paracet: { q: 'need', d: [0], why: 'Paracetamol is the safe first choice for her pain tonight.' },
+          team: { q: 'need', why: 'Tell the orthopaedic and anaesthetic teams tonight: surgery tomorrow depends on how her asthma settles.' },
+          salb_mdi: { q: 'good', why: 'Keep salbutamol going, spacing it out as she improves.' },
+          salb_neb: { q: 'good', why: 'Keep a bronchodilator going, spacing it out as she improves.' },
+          pef: { q: 'good', why: 'A peak flow gives you a number to follow.' },
+          uec: { q: 'good', why: 'Repeated salbutamol can lower the potassium; a check is reasonable.' },
+          mgso4: { q: 'skip', why: 'For severe attacks not responding, and a senior decision. She is responding.' },
+          hydrocort: { q: 'skip', why: 'She can swallow: oral prednisolone works as well.' },
+          cxr: { q: 'skip', why: 'Still not needed: improving, no focal signs.' },
+          morph: { q: 'skip', why: 'Avoid opioids while she is still wheezy; paracetamol first.' },
+          oxyc: { q: 'skip', why: 'Avoid opioids while she is still wheezy; paracetamol first.' },
+          ibup: { q: 'skip', why: 'Not tonight: some adults with asthma react to NSAIDs, and she is still wheezy.' },
+          diaz: { q: 'harm', why: 'Never sedate a breathless asthmatic, even to help her sleep.' }, midaz: { q: 'harm', why: 'Never sedate a breathless asthmatic.' },
+          metop: { q: 'harm', why: 'Beta-blockers worsen bronchospasm.' },
+          dc_now: { q: 'harm', why: 'Still severe. Not tonight.' }
+        },
+        ok: { text: 'By morning she speaks in full sentences, SpO2 96% on air. Surgery is moved to the next day.', vit: { hr: 94, spo2: 96, rr: 18 } },
+        alt: {
+          label: 'Life-threatening', tag: 'as-life', time: '22:10', window: 'Now: she is getting worse',
+          scene: 'Single words, drowsy, quiet chest. SpO2 87% on 2 L. HR 128. What do you order now?',
+          first: ['call', 'salb_neb'], firstWhy: 'Call for help and start continuous nebulisers at once.',
+          plan: {
+            call: { best: ['met'], ok: ['icu'], crit: true, why: 'Drowsy with a quiet chest is life-threatening asthma: MET call or ICU now.' },
+            monitor: { best: ['spo2ecg'], ok: ['spo2'], why: 'Continuous SpO2 and ECG: she is life-threatening and on high-dose salbutamol.' },
+            review: { best: ['m5'], ok: [], why: 'Stay with her and reassess every few minutes.' }
+          },
+          orders: {
+            salb_neb: { q: 'need', d: [3], crit: true, why: 'Life-threatening: continuous nebulised salbutamol, 2 x 5 mg nebules, oxygen-driven (Asthma Handbook).' },
+            ipra_neb: { q: 'need', d: [1], why: 'With ipratropium 500 micrograms every 20 minutes for the first hour (Asthma Handbook).' },
+            o2: { q: 'need', d: [1], why: 'Oxygen to 92 to 96%.' },
+            vbg: { q: 'good', alt: ['abg'], why: 'A gas now: a normal or rising CO2 means she is tiring.' }, abg: { q: 'good', why: 'A gas now: a normal or rising CO2 means she is tiring.' },
+            mgso4: { q: 'good', why: 'IV magnesium is reasonable here, as a senior or ICU decision (dose per protocol).' },
+            hydrocort: { q: 'good', d: [0], why: 'IV steroid if she cannot swallow.' },
+            stop_bb: { q: 'good', why: 'Make sure no more timolol goes in.' },
+            midaz: { q: 'harm', why: 'Sedation can stop her breathing.' }, morph: { q: 'harm', why: 'Opioids can stop her breathing.' },
+            cxr: { q: 'skip', why: 'Not now, unless one side is silent (pneumothorax).' }
+          },
+          ok: { text: 'ICU arrive in five minutes. With continuous nebulisers she improves slowly and spends the night in HDU.', vit: { hr: 112, spo2: 94, rr: 24 } },
+          miss: { text: 'At 22:30 she stops breathing. ICU intubate her on the ward.', vit: { hr: 136, spo2: 78, rr: 6 } }
+        }
+      },
+      {
+        label: 'Going home', tag: 'as-dc', heads: true, time: '10:00', window: 'Day 4: after the wrist surgery',
+        scene: 'Day 4. Wrist fixed, off oxygen, wheeze gone, peak flow near her best. She goes home this afternoon. What goes in the plan?',
+        plan: {
+          call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: she is well.' },
+          monitor: { best: ['routine'], ok: [], why: 'Routine observations are enough now.' },
+          review: { best: ['am'], ok: ['h4'], why: 'A routine review before she leaves is enough.' }
+        },
+        orders: {
+          ics: { q: 'need', why: 'A preventer with an inhaled steroid, taken every day, not on and off.' },
+          aap: { q: 'need', why: 'A written asthma action plan.' },
+          gp: { q: 'need', why: 'GP review within a few days.' },
+          pred_home: { q: 'need', why: 'Finish the prednisolone course, 5 to 10 days in total (Asthma Handbook), with a written stop date.' },
+          stop_bb: { q: 'need', why: 'Timolol stays stopped: put the reaction on her alert list and in the discharge summary, and tell her eye specialist so they can choose another glaucoma drop.' },
+          technique: { q: 'good', why: 'Check her spacer technique before she leaves.' },
+          vacc: { q: 'good', why: 'Influenza vaccine if not up to date.' },
+          homeneb: { q: 'skip', why: 'A spacer works as well; home nebulisers are not needed.' },
+          amox: { q: 'skip', why: 'No infection.' }, cxr: { q: 'skip', why: 'Not needed.' }
+        },
+        ok: { text: 'She goes home with a daily preventer, an action plan, a stop date for the prednisolone, and a letter to her eye specialist.' }
+      }
+    ],
+    debrief: 'Severe asthma orders first, every medicine checked including eye drops, the surgical team told, and a daily preventer and a letter to the eye specialist before she goes home.'
   }
   ]
 };

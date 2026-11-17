@@ -464,5 +464,148 @@ window.RMO_CASES = [
    "mid": "She improved, but a step kept the cause going.",
    "lo": "Review steps 2 and 4 of the Study Kit."
   }
+ },
+ {
+  "id": "c20261117c",
+  "from": "c2",
+  "title": "Wheezy on the renal ward",
+  "where": "Renal ward",
+  "time": "04:10",
+  "blurb": "A man with kidney disease and heart failure, on IV fluids for a day and a half, now wheezy. The salbutamol did nothing. Tests cardiac wheeze, CPAP, stopping the fluids, and when the kidney cannot help.",
+  "intro": "Nurse call: 72-year-old man with chronic kidney disease and heart failure, admitted with an AKI after two days of vomiting. On 0.9% saline 125 mL an hour since yesterday afternoon; the vomiting stopped yesterday. Now breathless and wheezy. 'I gave him a salbutamol neb, it didn't help.'",
+  "vit": {
+   "hr": 112,
+   "sbp": 176,
+   "dbp": 96,
+   "spo2": 87,
+   "rr": 32
+  },
+  "facts": [
+   "72M; CKD and heart failure (reduced EF)",
+   "IV saline for 36 hours; vomiting stopped yesterday",
+   "Wheeze and crackles to the mid-zones; cannot lie flat",
+   "JVP raised, sacral oedema; weight up 3 kg since admission",
+   "Urine output 20 mL an hour for the last 4 hours"
+  ],
+  "decisions": [
+   {
+    "tag": "look",
+    "scene": "He is sitting bolt upright and gasping. First moves?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Call for help, sit him up, oxygen to bring the SpO2 up, monitoring, IV access, ECG",
+      "fb": "Treat the hypoxia now and get help while you work out the cause.",
+      "vit": {
+       "spo2": 90
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Another salbutamol neb and recheck in 30 minutes",
+      "fb": "The first one did nothing. Thirty minutes is too long to wait at SpO2 87%.",
+      "vit": {
+       "spo2": 84,
+       "rr": 36
+      }
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "What is your working diagnosis?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Acute pulmonary oedema from fluid overload, in a man whose kidneys and heart cannot clear it (cardiac wheeze)",
+      "fb": "Fluids, weight gain, raised JVP, crackles and a failed salbutamol neb all point here. Wheeze is not always asthma."
+     },
+     {
+      "q": "poor",
+      "t": "A COPD or asthma flare: nebulisers and steroids",
+      "fb": "He has no COPD or asthma, and the bronchodilator did nothing. Treat the cause."
+     },
+     {
+      "q": "poor",
+      "t": "Pneumonia: start antibiotics",
+      "fb": "No fever or focal signs, and the fluid story explains everything."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "On a non-rebreather he stays at 88% with a RR of 32. Next step?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "CPAP or NIV with your senior and ICU outreach, and IV furosemide as per your acute heart failure protocol (his CKD may need a bigger dose)",
+      "fb": "CPAP improves oxygenation and work of breathing in cardiogenic pulmonary oedema.",
+      "vit": {
+       "spo2": 94,
+       "rr": 24
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Change to nasal prongs and keep watching",
+      "fb": "He needs more support, not a weaker device.",
+      "vit": {
+       "spo2": 84
+      }
+     },
+     {
+      "q": "harm",
+      "t": "Morphine to ease his breathlessness",
+      "fb": "Not routinely recommended in pulmonary oedema, and it can depress his breathing.",
+      "vit": {
+       "spo2": 80,
+       "rr": 28
+      }
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "The day team charted the saline for his AKI. What do you do with it now?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Stop the IV fluids, chart a strict fluid balance and daily weights, and hand over that the AKI is no longer from dehydration",
+      "fb": "The fluid drove this. His vomiting stopped a day ago: he is now overloaded, not dry."
+     },
+     {
+      "q": "poor",
+      "t": "Keep the saline running for the kidneys and add furosemide on top",
+      "fb": "You would be pouring in what you are trying to remove. Stop the cause."
+     },
+     {
+      "q": "ok",
+      "t": "Halve the rate of the saline",
+      "fb": "Better, but he is overloaded: he needs none."
+     }
+    ]
+   },
+   {
+    "tag": "call",
+    "scene": "Two hours on CPAP and furosemide: 60 mL of urine, still needing CPAP. What next?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Call your senior and the renal registrar now: fluid overload that does not respond to diuretics in kidney failure may need urgent dialysis. Check his treatment limits",
+      "fb": "When the kidneys cannot pass the fluid, dialysis can remove it. This is a renal and senior decision, made early."
+     },
+     {
+      "q": "poor",
+      "t": "Repeat the furosemide in the morning and keep the CPAP on overnight",
+      "fb": "He is not responding and still on CPAP. Waiting until morning risks a tired, worse patient at 6 am."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You saw past the wheeze, stopped the fluids and called renal early.",
+   "mid": "He improved, but a step was missed.",
+   "lo": "Review steps 2, 4 and 5 of the Study Kit."
+  }
  }
 ];
