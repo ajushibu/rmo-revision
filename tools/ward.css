@@ -93,3 +93,26 @@
 .pstop[aria-pressed="true"] { border-color: var(--best); color: var(--best); }
 .po.carried { padding: 6px 8px 8px 12px; gap: 2px 8px; }
 .po.carried .pon { font-size: 15px; }
+/* running orders: keep or stop */
+.acth em { font-style: normal; font-size: 13px; font-weight: 650; color: var(--muted); margin-left: 6px; }
+.po.carried.need { border-color: var(--harm); box-shadow: 0 0 0 3px var(--harm-t); }
+.kseg { display: inline-flex; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.kseg button { min-height: 34px; min-width: 56px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.kseg button[data-dec="keep"][aria-pressed="true"] { background: #5FD39A; color: #0D1518; }
+.kseg button[data-dec="stop"][aria-pressed="true"] { background: #FF7A70; color: #0D1518; }
+/* cue rails */
+.hgrp.cue { align-items: center; margin-top: 10px; }
+.hgrp.cue.empty b { color: var(--muted); }
+.cueadd { min-height: 32px; padding: 0 12px; border: 1px dashed var(--line); border-radius: 999px; background: none; color: var(--ink); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.cueadd[aria-pressed="true"] { border-style: solid; border-color: var(--ink); }
+.scopechip { display: inline-flex; align-items: center; gap: 2px; margin-left: 8px; padding: 0 4px 0 10px; border-radius: 999px; background: var(--n-tint); font-size: 13px; font-weight: 650; }
+.scopechip[hidden] { display: none; }
+.scopechip button { min-width: 28px; min-height: 28px; border: 0; background: none; color: var(--muted); font: inherit; font-size: 16px; cursor: pointer; }
+/* plan answers kept from the last step */
+.pkept { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.pkept span { color: var(--muted); }
+.pkept b { flex: 1; }
+/* short results */
+.rall { margin: 14px 0 4px; }
+.rall summary { min-height: 44px; display: flex; align-items: center; font-weight: 650; cursor: pointer; color: var(--muted); }
+.kmore { font-size: 13px; margin: 6px 0 0; }
