@@ -538,7 +538,7 @@
     var list = TOP.filter(function (t) { return t.system === id; });
     var h = '<a class="back" href="#/topics">Topics</a><header class="head"><h1>' + esc(s.name) + '</h1><p class="meta">' + plural(list.length, 'topic', 'topics') + '</p></header><ul class="list cols">' + list.map(function (t) {
       var st = S.topics[t.id] || {}, its = topicItems(t.id), d = topicDueCount(t.id), rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
-      var sub = ['Plan day ' + t.day];
+      var sub = [];
       if (its.length) sub.push(rated + ' of ' + its.length + ' rated');
       if (t.tools.length) sub.push(plural(t.tools.length, 'tool', 'tools'));
       var right = d ? '<span class="tag due">' + d + ' due</span>' : st.studied ? '<span class="tag good">Studied</span>' : '';
@@ -593,7 +593,7 @@
     var t = byId(id); if (!t) return notFound();
     var s = sysById(t.system), st = ts(t.id), dy = D.days[t.day] || {}, its = topicItems(t.id);
     var rated = its.filter(function (x) { return itState(x.it.id).k !== 'new'; }).length;
-    var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (t.day ? 'Plan day ' + t.day : '') + (its.length ? (t.day ? '. ' : '') + rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
+    var h = '<a class="back" href="#/s/' + t.system + '">' + esc(s.name) + '</a><header class="head"><h1>' + esc(t.name) + '</h1><p class="meta">' + (its.length ? rated + ' of ' + its.length + ' recall items rated' : '') + '</p></header>';
     h += '<div class="tgrid">';
     if (t.tools.length) h += '<section class="tg-tools"><h2>Study tools</h2><div class="tools">' + t.tools.map(function (x, i) { return '<a href="#/tool/' + t.id + '/' + i + '"><span class="tr"><b>' + esc(x.label) + '</b>' + toolBadge(t, x) + '</span><span>' + esc(x.desc) + '</span></a>'; }).join('') + '</div></section>';
     h += '<div class="tg-main">';
