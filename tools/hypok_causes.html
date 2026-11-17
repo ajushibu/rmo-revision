@@ -56,6 +56,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 .band { border-radius: 12px; padding: 12px 14px; background: var(--n-tint); font-weight: 600; }
 .band.mid { background: var(--diff-t); } .band.hi { background: var(--a-tint); }
 .why { margin: 0; max-width: 62ch; }
+.dwhy { margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.4; background: var(--n-tint); }
+.dwhy b { font-weight: 750; margin-right: 4px; }
+.dwhy.up b { color: var(--a-fill); } .dwhy.down b { color: var(--b-fill); }
 .cap { margin: 0; padding: 10px 14px; border-left: 4px solid var(--b-fill); background: var(--b-tint); border-radius: 4px 12px 12px 4px; font-size: 15px; }
 
 /* sort game */
@@ -111,8 +114,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
   </div>
   <div class="card">
     <div class="dials">
-      <div class="dial"><label for="dAld">Aldosterone <span id="vAld"></span></label><input id="dAld" type="range" min="0" max="100" value="30"><small>Pulls sodium into the cell. Raised by low volume, or by a tumour.</small></div>
-      <div class="dial"><label for="dDel">Sodium reaching this spot <span id="vDel"></span></label><input id="dDel" type="range" min="0" max="100" value="30"><small>Raised by diuretics, bicarbonate in the urine, or a salt-heavy kidney.</small></div>
+      <div class="dial"><p class="dwhy" id="wAld" hidden></p><label for="dAld">Aldosterone <span id="vAld"></span></label><input id="dAld" type="range" min="0" max="100" value="30"><small>Pulls sodium into the cell. Raised by low volume, or by a tumour.</small></div>
+      <div class="dial"><p class="dwhy" id="wDel" hidden></p><label for="dDel">Sodium reaching this spot <span id="vDel"></span></label><input id="dDel" type="range" min="0" max="100" value="30"><small>Raised by diuretics, bicarbonate in the urine, or a salt-heavy kidney.</small></div>
     </div>
     <p class="hint" style="margin-top:12px">Or start from a patient:</p>
     <div class="chips" id="presets"></div>
@@ -170,12 +173,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 
   /* ---------- kidney lab ---------- */
   var PRE = [
-    { id: 'normal', n: 'Normal day', a: 30, d: 30, c: 'A normal day: some aldosterone, some sodium. A small, steady potassium loss that balances what you eat.' },
-    { id: 'dehyd', n: 'Dehydrated', a: 90, d: 10, c: 'Low volume makes aldosterone high, but the kidney holds on to sodium earlier on, so very little sodium reaches this spot. Aldosterone has little to work on, so potassium loss stays near normal.' },
-    { id: 'salt', n: 'Big salt load', a: 10, d: 90, c: 'Lots of sodium arrives, but aldosterone is switched off, so little is pulled in and little potassium is swapped out. One dial alone gives little.' },
-    { id: 'furo', n: 'On furosemide', a: 80, d: 85, c: 'The diuretic blocks sodium uptake earlier in the nephron, so a lot of sodium arrives. The volume loss then raises aldosterone. Both dials are up, so potassium is lost.' },
-    { id: 'conn', n: 'Conn syndrome', a: 95, d: 65, c: 'Aldosterone is high on its own. It makes the body keep salt and water, so the volume rises, the early tubule takes back less sodium, and more reaches this spot. Both dials up, with high blood pressure.' },
-    { id: 'vomit', n: 'Vomiting', a: 75, d: 70, c: 'The vomit itself has little potassium. The alkalosis puts bicarbonate (carrying sodium) into the late tubule, and the volume loss raises aldosterone. Both dials up, so the kidney loses the potassium.' }
+    { id: 'normal', aw: null, dw: null, n: 'Normal day', a: 30, d: 30, c: 'A normal day: some aldosterone, some sodium. A small, steady potassium loss that balances what you eat.' },
+    { id: 'dehyd', aw: ["up", "Low body water makes the kidney release aldosterone, to hold on to sodium."], dw: ["down", "The early tubule has already taken back most of the sodium, so little reaches this spot."], n: 'Dehydrated', a: 90, d: 10, c: 'Low volume makes aldosterone high, but the kidney holds on to sodium earlier on, so very little sodium reaches this spot. Aldosterone has little to work on, so potassium loss stays near normal.' },
+    { id: 'salt', aw: ["down", "Plenty of salt and water in the body, so there is no signal to release aldosterone."], dw: ["up", "Extra salt is filtered and the early tubule cannot take all of it back, so more reaches this spot."], n: 'Big salt load', a: 10, d: 90, c: 'Lots of sodium arrives, but aldosterone is switched off, so little is pulled in and little potassium is swapped out. One dial alone gives little.' },
+    { id: 'furo', aw: ["up", "The diuretic makes you lose salt and water. The low volume signals the body to release aldosterone."], dw: ["up", "Furosemide blocks sodium uptake earlier in the nephron, so the sodium passes on to this spot."], n: 'On furosemide', a: 80, d: 85, c: 'The diuretic blocks sodium uptake earlier in the nephron, so a lot of sodium arrives. The volume loss then raises aldosterone. Both dials are up, so potassium is lost.' },
+    { id: 'conn', aw: ["up", "A tumour (or both adrenals) makes aldosterone on its own, whatever the volume."], dw: ["up", "Aldosterone makes the body hold salt and water, so the volume rises and the early tubule takes back less sodium. More passes on."], n: 'Conn syndrome', a: 95, d: 65, c: 'Aldosterone is high on its own. It makes the body keep salt and water, so the volume rises, the early tubule takes back less sodium, and more reaches this spot. Both dials up, with high blood pressure.' },
+    { id: 'vomit', aw: ["up", "Vomiting loses fluid, the volume falls, and the body releases aldosterone."], dw: ["up", "The loss of stomach acid leaves an alkalosis. More bicarbonate is filtered than the early tubule can take back, and it carries sodium with it."], n: 'Vomiting', a: 75, d: 70, c: 'The vomit itself has little potassium. The alkalosis puts bicarbonate (carrying sodium) into the late tubule, and the volume loss raises aldosterone. Both dials up, so the kidney loses the potassium.' }
   ];
   var aldIn = $('#dAld'), delIn = $('#dDel'), aldV = 30, delV = 30, usedPreset = null;
   function word(v) { return v < 20 ? 'low' : v < 45 ? 'normal' : v < 70 ? 'raised' : 'high'; }
@@ -199,11 +202,19 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
     $('#why').textContent = explain(L);
     $$('#presets .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-p') === usedPreset)); });
     var cap = $('#cap'), p = PRE.filter(function (x) { return x.id === usedPreset; })[0];
+    showWhy('wAld', p && p.aw); showWhy('wDel', p && p.dw);
     cap.hidden = !p; if (p) cap.textContent = p.c;
   }
-  function setDials(a, d, preset) { aldV = a; delV = d; aldIn.value = a; delIn.value = d; usedPreset = preset || null; updateOut(); warm(); }
-  aldIn.addEventListener('input', function () { aldV = +aldIn.value; usedPreset = null; updateOut(); warm(); });
-  delIn.addEventListener('input', function () { delV = +delIn.value; usedPreset = null; updateOut(); warm(); });
+  function showWhy(id, w) { var e = $('#' + id); e.hidden = !w; if (!w) return; e.className = 'dwhy ' + w[0]; e.innerHTML = '<b>' + (w[0] === 'up' ? '\u2191 Why it goes up:' : '\u2193 Why it goes down:') + '</b>' + esc(w[1]); }
+  var tw = 0;
+  function setDials(a, d, preset) {
+    usedPreset = preset || null; cancelAnimationFrame(tw);
+    if (reduce) { aldV = a; delV = d; aldIn.value = a; delIn.value = d; updateOut(); warm(); return; }
+    var a0 = aldV, d0 = delV, t0 = performance.now(), DUR = 900;
+    (function f(now) { var k = Math.min(1, (now - t0) / DUR), e = 1 - Math.pow(1 - k, 3); aldV = Math.round(a0 + (a - a0) * e); delV = Math.round(d0 + (d - d0) * e); aldIn.value = aldV; delIn.value = delV; updateOut(); warm(); if (k < 1) tw = requestAnimationFrame(f); })(t0);
+  }
+  aldIn.addEventListener('input', function () { cancelAnimationFrame(tw); aldV = +aldIn.value; usedPreset = null; updateOut(); warm(); });
+  delIn.addEventListener('input', function () { cancelAnimationFrame(tw); delV = +delIn.value; usedPreset = null; updateOut(); warm(); });
   $('#presets').addEventListener('click', function (e) { var b = e.target.closest('[data-p]'); if (!b) return; var p = PRE.filter(function (x) { return x.id === b.getAttribute('data-p'); })[0]; setDials(p.a, p.d, p.id); });
   $('#toSort').addEventListener('click', function () { showTab('sort'); });
 
