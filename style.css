@@ -407,3 +407,11 @@ html.kbd .kh { display: inline-block; }
 .ctxblock { margin: 8px 0 4px; }
 .ctxbtns { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
 .ctxline small { color: var(--mut); }
+
+/* Recall answers: one idea per line */
+.kbody .kl { display: block; margin: 0 0 5px; padding-left: 1.1em; text-indent: -1.1em; line-height: 1.5; }
+.kbody .kl:first-child { padding-left: 0; text-indent: 0; }
+.kbody .kl b { font-weight: 650; }
+.kbody .ar { color: var(--muted); padding: 0 .12em; }
+.kbody .kn { color: var(--muted); font-size: .88em; margin-top: 8px; }
+.ans .kbody { max-width: 64ch; margin: 0 0 6px; }
