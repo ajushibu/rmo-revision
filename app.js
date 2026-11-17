@@ -23,11 +23,12 @@
   /* ---------- helpers ---------- */
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function kfmt(k) {
-    return String(k).split('\n').map(function (ln) {
-      var s = esc(ln), note = /^\(/.test(ln), m = !note && /^([^:→(]{2,34}):(\s|$)/.exec(ln);
+    var lines = String(k).split('\n'), many = lines.length >= 3;
+    return lines.map(function (ln) {
+      var s = esc(ln), note = /^\(/.test(ln), m = !note && /^([^:→(]{2,34}):(\s|$)/.exec(ln), plain = !note && !m && ln.indexOf('→') < 0;
       if (m) s = '<b>' + esc(m[1]) + ':</b>' + esc(ln.slice(m[0].length - (m[2] ? 1 : 0)));
       s = s.replace(/→/g, '<span class="ar">→</span>');
-      return '<span class="kl' + (note ? ' kn' : '') + '">' + s + '</span>';
+      return '<span class="kl' + (note ? ' kn' : '') + (plain && many ? ' bl' : '') + '">' + s + '</span>';
     }).join('');
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }

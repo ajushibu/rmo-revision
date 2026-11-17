@@ -415,3 +415,5 @@ html.kbd .kh { display: inline-block; }
 .kbody .ar { color: var(--muted); padding: 0 .12em; }
 .kbody .kn { color: var(--muted); font-size: .88em; margin-top: 8px; }
 .ans .kbody { max-width: 64ch; margin: 0 0 6px; }
+.kbody .kl.bl, .kbody .kl.bl:first-child { padding-left: 1.2em; text-indent: -1.2em; }
+.kbody .kl.bl::before { content: "\2022"; display: inline-block; width: 1.2em; text-indent: 0; color: var(--muted); }
