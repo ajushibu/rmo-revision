@@ -218,14 +218,18 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
     <div class="two">
       <svg class="fig" id="gFig" viewBox="0 0 300 180" role="img" aria-label="A cell losing water to a sugary plasma"></svg>
       <div>
-        <div class="two" style="gap:10px">
-          <div class="dial"><label for="gNa">Lab sodium <span>mmol/L</span></label><input id="gNa" type="number" inputmode="decimal" min="100" max="160" value="128" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
-          <div class="dial"><label for="gGl">Glucose <span>mmol/L</span></label><input id="gGl" type="number" inputmode="decimal" min="1" max="80" step="0.1" value="22" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
-        </div>
-        <div class="nums" style="margin-top:12px"><div><b id="gCor"></b><span>Corrected sodium (mmol/L)</span></div></div>
-        <p class="hint" id="gEq" style="margin-top:8px"></p>
+        <div class="dial"><label for="gSl">Sugar in the blood <span id="vG"></span></label><input id="gSl" type="range" min="5" max="50" step="1" value="22"><small>Normal is about 5. Try 22, then 44.</small></div>
+        <div class="chips" id="gPre" style="margin:8px 0 12px"></div>
+        <div class="nums"><div><b id="gLab"></b><span>Sodium the lab reports</span></div><div><b id="gCor"></b><span>Real sodium (the body's sodium has not changed)</span></div></div>
       </div>
     </div>
+    <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:650;min-height:44px;display:flex;align-items:center">Correct a real result</summary>
+      <div class="two" style="gap:10px;margin-top:6px">
+        <div class="dial"><label for="gNa">Lab sodium <span>mmol/L</span></label><input id="gNa" type="number" inputmode="decimal" value="128" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
+        <div class="dial"><label for="gGl">Glucose <span>mmol/L</span></label><input id="gGl" type="number" inputmode="decimal" step="0.1" value="22" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
+      </div>
+      <p class="hint" id="gEq" style="margin-top:8px"></p>
+    </details>
     <h3 style="margin:16px 0 4px;font-size:17px">Osmolality is a count of every particle</h3>
     <p class="hint">Salt dots (blue) and sugar dots (amber) both count. Sugar dilutes the salt, but it adds dots of its own.</p>
     <svg class="fig" id="gDots" viewBox="0 0 360 190" style="max-height:230px" role="img" aria-label="Two glasses of blood with salt and sugar particles"></svg>
@@ -469,13 +473,14 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   $('#tPre').addEventListener('click', function (e) { var b = e.target.closest('[data-tp]'); if (!b) return; tFat.value = TP.filter(function (x) { return x.id === b.getAttribute('data-tp'); })[0].v; drawTube(); });
   $('#tMeth').addEventListener('click', function (e) { var b = e.target.closest('[data-tm]'); if (b) { tMeth = b.getAttribute('data-tm'); drawTube(); } });
 
-  var gNa = $('#gNa'), gGl = $('#gGl');
+  var gSl = $('#gSl'), gNa = $('#gNa'), gGl = $('#gGl');
+  var GP = [{ id: '5', n: 'Normal sugar', v: 5 }, { id: '22', n: 'High sugar', v: 22 }, { id: '44', n: 'Very high sugar', v: 44 }];
+  chips($('#gPre'), GP, 'gp');
+  var labNa = function (gl) { return 140 - Math.max(0, gl - 5.6) * (1.6 / 5.6); };
   function drawGluc() {
-    var na = parseFloat(gNa.value), gl = parseFloat(gGl.value);
-    if (isNaN(na) || isNaN(gl)) return;
-    var add = Math.max(0, gl - 5.6) * (1.6 / 5.6), cor = na + add;
-    $('#gCor').textContent = Math.round(cor);
-    $('#gEq').textContent = 'Corrected = ' + Math.round(na) + ' + 1.6 for every 5.6 mmol/L of glucose above 5.6 = ' + Math.round(na) + ' + ' + r1(add) + '. (Some people use 2.4 per 5.6 when the glucose is very high.)';
+    var gl = +gSl.value, na = labNa(gl);
+    $('#vG').textContent = gl + ' mmol/L'; $('#gLab').textContent = Math.round(na); $('#gCor').textContent = 140;
+    press('#gPre', 'gp', (GP.filter(function (x) { return x.v === gl; })[0] || {}).id);
     var shrink = Math.min(1, Math.max(0, (gl - 5.6) / 40)), r = 52 - shrink * 22;
     $('#gFig').innerHTML = '<rect x="0" y="0" width="300" height="180" fill="var(--n-tint)" opacity=".5"/>' +
       '<circle cx="90" cy="90" r="' + r.toFixed(1) + '" fill="var(--surface)" stroke="var(--b-fill)" stroke-width="4"/>' +
@@ -494,12 +499,20 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
     $('#gDots').innerHTML = glass(20, 'Normal blood', nb0, ng0) + glass(190, 'This patient', nb1, ng1);
     var dn = (nb1 + ng1) - (nb0 + ng0), lvl = dn <= -4 ? 'low' : dn >= 2 ? 'high' : 'normal', ob2 = $('#gOBand');
     ob2.className = 'band ' + (lvl === 'high' ? 'hi' : lvl === 'normal' ? 'mid' : '');
-    ob2.textContent = lvl === 'low' ? 'Fewer dots than normal: the blood is watered down. This is a true low sodium as well.' : lvl === 'normal' ? 'About the same number of dots: the blood is not watered down.' : 'More dots than normal: the blood is concentrated, so the osmolality is high.';
+    ob2.textContent = lvl === 'low' ? 'Fewer dots than normal: the blood is watered down.' : lvl === 'normal' ? 'About the same number of dots: the blood is not watered down.' : 'More dots than normal: the blood is concentrated, so the osmolality is high.';
     var b = $('#gBand');
-    if (cor >= 135) { b.className = 'band'; b.textContent = 'Corrected sodium is normal. The low reading was the dilution from the glucose. Treat the high glucose; the sodium returns as the water moves back.'; }
-    else { b.className = 'band mid'; b.textContent = 'Even corrected, the sodium is low, so there is a true hyponatraemia as well as the sugar. Work it up as for true hyponatraemia.'; }
+    if (na >= 135) { b.className = 'band'; b.textContent = 'The lab sodium looks normal at this sugar level.'; }
+    else { b.className = 'band mid'; b.textContent = 'The lab says low (' + Math.round(na) + ') but the real sodium is 140. The sugar has diluted it. Treat the sugar and the sodium comes back as the water returns to the cells.'; }
   }
-  gNa.addEventListener('input', drawGluc); gGl.addEventListener('input', drawGluc);
+  function fixReal() {
+    var na = parseFloat(gNa.value), gl = parseFloat(gGl.value);
+    if (isNaN(na) || isNaN(gl)) { $('#gEq').textContent = ''; return; }
+    var add = Math.max(0, gl - 5.6) * (1.6 / 5.6);
+    $('#gEq').textContent = 'Corrected sodium = ' + Math.round(na) + ' + ' + r1(add) + ' = ' + Math.round(na + add) + ' mmol/L. (Add 1.6 for every 5.6 mmol/L of glucose above 5.6. Some people use 2.4 when the glucose is very high.)' + (na + add < 135 ? ' Still low: a true low sodium as well.' : '');
+  }
+  gSl.addEventListener('input', drawGluc);
+  $('#gPre').addEventListener('click', function (e) { var b = e.target.closest('[data-gp]'); if (!b) return; gSl.value = GP.filter(function (x) { return x.id === b.getAttribute('data-gp'); })[0].v; drawGluc(); });
+  gNa.addEventListener('input', fixReal); gGl.addEventListener('input', fixReal);
 
   /* ================= 4. diagnosis game ================= */
   var TESTS = [{ id: 'sosm', n: 'Serum osmolality' }, { id: 'glu', n: 'Glucose' }, { id: 'uosm', n: 'Urine osmolality' }, { id: 'vol', n: 'Examine volume status' }, { id: 'una', n: 'Urine sodium' }, { id: 'endo', n: 'TSH and cortisol' }];
@@ -586,7 +599,7 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   ].map(function (x) { return '<li>' + x + '</li>'; }).join('');
 
   /* ---------- start ---------- */
-  wSet(WP[0]); drawFluid(); drawCell(); drawTube(); drawGluc(); startGame(PTS);
+  wSet(WP[0]); drawFluid(); drawCell(); drawTube(); drawGluc(); fixReal(); startGame(PTS);
   var h = location.hash.slice(1); showTab(TABS.indexOf(h) >= 0 ? h : 'water');
 })();
 </script></body></html>
