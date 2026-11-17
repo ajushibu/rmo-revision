@@ -162,11 +162,9 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
     <div class="chips" id="wPre"></div>
   </div>
   <div class="card out">
-    <div class="bars">
-      <div class="bar"><div class="lab">Water in <span id="bIn"></span></div><div class="track"><i class="s-in" id="tIn"></i><i class="s-ret" id="tRet"></i></div></div>
-      <div class="bar"><div class="lab">Most that can go out <span id="bOut"></span></div><div class="track"><i class="s-uri" id="tUri"></i><i class="s-oth" id="tOth"></i><i class="s-room" id="tRoom"></i></div></div>
-    </div>
-    <div class="key"><span><i class="s-in"></i>Water drunk</span><span><i class="s-uri"></i>Urine (at most)</span><span><i class="s-oth"></i>Breath, sweat, stool (assumed 0.8 L)</span><span><i class="s-ret"></i>Water that stays in the body</span></div>
+    <p class="hint" style="margin:0">Left: the water you drink. Right: the most water the body can get rid of in a day. Anything above the dashed line has nowhere to go, so it stays and dilutes the sodium.</p>
+    <svg class="fig" id="wFig" viewBox="0 0 360 272" style="max-height:340px" role="img" aria-label="Water drunk compared with the most water the body can lose"></svg>
+    <p class="hint" id="wLeg" style="margin:0"></p>
     <div class="band" id="wBand"></div>
     <p class="why" id="wWhy"></p>
     <p class="cap" id="wCap" hidden></p>
@@ -308,10 +306,29 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
     var S = +wS.value, O = +wO.value, D = +wD.value, uri = S / O, out = uri + OTHER, ret = D - out;
     $('#vSol').textContent = S + ' mOsm'; $('#vOsm').textContent = O + ' mOsm/kg'; $('#vDr').textContent = r1(D) + ' L';
     $('#wForm').textContent = 'Most urine = solute ÷ concentration = ' + S + ' ÷ ' + O + ' = ' + fmt(uri) + ' L a day';
-    var scale = Math.max(D, out) * 1.04, w = function (x) { return Math.max(0, x / scale * 100) + '%'; };
-    $('#tIn').style.width = w(Math.min(D, out)); $('#tRet').style.width = w(Math.max(0, ret));
-    $('#tUri').style.width = w(uri); $('#tOth').style.width = w(OTHER); $('#tRoom').style.width = w(Math.max(0, out - D));
-    $('#bIn').textContent = r1(D) + ' L'; $('#bOut').textContent = r1(out) + ' L (urine ' + fmt(uri) + ' + other ' + r1(OTHER) + ')';
+    var m = Math.max(D, out, 1) * 1.12, HT = 190, y0 = 226, X1 = 22, X2 = 238, CW = 100;
+    function yy(v) { return y0 - v / m * HT; }
+    function lit(v) { return fmt(v) + ' L'; }
+    function rect(x, v0, v1, fill, extra) { return '<rect x="' + x + '" y="' + yy(v1).toFixed(1) + '" width="' + CW + '" height="' + Math.max(0, yy(v0) - yy(v1)).toFixed(1) + '" rx="5" fill="' + fill + '" ' + (extra || '') + '/>'; }
+    function inner(x, v0, v1, txt) { var h = yy(v0) - yy(v1); return h >= 20 ? '<text x="' + (x + CW / 2) + '" y="' + ((yy(v0) + yy(v1)) / 2 + 4).toFixed(1) + '" text-anchor="middle" style="fill:var(--bg);font-weight:700">' + txt + '</text>' : ''; }
+    var g = '', mid = (X1 + CW + X2) / 2;
+    g += rect(X1, 0, Math.min(D, out), 'var(--b-fill)') + inner(X1, 0, Math.min(D, out), 'passes out');
+    if (ret > 0.05) g += rect(X1, out, D, 'var(--a-fill)');
+    if (ret < -0.05) g += rect(X1, D, out, 'none', 'stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 5"');
+    g += rect(X2, 0, uri, 'var(--good)') + inner(X2, 0, uri, 'urine ' + lit(uri));
+    g += rect(X2, uri, out, 'var(--muted)', 'opacity=".65"') + inner(X2, uri, out, 'other ' + lit(OTHER));
+    g += '<line x1="' + (X1 - 10) + '" x2="' + (X2 + CW + 10) + '" y1="' + yy(out).toFixed(1) + '" y2="' + yy(out).toFixed(1) + '" stroke="var(--ink)" stroke-width="2" stroke-dasharray="7 5"/>';
+    g += '<text x="' + (X2 + CW / 2) + '" y="' + (yy(out) - 8).toFixed(1) + '" text-anchor="middle" style="font-weight:700">limit ' + lit(out) + '</text>';
+    if (ret > 0.05) {
+      var ry = yy(out) - 36;
+      g += '<text text-anchor="middle" x="' + mid + '" y="' + (ry - 8).toFixed(1) + '" style="font-weight:750;fill:var(--a-fill);font-size:15px">+' + lit(ret) + '</text><text text-anchor="middle" x="' + mid + '" y="' + (ry + 7).toFixed(1) + '">stays in</text><text text-anchor="middle" x="' + mid + '" y="' + (ry + 21).toFixed(1) + '">the body</text>';
+    } else if (ret < -0.3) {
+      g += '<text text-anchor="middle" x="' + mid + '" y="' + (((yy(D) + yy(out)) / 2) + 4).toFixed(1) + '" style="fill:var(--muted)">room for ' + lit(-ret) + ' more</text>';
+    }
+    g += '<text x="' + (X1 + CW / 2) + '" y="246" text-anchor="middle" style="font-weight:700">Water you drink</text><text x="' + (X1 + CW / 2) + '" y="262" text-anchor="middle" style="fill:var(--muted)">' + lit(D) + '</text>';
+    g += '<text x="' + (X2 + CW / 2) + '" y="246" text-anchor="middle" style="font-weight:700">Most the body can lose</text><text x="' + (X2 + CW / 2) + '" y="262" text-anchor="middle" style="fill:var(--muted)">' + lit(out) + '</text>';
+    $('#wFig').innerHTML = g;
+    $('#wLeg').textContent = 'Right column: the most urine the kidney can make (' + lit(uri) + ') plus about ' + lit(OTHER) + ' lost through breath, sweat and stool.';
     var band = $('#wBand'), why = $('#wWhy');
     if (ret > 0.15) {
       var na1 = 140 * TBW / (TBW + ret);
