@@ -123,6 +123,9 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
 .got { display: grid; gap: 6px; margin: 0 0 12px; }
 .got div { background: var(--n-tint); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
 .got b { font-weight: 700; }
+.pb { display: flex; height: 36px; border-radius: 8px; overflow: hidden; background: var(--n-tint); }
+.pb span { display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--bg); white-space: nowrap; overflow: hidden; min-width: 0; transition: width .25s; }
+.obars { display: grid; gap: 10px; margin: 8px 0; }
 .flow { display: grid; gap: 8px; }
 .flow .st { border-radius: 12px; padding: 10px 14px; background: var(--n-tint); }
 .flow .st b { display: block; }
@@ -211,7 +214,7 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   </div>
   <div class="card">
     <h2>B: a lot of sugar drags water out of the cells</h2>
-    <p class="hint">Glucose (or mannitol, or glycine) cannot get into cells. It holds water in the blood, which dilutes the sodium. The body's sodium has not changed. Here the serum osmolality is high, not low.</p>
+    <p class="hint">Glucose (or mannitol, or glycine) cannot get into cells. It holds water in the blood, which dilutes the sodium. The body's sodium has not changed. The serum osmolality can then be normal or high, not low. The picture below shows why.</p>
     <div class="two">
       <svg class="fig" id="gFig" viewBox="0 0 300 180" role="img" aria-label="A cell losing water to a sugary plasma"></svg>
       <div>
@@ -223,11 +226,17 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
         <p class="hint" id="gEq" style="margin-top:8px"></p>
       </div>
     </div>
+    <h3 style="margin:16px 0 4px;font-size:17px">Why can the osmolality be high when the sodium is low?</h3>
+    <p class="hint">Osmolality counts particles, whatever they are. Roughly: <b>2 × sodium + glucose + urea</b> (all mmol/L). The 2 is because every sodium comes with a partner ion. Sodium is normally almost all of the particles, so low sodium usually means dilute blood. Here the sugar adds particles as the sodium is diluted.</p>
+    <div class="obars" id="gOsm"></div>
+    <div class="key"><span><i style="background:var(--b-fill)"></i>Sodium and its partner ions (2 × Na)</span><span><i style="background:var(--diff)"></i>Glucose</span><span><i style="background:var(--muted)"></i>Urea (assumed 5)</span></div>
+    <div class="band" id="gOBand" style="margin-top:8px"></div>
+    <p class="why" id="gOWhy" style="margin-top:8px"></p>
     <div class="band" id="gBand"></div>
   </div>
   <div class="card g">
     <h3>The rule that sorts all of this</h3>
-    <p class="why">Send a serum osmolality. <b>Low</b> means the low sodium is real. <b>Normal</b> means pseudohyponatraemia (the machine). <b>High</b> means something is pulling water out of the cells (usually glucose).</p>
+    <p class="why">Send a serum osmolality. <b>Low</b> means the low sodium is real. <b>Normal</b> means pseudohyponatraemia (the machine). <b>High</b> means something is pulling water out of the cells (usually glucose). Osmolality is about 2 × sodium + glucose + urea, so check the glucose first.</p>
   </div>
 </section>
 
@@ -475,6 +484,13 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
       '<g fill="var(--diff)">' + Array.apply(null, Array(Math.round(3 + shrink * 30))).map(function (_, i) { return '<circle cx="' + (150 + ((i * 47) % 130)) + '" cy="' + (16 + ((i * 29) % 120)) + '" r="3"/>'; }).join('') + '</g>' +
       '<path d="M' + (96 + r).toFixed(0) + ' 90 L168 90 M160 82 L170 90 L160 98" stroke="var(--a-fill)" stroke-width="3" fill="none"/>' +
       '<text x="12" y="170" text-anchor="start">Sugar (dots) holds the water outside</text>';
+    var UR = 5, NNa = 140, NG = 5.6, nT = 2 * NNa + NG + UR, pT = 2 * na + gl + UR, sc = Math.max(nT, pT) * 1.03;
+    function ob(lab, n, g, tot) { function w(v) { return (v / sc * 100).toFixed(1) + '%'; } return '<div class="bar"><div class="lab">' + lab + '<span>' + Math.round(tot) + ' mOsm/kg</span></div><div class="pb"><span style="width:' + w(2 * n) + ';background:var(--b-fill)">sodium ' + Math.round(2 * n) + '</span><span style="width:' + w(g) + ';background:var(--diff)">' + (g / sc > 0.16 ? 'glucose ' + Math.round(g) : g / sc > 0.07 ? Math.round(g) : '') + '</span><span style="width:' + w(UR) + ';background:var(--muted)"></span></div></div>'; }
+    $('#gOsm').innerHTML = ob('Normal blood (Na 140, glucose 5.6)', NNa, NG, nT) + ob('This patient (Na ' + Math.round(na) + ', glucose ' + fmt(gl) + ')', na, gl, pT);
+    var ob2 = $('#gOBand'), dNa = 2 * (na - NNa), dGl = gl - NG, lvl = pT < 275 ? 'low' : pT <= 295 ? 'normal' : 'high';
+    ob2.className = 'band ' + (lvl === 'high' ? 'hi' : lvl === 'normal' ? 'mid' : '');
+    ob2.textContent = 'Osmolality about ' + Math.round(pT) + ': ' + lvl + '.';
+    $('#gOWhy').textContent = 'Against normal, the sodium part is down by ' + Math.round(-dNa) + ' (the water has diluted it) and the glucose part is up by ' + Math.round(dGl) + '. ' + (lvl === 'low' ? 'The glucose does not make up for the lost sodium, so the blood is dilute: this is a true low sodium as well.' : 'The glucose adds more particles than the sodium lost, so the blood is not dilute. Cells are not swelling, so a hyponatraemic brain swelling is not the danger, and hypertonic saline is not the treatment: treat the hyperglycaemia.');
     var b = $('#gBand');
     if (cor >= 135) { b.className = 'band'; b.textContent = 'Corrected sodium is normal. The low reading was the dilution from the glucose. Treat the high glucose; the sodium returns as the water moves back.'; }
     else { b.className = 'band mid'; b.textContent = 'Even corrected, the sodium is low, so there is a true hyponatraemia as well as the sugar. Work it up as for true hyponatraemia.'; }
@@ -485,7 +501,7 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   var TESTS = [{ id: 'sosm', n: 'Serum osmolality' }, { id: 'glu', n: 'Glucose' }, { id: 'uosm', n: 'Urine osmolality' }, { id: 'vol', n: 'Examine volume status' }, { id: 'una', n: 'Urine sodium' }, { id: 'endo', n: 'TSH and cortisol' }];
   var KINDS = [
     { id: 'pseudo', n: 'Fake: the machine', s: 'Normal osmolality' },
-    { id: 'factitious', n: 'Fake: sugar pulling water out', s: 'High osmolality' },
+    { id: 'factitious', n: 'Fake: sugar pulling water out', s: 'High osmolality: look for glucose' },
     { id: 'adind', n: 'Real, urine dilute', s: 'ADH off: too much water, too little solute' },
     { id: 'hypo', n: 'Real, dry', s: 'Low volume drives ADH' },
     { id: 'hyper', n: 'Real, wet', s: 'Low effective volume drives ADH' },
@@ -504,7 +520,7 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   //            serum osm, glucose, urine osm, volume, urine Na, TSH/cortisol
   var PTS = [
     { t: 'A 62-year-old man with myeloma has a routine sodium of 124. He feels well. His serum looks cloudy.', k: 'pseudo', r: ['288 mOsm/kg (normal)', '5.6 mmol/L', 'Not needed', 'Normal', 'Not needed', 'Normal'], w: 'The osmolality is normal, so the low sodium is the machine reading less water in a protein-rich sample. Nothing to fix in the sodium.' },
-    { t: 'A 55-year-old woman in the emergency department has a sodium of 126 and a thirst. She is drowsy.', k: 'factitious', r: ['318 mOsm/kg (high)', '34 mmol/L', 'Not needed', 'Dry', 'Not needed', 'Normal'], w: 'High osmolality and a glucose of 34: the sugar is holding water in the blood and diluting the sodium. The corrected sodium is about 135.' },
+    { t: 'A 55-year-old woman in the emergency department has a sodium of 126 and a thirst. She is drowsy.', k: 'factitious', r: ['302 mOsm/kg (high)', '44 mmol/L', 'Not needed', 'Dry', 'Not needed', 'Normal'], w: 'Serum osmolality is high because of the glucose: 2 \u00d7 126 (sodium) = 252, plus glucose 44, plus urea about 5 = about 301. The sugar is holding water in the blood and diluting the sodium; the corrected sodium is about 137. Look for the glucose whenever the osmolality is high.' },
     { t: 'A 78-year-old woman lives alone on tea and toast. Sodium 119, a little confused.', k: 'adind', r: ['248 mOsm/kg (low)', '5.4 mmol/L', '70 mOsm/kg (dilute)', 'Normal', '8 mmol/L', 'Normal'], w: 'Low serum osmolality, dilute urine: ADH is off. The diet has too little solute to carry the water out. She needs protein and solute, not just restriction.' },
     { t: 'A 48-year-old man drinks six beers a day and eats little. Sodium 117, nauseated.', k: 'adind', r: ['244 mOsm/kg (low)', '5.2 mmol/L', '80 mOsm/kg (dilute)', 'Normal', '9 mmol/L', 'Normal'], w: 'Beer potomania: a lot of water, almost no solute. The urine is dilute because ADH is off.' },
     { t: 'A 31-year-old woman with schizophrenia drinks all day. Sodium 122, headache.', k: 'adind', r: ['254 mOsm/kg (low)', '5.3 mmol/L', '60 mOsm/kg (dilute)', 'Normal', '15 mmol/L', 'Normal'], w: 'Compulsive drinking: the kidney is passing the most dilute urine it can, and she is still drinking more than that.' },
