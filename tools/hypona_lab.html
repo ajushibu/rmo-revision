@@ -1,0 +1,547 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Low sodium: water lab</title>
+<meta name="theme-color" content="#0D1518">
+<style>
+/* Layout: header, five tabs (water balance, which fluid, fake low sodium, diagnosis game, summary), one panel at a time. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: system-ui, -apple-system, "Segoe UI", sans-serif; --body: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, Menlo, monospace;
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; margin: 0;
+  padding-block: 22px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h3 { font-family: var(--display); font-size: 16px; margin: 0 0 4px; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 12px 14px; min-height: 44px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel[hidden] { display: none; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
+.btn { font: inherit; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; min-height: 44px; padding: 8px 14px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:disabled { opacity: .5; cursor: default; }
+.hint { color: var(--muted); font-size: 14px; margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+
+/* kidney lab */
+#lab { display: block; width: 100%; height: 230px; border-radius: 12px; background: var(--n-tint); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.dials { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+@media (max-width: 640px) { .dials { grid-template-columns: 1fr; } }
+.dial label { display: flex; justify-content: space-between; font-weight: 650; }
+.dial label span { font-weight: 600; color: var(--muted); }
+.dial input { width: 100%; height: 44px; accent-color: var(--ink); margin: 2px 0 0; }
+.dial small { color: var(--muted); font-size: 13px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; min-height: 40px; padding: 4px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.out { display: grid; gap: 8px; }
+.out .big { font-size: 28px; font-weight: 750; letter-spacing: -.02em; }
+.meter { height: 12px; border-radius: 6px; background: var(--n-tint); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--a-fill); transition: width .25s; }
+.band { border-radius: 12px; padding: 12px 14px; background: var(--n-tint); font-weight: 600; }
+.band.mid { background: var(--diff-t); } .band.hi { background: var(--a-tint); }
+.why { margin: 0; max-width: 62ch; }
+.dwhy { margin: 0 0 6px; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.4; background: var(--n-tint); }
+.dwhy b { font-weight: 750; margin-right: 4px; }
+.dwhy.up b { color: var(--a-fill); } .dwhy.down b { color: var(--b-fill); }
+.cap { margin: 0; padding: 10px 14px; border-left: 4px solid var(--b-fill); background: var(--b-tint); border-radius: 4px 12px 12px 4px; font-size: 15px; }
+
+/* sort game */
+.pips { display: flex; gap: 4px; flex-wrap: wrap; }
+.pips i { width: 18px; height: 5px; border-radius: 3px; background: var(--line); }
+.pips i.now { background: var(--ink); } .pips i.ok { background: var(--good); } .pips i.no { background: var(--a-fill); }
+.scene { font-size: 19px; font-weight: 600; line-height: 1.4; margin: 6px 0 14px; text-wrap: pretty; max-width: 56ch; }
+.buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .buckets { grid-template-columns: 1fr; } }
+.bk { text-align: left; font: inherit; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; padding: 12px 14px; min-height: 64px; cursor: pointer; }
+.bk b { display: block; font-size: 16px; }
+.bk span { display: block; font-size: 13px; color: var(--muted); }
+.bk:disabled { cursor: default; opacity: .55; }
+.bk.right { opacity: 1; background: var(--good-t); border-color: var(--good); }
+.bk.wrong { opacity: 1; background: var(--a-tint); border-color: var(--a-fill); }
+.fb { border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: var(--n-tint); }
+.fb.good { background: var(--good-t); } .fb.bad { background: var(--a-tint); }
+.fb p { margin: 0 0 8px; max-width: 62ch; }
+.fb .tag { font-weight: 750; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.score { font-size: 34px; font-weight: 750; letter-spacing: -.02em; }
+.miss { margin: 0; padding-left: 18px; }
+.miss li { margin: 0 0 8px; }
+
+/* cheat sheet */
+.groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .groups { grid-template-columns: 1fr; } }
+.g h3 { display: flex; align-items: center; gap: 8px; }
+.g h3 i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.g ul { margin: 6px 0 0; padding-left: 18px; }
+.g li { margin: 0 0 3px; }
+.fix li { margin: 0 0 8px; }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+<style>
+/* hyponatraemia lab extras */
+.sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 22px; }
+@media (max-width: 720px) { .sliders { grid-template-columns: 1fr; } }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+@media (max-width: 720px) { .two { grid-template-columns: 1fr; } }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; gap: 4px; }
+.bar .lab { font-size: 14px; font-weight: 650; display: flex; justify-content: space-between; gap: 8px; }
+.bar .lab span { color: var(--muted); font-weight: 600; }
+.track { display: flex; height: 30px; border-radius: 8px; overflow: hidden; background: var(--n-tint); }
+.track i { display: block; height: 100%; transition: width .3s; }
+.s-in { background: var(--b-fill); } .s-ret { background: var(--a-fill); } .s-uri { background: var(--good); } .s-oth { background: var(--muted); opacity: .55; } .s-room { background: repeating-linear-gradient(45deg, var(--line) 0 5px, transparent 5px 10px); }
+.key { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
+.key i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+.formula { font-family: var(--mono); font-size: 15px; font-weight: 600; background: var(--n-tint); border-radius: 10px; padding: 10px 14px; overflow-x: auto; }
+.sel { display: grid; gap: 6px; }
+.sel h3 { margin: 6px 0 0; font-size: 14px; color: var(--muted); font-weight: 650; }
+.verdict { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: start; }
+.arrow { font-size: 40px; line-height: 1; font-weight: 750; }
+.arrow.up { color: var(--b-fill); } .arrow.down { color: var(--a-fill); } .arrow.flat { color: var(--muted); } .arrow.warn { color: var(--diff); }
+.nums { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.nums div { min-width: 120px; } .nums b { display: block; font-size: 24px; font-weight: 750; letter-spacing: -.02em; } .nums span { font-size: 13px; color: var(--muted); }
+svg.fig { width: 100%; height: auto; max-height: 240px; display: block; }
+svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
+.tests { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+.tests .chip { min-height: 44px; }
+.got { display: grid; gap: 6px; margin: 0 0 12px; }
+.got div { background: var(--n-tint); border-radius: 10px; padding: 8px 12px; font-size: 15px; }
+.got b { font-weight: 700; }
+.flow { display: grid; gap: 8px; }
+.flow .st { border-radius: 12px; padding: 10px 14px; background: var(--n-tint); }
+.flow .st b { display: block; }
+.flow .dn { text-align: center; color: var(--muted); }
+.flow .br { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+.flow .br div { border-radius: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; }
+.flow .br b { display: block; font-size: 15px; }
+</style>
+<script src="../look.js"></script><link rel="stylesheet" href="look.css">
+</head><body><main>
+<header>
+  <h1>Low sodium: how the water goes wrong</h1>
+  <p class="lede">Four small labs. Start with the first: it explains most of the rest.</p>
+</header>
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" aria-selected="true" data-t="water">1. Water balance</button>
+  <button role="tab" aria-selected="false" data-t="fluid">2. Which fluid?</button>
+  <button role="tab" aria-selected="false" data-t="fake">3. Fake low sodium</button>
+  <button role="tab" aria-selected="false" data-t="path">4. Diagnosis game</button>
+  <button role="tab" aria-selected="false" data-t="sheet">5. Summary</button>
+</div>
+
+<!-- 1 water balance -->
+<section class="panel" id="p-water">
+  <div class="card">
+    <h2>How much water can the kidney get rid of?</h2>
+    <p class="hint">The kidney has to pass the day's solute (salt, urea, protein breakdown) in some water. The most dilute urine it can make sets how much water it can lose. Drink more than that and the sodium falls.</p>
+    <div class="formula" id="wForm"></div>
+  </div>
+  <div class="card">
+    <div class="sliders">
+      <div class="dial"><label for="wSol">Solute eaten each day <span id="vSol"></span></label><input id="wSol" type="range" min="100" max="1200" step="10" value="700"><small>A normal diet is about 700 mOsm. Tea and toast is very low.</small></div>
+      <div class="dial"><label for="wOsm">Strongest urine the kidney will make <span id="vOsm"></span></label><input id="wOsm" type="range" min="50" max="1200" step="10" value="600"><small>50 = ADH off, 1200 = ADH on at maximum (stuck on in SIADH).</small></div>
+      <div class="dial"><label for="wDr">Water drunk <span id="vDr"></span></label><input id="wDr" type="range" min="0.5" max="18" step="0.1" value="1.9"><small>Per day, as fluids.</small></div>
+    </div>
+    <p class="hint" style="margin-top:12px">Or start from a patient:</p>
+    <div class="chips" id="wPre"></div>
+  </div>
+  <div class="card out">
+    <div class="bars">
+      <div class="bar"><div class="lab">Water in <span id="bIn"></span></div><div class="track"><i class="s-in" id="tIn"></i><i class="s-ret" id="tRet"></i></div></div>
+      <div class="bar"><div class="lab">Most that can go out <span id="bOut"></span></div><div class="track"><i class="s-uri" id="tUri"></i><i class="s-oth" id="tOth"></i><i class="s-room" id="tRoom"></i></div></div>
+    </div>
+    <div class="key"><span><i class="s-in"></i>Water drunk</span><span><i class="s-uri"></i>Urine (at most)</span><span><i class="s-oth"></i>Breath, sweat, stool (assumed 0.8 L)</span><span><i class="s-ret"></i>Water that stays in the body</span></div>
+    <div class="band" id="wBand"></div>
+    <p class="why" id="wWhy"></p>
+    <p class="cap" id="wCap" hidden></p>
+  </div>
+</section>
+
+<!-- 2 which fluid -->
+<section class="panel" id="p-fluid" hidden>
+  <div class="card">
+    <h2>Same sodium, different patient, different answer</h2>
+    <p class="hint">Pick who is lying in the bed, then what you hang. The result depends on why the sodium is low.</p>
+    <div class="two">
+      <div class="sel"><h3>The patient</h3><div class="chips" id="fPt"></div></div>
+      <div class="sel"><h3>What you give</h3><div class="chips" id="fFl"></div></div>
+    </div>
+  </div>
+  <div class="card out"><div id="fV"></div><div class="dial" id="fS" hidden><label for="fU">His urine concentration (fixed by ADH) <span id="vU"></span></label><input id="fU" type="range" min="300" max="1200" step="20" value="600"></div></div>
+  <div class="card">
+    <h2>How fast may the sodium come up?</h2>
+    <p class="hint">Brain cells adapt to a low sodium by pushing out their own solutes. That keeps them from swelling, but it means a fast rise can then shrink them.</p>
+    <div class="chips" id="cType" style="margin-bottom:10px"></div>
+    <div class="dial"><label for="cRise">Rise in the first 24 hours <span id="vRise"></span></label><input id="cRise" type="range" min="0" max="18" step="1" value="6"></div>
+    <svg class="fig" id="cFig" viewBox="0 0 420 170" role="img" aria-label="A brain cell and its solutes"></svg>
+    <div class="band" id="cBand"></div>
+    <p class="why" id="cWhy"></p>
+  </div>
+</section>
+
+<!-- 3 fake -->
+<section class="panel" id="p-fake" hidden>
+  <div class="card">
+    <h2>A: the sodium is normal, the machine is wrong</h2>
+    <p class="hint">Plasma is mostly water, with a little fat and protein. Most lab analysers measure sodium per volume of the whole sample, then assume the water share is normal (about 93%). Add a lot of fat or protein and there is less water in the sample, so the machine reads low while the sodium in the water is fine.</p>
+    <div class="two">
+      <svg class="fig" id="tube" viewBox="0 0 300 220" role="img" aria-label="Test tube showing water, fat or protein and cells"></svg>
+      <div>
+        <div class="dial"><label for="tFat">Fat or protein in the plasma <span id="vFat"></span></label><input id="tFat" type="range" min="7" max="25" step="1" value="7"><small>Normal is about 7%.</small></div>
+        <div class="chips" id="tPre" style="margin:10px 0"></div>
+        <div class="chips" id="tMeth" style="margin-bottom:10px"></div>
+        <div class="nums"><div><b id="tLab"></b><span>Sodium the lab reports (mmol/L)</span></div><div><b id="tOsm"></b><span>Serum osmolality (mOsm/kg)</span></div></div>
+      </div>
+    </div>
+    <div class="band" id="tBand"></div>
+  </div>
+  <div class="card">
+    <h2>B: a lot of sugar drags water out of the cells</h2>
+    <p class="hint">Glucose (or mannitol, or glycine) cannot get into cells. It holds water in the blood, which dilutes the sodium. The body's sodium has not changed. Here the serum osmolality is high, not low.</p>
+    <div class="two">
+      <svg class="fig" id="gFig" viewBox="0 0 300 180" role="img" aria-label="A cell losing water to a sugary plasma"></svg>
+      <div>
+        <div class="two" style="gap:10px">
+          <div class="dial"><label for="gNa">Lab sodium <span>mmol/L</span></label><input id="gNa" type="number" inputmode="decimal" min="100" max="160" value="128" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
+          <div class="dial"><label for="gGl">Glucose <span>mmol/L</span></label><input id="gGl" type="number" inputmode="decimal" min="1" max="80" step="0.1" value="22" style="width:100%;font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)"></div>
+        </div>
+        <div class="nums" style="margin-top:12px"><div><b id="gCor"></b><span>Corrected sodium (mmol/L)</span></div></div>
+        <p class="hint" id="gEq" style="margin-top:8px"></p>
+      </div>
+    </div>
+    <div class="band" id="gBand"></div>
+  </div>
+  <div class="card g">
+    <h3>The rule that sorts all of this</h3>
+    <p class="why">Send a serum osmolality. <b>Low</b> means the low sodium is real. <b>Normal</b> means pseudohyponatraemia (the machine). <b>High</b> means something is pulling water out of the cells (usually glucose).</p>
+  </div>
+</section>
+
+<!-- 4 game -->
+<section class="panel" id="p-path" hidden>
+  <div class="card" id="game"></div>
+</section>
+
+<!-- 5 summary -->
+<section class="panel" id="p-sheet" hidden>
+  <div class="card">
+    <h2>The path in one picture</h2>
+    <div class="flow">
+      <div class="st"><b>Sodium below 135</b>Send a serum osmolality.</div>
+      <div class="dn">↓</div>
+      <div class="br">
+        <div><b>Normal</b>Pseudohyponatraemia. A lab artefact from fat or protein.</div>
+        <div><b>High</b>Glucose, mannitol or glycine is pulling water out of cells.</div>
+        <div><b>Low: real</b>Now send a urine osmolality.</div>
+      </div>
+      <div class="dn">↓</div>
+      <div class="br">
+        <div><b>Urine dilute (ADH off)</b>Water is the problem. Tea and toast, beer, compulsive drinking, or kidney failure.</div>
+        <div><b>Urine concentrated (ADH on)</b>Now look at the volume status.</div>
+      </div>
+      <div class="dn">↓</div>
+      <div class="br">
+        <div><b>Dry</b>Vomiting, diarrhoea, diuretics. Fix the volume; watch for a sudden dilute urine.</div>
+        <div><b>Wet</b>Heart failure, cirrhosis, nephrotic syndrome. Restrict water, treat the organ.</div>
+        <div><b>Normal volume</b>SIADH, low thyroid, low cortisol. No saline: find the cause.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card g fix">
+    <h3>Check these against your notes</h3>
+    <ul id="checks"></ul>
+  </div>
+</section>
+
+<div class="foot">
+  <p>A teaching model: the numbers are rounded to show the pattern, and the water estimates ignore many real details (kidney failure, thirst, drugs). No doses are in this tool. The 3% saline bolus and the correction limits follow the NSW SESLHD guidance used in the Hyponatraemia Study Kit; check your hospital's protocol and ask a senior. The slides this is based on are from a US source and quote European guidance; I did not check them against an Australian source beyond the kit.</p>
+</div>
+</main>
+<script>
+(function () {
+  function $(s) { return document.querySelector(s); }
+  function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function r1(x) { return (Math.round(x * 10) / 10).toFixed(1); }
+  function fmt(x) { return x < 10 ? r1(x) : String(Math.round(x)); }
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var TABS = ['water', 'fluid', 'fake', 'path', 'sheet'];
+  function showTab(t) {
+    $$('#tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-t') === t)); });
+    TABS.forEach(function (k) { $('#p-' + k).hidden = k !== t; });
+    try { history.replaceState(null, '', '#' + t); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  $('#tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-t]'); if (b) showTab(b.getAttribute('data-t')); });
+  function chips(el, list, key) { el.innerHTML = list.map(function (p) { return '<button class="chip" aria-pressed="false" data-' + key + '="' + p.id + '">' + esc(p.n) + '</button>'; }).join(''); }
+  function press(el, key, id) { $$(el + ' .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-' + key) === id)); }); }
+
+  /* ================= 1. water balance ================= */
+  var WP = [
+    { id: 'normal', n: 'Normal day', s: 700, o: 600, d: 1.9, c: 'A normal diet, a kidney that can concentrate, and a normal amount to drink. Water in matches the water the body can lose.' },
+    { id: 'tt', n: 'Tea and toast', s: 150, o: 50, d: 4.5, c: 'Almost no solute to pass. Even with the most dilute urine the kidney can make, there is only so much water it can lose, because it needs solute to carry it. ADH is off here, so the urine is dilute. The fix is more solute: protein in the diet.' },
+    { id: 'beer', n: 'Beer potomania', s: 200, o: 50, d: 6, c: 'Beer has plenty of water and almost no solute, and the diet is poor. Same problem as tea and toast: too little solute to pass the water out.' },
+    { id: 'poly', n: 'Compulsive drinking', s: 700, o: 50, d: 18, c: 'A normal diet and fully dilute urine, so the kidney can pass about 14 litres a day. Drinking more than that overloads it, and the sodium falls fast. The fix is to restrict the water.' },
+    { id: 'siadh', n: 'SIADH', s: 700, o: 1200, d: 2, c: 'ADH is stuck on, so the urine cannot get more dilute than it is. The same 700 mOsm now needs only about 0.6 L of urine, and an ordinary 2 L of fluid is too much.' },
+    { id: 'siadh2', n: 'SIADH, more solute', s: 1200, o: 1200, d: 2, c: 'With the urine concentration fixed, the only way to pass more water is to give the kidney more solute to carry it. That is why salt or protein can help in SIADH. Fluid restriction (drag the water down) is the usual first move.' }
+  ];
+  var OTHER = 0.8, TBW = 42, wUsed = 'normal';
+  var wS = $('#wSol'), wO = $('#wOsm'), wD = $('#wDr');
+  chips($('#wPre'), WP, 'wp');
+  function wCalc() {
+    var S = +wS.value, O = +wO.value, D = +wD.value, uri = S / O, out = uri + OTHER, ret = D - out;
+    $('#vSol').textContent = S + ' mOsm'; $('#vOsm').textContent = O + ' mOsm/kg'; $('#vDr').textContent = r1(D) + ' L';
+    $('#wForm').textContent = 'Most urine = solute ÷ concentration = ' + S + ' ÷ ' + O + ' = ' + fmt(uri) + ' L a day';
+    var scale = Math.max(D, out) * 1.04, w = function (x) { return Math.max(0, x / scale * 100) + '%'; };
+    $('#tIn').style.width = w(Math.min(D, out)); $('#tRet').style.width = w(Math.max(0, ret));
+    $('#tUri').style.width = w(uri); $('#tOth').style.width = w(OTHER); $('#tRoom').style.width = w(Math.max(0, out - D));
+    $('#bIn').textContent = r1(D) + ' L'; $('#bOut').textContent = r1(out) + ' L (urine ' + fmt(uri) + ' + other ' + r1(OTHER) + ')';
+    var band = $('#wBand'), why = $('#wWhy');
+    if (ret > 0.15) {
+      var na1 = 140 * TBW / (TBW + ret);
+      band.className = 'band ' + (ret > 1.5 ? 'hi' : 'mid');
+      band.textContent = 'Water builds up: about ' + fmt(ret) + ' L a day stays in the body. From a sodium of 140, about ' + Math.round(na1) + ' after one day (rough).';
+      why.textContent = 'The most the kidney can pass is ' + r1(out) + ' L, so anything drunk above that is kept and dilutes the sodium. The most you can drink without the sodium falling is about ' + r1(out) + ' L a day.';
+    } else if (ret >= -0.15) {
+      band.className = 'band'; band.textContent = 'About level. Water in matches the most water the body can lose.';
+      why.textContent = 'This is at the limit: a little more water and the sodium starts to fall.';
+    } else {
+      band.className = 'band'; band.textContent = 'Room to spare. The kidney can pass about ' + r1(-ret) + ' L more a day.';
+      why.textContent = 'The most you could drink without the sodium falling is about ' + r1(out) + ' L a day.';
+    }
+    press('#wPre', 'wp', wUsed);
+    var p = WP.filter(function (x) { return x.id === wUsed; })[0], cap = $('#wCap'); cap.hidden = !p; if (p) cap.textContent = p.c;
+  }
+  function wSet(p) { wUsed = p.id; wS.value = p.s; wO.value = p.o; wD.value = p.d; wCalc(); }
+  [wS, wO, wD].forEach(function (el) { el.addEventListener('input', function () { wUsed = null; wCalc(); }); });
+  $('#wPre').addEventListener('click', function (e) { var b = e.target.closest('[data-wp]'); if (!b) return; wSet(WP.filter(function (x) { return x.id === b.getAttribute('data-wp'); })[0]); });
+
+  /* ================= 2. which fluid ================= */
+  var PT = [{ id: 'hypo', n: 'Dry: vomiting, diarrhoea' }, { id: 'siadh', n: 'SIADH: normal volume' }, { id: 'hyper', n: 'Wet: heart failure' }, { id: 'tt', n: 'Tea and toast' }];
+  var FL = [{ id: 'ns', n: '0.9% saline' }, { id: 'd5', n: '5% glucose' }, { id: 'fr', n: 'Fluid restriction' }, { id: 'hs', n: '3% saline bolus' }];
+  var RES = {
+    hypo: {
+      ns: ['up', 'The sodium rises: right fluid, with a trap.', 'Giving volume switches ADH off. The kidney then passes a large, dilute urine and the sodium can shoot up faster than you intended. Chart the urine output every hour: a sudden large, clear output is the warning.'],
+      d5: ['down', 'The sodium falls further.', 'ADH is still on because the volume is still low. Glucose 5% is free water once the sugar is used, and it does not fix the volume.'],
+      fr: ['flat', 'It does not fix the cause.', 'The ADH is on because the patient is dry. Restricting water does not give the volume back. Replace the volume first.'],
+      hs: ['warn', 'Not the first choice.', 'A hypertonic bolus is for severe symptoms (seizure, coma). A dry patient with milder symptoms needs the volume back.']
+    },
+    siadh: {
+      ns: ['down', 'The sodium can fall.', ''], d5: ['down', 'The sodium falls faster.', ''],
+      fr: ['up', 'Right idea, and it works slowly.', 'Less water in, and the stuck-on ADH slowly clears the excess through a concentrated urine. It is slow, so it is safe. Finding and stopping the cause (a drug, a chest or head problem) matters more.'],
+      hs: ['warn', 'Only for severe symptoms.', 'A hypertonic bolus is for a seizure or coma. Check the sodium after each bolus and stop when the target is reached; never leave it running.']
+    },
+    hyper: {
+      ns: ['down', 'The sodium may fall, and the oedema worsens.', 'The failing heart, liver or kidney is already holding salt and water, and ADH is on. More saline adds to the overload.'],
+      d5: ['down', 'The sodium falls: free water on top of ADH.', 'This is the worst of both: more water into a body that cannot get rid of it.'],
+      fr: ['up', 'Right: restrict water and treat the organ.', 'Treat the heart, liver or kidney, and restrict water. Slow, which is what you want.'],
+      hs: ['warn', 'Only for severe symptoms, and with a senior.', 'The sodium it carries adds to the overload.']
+    },
+    tt: {
+      ns: ['up', 'The sodium rises briskly: watch the rate.', 'Saline adds solute, so the kidney can now pass more water, and ADH is already off. The rise can be fast. The lasting fix is more solute in the diet (protein).'],
+      d5: ['down', 'The sodium falls.', 'More free water into someone who already cannot pass the water out.'],
+      fr: ['up', 'It works, but only if the drinking stops.', 'The real fix is to add solute: protein in the diet, so the kidney can pass the water.'],
+      hs: ['warn', 'Only for severe symptoms.', 'Most patients here respond to ordinary fluid and diet. Use 3% only for a seizure or coma.']
+    }
+  };
+  var fp = 'siadh', ff = 'ns', uos = 600;
+  chips($('#fPt'), PT, 'fp'); chips($('#fFl'), FL, 'ff');
+  function drawFluid() {
+    press('#fPt', 'fp', fp); press('#fFl', 'ff', ff);
+    var r = RES[fp][ff], show = false;
+    var arrow = { up: '↑', down: '↓', flat: '→', warn: '!' }[r[0]];
+    var body = r[2];
+    if (fp === 'siadh' && (ff === 'ns' || ff === 'd5')) {
+      var sol = ff === 'ns' ? 308 : 0, uri = sol / uos, kept = 1 - uri, na0 = 120, na1 = na0 * 40 / (40 + kept);
+      body = (ff === 'ns' ? 'The saline brings 308 mOsm of solute. With the urine fixed at ' + uos + ' mOsm/kg the kidney can pass it in only ' + r1(uri) + ' L of urine, so about ' + r1(kept) + ' L of the litre stays in the body. He keeps the water and passes the salt.' : 'Glucose 5% is solute-free once the sugar is used, so all 1 L stays in the body.') + ' Sodium from ' + na0 + ' to about ' + Math.round(na1) + ' (rough, 40 L body water).';
+      show = true;
+    }
+    $('#fS').hidden = !show; $('#vU').textContent = uos + ' mOsm/kg';
+    $('#fV').innerHTML = '<div class="verdict"><div class="arrow ' + r[0] + '" aria-hidden="true">' + arrow + '</div><div><h3 style="font-size:19px;margin:0 0 4px">' + esc(r[1]) + '</h3><p class="why" style="margin:0">' + esc(body) + '</p></div></div>';
+  }
+  $('#fU').addEventListener('input', function () { uos = +$('#fU').value; drawFluid(); });
+  $('#fPt').addEventListener('click', function (e) { var b = e.target.closest('[data-fp]'); if (b) { fp = b.getAttribute('data-fp'); drawFluid(); } });
+  $('#fFl').addEventListener('click', function (e) { var b = e.target.closest('[data-ff]'); if (b) { ff = b.getAttribute('data-ff'); drawFluid(); } });
+
+  var cType = 'chronic', cR = $('#cRise');
+  chips($('#cType'), [{ id: 'acute', n: 'Under 48 hours' }, { id: 'chronic', n: 'Over 48 hours, or unknown' }], 'ct');
+  function drawCell() {
+    var rise = +cR.value; $('#vRise').textContent = rise + ' mmol/L';
+    press('#cType', 'ct', cType);
+    var chronic = cType === 'chronic', r;
+    // cell radius: chronic starts near normal with few solutes; acute starts swollen
+    var start = chronic ? 44 : 60, solutes = chronic ? 9 : 16;
+    r = chronic ? Math.max(24, 44 - Math.max(0, rise - 6) * 1.7) : Math.max(36, 60 - rise * 2.6);
+    var dots = '', n = solutes, i;
+    for (i = 0; i < n; i++) { var a = i * 2.4, rr = (r - 8) * Math.sqrt((i + .5) / n); dots += '<circle cx="' + (95 + Math.cos(a) * rr).toFixed(1) + '" cy="' + (85 + Math.sin(a) * rr).toFixed(1) + '" r="3.2" fill="var(--b-fill)"/>'; }
+    var bad = chronic && rise > 10, warn = chronic && rise > 8 && rise <= 10;
+    var col = bad ? 'var(--a-fill)' : warn ? 'var(--diff)' : 'var(--good)';
+    $('#cFig').innerHTML = '<circle cx="95" cy="85" r="' + r.toFixed(1) + '" fill="var(--n-tint)" stroke="' + col + '" stroke-width="4"/>' + dots +
+      '<text x="95" y="160" text-anchor="middle">' + (chronic ? 'Cell has pushed solutes out' : 'Cell has swelled with water') + '</text>' +
+      '<text x="250" y="70" text-anchor="start" style="font-weight:700">' + (bad ? 'Shrinks too much' : r < 38 && chronic ? 'Shrinking' : 'Cell size holds') + '</text>' +
+      '<text x="250" y="92" text-anchor="start">Rise: ' + rise + ' mmol/L in 24 h</text>';
+    var band = $('#cBand'), why = $('#cWhy');
+    if (chronic) {
+      band.className = 'band ' + (bad ? 'hi' : warn ? 'mid' : '');
+      band.textContent = bad ? 'Over the limit. Osmotic demyelination can follow, days later, and it cannot be undone.' : warn ? 'At the limit. The limit is 10 mmol/L in 24 hours, and 8 if alcohol use, malnutrition, liver disease or low potassium.' : 'Within the usual limit of 10 mmol/L in 24 hours.';
+      why.textContent = 'These cells gave up solutes to stay the right size in a low sodium. When the sodium rises quickly, water leaves them faster than they can take their solutes back, and they shrink. The damage shows days later, so the danger is not obvious at the bedside.';
+    } else {
+      band.className = 'band';
+      band.textContent = 'Swelling is the danger here, so a quick early rise is accepted for severe symptoms.';
+      why.textContent = 'The cells have not had time to adapt, so the problem is the water they have taken in. In severe symptoms the kit aims for about 5 mmol/L in the first hour, then stops the 3% saline. If you are not sure it is acute, treat it as chronic and stay inside the limit.';
+    }
+  }
+  cR.addEventListener('input', drawCell);
+  $('#cType').addEventListener('click', function (e) { var b = e.target.closest('[data-ct]'); if (b) { cType = b.getAttribute('data-ct'); drawCell(); } });
+
+  /* ================= 3. fake low sodium ================= */
+  var TP = [{ id: 'n', n: 'Normal', v: 7 }, { id: 'tg', n: 'Very high triglycerides', v: 17 }, { id: 'my', n: 'Myeloma', v: 20 }];
+  var TM = [{ id: 'ind', n: 'Most lab analysers (indirect)' }, { id: 'dir', n: 'Blood gas machine (direct)' }];
+  var tMeth = 'ind', tFat = $('#tFat');
+  chips($('#tPre'), TP, 'tp'); chips($('#tMeth'), TM, 'tm');
+  function drawTube() {
+    var f = +tFat.value; $('#vFat').textContent = f + '%';
+    var water = 100 - f, trueWater = 150, lab = tMeth === 'ind' ? trueWater * water / 100 : trueWater * 0.93, osm = 285;
+    var H = 150, y0 = 30, hw = H * water / 100, hf = H * f / 100;
+    $('#tube').innerHTML = '<rect x="110" y="' + y0 + '" width="70" height="' + (H + 30) + '" rx="12" fill="var(--surface)" stroke="var(--line)" stroke-width="3"/>' +
+      '<rect x="113" y="' + (y0 + 3) + '" width="64" height="' + hf.toFixed(1) + '" fill="var(--diff)" opacity=".75"/>' +
+      '<rect x="113" y="' + (y0 + 3 + hf).toFixed(1) + '" width="64" height="' + (hw - 4).toFixed(1) + '" fill="var(--b-fill)" opacity=".28"/>' +
+      '<rect x="113" y="' + (y0 + 3 + H - 4) + '" width="64" height="28" rx="10" fill="var(--a-fill)" opacity=".8"/>' +
+      '<text x="190" y="' + (y0 + 6 + hf / 2).toFixed(0) + '" text-anchor="start">Fat or protein ' + f + '%</text>' +
+      '<text x="190" y="' + (y0 + hf + hw / 2).toFixed(0) + '" text-anchor="start">Plasma water ' + water + '%</text>' +
+      '<text x="190" y="' + (y0 + H + 18) + '" text-anchor="start">Blood cells</text>' +
+      '<text x="145" y="18" text-anchor="middle">Sample tube</text>';
+    $('#tLab').textContent = Math.round(lab); $('#tOsm').textContent = osm;
+    press('#tPre', 'tp', (TP.filter(function (x) { return x.v === f; })[0] || {}).id); press('#tMeth', 'tm', tMeth);
+    var low = lab < 135, b = $('#tBand');
+    b.className = 'band ' + (low ? 'mid' : '');
+    b.textContent = low ? 'The lab says low (' + Math.round(lab) + ') but the osmolality is normal (285). This is pseudohyponatraemia: no treatment for the sodium. Ask for a direct measurement, and treat the cause (lipids, myeloma).' : 'Normal sodium, normal osmolality. Nothing to explain.';
+  }
+  tFat.addEventListener('input', drawTube);
+  $('#tPre').addEventListener('click', function (e) { var b = e.target.closest('[data-tp]'); if (!b) return; tFat.value = TP.filter(function (x) { return x.id === b.getAttribute('data-tp'); })[0].v; drawTube(); });
+  $('#tMeth').addEventListener('click', function (e) { var b = e.target.closest('[data-tm]'); if (b) { tMeth = b.getAttribute('data-tm'); drawTube(); } });
+
+  var gNa = $('#gNa'), gGl = $('#gGl');
+  function drawGluc() {
+    var na = parseFloat(gNa.value), gl = parseFloat(gGl.value);
+    if (isNaN(na) || isNaN(gl)) return;
+    var add = Math.max(0, gl - 5.6) * (1.6 / 5.6), cor = na + add;
+    $('#gCor').textContent = Math.round(cor);
+    $('#gEq').textContent = 'Corrected = ' + Math.round(na) + ' + 1.6 for every 5.6 mmol/L of glucose above 5.6 = ' + Math.round(na) + ' + ' + r1(add) + '. (Some people use 2.4 per 5.6 when the glucose is very high.)';
+    var shrink = Math.min(1, Math.max(0, (gl - 5.6) / 40)), r = 52 - shrink * 22;
+    $('#gFig').innerHTML = '<rect x="0" y="0" width="300" height="180" fill="var(--n-tint)" opacity=".5"/>' +
+      '<circle cx="90" cy="90" r="' + r.toFixed(1) + '" fill="var(--surface)" stroke="var(--b-fill)" stroke-width="4"/>' +
+      '<g fill="var(--diff)">' + Array.apply(null, Array(Math.round(3 + shrink * 30))).map(function (_, i) { return '<circle cx="' + (150 + ((i * 47) % 130)) + '" cy="' + (16 + ((i * 29) % 120)) + '" r="3"/>'; }).join('') + '</g>' +
+      '<path d="M' + (96 + r).toFixed(0) + ' 90 L168 90 M160 82 L170 90 L160 98" stroke="var(--a-fill)" stroke-width="3" fill="none"/>' +
+      '<text x="12" y="170" text-anchor="start">Sugar (dots) holds the water outside</text>';
+    var b = $('#gBand');
+    if (cor >= 135) { b.className = 'band'; b.textContent = 'Corrected sodium is normal. The low reading was the dilution from the glucose. Treat the high glucose; the sodium returns as the water moves back.'; }
+    else { b.className = 'band mid'; b.textContent = 'Even corrected, the sodium is low, so there is a true hyponatraemia as well as the sugar. Work it up as for true hyponatraemia.'; }
+  }
+  gNa.addEventListener('input', drawGluc); gGl.addEventListener('input', drawGluc);
+
+  /* ================= 4. diagnosis game ================= */
+  var TESTS = [{ id: 'sosm', n: 'Serum osmolality' }, { id: 'glu', n: 'Glucose' }, { id: 'uosm', n: 'Urine osmolality' }, { id: 'vol', n: 'Examine volume status' }, { id: 'una', n: 'Urine sodium' }, { id: 'endo', n: 'TSH and cortisol' }];
+  var KINDS = [
+    { id: 'pseudo', n: 'Fake: the machine', s: 'Normal osmolality' },
+    { id: 'factitious', n: 'Fake: sugar pulling water out', s: 'High osmolality' },
+    { id: 'adind', n: 'Real, urine dilute', s: 'ADH off: too much water, too little solute' },
+    { id: 'hypo', n: 'Real, dry', s: 'Low volume drives ADH' },
+    { id: 'hyper', n: 'Real, wet', s: 'Low effective volume drives ADH' },
+    { id: 'eu', n: 'Real, normal volume', s: 'SIADH, thyroid, adrenal' }
+  ];
+  var MOVE = {
+    pseudo: 'No treatment for the sodium: the true sodium is normal. Ask the lab for a direct measurement and treat the cause of the fat or protein.',
+    factitious: 'Treat the high glucose (or stop the other solute). The sodium comes back as water returns to the cells. Work out the corrected sodium.',
+    adind: 'Dilute urine means ADH is off. Tea and toast or beer: add solute (protein in the diet); these respond briskly, so watch the rate. Compulsive drinking: restrict the water. Kidney failure: restrict fluid and involve the renal team.',
+    hypo: 'Restore the volume (0.9% saline) and stop the cause. Chart the urine output hourly: once the volume is back, ADH switches off and the sodium can rise too fast.',
+    hyper: 'Restrict water and treat the heart, liver or kidney. Avoid saline and glucose 5%.',
+    eu: 'Find the cause: check TSH and cortisol, review the drugs, think of SIADH (low urea and low uric acid, concentrated urine, urine sodium high). Fluid restriction; saline does not help.'
+  };
+  var ALLOW = { factitious: ['glu'], hypo: ['una'], hyper: ['una'], eu: ['una'] };
+  var MIN = { pseudo: ['sosm'], factitious: ['sosm'], adind: ['sosm', 'uosm'], hypo: ['sosm', 'uosm', 'vol'], hyper: ['sosm', 'uosm', 'vol'], eu: ['sosm', 'uosm', 'vol', 'endo'] };
+  //            serum osm, glucose, urine osm, volume, urine Na, TSH/cortisol
+  var PTS = [
+    { t: 'A 62-year-old man with myeloma has a routine sodium of 124. He feels well. His serum looks cloudy.', k: 'pseudo', r: ['288 mOsm/kg (normal)', '5.6 mmol/L', 'Not needed', 'Normal', 'Not needed', 'Normal'], w: 'The osmolality is normal, so the low sodium is the machine reading less water in a protein-rich sample. Nothing to fix in the sodium.' },
+    { t: 'A 55-year-old woman in the emergency department has a sodium of 126 and a thirst. She is drowsy.', k: 'factitious', r: ['318 mOsm/kg (high)', '34 mmol/L', 'Not needed', 'Dry', 'Not needed', 'Normal'], w: 'High osmolality and a glucose of 34: the sugar is holding water in the blood and diluting the sodium. The corrected sodium is about 135.' },
+    { t: 'A 78-year-old woman lives alone on tea and toast. Sodium 119, a little confused.', k: 'adind', r: ['248 mOsm/kg (low)', '5.4 mmol/L', '70 mOsm/kg (dilute)', 'Normal', '8 mmol/L', 'Normal'], w: 'Low serum osmolality, dilute urine: ADH is off. The diet has too little solute to carry the water out. She needs protein and solute, not just restriction.' },
+    { t: 'A 48-year-old man drinks six beers a day and eats little. Sodium 117, nauseated.', k: 'adind', r: ['244 mOsm/kg (low)', '5.2 mmol/L', '80 mOsm/kg (dilute)', 'Normal', '9 mmol/L', 'Normal'], w: 'Beer potomania: a lot of water, almost no solute. The urine is dilute because ADH is off.' },
+    { t: 'A 31-year-old woman with schizophrenia drinks all day. Sodium 122, headache.', k: 'adind', r: ['254 mOsm/kg (low)', '5.3 mmol/L', '60 mOsm/kg (dilute)', 'Normal', '15 mmol/L', 'Normal'], w: 'Compulsive drinking: the kidney is passing the most dilute urine it can, and she is still drinking more than that.' },
+    { t: 'A 24-year-old man has had three days of vomiting and diarrhoea. Sodium 124, dizzy on standing.', k: 'hypo', r: ['258 mOsm/kg (low)', '5.5 mmol/L', '520 mOsm/kg (concentrated)', 'Dry: tachycardic, low JVP, postural drop', '8 mmol/L', 'Not needed'], w: 'Concentrated urine and a dry examination: the low volume is driving ADH. Replace the volume, and watch for a sudden dilute urine afterwards.' },
+    { t: 'A 76-year-old woman on a thiazide for hypertension. Sodium 121, fell at home.', k: 'hypo', r: ['255 mOsm/kg (low)', '5.4 mmol/L', '440 mOsm/kg (concentrated)', 'Dry: postural drop', '52 mmol/L (diuretic effect)', 'Not needed'], w: 'The urine sodium is high only because of the diuretic. She is dry. Stop the thiazide and replace the volume.' },
+    { t: 'A 70-year-old man with known heart failure. Sodium 125, breathless, swollen legs.', k: 'hyper', r: ['262 mOsm/kg (low)', '6.0 mmol/L', '450 mOsm/kg (concentrated)', 'Wet: oedema, raised JVP', '12 mmol/L', 'Not needed'], w: 'Concentrated urine and a wet examination: the heart is not filling the arteries, so ADH is on and water is retained. Restrict water, treat the heart, and do not give saline.' },
+    { t: 'A 66-year-old woman with cirrhosis and ascites. Sodium 123.', k: 'hyper', r: ['258 mOsm/kg (low)', '5.1 mmol/L', '420 mOsm/kg (concentrated)', 'Wet: ascites and oedema', '10 mmol/L', 'Not needed'], w: 'The same pattern as heart failure: lots of body water, but too little effective volume in the arteries, so ADH is on.' },
+    { t: 'A 59-year-old woman started sertraline two weeks ago. Sodium 123, mild headache. Examination is normal.', k: 'eu', r: ['255 mOsm/kg (low)', '5.2 mmol/L', '480 mOsm/kg (concentrated)', 'Normal', '65 mmol/L', 'Normal'], w: 'Concentrated urine, a high urine sodium and a normal volume: SIADH. The thyroid and cortisol are normal, so the drug is the likely cause. Fluid restriction and stop the SSRI (with a senior).' },
+    { t: 'A 45-year-old woman stopped long-term prednisolone suddenly. Sodium 120, tired, nauseated. Normal volume on examination.', k: 'eu', r: ['250 mOsm/kg (low)', '4.8 mmol/L', '460 mOsm/kg (concentrated)', 'Normal', '58 mmol/L', 'Cortisol very low'], w: 'Looks like SIADH, but cortisol is very low. This is why you check cortisol and TSH before calling it SIADH: the treatment is replacing the cortisol.' }
+  ];
+  var deck = [], pos = 0, ord = {}, done = false, res = [];
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function kName(id) { return KINDS.filter(function (k) { return k.id === id; })[0].n; }
+  function tName(id) { return TESTS.filter(function (k) { return k.id === id; })[0].n; }
+  function startGame(list) { deck = shuffle(list.slice()); pos = 0; ord = {}; done = false; res = []; drawGame(); }
+  function pips() { return '<div class="pips" aria-label="Patient ' + (pos + 1) + ' of ' + deck.length + '">' + deck.map(function (c, i) { return '<i class="' + (res[i] === undefined ? (i === pos ? 'now' : '') : res[i].ok ? 'ok' : 'no') + '"></i>'; }).join('') + '</div>'; }
+  var TI = ['sosm', 'glu', 'uosm', 'vol', 'una', 'endo'];
+  function drawGame() {
+    var g = $('#game');
+    if (pos >= deck.length) {
+      var right = res.filter(function (x) { return x.ok; }).length, eff = res.filter(function (x) { return x.ok && x.tight; }).length, wrong = deck.filter(function (c, i) { return !res[i].ok; });
+      g.innerHTML = '<h2>Done</h2><div class="score">' + right + ' of ' + deck.length + ' right</div><p class="why">' + eff + ' of them with only the tests that were needed.</p>' +
+        (wrong.length ? '<p class="hint">To go back over:</p><ul class="miss">' + wrong.map(function (c) { return '<li><b>' + esc(kName(c.k)) + '.</b> ' + esc(c.t) + '</li>'; }).join('') + '</ul>' : '') +
+        '<div class="row">' + (wrong.length ? '<button class="btn primary" data-g="redo">Play the ' + wrong.length + ' missed</button>' : '') + '<button class="btn" data-g="all">Play all again</button><button class="btn" data-g="sheet">See the summary</button></div>';
+      return;
+    }
+    var c = deck[pos];
+    var got = TI.filter(function (id) { return ord[id]; }).map(function (id) { return '<div><b>' + esc(tName(id)) + ':</b> ' + esc(c.r[TI.indexOf(id)]) + '</div>'; }).join('');
+    g.innerHTML = pips() + '<p class="scene">' + esc(c.t) + '</p>' +
+      '<p class="hint">Order only what you need, then say what kind of low sodium it is.</p>' +
+      '<div class="tests">' + TESTS.map(function (t) { return '<button class="chip" aria-pressed="' + (!!ord[t.id]) + '" data-o="' + t.id + '"' + (done ? ' disabled' : '') + '>' + esc(t.n) + '</button>'; }).join('') + '</div>' +
+      '<div class="got">' + got + '</div>' +
+      '<div class="buckets">' + KINDS.map(function (k) { return '<button class="bk" data-k="' + k.id + '"' + (done ? ' disabled' : '') + '><b>' + esc(k.n) + '</b><span>' + esc(k.s) + '</span></button>'; }).join('') + '</div><div id="fb"></div>';
+  }
+  $('#game').addEventListener('click', function (e) {
+    var gb = e.target.closest('[data-g]');
+    if (gb) { var k = gb.getAttribute('data-g'); if (k === 'sheet') return showTab('sheet'); if (k === 'all') return startGame(PTS); if (k === 'redo') return startGame(deck.filter(function (c, i) { return !res[i].ok; })); if (k === 'next') { pos++; ord = {}; done = false; drawGame(); window.scrollTo(0, 0); return; } }
+    var o = e.target.closest('[data-o]');
+    if (o && !done) { var id = o.getAttribute('data-o'); ord[id] = true; drawGame(); return; }
+    var kb = e.target.closest('[data-k]'); if (!kb || done) return; done = true;
+    var c = deck[pos], pick = kb.getAttribute('data-k'), ok = pick === c.k, ordered = TI.filter(function (id) { return ord[id]; });
+    var need = MIN[c.k], extra = ordered.filter(function (id) { return need.indexOf(id) < 0 && (ALLOW[c.k] || []).indexOf(id) < 0; }), tight = extra.length === 0 && need.every(function (id) { return ordered.indexOf(id) >= 0; });
+    res[pos] = { ok: ok, tight: tight };
+    $$('#game .bk').forEach(function (x) { x.disabled = true; var id = x.getAttribute('data-k'); if (id === c.k) x.classList.add('right'); else if (id === pick) x.classList.add('wrong'); });
+    $$('#game .tests .chip').forEach(function (x) { x.disabled = true; });
+    var path = 'Shortest path: ' + need.map(tName).join(', then ') + '.';
+    var note = ordered.length === 0 ? ' You guessed without any tests.' : extra.length ? ' Not needed here: ' + extra.map(tName).join(', ') + '.' : '';
+    var last = pos === deck.length - 1;
+    $('#fb').innerHTML = '<div class="fb ' + (ok ? 'good' : 'bad') + '"><p><span class="tag">' + (ok ? 'Right.' : 'Not quite.') + '</span> ' + (ok ? '' : 'This is: ' + esc(kName(c.k).toLowerCase()) + '. ') + esc(c.w) + '</p><p>' + esc(path + note) + '</p><p><b>First move:</b> ' + esc(MOVE[c.k]) + '</p><div class="row"><button class="btn primary" data-g="next">' + (last ? 'See the score' : 'Next patient') + '</button></div></div>';
+    $('#fb').scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  /* ================= 5. summary ================= */
+  $('#checks').innerHTML = [
+    '<b>The urine cut-off.</b> The slide draws the line at 285 mOsm/kg. The usual teaching is that a urine osmolality below about 100 means ADH is off (tea and toast, beer, compulsive drinking). Kidney failure sits around 300, nearer the serum. Use the pattern, not one number.',
+    '<b>US units.</b> The slides use mg/dL for glucose and BUN. Australia uses mmol/L and urea. The glucose correction is 1.6 per 5.6 mmol/L above 5.6.',
+    '<b>Drug names.</b> The slides name tolvaptan and conivaptan. I did not check which of them are available in Australia, so I left them out.',
+    '<b>3% saline.</b> The slides give the European regimen (150 mL, then repeat, until the sodium has risen by 10 or the symptoms resolve). Your kit gives the NSW SESLHD version (150 mL over 20 minutes, repeated up to twice, aiming for about 5 mmol/L in the first hour, then stopping). Follow your hospital protocol.'
+  ].map(function (x) { return '<li>' + x + '</li>'; }).join('');
+
+  /* ---------- start ---------- */
+  wSet(WP[0]); drawFluid(); drawCell(); drawTube(); drawGluc(); startGame(PTS);
+  var h = location.hash.slice(1); showTab(TABS.indexOf(h) >= 0 ? h : 'water');
+})();
+</script></body></html>
