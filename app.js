@@ -25,10 +25,10 @@
   function kfmt(k) {
     var lines = String(k).split('\n'), many = lines.filter(function (l) { return !/^\(/.test(l); }).length >= 2;
     return lines.map(function (ln) {
-      var s = esc(ln), note = /^\(/.test(ln), m = !note && /^([^:→(]{2,34}):(\s|$)/.exec(ln), plain = !note && !m && ln.indexOf('→') < 0;
+      var s = esc(ln), note = /^\(/.test(ln), sub = /^\s*→/.test(ln), m = !note && /^([^:→(]{2,34}):(\s|$)/.exec(ln), plain = !note && !m && ln.indexOf('→') < 0;
       if (m) s = '<b>' + esc(m[1]) + ':</b>' + esc(ln.slice(m[0].length - (m[2] ? 1 : 0)));
       s = s.replace(/→/g, '<span class="ar">→</span>');
-      return '<span class="kl' + (note ? ' kn' : '') + (!note && many ? ' bl' : '') + '">' + s + '</span>';
+      return '<span class="kl' + (note ? ' kn' : '') + (!note && many && !sub ? ' bl' : '') + (sub ? ' sub' : '') + '">' + s + '</span>';
     }).join('');
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
