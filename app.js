@@ -10,7 +10,10 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; S.ctx = S.ctx || {}; S.caseReq = S.caseReq || {}; S.skipRev = S.skipRev || {}; }
+  /* The 11 step-by-step kits used to tick after 30 seconds; those early ticks are dropped. They tick now only on the last slide. */
+  var STEPKITS = ['acidbase', 'aki', 'hyperca', 'hyperk', 'hyperna', 'hypok', 'hypona', 'macid', 'malk', 'stone', 'uti'].map(function (x) { return x + '_kit.html'; });
+  function falseKitTick(key, ts) { var f = String(key).split(':')[1]; return STEPKITS.indexOf(f) >= 0 && (ts || 0) < 1794899700000; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; S.ctx = S.ctx || {}; S.caseReq = S.caseReq || {}; S.skipRev = S.skipRev || {}; S.kitdone = S.kitdone || {}; Object.keys(S.kitdone).forEach(function (k) { if (falseKitTick(k, S.kitdone[k])) delete S.kitdone[k]; }); }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -174,7 +177,7 @@
     out.caseSkip = {};
     [a.caseSkip || {}, b.caseSkip || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if ((src[k] || 0) >= r) out.caseSkip[k] = Math.max(out.caseSkip[k] || 0, src[k]); }); });
     out.kitdone = {};
-    [a.kitdone || {}, b.kitdone || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if ((src[k] || 0) >= r) out.kitdone[k] = Math.max(out.kitdone[k] || 0, src[k]); }); });
+    [a.kitdone || {}, b.kitdone || {}].forEach(function (src) { Object.keys(src).forEach(function (k) { if (falseKitTick(k, src[k])) return; if ((src[k] || 0) >= r) out.kitdone[k] = Math.max(out.kitdone[k] || 0, src[k]); }); });
     out.revtime = {};
     [a.revtime || {}, b.revtime || {}].forEach(function (src) { Object.keys(src).forEach(function (day) { var d = src[day] || {}; Object.keys(d).forEach(function (dev) { var v = d[dev]; if (!v || !(v.ms >= 0) || (v.t || 0) < r) return; var o = out.revtime[day] || (out.revtime[day] = {}); if (!o[dev] || v.ms > o[dev].ms) o[dev] = { ms: v.ms, t: v.t }; }); }); });
     Object.keys(out.revtime).sort().slice(0, -14).forEach(function (day) { delete out.revtime[day]; });
@@ -695,11 +698,16 @@
   function wireTool() {
     var f = document.querySelector('iframe.frame'); if (!f) return;
     function attach() {
-      var d; try { d = f.contentDocument; } catch (e) { return; } if (!d) return;
+      var d; try { d = f.contentDocument; } catch (e) { return; } if (!d || d.URL === 'about:blank') return;
       var tl0 = byId(route[1]) && byId(route[1]).tools[+route[2]];
       if (tl0 && !/_shift\.html$|_ward\.html$/.test(tl0.file)) {
         var kk = route[1] + ':' + tl0.file, doneKit = function () { S.kitdone = S.kitdone || {}; if (S.kitdone[kk]) return; S.kitdone[kk] = Date.now(); save(); };
-        if (!(S.kitdone || {})[kk]) {
+        var stepKit = false; try { stepKit = !!f.contentWindow.KIT; } catch (e) {}
+        if (stepKit) {
+          if (window.__kitMsg) window.removeEventListener('message', window.__kitMsg);
+          window.__kitMsg = function (ev) { if (ev.source === f.contentWindow && ev.data && ev.data.rmoKitEnd) doneKit(); };
+          window.addEventListener('message', window.__kitMsg);
+        } else if (!(S.kitdone || {})[kk]) {
           d.addEventListener('scroll', function (ev) { var el = ev.target && ev.target.nodeType === 1 ? ev.target : d.documentElement; if (el.scrollHeight > el.clientHeight + 40 && el.scrollTop + el.clientHeight >= el.scrollHeight - 48) doneKit(); }, true);
           setTimeout(function () { try { var e0 = d.documentElement; if (e0.scrollHeight <= e0.clientHeight + 40) doneKit(); } catch (e) {} }, 30000); // a short kit that never scrolls: counts after 30 seconds
         }

@@ -41,6 +41,7 @@
     if (s.drill) startD(K.items);
     $('#dots').innerHTML = STEPS.map(function (x, i) { return '<i class="' + (i === n ? 'on' : '') + '"></i>'; }).join('');
     $('#back').disabled = n === 0; $('#next').disabled = n === STEPS.length - 1;
+    if (n === STEPS.length - 1) { try { parent.postMessage({ rmoKitEnd: location.pathname }, '*'); } catch (e) {} } // last slide reached: the app ticks the kit
   }
   $('#stage').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || !$('#dr')) return;
