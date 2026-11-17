@@ -495,11 +495,16 @@
     function tab(href, ic, label, on, c, nw) { return '<a href="' + href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span class="ti">' + IC[ic] + (c ? '<span class="n">' + c + '</span>' : '') + (nw ? '<span class="n nc">' + nw + '</span>' : '') + '</span><span class="tl">' + label + '</span></a>'; }
     return '<nav class="tabs" aria-label="Sections">' + tab('#/', 'today', 'Today', cur.page === 'home', 0, newCaseList().length) + tab('#/topics', 'topics', 'Topics', cur.page === 'topics' || cur.page === 'system' || cur.page === 'topic') + tab('#/revise', 'revise', 'Revise', cur.page === 'revise', n) + '<button type="button" class="navfocus" data-focus="short"><span class="ti">' + IC.focus + '</span><span class="tl" data-focus-label>Focus</span></button></nav>';
   }
+  function backIn(due) {
+    var n = diff(due, today());
+    return n <= 0 ? 'back today' : n === 1 ? 'back tomorrow' : n <= 14 ? 'back in ' + n + ' days' : 'back ' + nice(due);
+  }
   function undoBar() {
     if (!undo || Date.now() - undo.at > 8000) return '';
-    if (undo.skip) return '<div class="undo" role="status"><span>Removed from Revise. It stays in its topic checklist.</span><button class="link" data-act="undo">Undo</button></div>';
-    var it = S.items[undo.id];
-    return '<div class="undo" role="status"><span>Marked ' + (undo.how === 'got' ? 'Got it' : 'Shaky') + (it ? '. Next review ' + nice(it.due) : '') + '.</span><button class="link" data-act="undo">Undo</button></div>';
+    var btn = '<button class="undo-btn" data-act="undo">Undo</button>';
+    if (undo.skip) return '<div class="undo" role="status"><span>Removed from Revise</span>' + btn + '</div>';
+    var it = S.items[undo.id], got = undo.how === 'got';
+    return '<div class="undo" role="status"><span><b class="' + (got ? 'u-got' : 'u-shaky') + '">' + (got ? 'Got it' : 'Shaky') + '</b>' + (it ? ' \u00B7 ' + backIn(it.due) : '') + '</span>' + btn + '</div>';
   }
   function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '"' + (cur.sys ? ' data-sys="' + cur.sys + '"' : '') + ' id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
   function row(href, title, right, sub, sys) {
