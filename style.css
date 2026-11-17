@@ -403,3 +403,7 @@ html.kbd .kh { display: inline-block; }
 .tb-done { background: var(--good-t); color: var(--good); }
 .tb-easy { background: var(--shaky-t); color: var(--shaky); } /* Easy played, Hard still to do: same amber as the new-case dot */
 .tools .tb .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.ctxblock { margin: 8px 0 4px; }
+.ctxbtns { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+.ctxline small { color: var(--mut); }

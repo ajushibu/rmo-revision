@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; S.ctx = S.ctx || {}; S.caseReq = S.caseReq || {}; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -146,6 +146,11 @@
     out.notes = {};
     [a.notes || {}, b.notes || {}].forEach(function (n) { Object.keys(n).forEach(function (k) { if (!out.notes[k] || (n[k].t || 0) > (out.notes[k].t || 0)) out.notes[k] = n[k]; }); });
     Object.keys(out.notes).forEach(function (k) { if ((out.notes[k].t || 0) < r) delete out.notes[k]; });
+    ['ctx', 'caseReq'].forEach(function (f) {
+      out[f] = {};
+      [a[f] || {}, b[f] || {}].forEach(function (n) { Object.keys(n).forEach(function (k) { if (!out[f][k] || (n[k].t || 0) > (out[f][k].t || 0)) out[f][k] = n[k]; }); });
+      Object.keys(out[f]).forEach(function (k) { if ((out[f][k].t || 0) < r) delete out[f][k]; });
+    });
     var seenH = {}; out.highlights = [];
     (a.highlights || []).concat(b.highlights || []).forEach(function (x) { if (seenH[x.id] || out.dead[x.id] || (x.at || 0) < r) return; seenH[x.id] = 1; out.highlights.push(x); });
     out.highlights.sort(function (x, y) { return x.at - y.at; });
@@ -291,7 +296,7 @@
     if (!left) { caseData = {}; return; }
     files.forEach(function (z) {
       fetch(z.js).then(function (r) { return r.ok ? r.text() : ''; }).catch(function () { return ''; }).then(function (txt) {
-        try { var w = {}; if (txt) new Function('window', txt)(w); var arr = z.ward ? (w.WARD && w.WARD.cases) : w.RMO_CASES; out[z.f] = (arr || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '', hard: !!(c.hard && c.hard.steps && !z.ward) }; }); } catch (e) { /* a broken case file: skip it */ }
+        try { var w = {}; if (txt) new Function('window', txt)(w); var arr = z.ward ? (w.WARD && w.WARD.cases) : w.RMO_CASES; out[z.f] = (arr || []).filter(function (c) { return c && c.id && !c.retired; }).map(function (c) { return { id: String(c.id), title: c.title || '', blurb: c.blurb || '', where: c.where || '', hard: !!(c.hard && c.hard.steps && !z.ward), fc: c.fromCard || '' }; }); } catch (e) { /* a broken case file: skip it */ }
         if (--left === 0) { caseData = out; var r0 = route[0] || ''; if ((r0 === '' && newCaseList().length) || r0 === 't') render(); }
       });
     });
@@ -531,6 +536,29 @@
   }
   function noteOf(id) { var n = S.notes[id]; return n && n.text ? n.text : ''; }
   function setNote(id, text) { text = (text || '').trim(); if (text === noteOf(id)) return; S.notes[id] = { text: text, t: Date.now() }; }
+  /* Extra context the user adds to a card (ctx) and a request to turn a card into a case (caseReq). Both sync.
+     The refresh (CASES.md) folds ctx into the card's answer and sets cx on the card; it writes a case with fromCard on it for each request. */
+  var ctxOpen = {};
+  function ctxOf(id) { var n = S.ctx[id]; return n && n.text ? n.text : ''; }
+  function setCtx(id, text) { text = (text || '').trim(); if (text === ctxOf(id)) return; S.ctx[id] = { text: text, t: Date.now() }; }
+  function cardItem(id) { var f = null; Object.keys(RC).forEach(function (tid) { (RC[tid].items || []).forEach(function (it) { if (it.id === id) f = it; }); }); return f; }
+  function caseMadeFor(id) {
+    var m = null; Object.keys(caseData || {}).forEach(function (f) { (caseData[f] || []).forEach(function (c) { if (c.fc === id) m = { f: f, title: c.title }; }); });
+    return m;
+  }
+  function ctxBlock(id, tid) {
+    var txt = ctxOf(id), it = cardItem(id), wait = txt && S.ctx[id].t > ((it && it.cx) || 0), op = !!ctxOpen[id];
+    var made = caseMadeFor(id), req = S.caseReq[id] && S.caseReq[id].on;
+    var h = '<div class="ctxblock">';
+    if (txt && !op) h += '<p class="mynote ctxline"><b>Context:</b> ' + esc(txt) + (wait ? ' <small>(Claude will fold this into the answer at the next refresh)</small>' : '') + '</p>';
+    h += '<div class="ctxbtns"><button class="link" data-ctxt="' + id + '" aria-expanded="' + op + '">' + (op ? 'Close context' : txt ? 'Edit context' : 'Add context') + '</button>';
+    if (made) h += '<span class="meta">Case made: ' + esc(made.title) + '</span>';
+    else if (req) h += '<span class="meta">Queued for a case</span><button class="link" data-mkcase="' + id + '" data-tp="' + tid + '">Undo</button>';
+    else h += '<button class="link" data-mkcase="' + id + '" data-tp="' + tid + '">Make this a case</button>';
+    h += '</div>';
+    if (op) h += '<label class="note"><span>Extra context that makes the answer make sense</span><textarea rows="3" data-ctx="' + id + '" placeholder="Why it works this way, an example, a link to something you already know. Claude will use it to rewrite the answer.">' + esc(txt) + '</textarea></label>';
+    return h + '</div>';
+  }
   function noteLine(id) { var n = noteOf(id); if (!n) return ''; return '<span class="rownote"><b>Your note:</b> ' + esc(n.length > 110 ? n.slice(0, 110) + '...' : n) + '</span>'; }
   function noteBox(id, label, keys) {
     return '<label class="note"><span>' + label + (keys ? ' ' + KH('N') : '') + '</span><textarea rows="2" data-note="' + id + '" placeholder="What did you miss? Next time it shows before the answer.">' + esc(noteOf(id)) + '</textarea></label>';
@@ -545,7 +573,7 @@
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
     var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
-    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
+    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<p>' + (it.k ? esc(it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
   function topic(id) {
@@ -590,7 +618,7 @@
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button>';
-    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + rateButtons(x.it.id, true);
+    else h += '<p class="answer">' + (x.it.k ? esc(x.it.k) : 'No key point written for this item.') + '</p><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true);
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
@@ -731,8 +759,10 @@
   app.addEventListener('click', function (e) {
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
+    if ((el = e.target.closest('[data-ctxt]'))) { var cid = el.getAttribute('data-ctxt'), cbx = document.querySelector('[data-ctx="' + cid + '"]'); if (cbx) setCtx(cid, cbx.value); ctxOpen[cid] = !ctxOpen[cid]; save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -772,6 +802,7 @@
     }
   });
   app.addEventListener('change', function (e) {
+    var cx = e.target.closest('[data-ctx]'); if (cx) { setCtx(cx.getAttribute('data-ctx'), cx.value); save(); return; }
     var nt = e.target.closest('[data-note]'); if (nt) { setNote(nt.getAttribute('data-note'), nt.value); save(); return; }
     var c = e.target.closest('[data-rev]'); if (!c) return;
     var t = ts(topicId()), k = c.getAttribute('data-rev');

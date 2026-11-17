@@ -79,3 +79,13 @@ Agreed with the user on 12 Nov 2026 after they found that short cue titles ("Wha
 Order-sheet cases (`tools/cases/*_ward.js`, ids `w` + refresh date + letter, e.g. `w20261116a`) follow the same rule: they show on Today until played or skipped, and next to their tool on the topic page as a yellow dot with the count, or "Done <date>" once every case has been played.
 
 Today shows a "New on-call cases" list with a count on the Today tab. A case is listed when its `id` starts with `c` + an 8-digit date, it is not `retired`, it has not been played (synced attempts) and it has not been skipped (synced `caseSkip`). Play opens the case directly (`?case=<id>`). Cases without a dated id never show as new, so always use the dated format. A new shift tool must have a `file` ending `_shift.html` in `data.js` and its case file at `tools/cases/<name>_shift.js`. Do not reuse or rename ids. New recall cards are silent by design: they appear in the topic checklist and enter Revise when the topic is marked studied.
+
+# Card context and "Make this a case" requests
+
+On every recall card (Revise and the topic checklist) the user can add context to the answer and queue the card to become a case. They sync as `ctx` (`{cardId: {text, t}}`) and `caseReq` (`{cardId: {on, t, topic}}`).
+
+1. Read the state as above and run `python3 scripts/requests.py state.json`.
+2. Context: rewrite the card's `k` so it makes sense on its own, using the user's words as the explanation. Keep every source line and "not verified" flag. Keep `t` a full question the new `k` fully answers. Then set `cx: <t>` (the context timestamp the script prints) on the card, so it stops listing as pending. The user's context stays in their state; do not delete it.
+3. Case requests: write a new case for the card's concept in the topic's case file, in both Easy and Hard if the topic is a duo (see the rules above), using the user's context to pick the angle. Give it `fromCard: "<card id>"` and a dated id. The app then shows "Case made: <title>" on the card.
+4. Clinical accuracy and the other steps (check, bump `sw.js`, push, deploy, report) are the same as for a normal refresh. Report which cards you rewrote and which cases you made.
+
