@@ -10,7 +10,7 @@
     return mem || { topics: {}, errors: [] };
   }
   var S = load();
-  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; S.ctx = S.ctx || {}; S.caseReq = S.caseReq || {}; }
+  function fix() { S.topics = S.topics || {}; S.errors = S.errors || []; S.items = S.items || {}; S.custom = S.custom || {}; S.added = S.added || {}; S.addedAt = S.addedAt || {}; S.dead = S.dead || {}; S.resetAt = S.resetAt || 0; S.attempts = S.attempts || []; S.notes = S.notes || {}; S.highlights = S.highlights || []; S.stars = S.stars || {}; S.pace = S.pace || []; S.revtime = S.revtime || {}; S.caseSkip = S.caseSkip || {}; S.ctx = S.ctx || {}; S.caseReq = S.caseReq || {}; S.skipRev = S.skipRev || {}; }
   fix();
   function store() { mem = S; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: stays in memory */ } }
   function save() { store(); if (window.RMOSync) window.RMOSync.soon(); }
@@ -67,6 +67,7 @@
   var PRI = { 1: 'Must know', 2: 'Good to know', 3: 'Detail' };
   var SRC = { p: 'Point of Care page', a: 'Australian guidance (ANZCOR)', b: 'Point of Care page and Australian guidance', n: 'Your own notes, checked where an Australian source is named', q: 'A Test yourself question you saved', g: 'Australian guidance (Asthma Handbook, TSANZ, NSW ACI, Therapeutic Guidelines); the Study Kit says what could not be verified', k: 'From the Study Kit. Checked against an Australian source only where one is named in the answer; the rest is standard teaching' };
   var openSet = {}, revealed = false;
+  function skipped(id) { return !!(S.skipRev && S.skipRev[id] && S.skipRev[id].on); }
   function topicItems(tid) {
     var rc = RC[tid] || { items: [], sg: [] }, out = [], added = S.added[tid] || [];
     rc.items.forEach(function (x, i) { if (!x.dup) out.push({ it: x, o: i, tid: tid }); });
@@ -92,6 +93,7 @@
   }
   function undoRate() {
     if (!undo) return;
+    if (undo.skip) { S.skipRev[undo.id] = { on: false, t: Date.now() }; undo = null; save(); return; }
     if (undo.prev) { undo.prev.t = Date.now(); S.items[undo.id] = undo.prev; }
     else { delete S.items[undo.id]; S.dead[undo.id] = Date.now(); }
     undo = null; save();
@@ -101,13 +103,14 @@
     TOP.forEach(function (t) {
       var studied = (S.topics[t.id] || {}).studied;
       topicItems(t.id).forEach(function (x) {
+        if (skipped(x.it.id)) return;
         var k = itState(x.it.id).k;
         if (k === 'due') due.push(x); else if (k === 'new' && studied) fresh.push(x);
       });
     });
     return { due: due, fresh: fresh, all: due.concat(fresh) };
   }
-  function topicDueCount(tid) { return topicItems(tid).filter(function (x) { return itState(x.it.id).k === 'due'; }).length; }
+  function topicDueCount(tid) { return topicItems(tid).filter(function (x) { return !skipped(x.it.id) && itState(x.it.id).k === 'due'; }).length; }
   function tagFor(st) {
     if (st.k === 'new') return '<span class="tag">Not rated</span>';
     if (st.k === 'due') return '<span class="tag due">Due</span>';
@@ -154,7 +157,7 @@
     out.notes = {};
     [a.notes || {}, b.notes || {}].forEach(function (n) { Object.keys(n).forEach(function (k) { if (!out.notes[k] || (n[k].t || 0) > (out.notes[k].t || 0)) out.notes[k] = n[k]; }); });
     Object.keys(out.notes).forEach(function (k) { if ((out.notes[k].t || 0) < r) delete out.notes[k]; });
-    ['ctx', 'caseReq'].forEach(function (f) {
+    ['ctx', 'caseReq', 'skipRev'].forEach(function (f) {
       out[f] = {};
       [a[f] || {}, b[f] || {}].forEach(function (n) { Object.keys(n).forEach(function (k) { if (!out[f][k] || (n[k].t || 0) > (out[f][k].t || 0)) out[f][k] = n[k]; }); });
       Object.keys(out[f]).forEach(function (k) { if ((out[f][k].t || 0) < r) delete out[f][k]; });
@@ -490,6 +493,7 @@
   }
   function undoBar() {
     if (!undo || Date.now() - undo.at > 8000) return '';
+    if (undo.skip) return '<div class="undo" role="status"><span>Removed from Revise. It stays in its topic checklist.</span><button class="link" data-act="undo">Undo</button></div>';
     var it = S.items[undo.id];
     return '<div class="undo" role="status"><span>Marked ' + (undo.how === 'got' ? 'Got it' : 'Shaky') + (it ? '. Next review ' + nice(it.due) : '') + '.</span><button class="link" data-act="undo">Undo</button></div>';
   }
@@ -563,6 +567,7 @@
     if (made) h += '<span class="meta">Case made: ' + esc(made.title) + '</span>';
     else if (req) h += '<span class="meta">Queued for a case</span><button class="link" data-mkcase="' + id + '" data-tp="' + tid + '">Undo</button>';
     else h += '<button class="link" data-mkcase="' + id + '" data-tp="' + tid + '">Make this a case</button>';
+    h += '<button class="link" data-skiprev="' + id + '">' + (skipped(id) ? 'Put back in Revise' : 'Remove from Revise') + '</button>';
     h += '</div>';
     if (op) h += '<label class="note"><span>Extra context that makes the answer make sense</span><textarea rows="3" data-ctx="' + id + '" placeholder="Why it works this way, an example, a link to something you already know. Claude will use it to rewrite the answer.">' + esc(txt) + '</textarea></label>';
     return h + '</div>';
@@ -580,7 +585,7 @@
   function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + tagFor(st) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st)) + '</button>';
     if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -625,7 +630,7 @@
     rtShown = x.it.id;
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
-    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button>';
+    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns"><button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
     else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true);
     h += '</section>';
     return shell(h, { page: 'revise' });
@@ -768,6 +773,7 @@
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-ctxt]'))) { var cid = el.getAttribute('data-ctxt'), cbx = document.querySelector('[data-ctx="' + cid + '"]'); if (cbx) setCtx(cid, cbx.value); ctxOpen[cid] = !ctxOpen[cid]; save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-skiprev]'))) { var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
@@ -791,7 +797,7 @@
       return;
     }
     if (a === 'highlight') { saveHighlight(); return; }
-    if (a === 'undo') { var uid = undo && undo.id; undoRate(); if (uid) { rtUndo(uid); save(); } keepScroll = true; render(); return; }
+    if (a === 'undo') { var uid = undo && !undo.skip && undo.id; undoRate(); if (uid) { rtUndo(uid); save(); } keepScroll = true; render(); return; }
     if (a === 'rtmenu') { rtMenu = !rtMenu; rtPaint(rtLoad(), ''); return; }
     if (a === 'rtgoal') { rtMenu = false; var gs = rtLoad(); gs.goal = { min: +el.getAttribute('data-min'), start: gs.ms, cards0: gs.cards }; rtSave(gs); rtPaint(gs, ''); return; }
     if (a === 'rtgoaloff') { rtMenu = false; var go = rtLoad(); go.goal = null; rtSave(go); rtPaint(go, ''); return; }
