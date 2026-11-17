@@ -235,8 +235,8 @@
     prog.innerHTML = 'Step ' + (S.si + 1) + ' of ' + c.steps.length + ' ' + pips();
     if (S.mode === 'intro') {
       prog.textContent = '';
-      view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><h2>' + esc(c.title) + '</h2><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
-        '' + modeSeg(c) + '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+      view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><div class="casehead"><h2>' + esc(c.title) + '</h2>' + modeSeg(c) + '</div><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
+        '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'order') {
