@@ -97,7 +97,7 @@
     }
     return h + '</div>';
   }
-  function paint(full) {
+  function paint(redo) {
     var ph = st ? st.ph : 'idle', full = fabText(), short = ph === 'run' ? clock(remaining()) : ph === 'brk' ? 'Break ' + clock(remaining()) : ph === 'done' ? 'Done' : 'Focus';
     var els = document.querySelectorAll('[data-focus]');
     for (var i = 0; i < els.length; i++) {
@@ -107,7 +107,7 @@
       el.setAttribute('aria-label', ph === 'run' ? 'Focus block running. ' + full : ph === 'idle' ? 'Start a focus block' : full);
     }
     if (note && Date.now() < noteT) { toast.textContent = note; toast.hidden = false; } else { toast.hidden = true; note = null; }
-    if (full || !open) {
+    if (redo || !open) {
       if (open) { var keep = document.getElementById('fintent'); var v = keep ? keep.value : null; host.innerHTML = sheet(); var k2 = document.getElementById('fintent'); if (k2 && v) k2.value = v; }
       else host.innerHTML = '';
     }
