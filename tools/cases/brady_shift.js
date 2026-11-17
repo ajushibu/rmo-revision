@@ -15,7 +15,7 @@ window.RMO_CASES = [
 {
 id: "c1", title: "Two drugs, one kidney", where: "Medical ward 6B", time: "02:40", blurb: "Slow, drowsy and hypotensive on two rate-slowing drugs with kidney injury. Tests toxicity, atropine and escalation.",
 intro: "Nurse call: 79-year-old woman, admitted two days ago with a vomiting illness. She is drowsy and her heart rate is in the 30s.",
-vit: { hr: 34, sbp: 78, dbp: 44, spo2: 93, rr: 16 },
+vit: { rhythm: 'af', hr: 34, sbp: 78, dbp: 44, spo2: 93, rr: 16 },
 facts: ["79F; atrial fibrillation and hypertension", "Cool and clammy; drowsy but rouses to voice", "ECG: slow narrow-complex rhythm at 34, no clear P waves", "Creatinine 240 umol/L (baseline 90); glucose 12 mmol/L"],
 decisions: [
 { tag: "first", scene: "You arrive at the bedside. What do you do in the first ten minutes?", opts: [
@@ -53,7 +53,7 @@ ends: { hi: "She recovers, the culprit drugs are off and the plan is safe. You f
 {
 id: "c2", title: "Inferior and slow", where: "Emergency department", time: "20:15", blurb: "Chest pain, a slow rate and ST elevation in the inferior leads. Tests ACS, heart block, atropine and pacing.",
 intro: "Triage: 61-year-old man, 90 minutes of central chest pain, sweaty and grey. Heart rate is 38 and the BP is low. ECG done.",
-vit: { hr: 38, sbp: 84, dbp: 50, spo2: 95, rr: 20 },
+vit: { rhythm: 'chb+st', hr: 38, sbp: 84, dbp: 50, spo2: 95, rr: 20 },
 facts: ["61M; smoker; no previous heart disease; takes no regular medicines", "Central chest pain 90 minutes, sweaty and pale", "ECG: ST elevation in II, III and aVF", "Chest clear; JVP not raised; alert"],
 decisions: [
 { tag: "acs", scene: "ST elevation inferiorly with a rate of 38 and BP 84/50. What is your first set of actions?", opts: [
@@ -89,7 +89,7 @@ ends: { hi: "He is paced and perfused with the cath lab on its way. You treated 
 {
 id: "c3", title: "Fine, and not fine", where: "Medical assessment unit", time: "11:00", blurb: "A well-looking man with a block that can kill. Tests risk markers, pads, hyperkalaemia and the pacemaker decision.",
 intro: "Pager: 72-year-old man, a faint at home yesterday, now sitting up on the trolley and feeling fine. The monitor shows a slow rhythm with dropped beats.",
-vit: { hr: 46, sbp: 128, dbp: 76, spo2: 97, rr: 14 },
+vit: { rhythm: 'mob2', hr: 46, sbp: 128, dbp: 76, spo2: 97, rr: 14 },
 facts: ["72M; hypertension and chronic kidney disease", "One episode of syncope yesterday; no chest pain or breathlessness now", "Takes ramipril and spironolactone", "Telemetry: intermittent dropped beats"],
 decisions: [
 { tag: "adverse", scene: "He feels well and the BP is 128/76. What is your plan?", opts: [

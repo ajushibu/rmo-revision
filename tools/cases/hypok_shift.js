@@ -16,7 +16,7 @@
     id: 'hypok1', title: 'Vomiting on digoxin', time: '22:00', where: 'Medical ward',
     blurb: 'An elderly woman with a gastro illness, on digoxin and furosemide, with a very low potassium and ectopics.',
     intro: '72-year-old woman with atrial fibrillation, on digoxin and furosemide. She has been vomiting and has had diarrhoea for three days. She feels weak and has palpitations. The potassium is back at 2.3.',
-    vit: { hr: 96, sbp: 118, dbp: 70, spo2: 97, rr: 16 },
+    vit: { rhythm: 'sinus+u+pvc+stdep+flat', hr: 96, sbp: 118, dbp: 70, spo2: 97, rr: 16 },
     facts: ['72F, AF on digoxin and furosemide', 'Vomiting and diarrhoea for 3 days', 'Weak, palpitations', 'Potassium 2.3, creatinine 130 (baseline 90)', 'ECG: flat T waves, U waves, frequent ventricular ectopics'],
     decisions: [
       { tag: 'hypok-cause', scene: 'Potassium 2.3, ectopics on the ECG, and she takes digoxin. How do you see this?', opts: [
@@ -57,8 +57,8 @@
           insulin_k: X('Insulin pushes potassium down further.', { harmDose: [0, 1, 2, 3, 4] }), salb_k: X('Salbutamol lowers potassium.', { harmDose: [0, 1, 2] }),
           furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] }), bicarb: X('Bicarbonate lowers potassium.', { harmDose: [0, 1, 2] })
         },
-        ok: { text: 'The first bag is in. Her ectopics settle and the potassium is 2.9 at 01:00. Magnesium is 0.5.', vit: { hr: 84 }, facts: ['Potassium 2.9', 'Magnesium 0.5 (low)', 'Ectopics settled'] },
-        miss: { text: 'At midnight she has a run of ventricular tachycardia that settles by itself. The potassium is still 2.3.', vit: { hr: 130 }, facts: ['Non-sustained VT'] } },
+        ok: { text: 'The first bag is in. Her ectopics settle and the potassium is 2.9 at 01:00. Magnesium is 0.5.', vit: { rhythm: 'sinus+u+stdep+flat', hr: 84 }, facts: ['Potassium 2.9', 'Magnesium 0.5 (low)', 'Ectopics settled'] },
+        miss: { text: 'At midnight she has a run of ventricular tachycardia that settles by itself. The potassium is still 2.3.', vit: { rhythm: 'sinus+u+pvc+stdep+flat', hr: 130 }, facts: ['Non-sustained VT'] } },
       { label: 'The next step', tag: 'hypok-after', time: '01:00', window: 'Next few hours',
         scene: 'Potassium 2.9, magnesium 0.5, still on the monitor. What do you order?',
         plan: PL(['reg', ['none'], 'Tell your registrar about the magnesium and the digoxin.'], ['spo2ecg', ['q15'], 'Keep the monitor on until the potassium is above 3.'], ['h4', ['h1', 'm20'], 'Recheck within 2 to 4 hours of each bag.']),
@@ -75,7 +75,7 @@
     id: 'hypok2', title: 'The stoma that never stops', time: '14:00', where: 'Surgical ward',
     blurb: 'A mild low potassium after surgery in a patient with a high-output ileostomy. Tests oral replacement and the real cause.',
     intro: '58-year-old man, day 4 after a bowel resection with an ileostomy. The stoma output is 2.5 L a day. He is eating and drinking and feels well. The potassium is 3.1 with a normal ECG.',
-    vit: { hr: 82, sbp: 120, dbp: 74, spo2: 98, rr: 15 },
+    vit: { rhythm: 'sinus', hr: 82, sbp: 120, dbp: 74, spo2: 98, rr: 15 },
     facts: ['58M, day 4 after bowel resection, new ileostomy', 'Stoma output 2.5 L a day', 'Eating and drinking, no symptoms', 'Potassium 3.1, magnesium 0.55, creatinine 105', 'ECG: normal'],
     decisions: [
       { tag: 'hypok-cause', scene: 'Potassium 3.1, normal ECG, a stoma putting out 2.5 L. What is the likely cause?', opts: [

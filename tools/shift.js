@@ -38,7 +38,7 @@
     var v = S.vit;
     var arrest = v.hr === 0;
     var dur = arrest ? 0 : Math.max(0.35, 60 / v.hr);
-    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div><div class="vit">' +
+    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + c.where + '</span><span>' + c.time + '</span></div>' + (window.ecgTag ? ecgTag(v) : '') + '<div class="vit">' +
       '<div><span class="l"><i class="dot" style="' + (arrest ? 'animation:none;background:var(--mon-bad)' : 'animation-duration:' + dur.toFixed(2) + 's') + '"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + (arrest ? '--' : v.hr) + '<span class="u">bpm</span></span></div>' +
       '<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + (arrest ? '--/--' : v.sbp + '/' + v.dbp) + '<span class="u">mmHg</span></span></div>' +
       '<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + (arrest ? '--' : v.spo2) + '<span class="u">%</span></span></div>' +

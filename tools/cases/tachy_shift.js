@@ -13,7 +13,7 @@ window.RMO_CASES = [
 {
 id: "c1", title: "Palpitations in the ED", where: "Emergency department", time: "15:10", blurb: "A young woman with a narrow, regular fast rhythm. Tests stable versus unstable, vagal manoeuvres and adenosine.",
 intro: "Triage: 28-year-old woman, two hours of sudden palpitations. She feels well otherwise. ECG done.",
-vit: { hr: 168, sbp: 118, dbp: 74, spo2: 98, rr: 18 },
+vit: { rhythm: 'svt', hr: 168, sbp: 118, dbp: 74, spo2: 98, rr: 18 },
 facts: ["28F; fit and well; two similar episodes before that stopped on their own", "No chest pain; mildly anxious; two energy drinks today", "ECG: narrow regular rhythm at 168, no clear P waves", "Alert and talking in full sentences"],
 decisions: [
 { tag: "first", scene: "You see her in the resus bay. What do you do first?", opts: [
@@ -34,8 +34,8 @@ decisions: [
 { q: "poor", t: "Carotid sinus massage", fb: "ANZCOR names Valsalva, not carotid massage. It is not first choice here." }
 ] },
 { tag: "svt", scene: "The vagal manoeuvre has not worked. Next?", opts: [
-{ q: "best", t: "Adenosine 6 mg rapid IV bolus into a large vein, flush with at least 20 mL, and 12 mg if there is no response", vit: { hr: 82, sbp: 122, dbp: 76 }, reveal: ["After adenosine 6 mg: a few seconds of pause, then sinus rhythm at 82"], fb: "This is the ANZCOR sequence. Adenosine lasts seconds, so it must go in as a fast bolus followed by a fast flush. Warn her that she will feel odd for a moment." },
-{ q: "ok", t: "Verapamil 2.5-5 mg IV over 2 minutes", vit: { hr: 90, sbp: 108, dbp: 66 }, fb: "ANZCOR lists it when adenosine is unsuitable or fails. Adenosine comes first." },
+{ q: "best", t: "Adenosine 6 mg rapid IV bolus into a large vein, flush with at least 20 mL, and 12 mg if there is no response", vit: { rhythm: 'sinus', hr: 82, sbp: 122, dbp: 76 }, reveal: ["After adenosine 6 mg: a few seconds of pause, then sinus rhythm at 82"], fb: "This is the ANZCOR sequence. Adenosine lasts seconds, so it must go in as a fast bolus followed by a fast flush. Warn her that she will feel odd for a moment." },
+{ q: "ok", t: "Verapamil 2.5-5 mg IV over 2 minutes", vit: { rhythm: 'sinus', hr: 90, sbp: 108, dbp: 66 }, fb: "ANZCOR lists it when adenosine is unsuitable or fails. Adenosine comes first." },
 { q: "poor", t: "Adenosine 6 mg as a slow infusion over 2 minutes", fb: "It is broken down in seconds, so a slow infusion does nothing. It needs a rapid bolus and a flush." },
 { q: "harm", t: "Amiodarone 300 mg over 20 minutes", fb: "Not the choice for narrow regular SVT, and it is slow." }
 ] },
@@ -50,7 +50,7 @@ ends: { hi: "She is in sinus rhythm with a plan. The harmless step came first, a
 {
 id: "c2", title: "Wide and fast on the ward", where: "Medical ward 3A", time: "01:30", blurb: "A man with an old heart attack and a wide regular tachycardia that becomes unstable. Tests VT, amiodarone and the shock.",
 intro: "Nurse call: 67-year-old man, admitted with a chest infection. Now 'racing heart'. The monitor shows a wide, fast rhythm.",
-vit: { hr: 172, sbp: 112, dbp: 70, spo2: 96, rr: 20 },
+vit: { rhythm: 'vt', hr: 172, sbp: 112, dbp: 70, spo2: 96, rr: 20 },
 facts: ["67M; previous anterior MI five years ago; known EF about 35%", "Admitted yesterday with pneumonia; on antibiotics", "ECG: wide regular tachycardia at 172, QRS about 160 ms", "Alert; mild palpitations; no chest pain"],
 decisions: [
 { tag: "wide", scene: "The ECG shows a wide, regular rhythm at 172. He has had a heart attack before. How do you treat it?", opts: [
@@ -70,7 +70,7 @@ decisions: [
 { q: "harm", t: "Give 2 litres of fluid and wait", fb: "He has EF 35%. Fluid will not fix a rhythm problem and may cause pulmonary oedema." }
 ] },
 { tag: "failshock", reveal: ["After the first synchronised shock: still VT at 170, BP 76/40"], scene: "The first shock does not work. He is still in VT with a low pressure. What next?", opts: [
-{ q: "best", t: "Amiodarone 300 mg IV over 10-20 minutes, then repeat the synchronised shock, then 900 mg over 24 hours", vit: { hr: 84, sbp: 104, dbp: 62 }, fb: "This is the ANZCOR sequence for a failed shock." },
+{ q: "best", t: "Amiodarone 300 mg IV over 10-20 minutes, then repeat the synchronised shock, then 900 mg over 24 hours", vit: { rhythm: 'sinus', hr: 84, sbp: 104, dbp: 62 }, fb: "This is the ANZCOR sequence for a failed shock." },
 { q: "poor", t: "Repeat the same shock again and again without any drug", fb: "ANZCOR adds amiodarone before repeating the shock." },
 { q: "harm", t: "Switch to verapamil", fb: "Never for a wide tachycardia, and especially not with a weak heart and low pressure." }
 ] },
@@ -85,7 +85,7 @@ ends: { hi: "He is in sinus rhythm, monitored and with cardiology involved. Wide
 {
 id: "c3", title: "Twisting wide beats", where: "Surgical ward 5C", time: "04:20", blurb: "A woman on QT-prolonging drugs with torsades. Tests the magnesium and the amiodarone trap.",
 intro: "Nurse call: 58-year-old woman, day 2 after bowel surgery, runs of fast irregular wide beats on the monitor, now dizzy.",
-vit: { hr: 150, sbp: 100, dbp: 62, spo2: 96, rr: 18 },
+vit: { rhythm: 'tors', hr: 150, sbp: 100, dbp: 62, spo2: 96, rr: 18 },
 facts: ["58F; two days after bowel surgery; vomiting and a poor intake", "Drug chart: ondansetron, haloperidol and a macrolide antibiotic", "ECG earlier today: QTc 520 ms", "Monitor: runs of twisting wide complexes that start and stop"],
 decisions: [
 { tag: "torsades", scene: "The wide beats twist around the baseline and the earlier QTc was long. What is the rhythm and the first priority?", opts: [
@@ -104,7 +104,7 @@ decisions: [
 { q: "harm", t: "Leave electrolytes until the morning", fb: "Torsades can return any minute while the potassium stays low." }
 ] },
 { tag: "adverse", vit: { hr: 160, sbp: 76, dbp: 40, spo2: 93, rr: 24 }, reveal: ["Torsades is now sustained: drowsy, BP 76/40, still has a pulse"], scene: "The torsades becomes sustained. She is drowsy with BP 76/40 but has a pulse. What now?", opts: [
-{ q: "best", t: "Synchronised cardioversion with sedation per your protocol, with senior and anaesthetic help (and if she loses her pulse, move to the arrest algorithm)", vit: { hr: 78, sbp: 108, dbp: 64 }, fb: "ANZCOR says to arrange immediate synchronised cardioversion if adverse signs develop. A pulseless patient follows the cardiac arrest algorithm." },
+{ q: "best", t: "Synchronised cardioversion with sedation per your protocol, with senior and anaesthetic help (and if she loses her pulse, move to the arrest algorithm)", vit: { rhythm: 'sinus', hr: 78, sbp: 108, dbp: 64 }, fb: "ANZCOR says to arrange immediate synchronised cardioversion if adverse signs develop. A pulseless patient follows the cardiac arrest algorithm." },
 { q: "poor", t: "Another magnesium dose and watch", fb: "The magnesium may be repeated once, but with adverse signs she needs the shock now." },
 { q: "harm", t: "Amiodarone 300 mg IV", fb: "Avoid it in torsades." }
 ] },
@@ -119,7 +119,7 @@ ends: { hi: "She is back in sinus rhythm, the culprit drugs are off and the elec
 {
 id: "c20261113a", title: "Racing on the orthopaedic ward", where: "Orthopaedic ward", time: "23:50", blurb: "A man the day after knee surgery with a narrow, regular rhythm at 188. Tests the whole-patient stability call and how adenosine must be given.",
 intro: "Nurse call: 46-year-old man, day 1 after a knee replacement. Heart racing for 20 minutes. The monitor shows a narrow, fast, regular rhythm.",
-vit: { hr: 188, sbp: 128, dbp: 80, spo2: 97, rr: 18 },
+vit: { rhythm: 'svt', hr: 188, sbp: 128, dbp: 80, spo2: 97, rr: 18 },
 facts: ["46M; fit; had 'racing heart' episodes at university that stopped on their own", "Pain controlled; drinking well; no chest pain or breathlessness", "ECG: narrow regular rhythm at 188, no visible P waves", "Only IV access: a small 22G cannula in the back of the left hand"],
 decisions: [
 { tag: "first", scene: "You arrive at the bedside. What do you do first?", opts: [
@@ -140,8 +140,8 @@ decisions: [
 { q: "poor", t: "Push it slowly over 2 minutes so he does not feel unwell", fb: "Slow pushes do not work. Warn him that he will feel strange for a few seconds instead." }
 ] },
 { tag: "svt", reveal: ["After adenosine 6 mg: a brief slowing, then back to 188"], scene: "The 6 mg dose slowed him for a second, then the rate came back. What next?", opts: [
-{ q: "best", t: "Adenosine 12 mg the same way (rapid bolus and flush); a further 12 mg may be given if needed", vit: { hr: 84, sbp: 126, dbp: 78 }, reveal: ["After adenosine 12 mg: a short pause, then sinus rhythm at 84"], fb: "This is the ANZCOR sequence: 6 mg, then 12 mg, which may be repeated." },
-{ q: "ok", t: "Verapamil 2.5-5 mg IV over 2 minutes", vit: { hr: 92, sbp: 112, dbp: 70 }, fb: "ANZCOR lists it when adenosine is unsuitable or fails, but the 12 mg dose comes first." },
+{ q: "best", t: "Adenosine 12 mg the same way (rapid bolus and flush); a further 12 mg may be given if needed", vit: { rhythm: 'sinus', hr: 84, sbp: 126, dbp: 78 }, reveal: ["After adenosine 12 mg: a short pause, then sinus rhythm at 84"], fb: "This is the ANZCOR sequence: 6 mg, then 12 mg, which may be repeated." },
+{ q: "ok", t: "Verapamil 2.5-5 mg IV over 2 minutes", vit: { rhythm: 'sinus', hr: 92, sbp: 112, dbp: 70 }, fb: "ANZCOR lists it when adenosine is unsuitable or fails, but the 12 mg dose comes first." },
 { q: "poor", t: "Repeat 6 mg, given slowly this time", fb: "The dose should go up to 12 mg, and it must always be fast." },
 { q: "harm", t: "Amiodarone 300 mg IV over 20 minutes", fb: "Not the drug for a stable narrow regular SVT, and you have not finished the adenosine steps." }
 ] },
@@ -156,7 +156,7 @@ ends: { hi: "He is in sinus rhythm. You judged stability on the whole patient an
 {
 id: "c20261113b", from: "c2", title: "Wide and regular in recovery", where: "Post-anaesthesia recovery", time: "16:40", blurb: "A woman with a weak heart develops a wide regular tachycardia after a hip operation. Tests VT, amiodarone and what to do when the shock fails.",
 intro: "Recovery nurse call: 74-year-old woman, one hour after a hip replacement. The monitor has changed to a wide, fast, regular rhythm.",
-vit: { hr: 178, sbp: 106, dbp: 64, spo2: 95, rr: 20 },
+vit: { rhythm: 'vt', hr: 178, sbp: 106, dbp: 64, spo2: 95, rr: 20 },
 facts: ["74F; ischaemic cardiomyopathy; EF about 30%", "Spinal anaesthetic; awake and talking", "ECG: wide regular tachycardia at 178, QRS about 170 ms", "Bloods this morning: K 3.3 mmol/L"],
 decisions: [
 { tag: "wide", scene: "The registrar on the phone wonders if this is SVT with a bundle branch block. How do you treat it?", opts: [
@@ -175,7 +175,7 @@ decisions: [
 { q: "harm", t: "A 1 L fluid bolus and wait", fb: "Fluid does not fix the rhythm, and with an EF of 30% it may cause pulmonary oedema." }
 ] },
 { tag: "failshock", reveal: ["After the first synchronised shock: still VT at 176, BP 78/44"], scene: "The first shock fails. She is still in VT with a low BP. What next?", opts: [
-{ q: "best", t: "Amiodarone 300 mg IV over 10-20 minutes, then repeat the synchronised shock, then 900 mg over 24 hours", vit: { hr: 88, sbp: 102, dbp: 60 }, fb: "This is the ANZCOR sequence when a shock fails." },
+{ q: "best", t: "Amiodarone 300 mg IV over 10-20 minutes, then repeat the synchronised shock, then 900 mg over 24 hours", vit: { rhythm: 'sinus', hr: 88, sbp: 102, dbp: 60 }, fb: "This is the ANZCOR sequence when a shock fails." },
 { q: "poor", t: "Keep repeating the same shock with no drug", fb: "ANZCOR adds amiodarone before the next shock." },
 { q: "harm", t: "Give verapamil now that the shock has failed", fb: "Never for a wide tachycardia, and not with a low BP." }
 ] },
@@ -190,7 +190,7 @@ ends: { hi: "She is in sinus rhythm, monitored, with the potassium fixed and car
 {
 id: "c20261113c", from: "c3", title: "Twisting on the medical ward", where: "Medical ward", time: "02:10", blurb: "A man on sotalol with diarrhoea and low potassium develops torsades, then loses his pulse. Tests magnesium, the electrolytes and the arrest step.",
 intro: "Nurse call: 76-year-old man, day 3 with gastroenteritis. Short runs of wide, twisting beats on the monitor. He says he feels faint.",
-vit: { hr: 140, sbp: 104, dbp: 60, spo2: 95, rr: 18 },
+vit: { rhythm: 'tors', hr: 140, sbp: 104, dbp: 60, spo2: 95, rr: 18 },
 facts: ["76M; AF on sotalol; depression on citalopram; furosemide for ankle swelling", "Three days of diarrhoea; eating little", "Admission ECG: QTc 560 ms; heart rate 52", "Monitor: runs of polymorphic wide complexes that twist and stop on their own"],
 decisions: [
 { tag: "torsades", scene: "The QTc was long and the beats twist around the baseline. What is it, and what comes first?", opts: [
@@ -208,8 +208,8 @@ decisions: [
 { q: "poor", t: "Oral potassium in the morning", fb: "Too slow while torsades is running." },
 { q: "poor", t: "Replace potassium only", fb: "Low magnesium also drives torsades, and it makes potassium hard to correct." }
 ] },
-{ tag: "adverse", vit: { hr: 0, sbp: 0, dbp: 0, spo2: 0, rr: 0 }, reveal: ["The torsades becomes sustained. He goes limp: no pulse, not breathing normally"], scene: "He goes limp with no pulse. The monitor shows sustained torsades. What now?", opts: [
-{ q: "best", t: "Call the arrest team, start CPR, and defibrillate (unsynchronised) as for VF on the cardiac arrest algorithm", vit: { hr: 76, sbp: 98, dbp: 58, spo2: 94, rr: 16 }, reveal: ["After one shock and two minutes of CPR: sinus rhythm with a pulse"], fb: "Pulseless torsades is a shockable arrest rhythm. Synchronised cardioversion is for a patient who still has a pulse." },
+{ tag: "adverse", vit: { rhythm: 'tors', hr: 0, sbp: 0, dbp: 0, spo2: 0, rr: 0 }, reveal: ["The torsades becomes sustained. He goes limp: no pulse, not breathing normally"], scene: "He goes limp with no pulse. The monitor shows sustained torsades. What now?", opts: [
+{ q: "best", t: "Call the arrest team, start CPR, and defibrillate (unsynchronised) as for VF on the cardiac arrest algorithm", vit: { rhythm: 'sinus', hr: 76, sbp: 98, dbp: 58, spo2: 94, rr: 16 }, reveal: ["After one shock and two minutes of CPR: sinus rhythm with a pulse"], fb: "Pulseless torsades is a shockable arrest rhythm. Synchronised cardioversion is for a patient who still has a pulse." },
 { q: "poor", t: "Synchronised cardioversion with sedation", fb: "He has no pulse. Sedation is not needed and the machine may not sync on twisting complexes. This is a cardiac arrest: CPR and defibrillation." },
 { q: "harm", t: "Give amiodarone and wait for it to work", fb: "Waiting with no pulse costs his brain. Shock first; and in torsades amiodarone is avoided." }
 ] },

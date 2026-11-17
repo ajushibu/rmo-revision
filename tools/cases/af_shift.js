@@ -14,7 +14,7 @@ window.RMO_CASES = [
 {
 id: "c1", title: "Three days of fluttering", where: "Emergency department", time: "14:20", blurb: "Stable AF, unknown to anyone for three days. Tests the stroke score, the DOAC choice and the 48-hour rule.",
 intro: "Triage note: 71-year-old man, three days of palpitations, now a bit short of breath on stairs. ECG done. Please review.",
-vit: { hr: 112, sbp: 142, dbp: 88, spo2: 97, rr: 16 },
+vit: { rhythm: 'af', hr: 112, sbp: 142, dbp: 88, spo2: 97, rr: 16 },
 facts: ["71M; hypertension and type 2 diabetes; no previous stroke or TIA", "ECG: irregularly irregular narrow-complex rhythm, no P waves", "Chest clear; no oedema; not on an anticoagulant", "Weight 90 kg; creatinine 95 umol/L"],
 decisions: [
 { tag: "first", scene: "The ECG shows AF. What do you do before you make treatment decisions?", opts: [
@@ -59,7 +59,7 @@ ends: { hi: "He goes home on a beta-blocker and apixaban, with an elective plan 
 {
 id: "c2", title: "Fast and failing", where: "Medical ward 4B", time: "02:10", blurb: "AF with rapid rate in a patient with heart failure who then becomes unstable. Tests drug choice, the shock and the next-day anticoagulant.",
 intro: "Nurse call: 76-year-old woman, day 2 of treatment for pneumonia. Her heart rate has jumped from 90 to 148 and she looks short of breath.",
-vit: { hr: 148, sbp: 108, dbp: 66, spo2: 91, rr: 26 },
+vit: { rhythm: 'af', hr: 148, sbp: 108, dbp: 66, spo2: 91, rr: 26 },
 facts: ["76F; known heart failure with EF 25%; hypertension", "Admission ECG 36 hours ago: sinus rhythm; now irregularly irregular narrow complex at 148", "Crackles both bases; temperature 37.9", "Weight 62 kg; creatinine 118 umol/L; not on an anticoagulant"],
 decisions: [
 { tag: "first", scene: "You arrive. What do you do in the first ten minutes?", opts: [
@@ -81,8 +81,8 @@ decisions: [
 { q: "harm", t: "More diltiazem", fb: "Diltiazem is contraindicated in LV systolic dysfunction and will lower the BP further." }
 ] },
 { tag: "shock", scene: "Pads are on. How do you deliver the shock?", opts: [
-{ q: "best", t: "Sedation per protocol with the anaesthetic or ICU team, synchronised mode on (check the sync markers sit on the R wave), start about 100 J biphasic and escalate per protocol", vit: { hr: 88, sbp: 104, dbp: 62, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 88, BP 104/62"], fb: "Sinus rhythm after one shock. In Queensland the ambulance protocol steps 100, 150, 200 J. Follow your hospital device protocol." },
-{ q: "ok", t: "Synchronised shock at 200 J straight away", vit: { hr: 90, sbp: 102, dbp: 60, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 90, BP 102/60"], fb: "It works, but start lower and escalate, so you use the least energy needed." },
+{ q: "best", t: "Sedation per protocol with the anaesthetic or ICU team, synchronised mode on (check the sync markers sit on the R wave), start about 100 J biphasic and escalate per protocol", vit: { rhythm: 'sinus', hr: 88, sbp: 104, dbp: 62, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 88, BP 104/62"], fb: "Sinus rhythm after one shock. In Queensland the ambulance protocol steps 100, 150, 200 J. Follow your hospital device protocol." },
+{ q: "ok", t: "Synchronised shock at 200 J straight away", vit: { rhythm: 'sinus', hr: 90, sbp: 102, dbp: 60, spo2: 94, rr: 22 }, reveal: ["Sinus rhythm restored: HR 90, BP 102/60"], fb: "It works, but start lower and escalate, so you use the least energy needed." },
 { q: "poor", t: "Wait for a TOE before you shock", fb: "She is unstable. Do not delay for a TOE. Her sinus rhythm 36 hours ago also puts onset under 48 hours." },
 { q: "harm", t: "Unsynchronised 200 J: there is no time to sync", fb: "A shock on a T wave can trigger VF. Synchronisation takes a button press." }
 ] },
@@ -99,7 +99,7 @@ ends: { hi: "She is in sinus rhythm, anticoagulated, and you treated the pneumon
 {
 id: "c3", title: "Wide, fast and irregular", where: "Emergency resus bay", time: "03:30", blurb: "A young man with an irregular wide-complex tachycardia. Tests the one rule that kills if you forget it.",
 intro: "Resus call: 27-year-old man, 40 minutes of rapid palpitations. Fit and well otherwise. ECG shows a very fast, irregular, wide-complex rhythm.",
-vit: { hr: 215, sbp: 112, dbp: 70, spo2: 98, rr: 20 },
+vit: { rhythm: 'afpre', hr: 215, sbp: 112, dbp: 70, spo2: 98, rr: 20 },
 facts: ["27M, previous short episodes of fast palpitations since his teens; no medicines", "ECG: irregular broad-complex tachycardia, QRS width varies beat to beat", "Chest clear; alert and talking", "Nurse has already drawn up verapamil and adenosine"],
 decisions: [
 { tag: "wpw", scene: "He is stable but the rate is 215 and irregular. What do you do first?", opts: [
@@ -118,7 +118,7 @@ decisions: [
 { q: "poor", t: "Give IV amiodarone", fb: "Amiodarone is usually avoided in pre-excited AF too. Cardiology decide." }
 ] },
 { tag: "unstable", vit: { hr: 230, sbp: 84, dbp: 50, spo2: 96, rr: 24 }, reveal: ["BP falling to 84/50; now drowsy; rate 230"], scene: "Before the senior arrives, his BP falls to 84/50. He is drowsy and the rate is 230.", opts: [
-{ q: "best", t: "Sedate and deliver a synchronised shock now", vit: { hr: 74, sbp: 118, dbp: 72, spo2: 98, rr: 16 }, reveal: ["Sinus rhythm: delta wave visible, HR 74"], fb: "Hypotension and drowsiness make this unstable. Shock first." },
+{ q: "best", t: "Sedate and deliver a synchronised shock now", vit: { rhythm: 'sinus', hr: 74, sbp: 118, dbp: 72, spo2: 98, rr: 16 }, reveal: ["Sinus rhythm: delta wave visible, HR 74"], fb: "Hypotension and drowsiness make this unstable. Shock first." },
 { q: "poor", t: "Wait for cardiology to arrive", fb: "He is unstable now. Waiting risks VF." },
 { q: "poor", t: "Give a 1 litre fluid bolus and recheck", fb: "Fluid will not fix a rate this fast. He needs the shock." }
 ] },
@@ -133,7 +133,7 @@ ends: { hi: "He is in sinus rhythm, watched by cardiology, and the verapamil sta
 {
 id: "c20261111a", title: "Day 3 and falling", where: "Surgical ward", time: "22:40", blurb: "New fast AF after bowel surgery that becomes unstable. Tests how to deliver the shock, what to do when it fails, and the trigger.",
 intro: "MET call: 67-year-old man, day 3 after a bowel resection. New AF at 168, BP 82/50, clammy and confused.",
-vit: { hr: 168, sbp: 82, dbp: 50, spo2: 93, rr: 26 },
+vit: { rhythm: 'af', hr: 168, sbp: 82, dbp: 50, spo2: 93, rr: 26 },
 facts: ["67M; day 3 after right hemicolectomy", "Sinus rhythm on this morning's observations", "Temperature 38.3; abdomen more tender tonight", "Afternoon bloods: K 3.2 mmol/L"],
 decisions: [
 { tag: "unstable", scene: "Rate 168, BP 82/50, confused. What is your plan?", opts: [
@@ -147,7 +147,7 @@ decisions: [
 { q: "harm", t: "Unsynchronised shock to save time", fb: "A shock on the T wave can cause VF. Sync is one button." }
 ] },
 { tag: "shock", vit: { hr: 160, sbp: 80, dbp: 48, spo2: 93, rr: 26 }, reveal: ["After the first shock: still AF at 160, BP 80/48"], scene: "First shock: still in AF. What next?", opts: [
-{ q: "best", t: "Check sync is back on (many defibrillators switch it off after each shock), then shock again at the next energy step; consider changing the pad position", vit: { hr: 98, sbp: 106, dbp: 64, spo2: 95, rr: 20 }, reveal: ["Sinus rhythm 98, BP 106/64"], fb: "Escalate energy; re-select sync before each shock on devices that reset. Check your own hospital's defibrillator." },
+{ q: "best", t: "Check sync is back on (many defibrillators switch it off after each shock), then shock again at the next energy step; consider changing the pad position", vit: { rhythm: 'sinus', hr: 98, sbp: 106, dbp: 64, spo2: 95, rr: 20 }, reveal: ["Sinus rhythm 98, BP 106/64"], fb: "Escalate energy; re-select sync before each shock on devices that reset. Check your own hospital's defibrillator." },
 { q: "harm", t: "Shock again straight away at the same energy without checking the mode", fb: "If the device has reset to unsynchronised, this shock can land on a T wave." },
 { q: "poor", t: "Abandon shocks and load digoxin", fb: "Digoxin takes hours. He is unstable now." }
 ] },

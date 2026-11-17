@@ -16,7 +16,7 @@
     id: 'hk1', title: 'The missed dialysis', time: '03:30', where: 'Emergency department',
     blurb: 'A dialysis patient who missed two sessions arrives weak, with a slow pulse. Tests calcium, insulin and the dialysis call.',
     intro: '64-year-old man on haemodialysis three times a week. He missed the last two sessions. He arrives weak, nauseated and short of breath. Pulse 44.',
-    vit: { hr: 44, sbp: 150, dbp: 80, spo2: 94, rr: 22 },
+    vit: { rhythm: 'hyperk2', hr: 44, sbp: 150, dbp: 80, spo2: 94, rr: 22 },
     facts: ['64M, end-stage kidney disease, haemodialysis Mon, Wed, Fri', 'Missed two sessions', 'Weak, nauseated, mild breathlessness', 'Potassium 7.4 mmol/L, bicarbonate 14', 'ECG: wide QRS, flat P waves, tall T waves'],
     decisions: [
       { tag: 'hk-grade', scene: 'Potassium 7.4 with a wide QRS and a heart rate of 44. How serious is this?', opts: [
@@ -61,8 +61,8 @@
           bolus: X('More fluid in an anuric, breathless patient adds overload.'),
           kcl_iv: X('Potassium is the problem.', { harmDose: [0, 1, 2, 3] })
         },
-        ok: { text: 'The QRS narrows and the heart rate is 62. The calcium bought time. The renal registrar is on the way.', vit: { hr: 62 }, facts: ['ECG after calcium: QRS narrower, T waves still tall'] },
-        miss: { text: 'Ten minutes later the QRS is wider and he has a sine-wave rhythm. He loses his pulse.', vit: { hr: 30, sbp: 80, dbp: 40 }, facts: ['Sine-wave rhythm'] } },
+        ok: { text: 'The QRS narrows and the heart rate is 62. The calcium bought time. The renal registrar is on the way.', vit: { rhythm: 'hyperk1', hr: 62 }, facts: ['ECG after calcium: QRS narrower, T waves still tall'] },
+        miss: { text: 'Ten minutes later the QRS is wider and he has a sine-wave rhythm. He loses his pulse.', vit: { rhythm: 'sine', hr: 30, sbp: 80, dbp: 40 }, facts: ['Sine-wave rhythm'] } },
       { label: 'Shift and remove', tag: 'hk-after', time: '04:15', window: 'The next 30 minutes',
         scene: 'The ECG has improved. The potassium is 6.9 on repeat. The renal registrar is coming. What do you order next?',
         plan: PL(['reg', ['icu', 'met'], 'Keep your senior and renal informed.'], ['spo2ecg', [], 'Continuous ECG until the potassium is below 6.'], ['h1', ['m20'], 'Recheck the potassium and glucose within the hour, then every 2 hours.']),
@@ -82,7 +82,7 @@
     id: 'hk2', title: 'The spironolactone patient', time: '14:00', where: 'Medical ward',
     blurb: 'A patient with a high potassium and a normal ECG after starting a new drug. Tests when not to over-treat.',
     intro: '78-year-old woman admitted with a urinary infection. She takes ramipril and spironolactone. She had trimethoprim for three days. Creatinine has risen to 220 (baseline 110). The lab calls a potassium of 6.2.',
-    vit: { hr: 76, sbp: 122, dbp: 70, spo2: 97, rr: 16 },
+    vit: { rhythm: 'sinus', hr: 76, sbp: 122, dbp: 70, spo2: 97, rr: 16 },
     facts: ['78F, urinary infection, day 3 of trimethoprim', 'Ramipril, spironolactone', 'Creatinine 220 (baseline 110)', 'Potassium 6.2 on the lab', 'ECG: normal, no peaked T waves'],
     decisions: [
       { tag: 'hk-grade', scene: 'Potassium 6.2, ECG normal, sample not haemolysed. How do you grade it?', opts: [
@@ -116,7 +116,7 @@
           kcl_iv: X('Potassium is already high.', { harmDose: [0, 1, 2, 3] }), salb_k: S('An extra shifter, not needed at this level.', { d: [0] })
         },
         ok: { text: 'Four hours later the potassium is 5.4 and the creatinine is 205. The glucose stayed between 5 and 8.', facts: ['Potassium 5.4', 'Glucose stable'] },
-        miss: { text: 'Overnight the potassium rises to 6.8 and she has peaked T waves.', vit: { hr: 54 }, facts: ['Potassium 6.8, peaked T waves'] } },
+        miss: { text: 'Overnight the potassium rises to 6.8 and she has peaked T waves.', vit: { rhythm: 'hyperk1', hr: 54 }, facts: ['Potassium 6.8, peaked T waves'] } },
       { label: 'The next day', tag: 'hk-after', time: '08:00', window: 'Next morning',
         scene: 'Potassium 5.0, creatinine 160, BP 118/66. What is the plan?',
         plan: PL(['none', ['reg'], 'Stable and recovering.'], ['routine', ['q15'], 'Routine observations.'], ['am', ['h4'], 'Recheck bloods daily until stable.']),

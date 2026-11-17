@@ -52,7 +52,7 @@
   }
   function monitor(c) {
     var v = S.vit, dur = Math.max(0.35, 60 / (v.hr || 60));
-    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + esc(c.where) + '</span><span>' + esc(S.step ? S.step.time : c.time) + '</span></div><div class="vit">' +
+    return '<div class="monitor" aria-label="Bedside monitor"><div class="head"><span>' + esc(c.where) + '</span><span>' + esc(S.step ? S.step.time : c.time) + '</span></div>' + (window.ecgTag ? ecgTag(v) : '') + '<div class="vit">' +
       '<div><span class="l"><i class="dot" style="animation-duration:' + dur.toFixed(2) + 's"></i>HR</span><span class="v ' + cls('hr', v.hr) + '">' + v.hr + '<span class="u">bpm</span></span></div>' +
       '<div><span class="l">BP</span><span class="v ' + cls('sbp', v.sbp) + '">' + v.sbp + '/' + v.dbp + '<span class="u">mmHg</span></span></div>' +
       '<div><span class="l">SpO2</span><span class="v ' + cls('spo2', v.spo2) + '">' + v.spo2 + '<span class="u">%</span></span></div>' +
