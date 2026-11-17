@@ -9,11 +9,14 @@
   var RUN = false; try { RUN = new URLSearchParams(location.search).get('run') === 'today'; } catch (e) {}
   function getMode() { try { return localStorage.getItem('rmo-casemode') === 'hard' ? 'hard' : 'easy'; } catch (e) { return 'easy'; } }
   function setMode(m) { try { localStorage.setItem('rmo-casemode', m); } catch (e) {} }
+  function modes() { try { return JSON.parse(localStorage.getItem('rmo-casemodes') || '{}') || {}; } catch (e) { return {}; } }
+  function getCaseMode(id) { var m = modes()[id]; return m === 'hard' ? 'hard' : 'easy'; }
+  function setCaseMode(id, m) { try { var o = modes(); o[id] = m; localStorage.setItem('rmo-casemodes', JSON.stringify(o)); } catch (e) {} setMode(m); }
   function hasHard(c) { return !!(c && c.hard && c.hard.steps && c.hard.steps.length); }
   function goHard(id) { location.href = WARDPAGE + (id ? '?case=' + encodeURIComponent(id) + (RUN ? '&run=today' : '') : ''); }
   function modeSeg(c) {
-    var m = getMode(), ok = c ? hasHard(c) : CASES.some(hasHard);
-    return '<div class="modeseg" role="radiogroup" aria-label="Case mode"><button type="button" role="radio" data-mode="easy" aria-checked="' + (m === 'easy') + '">Easy<small>Pick from options</small></button><button type="button" role="radio" data-mode="hard" aria-checked="' + (m === 'hard') + '"' + (ok ? '' : ' disabled') + '>Hard<small>' + (ok ? 'Type your orders' : 'Not built yet') + '</small></button></div>';
+    var m = getCaseMode(c.id), ok = hasHard(c);
+    return '<div class="modeseg" data-m="' + m + '" role="radiogroup" aria-label="Case mode"><button type="button" role="radio" data-mode="easy" data-id="' + c.id + '" aria-checked="' + (m === 'easy') + '">Easy</button><button type="button" role="radio" data-mode="hard" data-id="' + c.id + '" aria-checked="' + (m === 'hard') + '"' + (ok ? '' : ' disabled title="No Hard version yet"') + '>Hard</button></div>';
   }
   var CONCEPTS = window.RMO_CONCEPTS;
   var CASES = (window.RMO_CASES || []).filter(function (c) { return !c.retired; });
@@ -87,7 +90,7 @@
     } catch (e) { /* storage blocked: star not saved */ }
   }
   function start(idxs) {
-    if (getMode() === 'hard' && idxs.length === 1 && hasHard(CASES[idxs[0]])) { goHard(CASES[idxs[0]].id); return; }
+    if (idxs.length === 1 && getCaseMode(CASES[idxs[0]].id) === 'hard' && hasHard(CASES[idxs[0]])) { goHard(CASES[idxs[0]].id); return; }
     S.run = idxs; S.ci = 0; S.results = {}; S.t0 = Date.now();
     startCase();
   }
@@ -170,9 +173,9 @@
   function homeHTML() {
     var cards = CASES.map(function (c, i) {
       var b = bestStore(c.id);
-      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span>' + (b === undefined && caseIsNew(c.id) ? ' <span class="cs-new">New</span>' : '') + '<h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + caseStatus(c, b) + '<div class="btns" style="margin-top:4px"><button class="btn" data-a="one" data-i="' + i + '">' + (getMode() === 'hard' && hasHard(c) ? 'Play on Hard' : 'Play this case') + '</button>' + starBtn(c) + '</div></div>';
+      return '<div class="case-card"><span class="mono">' + c.time + ' · ' + c.where + '</span>' + (b === undefined && caseIsNew(c.id) ? ' <span class="cs-new">New</span>' : '') + '<h3>' + c.title + '</h3><p>' + c.blurb + '</p>' + caseStatus(c, b) + '<div class="btns" style="margin-top:4px">' + modeSeg(c) + '<button class="btn" data-a="one" data-i="' + i + '">Play</button>' + starBtn(c) + '</div></div>';
     }).join('');
-    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">' + CASES.length + ' patients, ' + CASES.reduce(function (n, c) { return n + c.decisions.length; }, 0) + ' decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p>' + modeSeg(null) + '<p class="muted modehint">' + (getMode() === 'hard' ? 'Hard: you type the orders, choose doses and say who you call. Cases without a Hard version play as Easy.' : 'Easy: pick the best option each time.') + '</p>' + (getMode() === 'hard' ? '' : '<div class="btns"><button class="btn primary" data-a="all">Start the whole shift</button></div>') + '<div class="cases">' + cards + '</div></div>';
+    return '<div class="card"><h2>You are the RMO on call</h2><p style="max-width:62ch">' + CASES.length + ' patients, ' + CASES.reduce(function (n, c) { return n + c.decisions.length; }, 0) + ' decisions. Make the call, see what it does to the monitor, and read why. Answers are shuffled each time, so you can replay. Close the Study Kit first: this is the test.</p>' + '<p class="muted modehint">Pick Easy (choose from options) or Hard (type your orders) on each case.</p><div class="btns"><button class="btn primary" data-a="all">Start the whole shift on Easy</button></div>' + '<div class="cases">' + cards + '</div></div>';
   }
   function debriefHTML() {
     var byTag = {}, tot = 0, mx = 0;
@@ -200,7 +203,7 @@
     if (!b) return;
     var a = b.getAttribute('data-a');
     if (b.hasAttribute('data-mode')) {
-      var nm = b.getAttribute('data-mode'); if (b.disabled) return; setMode(nm);
+      var nm = b.getAttribute('data-mode'); if (b.disabled) return; setCaseMode(b.getAttribute('data-id'), nm);
       var cur = S.mode === 'intro' ? CASES[S.run[S.ci]] : null;
       if (nm === 'hard' && cur && hasHard(cur)) { goHard(cur.id); return; }
       render(); return;

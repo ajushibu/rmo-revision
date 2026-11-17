@@ -16,7 +16,9 @@
   var DUO = !!W.duo, BASE = TOOL.replace(/_ward$/, ''), SHIFTPAGE = BASE + '_shift.html';
   function getMode() { try { return localStorage.getItem('rmo-casemode') === 'hard' ? 'hard' : 'easy'; } catch (e) { return 'easy'; } }
   function setMode(m) { try { localStorage.setItem('rmo-casemode', m); } catch (e) {} }
-  function modeSeg() { return DUO ? '<div class="modeseg" role="radiogroup" aria-label="Case mode"><button type="button" role="radio" data-mode="easy" aria-checked="false">Easy<small>Pick from options</small></button><button type="button" role="radio" data-mode="hard" aria-checked="true">Hard<small>Type your orders</small></button></div>' : ''; }
+  function modes() { try { return JSON.parse(localStorage.getItem('rmo-casemodes') || '{}') || {}; } catch (e) { return {}; } }
+  function setCaseMode(id, m) { try { var o = modes(); o[id] = m; localStorage.setItem('rmo-casemodes', JSON.stringify(o)); } catch (e) {} setMode(m); }
+  function modeSeg(c) { return DUO && c ? '<div class="modeseg" data-m="hard" role="radiogroup" aria-label="Case mode"><button type="button" role="radio" data-mode="easy" data-id="' + c.id + '" aria-checked="false">Easy</button><button type="button" role="radio" data-mode="hard" data-id="' + c.id + '" aria-checked="true">Hard</button></div>' : ''; }
   var $ = function (s) { return document.querySelector(s); };
   var view = $('#view'), prog = $('#progress');
   var PTS = { need: 2, good: 1, skip: -1, harm: -3 };
@@ -234,7 +236,7 @@
     if (S.mode === 'intro') {
       prog.textContent = '';
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><h2>' + esc(c.title) + '</h2><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
-        '' + modeSeg() + '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+        '' + modeSeg(c) + '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'order') {
@@ -288,8 +290,8 @@
     return '<h3>Revisit</h3><ul class="rlist">' + rows.map(function (x) { var cn = CN[x.tag]; return '<li class="rl miss"><span class="rk">' + esc(cn.n) + '</span><span class="rw">' + esc(cn.r) + (window.KITFILE ? ' <a href="' + esc(window.KITFILE) + '#' + esc(cn.tab) + '" target="_blank" rel="noopener">Open in the Study Kit</a>' : '') + '</span></li>'; }).join('') + '</ul>';
   }
   function home() {
-    return '<div class="card"><h2>Order-sheet cases</h2>' + modeSeg() + '<p class="lead">No options to pick from. Type what you would order, as you would on the ward: tests, drugs with doses, oxygen, calls. Star what you would do first, then sign. Miss something critical and the patient gets worse.</p><div class="cases">' +
-      CASES.map(function (c, i) { var b = best(c.id); return '<div class="case-card"><span class="mono">' + esc(c.time + ' · ' + c.where) + '</span><h3>' + esc(c.title) + '</h3><p>' + esc(c.blurb) + '</p><p class="' + (b === undefined ? 'cs-unplayed' : 'cs-played') + '">' + (b === undefined ? 'Not played yet' : 'Best on this device: ' + b + '%') + '</p><div class="btns"><button class="btn" data-a="one" data-i="' + i + '">Play this case</button></div></div>'; }).join('') + '</div></div>';
+    return '<div class="card"><h2>Order-sheet cases</h2>' + '<p class="lead">No options to pick from. Type what you would order, as you would on the ward: tests, drugs with doses, oxygen, calls. Star what you would do first, then sign. Miss something critical and the patient gets worse.</p><div class="cases">' +
+      CASES.map(function (c, i) { var b = best(c.id); return '<div class="case-card"><span class="mono">' + esc(c.time + ' · ' + c.where) + '</span><h3>' + esc(c.title) + '</h3><p>' + esc(c.blurb) + '</p><p class="' + (b === undefined ? 'cs-unplayed' : 'cs-played') + '">' + (b === undefined ? 'Not played yet' : 'Best on this device: ' + b + '%') + '</p><div class="btns">' + modeSeg(c) + '<button class="btn" data-a="one" data-i="' + i + '">Play</button></div></div>'; }).join('') + '</div></div>';
   }
   function browse() {
     S.hint = true;
@@ -308,7 +310,7 @@
     if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); drawPlaced(); drawResults(); return; }
     if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); if (f) S.plan.callFirst = false; drawPlaced(); drawPlan(); return; }
     if ((el = t.closest('[data-cfirst]'))) { S.plan.callFirst = !S.plan.callFirst; if (S.plan.callFirst) S.placed.forEach(function (p) { p.first = false; }); drawPlaced(); drawPlan(); return; }
-    if ((el = t.closest('button[data-mode]'))) { if (el.getAttribute('data-mode') === 'easy') { setMode('easy'); var cc = S.mode !== 'home' && CASES[S.ci]; location.href = SHIFTPAGE + (cc ? '?case=' + encodeURIComponent(cc.id) + (RUN ? '&run=today' : '') : ''); } return; }
+    if ((el = t.closest('button[data-mode]'))) { if (el.getAttribute('data-mode') === 'easy') { var cid = el.getAttribute('data-id'); if (cid) setCaseMode(cid, 'easy'); else setMode('easy'); var cc = cid ? { id: cid } : S.mode !== 'home' && CASES[S.ci]; location.href = SHIFTPAGE + (cc ? '?case=' + encodeURIComponent(cc.id) + (RUN ? '&run=today' : '') : ''); } return; }
     if (!(el = t.closest('[data-a]'))) return;
     var a = el.getAttribute('data-a');
     if (a === 'one') startCase(+el.getAttribute('data-i'));
