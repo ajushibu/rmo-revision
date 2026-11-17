@@ -335,5 +335,110 @@ window.RMO_CASES = [
    "mid": "He improved, but you were slow to change tack.",
    "lo": "Review steps 1 and 2 of the Study Kit."
   }
+ },
+ {
+  "id": "c-20261117a",
+  "fromCard": "rd15",
+  "title": "Mixed at the tap",
+  "where": "Medical ward",
+  "time": "03:10",
+  "blurb": "A CO2 retainer whose saturation swings on a simple mask. Tests why a Venturi mask gives a fixed oxygen percentage.",
+  "intro": "Nurse call: 69-year-old woman with COPD on a simple face mask at 6 L/min. Her SpO2 reads 97% when she is calm and 90% when she gets breathless. She is a known CO2 retainer.",
+  "vit": {
+   "hr": 98,
+   "sbp": 136,
+   "dbp": 80,
+   "spo2": 97,
+   "rr": 14
+  },
+  "facts": [
+   "69F; COPD, previous type 2 respiratory failure",
+   "Simple mask 6 L/min",
+   "SpO2 97% resting, 90% when breathless",
+   "Mildly drowsy"
+  ],
+  "decisions": [
+   {
+    "tag": "o2",
+    "scene": "Why does her saturation swing with her breathing?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "A simple mask gives a low flow. When she breathes harder she pulls in more room air through the side holes, so the oxygen percentage she gets drops and rises unpredictably",
+      "fb": "Low flow means the patient fills the gap from room air, so the real percentage varies."
+     },
+     {
+      "q": "poor",
+      "t": "The probe is faulty",
+      "fb": "The reading follows her breathing, so it is the delivery that varies."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "Her target is 88 to 92%. What do you change?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Change to a Venturi mask (24% or 28%) so the percentage is fixed, then check a gas",
+      "fb": "Venturi is like a tap that mixes oxygen and room air in a fixed ratio, so every breath has the same strength.",
+      "vit": {
+       "spo2": 91,
+       "rr": 13
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Change to a non-rebreather so she is certainly well oxygenated",
+      "fb": "That overshoots her target and can push her CO2 up."
+     },
+     {
+      "q": "poor",
+      "t": "Turn the simple mask up to 15 L/min",
+      "fb": "The percentage still varies and can overshoot."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "Why does breathing harder not change the Venturi percentage?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "The flow through the valve is far more than she breathes in, so she never has to pull extra room air; the hole size sets the oxygen to air ratio",
+      "fb": "The ratio is set by the valve, so the percentage is fixed."
+     },
+     {
+      "q": "poor",
+      "t": "The mask has a reservoir bag that stores pure oxygen",
+      "fb": "That describes a non-rebreather, which gives a high, not fixed, percentage."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "On the 28% Venturi her SpO2 is 90%. What next?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Stay within 88 to 92%, use the flow printed on the valve, and recheck the gas in 30 to 60 minutes",
+      "fb": "The target is met, so do not chase a higher number.",
+      "vit": {
+       "spo2": 90
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Step up to a non-rebreather to reach 96%",
+      "fb": "A CO2 retainer should not be pushed past the target."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You picked the fixed-ratio mask and kept to the target.",
+   "mid": "You fixed the mask but chased a higher saturation.",
+   "lo": "Review the oxygen step of the Study Kit and the Venturi card."
+  }
  }
 ];
