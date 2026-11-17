@@ -154,9 +154,9 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   </div>
   <div class="card">
     <div class="sliders">
-      <div class="dial"><label for="wSol">Solute eaten each day <span id="vSol"></span></label><input id="wSol" type="range" min="100" max="1200" step="10" value="700"><small>A normal diet is about 700 mOsm. Tea and toast is very low.</small></div>
-      <div class="dial"><label for="wOsm">Strongest urine the kidney will make <span id="vOsm"></span></label><input id="wOsm" type="range" min="50" max="1200" step="10" value="600"><small>50 = ADH off, 1200 = ADH on at maximum (stuck on in SIADH).</small></div>
-      <div class="dial"><label for="wDr">Water drunk <span id="vDr"></span></label><input id="wDr" type="range" min="0.5" max="18" step="0.1" value="1.9"><small>Per day, as fluids.</small></div>
+      <div class="dial"><p class="dwhy" id="wwS" hidden></p><label for="wSol">Solute eaten each day <span id="vSol"></span></label><input id="wSol" type="range" min="100" max="1200" step="10" value="700"><small>A normal diet is about 700 mOsm. Tea and toast is very low.</small></div>
+      <div class="dial"><p class="dwhy" id="wwO" hidden></p><label for="wOsm">Strongest urine the kidney will make <span id="vOsm"></span></label><input id="wOsm" type="range" min="50" max="1200" step="10" value="600"><small>50 = ADH off, 1200 = ADH on at maximum (stuck on in SIADH).</small></div>
+      <div class="dial"><p class="dwhy" id="wwD" hidden></p><label for="wDr">Water drunk <span id="vDr"></span></label><input id="wDr" type="range" min="0.5" max="18" step="0.1" value="1.9"><small>Per day, as fluids.</small></div>
     </div>
     <p class="hint" style="margin-top:12px">Or start from a patient:</p>
     <div class="chips" id="wPre"></div>
@@ -294,12 +294,12 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
 
   /* ================= 1. water balance ================= */
   var WP = [
-    { id: 'normal', n: 'Normal day', s: 700, o: 600, d: 1.9, c: 'A normal diet, a kidney that can concentrate, and a normal amount to drink. Water in matches the water the body can lose.' },
-    { id: 'tt', n: 'Tea and toast', s: 150, o: 50, d: 4.5, c: 'Almost no solute to pass. Even with the most dilute urine the kidney can make, there is only so much water it can lose, because it needs solute to carry it. ADH is off here, so the urine is dilute. The fix is more solute: protein in the diet.' },
-    { id: 'beer', n: 'Beer potomania', s: 200, o: 50, d: 6, c: 'Beer has plenty of water and almost no solute, and the diet is poor. Same problem as tea and toast: too little solute to pass the water out.' },
-    { id: 'poly', n: 'Compulsive drinking', s: 700, o: 50, d: 18, c: 'A normal diet and fully dilute urine, so the kidney can pass about 14 litres a day. Drinking more than that overloads it, and the sodium falls fast. The fix is to restrict the water.' },
-    { id: 'siadh', n: 'SIADH', s: 700, o: 1200, d: 2, c: 'ADH is stuck on, so the urine cannot get more dilute than it is. The same 700 mOsm now needs only about 0.6 L of urine, and an ordinary 2 L of fluid is too much.' },
-    { id: 'siadh2', n: 'SIADH, more solute', s: 1200, o: 1200, d: 2, c: 'With the urine concentration fixed, the only way to pass more water is to give the kidney more solute to carry it. That is why salt or protein can help in SIADH. Fluid restriction (drag the water down) is the usual first move.' }
+    { id: 'normal', sw: null, ow: null, dw: null, n: 'Normal day', s: 700, o: 600, d: 1.9, c: 'A normal diet, a kidney that can concentrate, and a normal amount to drink. Water in matches the water the body can lose.' },
+    { id: 'tt', sw: ["down","Tea and toast has almost no protein or salt, and the solute to pass comes from what you eat and break down."], ow: ["down","The low sodium switches ADH off, so the kidney makes the most dilute urine it can. That response is correct. It is not the problem."], dw: ["up","Tea all day. With so little solute to carry it, the kidney can lose far less water than this."], n: 'Tea and toast', s: 150, o: 50, d: 4.5, c: 'Almost no solute to pass. Even with the most dilute urine the kidney can make, there is only so much water it can lose, because it needs solute to carry it. ADH is off here, so the urine is dilute. The fix is more solute: protein in the diet.' },
+    { id: 'beer', sw: ["down","Beer is mostly water and sugar, with almost no protein or salt, and the diet is poor."], ow: ["down","ADH is switched off by the low sodium, so the urine is as dilute as possible."], dw: ["up","Six or more beers a day, on top of almost no solute."], n: 'Beer potomania', s: 200, o: 50, d: 6, c: 'Beer has plenty of water and almost no solute, and the diet is poor. Same problem as tea and toast: too little solute to pass the water out.' },
+    { id: 'poly', sw: null, ow: ["down","ADH is switched off by the low sodium, so the urine is as dilute as the kidney can make it."], dw: ["up","Compulsive drinking, often with psychiatric illness. Far more than even the most dilute urine can pass."], n: 'Compulsive drinking', s: 700, o: 50, d: 18, c: 'A normal diet and fully dilute urine, so the kidney can pass about 14 litres a day. Drinking more than that overloads it, and the sodium falls fast. The fix is to restrict the water.' },
+    { id: 'siadh', sw: null, ow: ["up","ADH is released when it should not be (a drug, a lung or brain problem, cancer, pain, nausea). The urine stays concentrated although the blood is dilute."], dw: null, n: 'SIADH', s: 700, o: 1200, d: 2, c: 'ADH is stuck on, so the urine cannot get more dilute than it is. The same 700 mOsm now needs only about 0.6 L of urine, and an ordinary 2 L of fluid is too much.' },
+    { id: 'siadh2', sw: ["up","Extra salt or protein gives the kidney more solute to pass, so it can carry out more water."], ow: ["up","The same stuck-on ADH: the urine concentration cannot fall."], dw: null, n: 'SIADH, more solute', s: 1200, o: 1200, d: 2, c: 'With the urine concentration fixed, the only way to pass more water is to give the kidney more solute to carry it. That is why salt or protein can help in SIADH. Fluid restriction (drag the water down) is the usual first move.' }
   ];
   var OTHER = 0.8, TBW = 42, wUsed = 'normal';
   var wS = $('#wSol'), wO = $('#wOsm'), wD = $('#wDr');
@@ -327,9 +327,17 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
     }
     press('#wPre', 'wp', wUsed);
     var p = WP.filter(function (x) { return x.id === wUsed; })[0], cap = $('#wCap'); cap.hidden = !p; if (p) cap.textContent = p.c;
+    wWhy('wwS', p && p.sw); wWhy('wwO', p && p.ow); wWhy('wwD', p && p.dw);
   }
-  function wSet(p) { wUsed = p.id; wS.value = p.s; wO.value = p.o; wD.value = p.d; wCalc(); }
-  [wS, wO, wD].forEach(function (el) { el.addEventListener('input', function () { wUsed = null; wCalc(); }); });
+  function wWhy(id, w) { var e = $('#' + id); e.hidden = !w; if (!w) return; e.className = 'dwhy ' + w[0]; e.innerHTML = '<b>' + (w[0] === 'up' ? '\u2191 Why it is high:' : '\u2193 Why it is low:') + '</b>' + esc(w[1]); }
+  var wTw = 0;
+  function wSet(p) {
+    wUsed = p.id; cancelAnimationFrame(wTw);
+    if (reduce) { wS.value = p.s; wO.value = p.o; wD.value = p.d; wCalc(); return; }
+    var s0 = +wS.value, o0 = +wO.value, d0 = +wD.value, t0 = performance.now();
+    (function f(now) { var k = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - k, 3); wS.value = Math.round((s0 + (p.s - s0) * e) / 10) * 10; wO.value = Math.round((o0 + (p.o - o0) * e) / 10) * 10; wD.value = (d0 + (p.d - d0) * e).toFixed(1); wCalc(); if (k < 1) wTw = requestAnimationFrame(f); })(t0);
+  }
+  [wS, wO, wD].forEach(function (el) { el.addEventListener('input', function () { cancelAnimationFrame(wTw); wUsed = null; wCalc(); }); });
   $('#wPre').addEventListener('click', function (e) { var b = e.target.closest('[data-wp]'); if (!b) return; wSet(WP.filter(function (x) { return x.id === b.getAttribute('data-wp'); })[0]); });
 
   /* ================= 2. which fluid ================= */
