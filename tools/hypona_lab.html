@@ -126,6 +126,16 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
 .pb { display: flex; height: 36px; border-radius: 8px; overflow: hidden; background: var(--n-tint); }
 .pb span { display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--bg); white-space: nowrap; overflow: hidden; min-width: 0; transition: width .25s; }
 .obars { display: grid; gap: 10px; margin: 8px 0; }
+.glasses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+@media (max-width: 720px) { .glasses { grid-template-columns: 1fr 1fr; } }
+.gl { text-align: center; }
+.gl svg { width: 100%; height: auto; max-width: 150px; }
+.gl b { display: block; font-size: 15px; } .gl span { display: block; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.sh { border-left: 6px solid var(--line); border-radius: 4px 14px 14px 4px; background: var(--n-tint); padding: 12px 14px; margin: 0 0 12px; }
+.sh.low { border-left-color: var(--b-fill); } .sh.nor { border-left-color: var(--diff); } .sh.hi { border-left-color: var(--a-fill); }
+.sh h3 { margin: 0; font-size: 17px; } .sh .hook { margin: 2px 0 8px; color: var(--muted); font-size: 14px; }
+.sh .sub { font-size: 13px; font-weight: 650; color: var(--muted); margin: 8px 0 4px; }
+.sh .cap { margin-top: 10px; }
 .flow { display: grid; gap: 8px; }
 .flow .st { border-radius: 12px; padding: 10px 14px; background: var(--n-tint); }
 .flow .st b { display: block; }
@@ -138,14 +148,15 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
 </head><body><main>
 <header>
   <h1>Low sodium: how the water goes wrong</h1>
-  <p class="lede">Four small labs. Start with the first: it explains most of the rest.</p>
+  <p class="lede">Five small labs. Start with the first: it explains most of the rest.</p>
 </header>
 <div class="tabs" role="tablist" id="tabs">
   <button role="tab" aria-selected="true" data-t="water">1. Water balance</button>
   <button role="tab" aria-selected="false" data-t="fluid">2. Which fluid?</button>
-  <button role="tab" aria-selected="false" data-t="fake">3. Fake low sodium</button>
-  <button role="tab" aria-selected="false" data-t="path">4. Diagnosis game</button>
-  <button role="tab" aria-selected="false" data-t="sheet">5. Summary</button>
+  <button role="tab" aria-selected="false" data-t="shelf">3. Three shelves</button>
+  <button role="tab" aria-selected="false" data-t="fake">4. Fake low sodium</button>
+  <button role="tab" aria-selected="false" data-t="path">5. Diagnosis game</button>
+  <button role="tab" aria-selected="false" data-t="sheet">6. Summary</button>
 </div>
 
 <!-- 1 water balance -->
@@ -196,7 +207,25 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   </div>
 </section>
 
-<!-- 3 fake -->
+<!-- 3 shelves -->
+<section class="panel" id="p-shelf" hidden>
+  <div class="card">
+    <h2>Why the osmolality can be low, normal or high</h2>
+    <p class="hint">The sodium result is a <b>concentration</b>: salt per amount of blood. A concentration can read low for three different reasons. Osmolality asks a different question: how crowded is the blood in total?</p>
+    <div class="glasses" id="glasses"></div>
+  </div>
+  <div class="card">
+    <h2>Every cause sits on one shelf</h2>
+    <p class="hint">Tap a cause to see why it is on that shelf.</p>
+    <div id="shelves"></div>
+  </div>
+  <div class="card g">
+    <h3>The one test that sorts them</h3>
+    <p class="why">Send a serum osmolality. <b>Low</b>: the water is the problem. <b>Normal</b>: the sample is the problem. <b>High</b>: a sweet solute is the problem.</p>
+  </div>
+</section>
+
+<!-- 4 fake -->
 <section class="panel" id="p-fake" hidden>
   <div class="card">
     <h2>A: the sodium is normal, the machine is wrong</h2>
@@ -242,12 +271,12 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   </div>
 </section>
 
-<!-- 4 game -->
+<!-- 5 game -->
 <section class="panel" id="p-path" hidden>
   <div class="card" id="game"></div>
 </section>
 
-<!-- 5 summary -->
+<!-- 6 summary -->
 <section class="panel" id="p-sheet" hidden>
   <div class="card">
     <h2>The path in one picture</h2>
@@ -290,7 +319,7 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   function r1(x) { return (Math.round(x * 10) / 10).toFixed(1); }
   function fmt(x) { return x < 10 ? r1(x) : String(Math.round(x)); }
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var TABS = ['water', 'fluid', 'fake', 'path', 'sheet'];
+  var TABS = ['water', 'fluid', 'shelf', 'fake', 'path', 'sheet'];
   function showTab(t) {
     $$('#tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-t') === t)); });
     TABS.forEach(function (k) { $('#p-' + k).hidden = k !== t; });
@@ -446,7 +475,36 @@ svg.fig text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
   cR.addEventListener('input', drawCell);
   $('#cType').addEventListener('click', function (e) { var b = e.target.closest('[data-ct]'); if (b) { cType = b.getAttribute('data-ct'); drawCell(); } });
 
-  /* ================= 3. fake low sodium ================= */
+  /* ================= 3. three shelves ================= */
+  function glassSvg(blue, amber, fat) {
+    var d = '', n = blue + amber, i, cols = 5, y0 = 58;
+    for (i = 0; i < n; i++) d += '<circle cx="' + (34 + (i % cols) * 14) + '" cy="' + (y0 + Math.floor(i / cols) * 14 + (fat ? 14 : 0)) + '" r="4.8" fill="' + (i < blue ? 'var(--b-fill)' : 'var(--diff)') + '"/>';
+    return '<svg viewBox="0 0 120 130" aria-hidden="true"><rect x="20" y="20" width="80" height="100" rx="9" fill="var(--b-fill)" fill-opacity=".1" stroke="var(--line)" stroke-width="2.5"/>' + (fat ? '<rect x="22" y="22" width="76" height="30" rx="6" fill="var(--diff)" fill-opacity=".45"/>' : '') + d + '</svg>';
+  }
+  var GL = [
+    { t: 'Normal blood', b: 12, a: 0, f: 0, c: '12 salt dots. Not crowded, not thin.' },
+    { t: 'LOW: watered down', b: 5, a: 0, f: 0, c: 'Extra water, same salt. Fewer dots per glass: sodium low, blood thin.' },
+    { t: 'NORMAL: wrong count', b: 12, a: 0, f: 1, c: 'Fat or protein takes up room, so the machine counts less water. The blood is fine.' },
+    { t: 'HIGH: sugar crowd', b: 8, a: 9, f: 0, c: 'Sugar pulls water in, so salt is diluted. Salt plus sugar is more dots than normal.' }
+  ];
+  $('#glasses').innerHTML = GL.map(function (g) { return '<div class="gl">' + glassSvg(g.b, g.a, g.f) + '<b>' + esc(g.t) + '</b><span>' + esc(g.c) + '</span></div>'; }).join('');
+  var SH = [
+    { k: 'low', n: 'Low osmolality: watered down (real low sodium)', h: 'Memory hook: too much water for the salt.', groups: [
+      ['ADH off: the kidney is trying to pass water but cannot keep up', [['Tea and toast', 'Almost no solute, so even the most dilute urine cannot carry much water out. Water builds up and dilutes the blood.'], ['Beer drinking', 'Plenty of water, almost no solute. Same problem as tea and toast.'], ['Compulsive drinking', 'More water than even a fully dilute urine can pass.'], ['Kidney failure', 'The kidney cannot pass enough water at all.']]],
+      ['ADH on: the body is keeping water it should lose', [['Dry (vomiting, diarrhoea, diuretic)', 'Low volume switches ADH on. The body keeps water, which dilutes the blood.'], ['Wet (heart failure, cirrhosis, nephrotic)', 'There is too much body water but too little effective volume in the arteries, so ADH is on and water is kept.'], ['SIADH', 'ADH is on when it should not be, so water is kept and the blood is diluted.'], ['Low thyroid', 'Slows the kidney\'s ability to pass water, so water is kept.'], ['Low cortisol', 'Cortisol normally holds ADH down. Without it, ADH is on and water is kept.']]]] },
+    { k: 'nor', n: 'Normal osmolality: the sample is wrong (fake low sodium)', h: 'Memory hook: the blood is fine, the machine is wrong.', groups: [
+      ['Something takes up room in the sample', [['Very high triglycerides', 'Fat takes up room, so there is less water per millilitre. The machine reads low. The water part of the blood, where the sodium is, is normal.'], ['Myeloma (high protein)', 'The extra protein takes up room in the sample in the same way.'], ['IVIG', 'A large dose of immunoglobulin adds protein to the sample.']]]] },
+    { k: 'hi', n: 'High osmolality: a sweet solute holds water in (fake low sodium)', h: 'Memory hook: something that cannot enter the cells is dragging water out.', groups: [
+      ['A solute stays in the blood and pulls water out of cells', [['High glucose', 'Sugar cannot enter cells, so it holds water in the blood and dilutes the sodium. But sugar adds particles, so the blood is crowded, not thin.'], ['Mannitol', 'A drip that stays in the blood and holds water there in the same way.'], ['Glycine', 'For example from absorbed bladder irrigation fluid. It acts the same way.']]]] }
+  ];
+  $('#shelves').innerHTML = SH.map(function (sh, si) { return '<div class="sh ' + sh.k + '"><h3>' + esc(sh.n) + '</h3><p class="hook">' + esc(sh.h) + '</p>' + sh.groups.map(function (gr, gi) { return '<div class="sub">' + esc(gr[0]) + '</div><div class="chips">' + gr[1].map(function (c, ci) { return '<button class="chip" aria-pressed="false" data-sh="' + si + '-' + gi + '-' + ci + '">' + esc(c[0]) + '</button>'; }).join('') + '</div>'; }).join('') + '<p class="cap" hidden></p></div>'; }).join('');
+  $('#shelves').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-sh]'); if (!b) return; var a = b.getAttribute('data-sh').split('-'), shEl = b.closest('.sh'), why = SH[+a[0]].groups[+a[1]][1][+a[2]][1];
+    $$('#shelves .chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true');
+    $$('#shelves .cap').forEach(function (c) { c.hidden = true; }); var cap = shEl.querySelector('.cap'); cap.hidden = false; cap.textContent = b.textContent + ': ' + why;
+  });
+
+  /* ================= 4. fake low sodium ================= */
   var TP = [{ id: 'n', n: 'Normal', v: 7 }, { id: 'tg', n: 'Very high triglycerides', v: 17 }, { id: 'my', n: 'Myeloma', v: 20 }];
   var TM = [{ id: 'ind', n: 'Most lab analysers (indirect)' }, { id: 'dir', n: 'Blood gas machine (direct)' }];
   var tMeth = 'ind', tFat = $('#tFat');
