@@ -1,0 +1,336 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Low potassium: causes lab</title>
+<meta name="theme-color" content="#0D1518">
+<style>
+/* Layout: header, three tabs (Kidney lab, Sort the cause, Cheat sheet), one panel at a time. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4;
+  --diff: #86690a; --diff-t: #f2e9c9; --good: #2e6b45; --good-t: #d9eadf; --go-t: #f6e4d4;
+  --display: system-ui, -apple-system, "Segoe UI", sans-serif; --body: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, Menlo, monospace;
+}
+:root[data-theme="dark"] {
+  --bg: #10151d; --surface: #171e29; --ink: #e8ecf2; --muted: #98a3b5; --line: #2d3747; --n-tint: #232c3a;
+  --a-fill: #e5645a; --a-tint: #3a1f1e; --b-fill: #6aaee0; --b-tint: #17303f;
+  --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --go-t: #3a2716; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; margin: 0;
+  padding-block: 22px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h3 { font-family: var(--display); font-size: 16px; margin: 0 0 4px; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 12px 14px; min-height: 44px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel[hidden] { display: none; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
+.btn { font: inherit; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; min-height: 44px; padding: 8px 14px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:disabled { opacity: .5; cursor: default; }
+.hint { color: var(--muted); font-size: 14px; margin: 0; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+
+/* kidney lab */
+#lab { display: block; width: 100%; height: 230px; border-radius: 12px; background: var(--n-tint); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.dials { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
+@media (max-width: 640px) { .dials { grid-template-columns: 1fr; } }
+.dial label { display: flex; justify-content: space-between; font-weight: 650; }
+.dial label span { font-weight: 600; color: var(--muted); }
+.dial input { width: 100%; height: 44px; accent-color: var(--ink); margin: 2px 0 0; }
+.dial small { color: var(--muted); font-size: 13px; display: block; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; min-height: 40px; padding: 4px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.out { display: grid; gap: 8px; }
+.out .big { font-size: 28px; font-weight: 750; letter-spacing: -.02em; }
+.meter { height: 12px; border-radius: 6px; background: var(--n-tint); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--a-fill); transition: width .25s; }
+.band { border-radius: 12px; padding: 12px 14px; background: var(--n-tint); font-weight: 600; }
+.band.mid { background: var(--diff-t); } .band.hi { background: var(--a-tint); }
+.why { margin: 0; max-width: 62ch; }
+.cap { margin: 0; padding: 10px 14px; border-left: 4px solid var(--b-fill); background: var(--b-tint); border-radius: 4px 12px 12px 4px; font-size: 15px; }
+
+/* sort game */
+.pips { display: flex; gap: 4px; flex-wrap: wrap; }
+.pips i { width: 18px; height: 5px; border-radius: 3px; background: var(--line); }
+.pips i.now { background: var(--ink); } .pips i.ok { background: var(--good); } .pips i.no { background: var(--a-fill); }
+.scene { font-size: 19px; font-weight: 600; line-height: 1.4; margin: 6px 0 14px; text-wrap: pretty; max-width: 56ch; }
+.buckets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 560px) { .buckets { grid-template-columns: 1fr; } }
+.bk { text-align: left; font: inherit; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 12px; padding: 12px 14px; min-height: 64px; cursor: pointer; }
+.bk b { display: block; font-size: 16px; }
+.bk span { display: block; font-size: 13px; color: var(--muted); }
+.bk:disabled { cursor: default; opacity: .55; }
+.bk.right { opacity: 1; background: var(--good-t); border-color: var(--good); }
+.bk.wrong { opacity: 1; background: var(--a-tint); border-color: var(--a-fill); }
+.fb { border-radius: 12px; padding: 14px 16px; margin-top: 14px; background: var(--n-tint); }
+.fb.good { background: var(--good-t); } .fb.bad { background: var(--a-tint); }
+.fb p { margin: 0 0 8px; max-width: 62ch; }
+.fb .tag { font-weight: 750; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.score { font-size: 34px; font-weight: 750; letter-spacing: -.02em; }
+.miss { margin: 0; padding-left: 18px; }
+.miss li { margin: 0 0 8px; }
+
+/* cheat sheet */
+.groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .groups { grid-template-columns: 1fr; } }
+.g h3 { display: flex; align-items: center; gap: 8px; }
+.g h3 i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.g ul { margin: 6px 0 0; padding-left: 18px; }
+.g li { margin: 0 0 3px; }
+.fix li { margin: 0 0 8px; }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+<script src="../look.js"></script><link rel="stylesheet" href="look.css">
+</head><body><main>
+<header>
+  <h1>Low potassium: where does it go?</h1>
+  <p class="lede">The kidney part is the confusing one, so you play with it first. Then you sort 14 patients by cause.</p>
+</header>
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" aria-selected="true" data-t="lab">1. Kidney lab</button>
+  <button role="tab" aria-selected="false" data-t="sort">2. Sort the cause</button>
+  <button role="tab" aria-selected="false" data-t="sheet">3. Summary</button>
+</div>
+
+<section class="panel" id="p-lab">
+  <div class="card">
+    <h2>The last stretch of the kidney tubule</h2>
+    <p class="hint">This is where the kidney swaps sodium for potassium. Move the two dials and watch the potassium that leaves in the urine.</p>
+    <canvas id="lab" role="img" aria-label="Animated tubule: sodium arrives, is taken into the cell, and potassium leaves into the urine"></canvas>
+    <div class="legend"><span><i style="background:var(--b-fill)"></i>Sodium (Na)</span><span><i style="background:var(--a-fill)"></i>Potassium (K)</span><span>Top: urine side. Bottom: the tubule cell, then blood.</span></div>
+  </div>
+  <div class="card">
+    <div class="dials">
+      <div class="dial"><label for="dAld">Aldosterone <span id="vAld"></span></label><input id="dAld" type="range" min="0" max="100" value="30"><small>Pulls sodium into the cell. Raised by low volume, or by a tumour.</small></div>
+      <div class="dial"><label for="dDel">Sodium reaching this spot <span id="vDel"></span></label><input id="dDel" type="range" min="0" max="100" value="30"><small>Raised by diuretics, bicarbonate in the urine, or a salt-heavy kidney.</small></div>
+    </div>
+    <p class="hint" style="margin-top:12px">Or start from a patient:</p>
+    <div class="chips" id="presets"></div>
+  </div>
+  <div class="card out">
+    <div class="big" id="lossBig"></div>
+    <div class="meter" aria-hidden="true"><i id="lossBar"></i></div>
+    <div class="band" id="band"></div>
+    <p class="why" id="why"></p>
+    <p class="cap" id="cap" hidden></p>
+    <div class="row"><button class="btn primary" id="toSort">Now sort 14 patients</button></div>
+  </div>
+</section>
+
+<section class="panel" id="p-sort" hidden>
+  <div class="card" id="game"></div>
+</section>
+
+<section class="panel" id="p-sheet" hidden>
+  <div class="groups" id="groups"></div>
+  <div class="card g">
+    <h3>The one rule for the kidney</h3>
+    <p class="why">Potassium is lost in the urine in large amounts only when <b>both</b> are up: aldosterone pulling sodium in, <b>and</b> plenty of sodium arriving. One dial alone gives little.</p>
+  </div>
+  <div class="card g fix">
+    <h3>Three things to fix in your own notes</h3>
+    <ul id="fixes"></ul>
+  </div>
+  <div class="card g">
+    <h3>When potassium will not correct</h3>
+    <p class="why">Check magnesium. A low magnesium makes the kidney leak potassium, and the potassium stays low until the magnesium is replaced.</p>
+  </div>
+</section>
+
+<div class="foot">
+  <p>A teaching model, not measured values: the numbers are made up to show the pattern. No doses are in this tool; replacement doses and IV rates are in the Hypokalaemia Study Kit. The mechanisms are standard physiology teaching and were not checked against an Australian source.</p>
+</div>
+</main>
+<script>
+(function () {
+  function $(s) { return document.querySelector(s); }
+  function $$(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* ---------- tabs ---------- */
+  function showTab(t) {
+    $$('#tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.getAttribute('data-t') === t)); });
+    ['lab', 'sort', 'sheet'].forEach(function (k) { $('#p-' + k).hidden = k !== t; });
+    if (t === 'lab') { sizeCanvas(); warm(); }
+    try { history.replaceState(null, '', '#' + t); } catch (e) {}
+    window.scrollTo(0, 0);
+  }
+  $('#tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-t]'); if (b) showTab(b.getAttribute('data-t')); });
+
+  /* ---------- kidney lab ---------- */
+  var PRE = [
+    { id: 'normal', n: 'Normal day', a: 30, d: 30, c: 'A normal day: some aldosterone, some sodium. A small, steady potassium loss that balances what you eat.' },
+    { id: 'dehyd', n: 'Dehydrated', a: 90, d: 10, c: 'Low volume makes aldosterone high, but the kidney holds on to sodium earlier on, so very little sodium reaches this spot. Aldosterone has little to work on, so potassium loss stays near normal.' },
+    { id: 'salt', n: 'Big salt load', a: 10, d: 90, c: 'Lots of sodium arrives, but aldosterone is switched off, so little is pulled in and little potassium is swapped out. One dial alone gives little.' },
+    { id: 'furo', n: 'On furosemide', a: 80, d: 85, c: 'The diuretic blocks sodium uptake earlier in the nephron, so a lot of sodium arrives. The volume loss then raises aldosterone. Both dials are up, so potassium is lost.' },
+    { id: 'conn', n: 'Conn syndrome', a: 95, d: 65, c: 'Aldosterone is high on its own. It makes the body keep salt and water, so the volume rises, the early tubule takes back less sodium, and more reaches this spot. Both dials up, with high blood pressure.' },
+    { id: 'vomit', n: 'Vomiting', a: 75, d: 70, c: 'The vomit itself has little potassium. The alkalosis puts bicarbonate (carrying sodium) into the late tubule, and the volume loss raises aldosterone. Both dials up, so the kidney loses the potassium.' }
+  ];
+  var aldIn = $('#dAld'), delIn = $('#dDel'), aldV = 30, delV = 30, usedPreset = null;
+  function word(v) { return v < 20 ? 'low' : v < 45 ? 'normal' : v < 70 ? 'raised' : 'high'; }
+  $('#presets').innerHTML = PRE.map(function (p) { return '<button class="chip" aria-pressed="false" data-p="' + p.id + '">' + esc(p.n) + '</button>'; }).join('');
+  function loss() { return (aldV / 30) * (delV / 30); }
+  function explain(L) {
+    var aH = aldV >= 60, dH = delV >= 60;
+    if (aH && dH) return 'Both dials are up. Plenty of sodium arrives and aldosterone pulls it in. Each sodium that goes into the cell leaves the urine side more negative, and potassium is drawn out to balance it and washed away by the flow.';
+    if (aH && !dH) return 'Aldosterone is high but little sodium arrives, so there is little to pull in and little potassium is swapped out. Aldosterone alone is not enough.';
+    if (!aH && dH) return 'Plenty of sodium arrives but aldosterone is not pulling it in, so little is swapped for potassium. Sodium delivery alone is not enough.';
+    if (aldV < 20 || delV < 20) return 'One dial is low, so the swap barely happens. Potassium loss falls.';
+    return 'Both dials are in the normal range, so the swap runs at its normal rate.';
+  }
+  function updateOut() {
+    var L = loss(), t = L < 1.5 ? 'Small' : L < 4 ? 'Raised' : 'Big';
+    $('#vAld').textContent = word(aldV); $('#vDel').textContent = word(delV);
+    $('#lossBig').textContent = 'Potassium lost in urine: ' + (L < 10 ? L.toFixed(1) : Math.round(L)) + '× normal';
+    $('#lossBar').style.width = Math.min(100, L / 9 * 100) + '%';
+    var b = $('#band'); b.className = 'band' + (L >= 4 ? ' hi' : L >= 1.5 ? ' mid' : '');
+    b.textContent = L >= 4 ? 'Big loss. This is enough to drop the serum potassium.' : L >= 1.5 ? 'Raised, but one dial is doing the work. Not enough on its own to cause low potassium.' : 'Small. Close to normal or below.';
+    $('#why').textContent = explain(L);
+    $$('#presets .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-p') === usedPreset)); });
+    var cap = $('#cap'), p = PRE.filter(function (x) { return x.id === usedPreset; })[0];
+    cap.hidden = !p; if (p) cap.textContent = p.c;
+  }
+  function setDials(a, d, preset) { aldV = a; delV = d; aldIn.value = a; delIn.value = d; usedPreset = preset || null; updateOut(); warm(); }
+  aldIn.addEventListener('input', function () { aldV = +aldIn.value; usedPreset = null; updateOut(); warm(); });
+  delIn.addEventListener('input', function () { delV = +delIn.value; usedPreset = null; updateOut(); warm(); });
+  $('#presets').addEventListener('click', function (e) { var b = e.target.closest('[data-p]'); if (!b) return; var p = PRE.filter(function (x) { return x.id === b.getAttribute('data-p'); })[0]; setDials(p.a, p.d, p.id); });
+  $('#toSort').addEventListener('click', function () { showTab('sort'); });
+
+  /* particles: sodium flows along the top, some is pulled into the cell, and for each one a potassium comes up into the urine */
+  var cv = $('#lab'), cx = cv.getContext('2d'), W = 600, H = 230, parts = [], acc = 0, last = 0, raf = 0, colors = null, colAt = 0;
+  var LUM0 = 34, LUM1 = 104, CELL1 = 164;
+  function sizeCanvas() { var r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; if (!r.width) return; W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  function pal(now) {
+    if (colors && now - colAt < 1000) return colors; var s = getComputedStyle(document.documentElement);
+    function g(n) { return s.getPropertyValue(n).trim(); }
+    colors = { bg: g('--bg') || '#fff', ink: g('--ink'), muted: g('--muted'), line: g('--line'), na: g('--b-fill'), k: g('--a-fill'), cell: g('--surface') }; colAt = now; return colors;
+  }
+  function flow() { return 55 + delV * 1.1; }
+  function step(dt) {
+    var rate = delV / 100 * 9 + 0.3, pAbs = Math.min(0.9, aldV / 100), zl = W * 0.3, zr = W * 0.7, fl = flow();
+    acc += dt * rate;
+    while (acc >= 1 && parts.length < 160) { acc -= 1; parts.push({ t: 'na', x: -10, y: LUM0 + 14 + Math.random() * (LUM1 - LUM0 - 28), s: 'flow', dec: false }); }
+    if (acc > 3) acc = 0;
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var p = parts[i];
+      if (p.t === 'na') {
+        if (p.s === 'flow') { p.x += fl * dt; if (!p.dec && p.x > zl) { p.dec = true; if (Math.random() < pAbs && p.x < zr) { p.s = 'drop'; } } if (p.x > W + 12) parts.splice(i, 1); }
+        else { p.y += 70 * dt; if (p.y > 128 && !p.sp) { p.sp = true; parts.push({ t: 'k', x: p.x + 6, y: 140, s: 'up' }); } if (p.y > CELL1 - 8) parts.splice(i, 1); }
+      } else {
+        if (p.s === 'up') { p.y -= 70 * dt; if (p.y < LUM1 - 22) p.s = 'flow'; } else { p.x += fl * dt; if (p.x > W + 12) parts.splice(i, 1); }
+      }
+    }
+  }
+  function draw(now) {
+    var c = pal(now); cx.clearRect(0, 0, W, H);
+    cx.fillStyle = c.cell; cx.fillRect(0, LUM0, W, CELL1 - LUM0); cx.fillStyle = c.line; cx.globalAlpha = .35; cx.fillRect(0, LUM1, W, CELL1 - LUM1); cx.globalAlpha = 1;
+    cx.fillStyle = c.bg; cx.globalAlpha = .45; cx.fillRect(0, LUM0, W, LUM1 - LUM0); cx.globalAlpha = 1;
+    cx.strokeStyle = c.line; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(0, LUM0); cx.lineTo(W, LUM0); cx.moveTo(0, CELL1); cx.lineTo(W, CELL1); cx.stroke();
+    cx.setLineDash([6, 6]); cx.beginPath(); cx.moveTo(0, LUM1); cx.lineTo(W, LUM1); cx.stroke(); cx.setLineDash([]);
+    cx.fillStyle = c.muted; cx.font = '600 12px system-ui, sans-serif';
+    cx.fillText('Urine in the tubule →', 10, 20); cx.fillText('Tubule cell', 10, LUM1 + 20); cx.fillText('Blood', 10, CELL1 + 24);
+    var a = Math.max(0, aldV) / 100; cx.fillStyle = c.na; cx.globalAlpha = .18 + a * .5; cx.fillRect(W * 0.3, LUM1 - 3, W * 0.4, 6); cx.globalAlpha = 1;
+    cx.fillStyle = c.muted; cx.textAlign = 'center'; cx.fillText('aldosterone pulls sodium in here', W * 0.5, LUM1 + 44); cx.textAlign = 'left';
+    cx.font = '700 10px system-ui, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    parts.forEach(function (p) {
+      cx.fillStyle = p.t === 'na' ? c.na : c.k; cx.beginPath(); cx.arc(p.x, p.y, 9, 0, 6.2832); cx.fill();
+      cx.fillStyle = c.bg; cx.fillText(p.t === 'na' ? 'Na' : 'K', p.x, p.y + .5);
+    });
+    cx.textAlign = 'left'; cx.textBaseline = 'alphabetic';
+  }
+  function loop(now) {
+    raf = 0; if ($('#p-lab').hidden) return;
+    var dt = Math.min(0.05, (now - (last || now)) / 1000); last = now; step(dt); draw(now); raf = requestAnimationFrame(loop);
+  }
+  function warm() {
+    if ($('#p-lab').hidden) return;
+    if (reduce) { parts = []; acc = 0; for (var i = 0; i < 200; i++) step(0.03); draw(performance.now()); return; }
+    if (!raf) { last = 0; raf = requestAnimationFrame(loop); }
+  }
+  window.addEventListener('resize', function () { sizeCanvas(); warm(); });
+  window.addEventListener('visibilitychange', function () { if (!document.hidden) warm(); });
+  if (window.RMOLook) { /* colours are re-read each second, so a look change shows within a second */ }
+
+  /* ---------- sort the cause ---------- */
+  var B = [
+    { id: 'in', n: 'Not enough going in', s: 'Eating or drinking too little' },
+    { id: 'shift', n: 'Pushed into cells', s: 'Total body potassium is not lost' },
+    { id: 'kid', n: 'Lost by the kidney', s: 'Urine potassium is high' },
+    { id: 'gut', n: 'Lost from the gut', s: 'Diarrhoea, stoma, laxatives' }
+  ];
+  var CASES = [
+    { t: 'He has eaten almost nothing for three weeks. No vomiting, no diarrhoea, no tablets. Potassium 3.1.', a: 'in', w: 'Intake alone is a slow, mild cause. The kidney can cut its potassium loss right down, so a low intake rarely drops the level by itself. Look for a second loss before you accept it.' },
+    { t: 'Admitted with asthma, she had two back-to-back salbutamol nebulisers in the emergency department. Potassium 3.0.', a: 'shift', w: 'Beta-agonists drive potassium into cells through the sodium-potassium pump. Nothing is lost from the body, so it recovers as the drug wears off.' },
+    { t: 'A woman in preterm labour is on an IV beta-agonist infusion. Potassium 2.9.', a: 'shift', w: 'Same mechanism as salbutamol: a beta-agonist moves potassium into cells. (Other drugs are usually tried first for preterm labour now, but the mechanism is what gets asked.)' },
+    { t: 'Starved for two weeks, he is restarted on feeds. Within two days his potassium falls from 3.6 to 2.8 and his phosphate is low.', a: 'shift', w: 'Refeeding. Carbohydrate raises insulin, and insulin drives potassium (and phosphate) into cells. Check phosphate and magnesium too.' },
+    { t: 'Pernicious anaemia. A week after starting hydroxocobalamin injections her potassium drops.', a: 'shift', w: 'The treatment, not the deficiency, causes it. Making new blood cells takes up potassium. It is the same idea as refeeding: cells are growing and soaking it up.' },
+    { t: 'A young man wakes unable to move his legs after a large carbohydrate meal. Potassium 2.2, and he has a goitre.', a: 'shift', w: 'Thyrotoxic periodic paralysis. The carbohydrate load raises insulin, and potassium floods into muscle cells. Found in thyrotoxicosis; treat the thyroid as well.' },
+    { t: 'He had insulin with glucose for a potassium of 7.1 in the evening. Potassium is 3.0 at 3 am.', a: 'shift', w: 'Insulin pushed potassium into cells, and it overshot. Treating a high potassium can bring it down too far, which is why you recheck.' },
+    { t: 'Heart failure, on furosemide 80 mg twice a day. Potassium 3.1.', a: 'kid', w: 'The loop diuretic puts a lot of sodium into the late tubule, and the fluid loss raises aldosterone. Both dials are up. Thiazides do the same.' },
+    { t: 'Treated for blood pressure with a thiazide for two years. Potassium 3.2, sodium 130.', a: 'kid', w: 'More sodium reaches the late tubule, and the mild volume loss keeps aldosterone raised. Both dials are up.' },
+    { t: 'Young, blood pressure 170/100, no diuretics. Potassium 2.9, and the aldosterone is high with a low renin.', a: 'kid', w: 'Primary aldosteronism (Conn adenoma or both adrenals overactive). Aldosterone is high, the volume expands, and more sodium reaches the late tubule. Both dials are up, with high blood pressure.' },
+    { t: 'Three days of vomiting. Potassium 2.9, bicarbonate 34. The vomit itself has very little potassium.', a: 'kid', w: 'The loss is mostly through the kidney. The alkalosis delivers sodium bicarbonate to the late tubule, and the volume loss raises aldosterone. Both dials are up.' },
+    { t: 'Potassium stays at 3.0 after two days of replacement. He takes a PPI and a diuretic. Magnesium 0.4.', a: 'kid', w: 'Low magnesium makes the tubule leak potassium, so replacement does not hold. Replace the magnesium as well.' },
+    { t: 'Five days of watery diarrhoea. Potassium 2.8, and the urine potassium is low.', a: 'gut', w: 'Diarrhoeal fluid carries a lot of potassium. A low urine potassium shows the kidney is trying to hold on to it, so the loss is from the gut.' },
+    { t: 'High-output ileostomy, about 2.5 litres a day. Potassium 3.0.', a: 'gut', w: 'Gut losses of fluid and potassium. The volume loss also raises aldosterone, so the kidney adds to it once he is dry. Replace volume, potassium and magnesium.' }
+  ];
+  var deck = [], pos = 0, results = [], answered = false;
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function bName(id) { return B.filter(function (b) { return b.id === id; })[0].n; }
+  function startGame(list) { deck = shuffle(list.slice()); pos = 0; results = []; answered = false; drawGame(); }
+  function pips() { return '<div class="pips" aria-label="Question ' + (pos + 1) + ' of ' + deck.length + '">' + deck.map(function (c, i) { return '<i class="' + (results[i] === undefined ? (i === pos ? 'now' : '') : results[i] ? 'ok' : 'no') + '"></i>'; }).join('') + '</div>'; }
+  function drawGame() {
+    var g = $('#game');
+    if (pos >= deck.length) {
+      var right = results.filter(Boolean).length, missed = deck.filter(function (c, i) { return !results[i]; });
+      g.innerHTML = '<h2>Done</h2><div class="score">' + right + ' of ' + deck.length + '</div>' +
+        (missed.length ? '<p class="hint">To go back over:</p><ul class="miss">' + missed.map(function (c) { return '<li><b>' + esc(bName(c.a)) + '.</b> ' + esc(c.t) + '</li>'; }).join('') + '</ul>' : '<p class="why">All right. Next, close this and recall the three groups from memory.</p>') +
+        '<div class="row">' + (missed.length ? '<button class="btn primary" data-g="redo">Play the ' + missed.length + ' missed</button>' : '') + '<button class="btn" data-g="all">Play all again</button><button class="btn" data-g="lab">Back to the kidney lab</button></div>';
+      return;
+    }
+    var c = deck[pos];
+    g.innerHTML = pips() + '<p class="scene">' + esc(c.t) + '</p><div class="buckets">' + B.map(function (b) { return '<button class="bk" data-b="' + b.id + '"><b>' + esc(b.n) + '</b><span>' + esc(b.s) + '</span></button>'; }).join('') + '</div><div id="fb"></div>';
+    answered = false;
+  }
+  $('#game').addEventListener('click', function (e) {
+    var gb = e.target.closest('[data-g]');
+    if (gb) { var k = gb.getAttribute('data-g'); if (k === 'lab') return showTab('lab'); if (k === 'all') return startGame(CASES); if (k === 'redo') return startGame(deck.filter(function (c, i) { return !results[i]; })); if (k === 'next') { pos++; drawGame(); window.scrollTo(0, 0); return; } }
+    var b = e.target.closest('[data-b]'); if (!b || answered) return; answered = true;
+    var c = deck[pos], pick = b.getAttribute('data-b'), ok = pick === c.a; results[pos] = ok;
+    $$('#game .bk').forEach(function (x) { x.disabled = true; var id = x.getAttribute('data-b'); if (id === c.a) x.classList.add('right'); else if (id === pick) x.classList.add('wrong'); });
+    var last = pos === deck.length - 1;
+    $('#fb').innerHTML = '<div class="fb ' + (ok ? 'good' : 'bad') + '"><p><span class="tag">' + (ok ? 'Right.' : 'Not quite.') + '</span> ' + (ok ? '' : 'This is ' + esc(bName(c.a).toLowerCase()) + '. ') + esc(c.w) + '</p><div class="row"><button class="btn primary" data-g="next">' + (last ? 'See the score' : 'Next patient') + '</button></div></div>';
+    $('#fb').scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- cheat sheet ---------- */
+  var GR = [
+    { n: 'Not enough going in', c: 'var(--diff)', l: ['Rarely the whole story by itself', 'Look for a second loss (alcohol use disorder, anorexia, diuretic or laxative use)'] },
+    { n: 'Pushed into cells', c: 'var(--b-fill)', l: ['Insulin, including refeeding', 'Beta-agonists: salbutamol, tocolytics', 'Alkalosis', 'Starting treatment for B12 or folate deficiency', 'Thyrotoxic periodic paralysis'] },
+    { n: 'Lost by the kidney', c: 'var(--a-fill)', l: ['Loop and thiazide diuretics', 'Primary aldosteronism (Conn, adrenal hyperplasia)', 'Vomiting (through the kidney, not the vomit)', 'Low magnesium', 'Rule: needs both aldosterone up and more sodium arriving'] },
+    { n: 'Lost from the gut', c: 'var(--good)', l: ['Diarrhoea', 'Laxative misuse', 'High-output stoma or fistula'] }
+  ];
+  $('#groups').innerHTML = GR.map(function (g) { return '<div class="card g"><h3><i style="background:' + g.c + '"></i>' + esc(g.n) + '</h3><ul>' + g.l.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>'; }).join('');
+  $('#fixes').innerHTML = [
+    '<b>Vitamin B12.</b> It is the treatment of the deficiency that lowers potassium (new cells soak it up), not the deficiency.',
+    '<b>Vomiting.</b> You are right that the vomit holds little potassium. It is still a common cause, because the kidney does the losing: alkalosis delivers bicarbonate and sodium to the late tubule, and the volume loss raises aldosterone.',
+    '<b>Primary aldosteronism.</b> The extra sodium reaches the late tubule because the volume expands and the early tubule takes back less. It is not because other parts of the nephron take less sodium in. You linked it to more sodium delivery, which is right as the result. The two dials are separate, and here they rise together.',
+    '<b>A group you missed.</b> The gut: diarrhoea, laxatives and a high-output stoma are common ward causes.'
+  ].map(function (x) { return '<li>' + x + '</li>'; }).join('');
+
+  /* ---------- start ---------- */
+  updateOut(); startGame(CASES);
+  var h = location.hash.slice(1); showTab(h === 'sort' || h === 'sheet' ? h : 'lab');
+})();
+</script></body></html>
