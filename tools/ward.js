@@ -67,7 +67,7 @@
 
   /* ---------- flow ---------- */
   function startCase(i) {
-    var c = CASES[i]; S.ci = i; S.si = 0; S.results = []; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.last = null;
+    var c = CASES[i]; S.ci = i; S.si = 0; S.results = []; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.last = null; S.active = []; S.carry = [];
     S.mode = 'intro'; S.step = null; render();
   }
   function stepAt(c, si, failed) { var st = c.steps[si]; return failed && st.alt ? st.alt : st; }
@@ -76,12 +76,15 @@
     S.step = stepAt(c, S.si, failed);
     S.facts = S.facts.concat(S.newFacts); S.newFacts = (S.step.reveal || []).slice();
     if (S.step.vit) S.vit = merge(S.vit, S.step.vit);
+    S.carry = S.step.heads ? [] : (S.active || []).map(function (a) { return { id: a.id, dose: a.dose, time: a.time, stopped: false, reord: false }; });
     S.placed = []; S.plan = { call: null, monitor: null, review: null, callFirst: false }; S.hint = false; S.mode = 'order'; render();
     var q = $('#q'); if (q && !matchMedia('(hover: none)').matches) q.focus();
   }
   function placedIds() { return S.placed.map(function (p) { return p.id; }); }
+  /* orders still running from earlier steps (not stopped, not ordered again this step) */
+  function liveCarry() { var ids = placedIds(); return (S.carry || []).filter(function (p) { return !p.stopped && !p.reord && ids.indexOf(p.id) < 0; }); }
   function grade() {
-    var st = S.step, g = st.orders || {}, lines = [], pts = 0, max = 0, miss = [], pass = true, ids = placedIds(), covered = {};
+    var st = S.step, g = st.orders || {}, lines = [], pts = 0, max = 0, miss = [], pass = true, act = liveCarry(), ids = placedIds().concat(act.map(function (p) { return p.id; })), covered = {};
     Object.keys(g).forEach(function (id) {
       if (g[id].q !== 'need' && g[id].q !== 'good') return;
       // an order that is only an alternative to a need (e.g. ICU for a MET call) does not add to the maximum
@@ -96,17 +99,22 @@
       var a = (g[k].alt || []).filter(function (x) { return ids.indexOf(x) >= 0; })[0];
       if (a) covered[a] = k;
     });
-    S.placed.forEach(function (p) {
+    S.placed.concat(act.map(function (p) { return merge(p, { carried: true }); })).forEach(function (p) {
       var r = g[p.id], o = BY[p.id], q = r ? r.q : 'none', why = r ? r.why : 'Not needed at this point.', doseOk = true, got = 0;
       if (covered[p.id]) { q = 'need'; why = g[covered[p.id]].why; r = merge(r || {}, { d: r && r.d ? r.d : g[covered[p.id]].d }); }
       if (r && o.doses && r.d) doseOk = p.dose !== null && r.d.indexOf(p.dose) >= 0;
-      if (r && r.harmDose && p.dose !== null && r.harmDose.indexOf(p.dose) >= 0) { q = 'harm'; why = 'That dose or device is harmful here. ' + (r.why || ''); }
+      if (p.carried && q !== 'need' && !covered[p.id]) {
+        // continuing an earlier order: neutral unless this step needs it
+        if (q === 'good' && !Object.keys(g).some(function (k) { return g[k].q === 'need' && (g[k].alt || []).indexOf(p.id) >= 0; })) max -= PTS.good;
+        lines.push({ id: p.id, q: 'cont', why: q === 'good' ? r.why : 'Still running from ' + p.time + '. Not needed now: stop it if it no longer fits.', dose: p.dose, doseOk: true, rightDose: null, carried: p.time }); return;
+      }
+      if (!p.carried && r && r.harmDose && p.dose !== null && r.harmDose.indexOf(p.dose) >= 0) { q = 'harm'; why = 'That dose or device is harmful here. ' + (r.why || ''); }
       if (q === 'need' || q === 'good') got = doseOk ? PTS[q] : Math.max(0, PTS[q] - 1);
       else if (q === 'skip') got = PTS.skip;
       else if (q === 'harm') { got = PTS.harm; pass = false; }
       if (q === 'good' && Object.keys(g).some(function (k) { return g[k].q === 'need' && (g[k].alt || []).indexOf(p.id) >= 0 && ids.indexOf(k) >= 0; })) got = 0; // both ordered: no double credit
       pts += got;
-      lines.push({ id: p.id, q: q, why: why, dose: p.dose, doseOk: doseOk, rightDose: r && r.d && o.doses ? r.d.map(function (k) { return o.doses[k]; }) : null, first: p.first });
+      lines.push({ id: p.id, q: q, why: why, dose: p.dose, doseOk: doseOk, rightDose: r && r.d && o.doses ? r.d.map(function (k) { return o.doses[k]; }) : null, first: p.first, carried: p.carried ? p.time : null });
     });
     Object.keys(g).forEach(function (id) {
       if (g[id].q !== 'need' && g[id].q !== 'good') return;
@@ -131,7 +139,7 @@
     return { lines: lines, plan: planLines, miss: miss, pass: pass, firstOk: firstOk, firstPick: fp ? fp.id : null, score: score, max: max, hint: S.hint, tag: st.tag, label: st.label };
   }
   function sign() {
-    if (!S.placed.length) return;
+    if (!S.placed.length && !liveCarry().length) return;
     if (S.step.plan) {
       var gap = PQ.filter(function (q) { return !S.plan[q.k]; })[0];
       if (gap) { PQ.forEach(function (q) { var e = !S.plan[q.k] && document.querySelector('[data-pg="' + q.k + '"]'); if (e) e.classList.add('need'); }); var g = document.querySelector('[data-pg="' + gap.k + '"]'); if (g) { g.classList.add('need'); g.scrollIntoView({ block: 'center' }); var f0 = g.querySelector('input'); if (f0) f0.focus(); } announce('Answer: ' + gap.q); return; }
@@ -139,6 +147,11 @@
     var unset = S.placed.filter(function (p) { return BY[p.id].doses && p.dose === null; });
     if (unset.length) { var el = document.querySelector('[data-dose="' + unset[0].id + '"]'); if (el) { el.focus(); el.classList.add('need'); } announce('Choose a dose for ' + BY[unset[0].id].n + ' first.'); return; }
     var r = grade(); S.last = r; S.results.push(r);
+    if (!S.step.heads) {
+      var keep = liveCarry().map(function (p) { return { id: p.id, dose: p.dose, time: p.time }; }), tm = S.step.time;
+      S.placed.forEach(function (p) { keep.push({ id: p.id, dose: p.dose, time: tm }); });
+      S.active = keep;
+    }
     var out = r.pass ? S.step.ok : (S.step.miss || S.step.ok);
     if (out && out.vit) S.vit = merge(S.vit, out.vit);
     S.facts = S.facts.concat(S.newFacts); S.newFacts = (out && out.facts) || [];
@@ -173,7 +186,7 @@
     var q = $('#q'), ul = $('#ores'); if (!q || !ul) return;
     var res = search(q.value);
     if (S.sel >= res.length) S.sel = 0;
-    ul.innerHTML = res.map(function (o, i) { return '<li role="option" id="opt-' + o.id + '" data-add="' + o.id + '" aria-selected="' + (i === S.sel) + '" class="' + (i === S.sel ? 'on' : '') + '"><b>' + esc(o.n) + '</b><span>' + esc(o.c) + '</span></li>'; }).join('') +
+    ul.innerHTML = res.map(function (o, i) { var live = liveCarry().some(function (p) { return p.id === o.id; }); return '<li role="option" id="opt-' + o.id + '" data-add="' + o.id + '" aria-selected="' + (i === S.sel) + '" class="' + (i === S.sel ? 'on' : '') + '"><b>' + esc(o.n) + '</b><span>' + (live ? 'Already active: order again' : esc(o.c)) + '</span></li>'; }).join('') +
       (q.value.trim().length >= 2 && !res.length ? '<li class="none">No order by that name. Try another word, or browse.</li>' : '');
     ul.hidden = !q.value.trim();
     q.setAttribute('aria-expanded', String(!!res.length));
@@ -182,15 +195,16 @@
   }
   function add(id) {
     if (!BY[id] || S.placed.some(function (p) { return p.id === id; })) return;
+    (S.carry || []).forEach(function (p) { if (p.id === id) p.reord = true; });
     S.placed.push({ id: id, dose: BY[id].doses && BY[id].doses.length === 1 ? 0 : null, first: false });
     var q = $('#q'); if (q) q.value = ''; S.sel = 0;
-    drawPlaced(); drawResults(); if (q) q.focus();
+    drawCarry(); drawPlaced(); drawResults(); if (q) q.focus();
     announce(BY[id].n + ' added.');
   }
   function announce(t) { var a = $('#announce'); if (a) { a.textContent = ''; setTimeout(function () { a.textContent = t; }, 30); } }
   function drawPlaced() {
     var ul = $('#placed'); if (!ul) return;
-    $('#ocount').textContent = S.placed.length ? S.placed.length + (S.placed.length === 1 ? ' order' : ' orders') : 'No orders yet';
+    $('#ocount').textContent = S.placed.length ? S.placed.length + (S.placed.length === 1 ? ' new order' : ' new orders') : (S.carry && S.carry.length ? 'No new orders yet' : 'No orders yet');
     var heads = !!(S.step && S.step.heads), rows = [];
     var rowHtml = function (p) {
       var o = BY[p.id];
@@ -208,7 +222,17 @@
         return '<li class="hgrp' + (mine.length ? '' : ' empty') + '"><b>' + esc(g[1]) + '</b><span>' + (mine.length ? mine.length : 'Nothing yet') + '</span></li>' + mine.map(rowHtml).join('');
       }).join('');
     }
-    var sb = $('#sign'); if (sb) sb.disabled = !S.placed.length;
+    var sb = $('#sign'); if (sb) sb.disabled = !S.placed.length && !liveCarry().length;
+  }
+  function drawCarry() {
+    var ul = $('#carry'); if (!ul) return;
+    ul.innerHTML = (S.carry || []).map(function (p) {
+      var o = BY[p.id], st = p.reord ? 'Ordered again below' : p.stopped ? 'Stopped' : 'Since ' + p.time;
+      return '<li class="po carried' + (p.stopped || p.reord ? ' off' : '') + '"><b class="pon">' + esc(o.n) + '</b>' +
+        (p.reord ? '' : '<button type="button" class="pstop" data-stop="' + p.id + '" aria-pressed="' + p.stopped + '">' + (p.stopped ? 'Restart' : 'Stop') + '</button>') +
+        '<span class="pmeta">' + esc(st) + (o.doses && p.dose !== null && p.dose !== undefined ? ' · ' + esc(o.doses[p.dose]) : '') + '</span></li>';
+    }).join('');
+    var sb = $('#sign'); if (sb) sb.disabled = !S.placed.length && !liveCarry().length;
   }
 
   function drawPlan() {
@@ -244,21 +268,22 @@
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card order">' +
         (S.last && S.si > 0 ? '<p class="happened">' + esc((S.last.pass ? CASES[S.ci].steps[S.si - 1].ok : (CASES[S.ci].steps[S.si - 1].miss || CASES[S.ci].steps[S.si - 1].ok)).text) + '</p>' : '') +
         '<p class="when">' + esc(st.time + ' · ' + st.window) + '</p><p class="scene">' + esc(st.scene) + '</p>' +
+        (S.carry && S.carry.length ? '<h3 class="acth">Still active <span>Your earlier orders carry on. Stop any that no longer fit; add only what is new.</span></h3><ul id="carry" class="placed"></ul>' : '') +
         '<div class="osearch"><label for="q">Place an order</label><input id="q" type="text" placeholder="Type a test, drug or action" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="ores" aria-expanded="false"><ul id="ores" role="listbox" hidden></ul></div>' +
         '<p class="browse"><button type="button" class="link" data-a="browse">' + (S.hint ? 'Browse orders (hint used)' : 'Stuck on a name? Browse orders (counts as a hint)') + '</button></p>' +
         '<h3 id="ocount"></h3>' + (st.heads ? '<p class="hnote">Discharge planning. Your orders file under these headings: fill every heading.</p>' : '') + '<ul id="placed" class="placed"></ul>' +
         (st.plan ? '<h3 class="plh">Your plan <span>Answer all three</span></h3><div id="plan" class="plan"></div>' : '') +
         '<div class="btns signrow"><button class="btn primary" id="sign" data-a="sign" disabled>Sign orders</button></div><p class="sr" id="announce" aria-live="polite"></p></div></div></div>';
-      drawPlaced(); drawResults(); drawPlan();
+      drawCarry(); drawPlaced(); drawResults(); drawPlan();
       return;
     }
     if (S.mode === 'result') {
       var r = S.last, st2 = S.step, out = r.pass ? st2.ok : (st2.miss || st2.ok);
-      var mark = { need: ['ok', 'Needed'], good: ['ok', 'Good'], skip: ['skip', 'Not needed'], none: ['none', 'Not needed now'], harm: ['harm', 'Harmful'] };
+      var mark = { need: ['ok', 'Needed'], good: ['ok', 'Good'], skip: ['skip', 'Not needed'], none: ['none', 'Not needed now'], harm: ['harm', 'Harmful'], cont: ['none', 'Still active'] };
       var rows = r.lines.map(function (l) {
         var o = BY[l.id], m = mark[l.q], doseBit = '';
         if (o.doses && l.dose !== null) doseBit = '<span class="rdose' + (l.doseOk ? '' : ' bad') + '">' + esc(o.doses[l.dose]) + (l.doseOk ? '' : ': wrong dose. Right: ' + esc(l.rightDose.join(' or '))) + '</span>';
-        return '<li class="rl ' + m[0] + (l.first ? ' wasfirst' : '') + '"><span class="rk">' + m[1] + (l.first ? ', your first' : '') + '</span><b>' + esc(o.n) + '</b>' + doseBit + '<span class="rw">' + esc(l.why) + '</span></li>';
+        return '<li class="rl ' + m[0] + (l.first ? ' wasfirst' : '') + '"><span class="rk">' + m[1] + (l.first ? ', your first' : '') + (l.carried && l.q !== 'cont' ? ' · carried on from ' + esc(l.carried) : '') + '</span><b>' + esc(o.n) + '</b>' + doseBit + '<span class="rw">' + esc(l.why) + '</span></li>';
       }).join('');
       var missed = r.miss.map(function (m) { var o = BY[m.id]; return '<li class="rl ' + (m.q === 'need' ? 'miss' : 'also') + '"><span class="rk">' + (m.crit ? 'Missed, critical' : m.q === 'need' ? 'Missed' : 'Also worth doing') + (st2.heads && headName(m.id) ? ' · ' + esc(headName(m.id)) : '') + '</span><b>' + esc(o.n) + '</b>' + (st2.orders[m.id].d && o.doses ? '<span class="rdose">' + esc(st2.orders[m.id].d.map(function (k) { return o.doses[k]; }).join(' or ')) + '</span>' : '') + '<span class="rw">' + esc(m.why) + '</span></li>'; }).join('');
       var planRows = (r.plan || []).map(function (l) {
@@ -307,7 +332,8 @@
   document.addEventListener('click', function (e) {
     var t = e.target, el;
     if ((el = t.closest('[data-add]'))) { add(el.getAttribute('data-add')); if (el.classList.contains('bo')) { el.disabled = true; el.classList.add('on'); } return; }
-    if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); drawPlaced(); drawResults(); return; }
+    if ((el = t.closest('[data-stop]'))) { var sid = el.getAttribute('data-stop'); (S.carry || []).forEach(function (p) { if (p.id === sid) p.stopped = !p.stopped; }); drawCarry(); drawPlaced(); return; }
+    if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); (S.carry || []).forEach(function (p) { if (p.id === id) p.reord = false; }); drawCarry(); drawPlaced(); drawResults(); return; }
     if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); if (f) S.plan.callFirst = false; drawPlaced(); drawPlan(); return; }
     if ((el = t.closest('[data-cfirst]'))) { S.plan.callFirst = !S.plan.callFirst; if (S.plan.callFirst) S.placed.forEach(function (p) { p.first = false; }); drawPlaced(); drawPlan(); return; }
     if ((el = t.closest('button[data-mode]'))) { if (el.getAttribute('data-mode') === 'easy') { var cid = el.getAttribute('data-id'); if (cid) setCaseMode(cid, 'easy'); else setMode('easy'); var cc = cid ? { id: cid } : S.mode !== 'home' && CASES[S.ci]; location.href = SHIFTPAGE + (cc ? '?case=' + encodeURIComponent(cc.id) + (RUN ? '&run=today' : '') : ''); } return; }

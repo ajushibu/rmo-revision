@@ -82,3 +82,14 @@
   html[data-shift][data-mode="result"] body { padding-bottom: 112px; }
   .endc .steps li { grid-template-columns: minmax(0, 1fr) 56px; } .endc .steps .meter { grid-column: 1 / -1; order: 3; }
 }
+
+/* orders carried on from earlier steps */
+.acth { margin: 16px 0 8px; font-size: 15px; }
+.acth span { display: block; margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.po.carried { grid-template-columns: minmax(0, 1fr) auto; background: var(--n-tint); border-style: dashed; }
+.po.carried .pmeta { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.po.carried.off .pon { text-decoration: line-through; color: var(--muted); }
+.pstop { min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; font-weight: 650; cursor: pointer; }
+.pstop[aria-pressed="true"] { border-color: var(--best); color: var(--best); }
+.po.carried { padding: 6px 8px 8px 12px; gap: 2px 8px; }
+.po.carried .pon { font-size: 15px; }
