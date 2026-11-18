@@ -291,7 +291,7 @@ svg text { font-family: var(--body); fill: var(--ink); }
   var ST3 = [
     ['1. What suction does', 'A pump on the wall pulls on the bottle. That pull reaches the chest tube, so air is drawn out of the chest faster than it would leave on its own.'],
     ['2. Who needs it?', 'Choose the patient. Suction is for patients who cannot clear the air themselves.'],
-    ['3. When the pump is switched off', 'Suction has been stopped. What you do with the tubing decides whether air can still leave.']
+    ['3. When the pump is switched off', 'Think of blowing bubbles through a straw into a bottle. With the lid ON, after a few puffs the bottle is full of air and you cannot blow any more. Take the lid OFF and you can keep going. The top of the drain bottle must be open to the room (or to a working pump). A switched-off pump with its tubing still attached acts as a lid.']
   ];
   function along(pts, u) { var L = [], tot = 0, i; for (i = 1; i < pts.length; i++) { var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(d); tot += d; }
     var t = u * tot; for (i = 0; i < L.length; i++) { if (t <= L[i]) { var f = t / L[i]; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f]; } t -= L[i]; } return pts[pts.length - 1]; }
@@ -324,15 +324,19 @@ svg text { font-family: var(--body); fill: var(--ink); }
         msg = 'Sedated and ventilated patients cannot cough or push air out themselves, so suction is commonly set at -20 cm water. Keep it on until the bubbling has stopped and the X-ray shows the pneumothorax has resolved, then stop it. Follow your unit\u2019s suction order.'; cls = 'ok'; }
     } else {
       txt(s3, 331, 226, '(switched off)', { 'text-anchor': 'middle', 'font-size': 10 });
-      if (tub === 'on') { el('path', { d: 'M310 120 L330 140 M330 120 L310 140', stroke: 'var(--a-fill)', 'stroke-width': 4 }, s3); txt(s3, 78, 178, 'Air is stuck', { 'text-anchor': 'middle', 'font-weight': 700, fill: 'var(--a-fill)' }); txt(s3, 78, 194, 'closed system', { 'text-anchor': 'middle', 'font-size': 11 });
-        msg = 'The pump is off but its tubing is still on the drain. The system is now closed: air has nowhere to go, so it builds up in the chest. Danger: take the suction tubing off the drain, or restart suction as ordered.'; cls = 'bad'; }
+      if (tub === 'on') { el('path', { d: 'M310 120 L330 140 M330 120 L310 140', stroke: 'var(--a-fill)', 'stroke-width': 4 }, s3); txt(s3, 331, 112, 'lid on', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: 'var(--a-fill)' });
+        g3.fill = []; for (var q = 0; q < 14; q++) g3.fill.push(el('circle', { cx: 210 + (q % 7) * 13, cy: 162 + Math.floor(q / 7) * 14, r: 4.5, fill: 'var(--b-fill)', opacity: 0 }, s3));
+        for (k = 0; k < 5; k++) g3.dots.push(el('circle', { r: 3.5, fill: 'var(--b-fill)' }, s3)); g3.path = [[100, 100], [250, 100], [250, 200], [272, 200], [272, 175]];
+        g3.full = txt(s3, 78, 178, 'Lid on: the bottle fills', { 'text-anchor': 'middle', 'font-weight': 700, fill: 'var(--a-fill)' }); g3.full2 = txt(s3, 78, 194, 'with air', { 'text-anchor': 'middle', 'font-size': 11 });
+        msg = 'Switched-off pump + tubing still attached = lid on. Air from the chest bubbles into the bottle, the bottle fills up, and then no more air can leave the chest. It builds up inside instead. Fix: take the suction tubing off the drain (or restart suction as ordered).'; cls = 'bad'; }
       else { for (k = 0; k < 6; k++) g3.dots.push(el('circle', { r: 3.5, fill: 'var(--b-fill)' }, s3)); g3.path = PATH_OFF; txt(s3, 296, 90, 'open to air', { 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 700 });
-        msg = 'Suction tubing taken off: the bottle is open to the room again, so air can leave on its own. The drain now works as a plain water seal.'; cls = 'ok'; }
+        msg = 'Tubing taken off = lid off. Air bubbles into the bottle and escapes into the room, so the chest can keep emptying. The drain now works as a plain water seal.'; cls = 'ok'; }
     }
     var t = $('say3'); t.textContent = msg; t.className = 'say ' + cls;
   }
   function anim3() {
     if (!g3.dots || !g3.dots.length) return; t3 += dt;
+    if (g3.fill) { var n = Math.min(14, Math.floor(t3 * 1.6)); g3.fill.forEach(function (c, i) { c.setAttribute('opacity', i < n ? .9 : 0); }); if (n >= 14) { g3.dots.forEach(function (d) { d.setAttribute('opacity', 0); }); g3.full.textContent = 'Bottle FULL of air'; g3.full2.textContent = 'no more can leave the chest'; return; } }
     g3.dots.forEach(function (d, k) { var u = (t3 * 0.18 + k / g3.dots.length) % 1, q = along(g3.path, u); d.setAttribute('cx', q[0]); d.setAttribute('cy', q[1]); });
   }
   $('b3back').onclick = function () { st3 = Math.max(1, st3 - 1); draw3(); };
