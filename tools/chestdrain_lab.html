@@ -68,23 +68,23 @@ svg text { font-family: var(--body); fill: var(--ink); }
 </section>
 
 <section class="panel" id="p1" role="tabpanel" hidden>
-  <h2>Why are there one, two or three chambers?</h2>
-  <p>Add the chambers one at a time and push in fluid. Each chamber fixes a problem the one before it had.</p>
-  <div class="row"><span class="lab">Chambers</span><span id="nch"></span></div>
-  <div class="grid2"><svg id="s1" viewBox="0 0 360 250" role="img" aria-label="Drainage bottles"></svg>
+  <h2 id="h1t"></h2>
+  <p id="p1txt" style="margin:0"></p>
+  <div class="grid2"><svg id="s1" viewBox="0 0 360 230" role="img" aria-label="Drainage bottles"></svg>
   <div style="display:flex;flex-direction:column;gap:12px">
-    <label class="sl"><span>Fluid drained from the chest: <b id="flv">0</b> mL</span><input type="range" id="fl" min="0" max="1500" step="50" value="0"></label>
+    <div class="row" id="c1"></div>
+    <label class="sl" id="flrow"><span>Fluid drained from the chest: <b id="flv">0</b> mL</span><input type="range" id="fl" min="0" max="1500" step="50" value="0"></label>
     <div class="say" id="say1"></div>
   </div></div>
-  <p class="small">The water-seal depth is the push the lung must make for air to escape. About 2 to 3 cm of water is enough to let air out and stop air going back in. The fluid scale here is only illustrative.</p>
+  <div class="row"><button class="chip" id="b1back">Back</button><span class="small" id="b1n"></span><button class="chip" id="b1next" style="margin-left:auto">Next</button></div>
+  <p class="small">Illustrative only. About 2 to 3 cm of water is the seal depth quoted in the Melbourne ICU video.</p>
 </section>
 
 <section class="panel" id="p2" role="tabpanel" hidden>
-  <h2>Bubbling and swinging</h2>
-  <p>Swinging means the drain is connected to the pressure changes of breathing. Bubbling means air is coming out. Change the patient and the drain, and see what each does.</p>
-  <div class="row"><span class="lab">Breathing</span><span id="cbr"></span></div>
-  <div class="row"><span class="lab">Air leak from the lung</span><span id="clk"></span></div>
-  <div class="row"><span class="lab">Problem</span><span id="cpr"></span></div>
+  <h2>The water in the tube is a pressure meter for the chest</h2>
+  <p style="margin:0">The tube joins the chest to the bottle. Whatever pressure the chest has, the water in the tube shows it. Pick one thing to look at.</p>
+  <div class="row" id="sub2"></div>
+  <div class="row" id="r2"></div>
   <div class="grid2"><svg id="s2" viewBox="0 0 360 256" role="img" aria-label="Drain tubing and water seal showing swing and bubbles"></svg>
   <div style="display:flex;flex-direction:column;gap:12px"><div class="say" id="say2"></div><div id="rd2" class="small"></div></div></div>
 </section>
@@ -154,43 +154,79 @@ svg text { font-family: var(--body); fill: var(--ink); }
       d.setAttribute('opacity', on ? 1 : 0); d.setAttribute('cx', on ? (u < .5 ? 240 + u * 120 : 300) : 0); d.setAttribute('cy', on ? (u < .5 ? 150 : 150 + (u - .5) * 70) : 0); });
   }
 
-  /* ---- tab 1: the bottles ---- */
-  var nch = 1, fl = 0, s1 = $('s1');
-  chips($('nch'), [{ t: 'One', v: 1 }, { t: 'Two', v: 2 }, { t: 'Three', v: 3 }], function () { return nch; }, function (v) { nch = v; draw1(); });
-  function bottle(x, w, h, level, color, label, sub) {
-    el('rect', { x: x, y: 70, width: w, height: h, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s1);
-    if (level > 0) el('rect', { x: x + 1, y: 70 + h - level, width: w - 2, height: level, fill: color, opacity: .75 }, s1);
-    txt(s1, x + w / 2, 70 + h + 16, label, { 'text-anchor': 'middle', 'font-weight': 700 }); if (sub) txt(s1, x + w / 2, 70 + h + 30, sub, { 'text-anchor': 'middle', 'font-size': 10 });
+  /* ---- tab 1: the bottles, four steps ---- */
+  var st1 = 1, fl = 0, s1 = $('s1'), air1 = 'out', g1 = {}, t1 = 0;
+  var ST = [
+    ['1. A glass of water with a straw', 'Picture the chest tube dipping under water in a glass. Air from the chest can push out through the water as bubbles. But when the chest tries to pull air back, it only pulls up water, not air. The water is a one-way door.'],
+    ['2. The problem: fluid lands in the same glass', 'Fluid from the chest also drains into this glass. The water gets deeper. A deeper glass is harder to blow bubbles through, so air leaves with more difficulty.'],
+    ['3. The fix: give the fluid its own bottle first', 'Fluid now goes into a collection bottle, where you can measure it. The water-seal glass stays shallow whatever drains.'],
+    ['4. Add suction: a pump helps pull air out', 'The third part is wall suction with a regulator. It helps pull air out when the lung needs help. Usually set at -20 cm water.']
+  ];
+  function pipe(d) { return el('path', { d: d, fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s1); }
+  function glass(x, w, top, h, level, color) {
+    el('rect', { x: x, y: top, width: w, height: h, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s1);
+    if (level > 0) el('rect', { x: x + 1, y: top + h - level, width: w - 2, height: level, fill: color, opacity: .7 }, s1);
   }
   function draw1() {
-    s1.innerHTML = ''; $('flv').textContent = fl;
-    var cm = fl / 150, seal = nch === 1 ? 2 + cm : 2, H = 110;
-    el('path', { d: nch === 1 ? 'M10 40 H100 V150' : 'M10 40 H90 V70', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s1);
-    txt(s1, 10, 30, 'from the chest');
-    var x = 60;
-    if (nch === 1) { bottle(60, 120, H, Math.min(H - 6, seal * 8), 'var(--b-fill)', 'Water seal', 'depth ' + seal.toFixed(1) + ' cm'); }
-    else { bottle(40, 100, H, Math.min(H - 6, fl / 15), 'var(--a-fill)', 'Collection', 'fluid ' + fl + ' mL'); bottle(160, 100, H, 2 * 8, 'var(--b-fill)', 'Water seal', 'depth 2.0 cm'); el('path', { d: 'M140 78 H160', stroke: 'var(--muted)', 'stroke-width': 4 }, s1); }
-    if (nch === 3) { bottle(280, 70, H, 0, 'var(--b-fill)', 'Suction', ''); el('path', { d: 'M260 78 H280', stroke: 'var(--muted)', 'stroke-width': 4 }, s1); txt(s1, 315, 105, '-20', { 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 700 }); txt(s1, 315, 122, 'cm water', { 'text-anchor': 'middle', 'font-size': 10 }); txt(s1, 315, 150, 'regulator', { 'text-anchor': 'middle', 'font-size': 10 }); txt(s1, 315, 64, 'wall suction', { 'text-anchor': 'middle', 'font-size': 10 }); }
-    var m, bad = false;
-    if (nch === 1) { m = fl < 200 ? 'One chamber, one water seal. Air leaves easily. Now push fluid in with the slider.' : 'The fluid you drain lands in the same bottle, so the water seal gets deeper: ' + seal.toFixed(1) + ' cm. Air now has to push against more water to leave. That is the problem. Add a collection chamber.'; bad = fl >= 200; }
-    else if (nch === 2) m = 'Fluid now goes into its own collection chamber, where you can measure it. The seal stays at 2 cm whatever drains. The catch: there is a lot of gas in the tubing before the seal, which makes it less efficient at draining air. Suction fixes that.';
-    else m = 'Third chamber: wall suction with a regulator (here dry, with bellows that move when suction is working). Fluid and air both drain, and suction is adjustable, usually set at -20 cm water, range -10 to -40.';
-    var t = $('say1'); t.textContent = m; t.className = 'say' + (bad ? ' bad' : '');
+    s1.innerHTML = ''; g1 = {}; $('flv').textContent = fl;
+    $('h1t').textContent = ST[st1 - 1][0]; $('p1txt').textContent = ST[st1 - 1][1]; $('b1n').textContent = 'Step ' + st1 + ' of 4';
+    $('b1back').disabled = st1 === 1; $('b1next').disabled = st1 === 4; $('flrow').hidden = st1 === 1 || st1 === 4;
+    $('c1').hidden = st1 !== 1;
+    if (st1 === 1) chips($('c1'), [{ t: 'Chest pushes air out', v: 'out' }, { t: 'Chest tries to pull air back', v: 'back' }], function () { return air1; }, function (v) { air1 = v; t1 = 0; draw1(); });
+    var cm = fl / 150, seal = st1 === 2 ? 2 + cm : 2, msg = '', cls = '';
+    // chest box
+    el('rect', { x: 6, y: 20, width: 60, height: 60, rx: 10, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 2 }, s1); txt(s1, 36, 55, 'Chest', { 'text-anchor': 'middle', 'font-weight': 700 });
+    if (st1 <= 2) {
+      var lv = Math.min(100, seal * 8 + (st1 === 1 ? 14 : 0)); glass(130, 120, 70, 130, lv, 'var(--b-fill)');
+      pipe('M66 50 H190 V' + (70 + 130 - lv + 30)); txt(s1, 190, 224, 'Water seal glass', { 'text-anchor': 'middle', 'font-weight': 700 });
+      if (st1 === 2) txt(s1, 190, 240, 'water depth ' + seal.toFixed(1) + ' cm', { 'text-anchor': 'middle', 'font-size': 11 });
+      g1.surface = 70 + 130 - lv; g1.tx = 190;
+      if (st1 === 1) { g1.b = []; for (var k = 0; k < 4; k++) g1.b.push(el('circle', { r: 5, fill: 'var(--surface)', stroke: 'var(--ink)', opacity: 0 }, s1));
+        g1.w = el('rect', { x: 186, y: 200, width: 8, height: 0, fill: 'var(--b-fill)' }, s1); }
+      if (st1 === 1) msg = air1 === 'out' ? 'Air bubbles up through the water and leaves. Good.' : 'Watch the tube: water climbs up the tube, no air comes back. The water seals the door.';
+      else msg = fl < 200 ? 'Slide the fluid up. Watch the water depth.' : 'Depth is ' + seal.toFixed(1) + ' cm. Air now has to push through that much water to leave. That is the problem.';
+      cls = st1 === 2 && fl >= 200 ? 'bad' : '';
+    } else {
+      glass(100, 90, 70, 130, Math.min(124, fl / 15), 'var(--a-fill)'); txt(s1, 145, 224, 'Fluid bottle', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s1, 145, 240, fl + ' mL', { 'text-anchor': 'middle', 'font-size': 11 });
+      pipe('M66 50 H120 V76'); pipe('M190 90 H215');
+      glass(215, 70, 70, 130, 16, 'var(--b-fill)'); txt(s1, 250, 224, 'Water seal', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s1, 250, 240, '2 cm', { 'text-anchor': 'middle', 'font-size': 11 });
+      if (st1 === 3) msg = 'The seal stays 2 cm deep however much fluid drains, so air still leaves easily. The fluid is also measured separately.';
+      else { pipe('M285 90 H300'); el('rect', { x: 300, y: 70, width: 54, height: 130, rx: 6, fill: 'var(--surface)', stroke: 'var(--b-fill)', 'stroke-width': 2 }, s1); txt(s1, 327, 118, '-20', { 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 700 }); txt(s1, 327, 136, 'cm water', { 'text-anchor': 'middle', 'font-size': 10 }); txt(s1, 327, 176, 'suction', { 'text-anchor': 'middle', 'font-size': 10 }); txt(s1, 327, 60, 'wall pump', { 'text-anchor': 'middle', 'font-size': 10 });
+        msg = 'Suction helps draw the air out of the chest. On a modern dry system it is set at -20 and can be changed between -10 and -40. Bellows that move show it is working. Awake patients who cough rarely need it.'; }
+    }
+    var t = $('say1'); t.textContent = msg; t.className = 'say ' + cls;
   }
+  function anim1() {
+    if (st1 !== 1 || !g1.b) return; t1 += dt; var surf = g1.surface;
+    if (air1 === 'out') { g1.w.setAttribute('height', 0);
+      g1.b.forEach(function (c, k) { var u = (t1 * 0.8 + k / 4) % 1; c.setAttribute('opacity', 1); c.setAttribute('cx', 190 + Math.sin(k * 2 + u * 6) * 6); c.setAttribute('cy', surf + 40 - u * (40 + 30)); }); }
+    else { g1.b.forEach(function (c) { c.setAttribute('opacity', 0); }); var u = Math.min(1, t1 * 0.6), h = u * 50; g1.w.setAttribute('x', 186); g1.w.setAttribute('width', 8); g1.w.setAttribute('y', surf - h); g1.w.setAttribute('height', h + 30); }
+  }
+  chips($('c1'), [], function () { return 0; }, function () {});
   $('fl').oninput = function () { fl = +this.value; draw1(); };
+  $('b1back').onclick = function () { st1 = Math.max(1, st1 - 1); draw1(); };
+  $('b1next').onclick = function () { st1 = Math.min(4, st1 + 1); draw1(); };
 
   /* ---- tab 2: bubble and swing ---- */
   var br = 'sp', lk = 0, pr = 'none', s2 = $('s2'), g2 = {};
-  chips($('cbr'), [{ t: 'Breathing on their own', v: 'sp' }, { t: 'On a ventilator', v: 'vt' }], function () { return br; }, function (v) { br = v; upd2(); });
-  chips($('clk'), [{ t: 'None', v: 0 }, { t: 'Small', v: 1 }, { t: 'Large', v: 2 }], function () { return lk; }, function (v) { lk = v; upd2(); });
-  chips($('cpr'), [{ t: 'None', v: 'none' }, { t: 'Kinked tube', v: 'kink', warn: 1 }, { t: 'Lung fully re-expanded', v: 'up' }, { t: 'Suction on', v: 'suc' }, { t: 'Loose connection', v: 'con', warn: 1 }], function () { return pr; }, function (v) { pr = v; upd2(); });
+  var m2 = 'sw';
+  function ctl2() {
+    chips($('sub2'), [{ t: 'It swings', v: 'sw' }, { t: 'It stops swinging', v: 'stuck' }, { t: 'It bubbles', v: 'bub' }], function () { return m2; }, function (v) { m2 = v; pr = 'none'; lk = 0; ctl2(); upd2(); });
+    var h = $('r2'); h.innerHTML = '';
+    function row(label, id) { var l = document.createElement('span'); l.className = 'lab'; l.textContent = label; var c = document.createElement('span'); c.id = id; h.appendChild(l); h.appendChild(c); }
+    row('Breathing', 'cbr');
+    chips($('cbr'), [{ t: 'On their own', v: 'sp' }, { t: 'On a ventilator', v: 'vt' }], function () { return br; }, function (v) { br = v; upd2(); });
+    if (m2 === 'stuck') { row('What is wrong', 'cpr'); chips($('cpr'), [{ t: 'Nothing', v: 'none' }, { t: 'Kinked tube', v: 'kink', warn: 1 }, { t: 'Lung fills the holes', v: 'up' }, { t: 'Suction on', v: 'suc' }], function () { return pr; }, function (v) { pr = v; upd2(); }); }
+    if (m2 === 'bub') { row('Air leak from the lung', 'clk'); chips($('clk'), [{ t: 'None', v: 0 }, { t: 'Small', v: 1 }, { t: 'Large', v: 2 }], function () { return lk; }, function (v) { lk = v; pr = 'none'; upd2(); });
+      row('or', 'cpr'); chips($('cpr'), [{ t: 'Loose connection', v: 'con', warn: 1 }, { t: 'Connection tight', v: 'none' }], function () { return pr; }, function (v) { pr = v; if (v === 'con') lk = 0; upd2(); ctl2(); }); }
+  }
   el('rect', { x: 20, y: 130, width: 100, height: 100, rx: 8, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
   txt(s2, 70, 148, 'Patient', { 'text-anchor': 'middle', 'font-weight': 700 });
   g2.lung = el('ellipse', { cx: 70, cy: 190, rx: 30, ry: 28, fill: 'var(--lung)' }, s2);
   el('path', { d: 'M120 200 H190', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s2);
   el('rect', { x: 180, y: 40, width: 30, height: 160, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
   g2.col = el('rect', { x: 182, y: 120, width: 26, height: 78, fill: 'var(--b-fill)', opacity: .75 }, s2);
-  txt(s2, 195, 30, 'Fluid in tube', { 'text-anchor': 'middle' });
+  txt(s2, 195, 22, 'Water in the tube', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s2, 150, 70, 'up = pulled', { 'text-anchor': 'end', 'font-size': 10 }); txt(s2, 150, 82, 'to patient', { 'text-anchor': 'end', 'font-size': 10 });
   el('rect', { x: 250, y: 90, width: 90, height: 110, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
   el('rect', { x: 251, y: 150, width: 88, height: 49, fill: 'var(--b-fill)', opacity: .5 }, s2);
   txt(s2, 295, 218, 'Water seal', { 'text-anchor': 'middle' });
@@ -201,18 +237,21 @@ svg text { font-family: var(--body); fill: var(--ink); }
   function sw() { return !(pr === 'kink' || pr === 'up' || pr === 'suc'); }
   function upd2() {
     var m, cls = '';
-    var swing = sw(), bubbling = (lk > 0 && pr !== 'kink') || pr === 'con';
-    var kind = pr === 'con' || lk === 2 ? 'continuous' : lk === 1 ? 'intermittent' : 'none';
-    if (pr === 'kink') { m = 'Kinked: nothing moves and no bubbles, but air may still be building up in the chest. If the patient is worse, think tension pneumothorax: check the tube, X-ray, call your senior.'; cls = 'bad'; }
-    else if (pr === 'up') { m = 'Not swinging because the lung has re-expanded and is blocking the drain holes. Often good news if the patient is well and there is no bubbling. Check the X-ray.'; cls = 'ok'; }
-    else if (pr === 'suc') m = 'Suction pulls on the tube, so it stops swinging. To check the drain is still connected, disconnect from suction briefly and look for the swing (NSW ACI: once a shift).';
-    else if (pr === 'con') { m = 'Continuous bubbling that is not from the lung: air is leaking in at a loose connection. Check every connection before blaming the lung.'; cls = 'bad'; }
-    else if (kind === 'none') m = 'Swinging with no bubbles: the drain is open to the pleural space and no air is escaping now.';
-    else if (kind === 'intermittent') m = 'Swinging, with bubbles only at one point in the breath (' + (br === 'sp' ? 'end of breathing out' : 'peak of the ventilator breath') + '). That pattern is expected with a small leak.';
-    else { m = 'Continuous bubbling: a large air leak from the lung. Chart it. A persistent leak for days means asking cardiothoracic surgery.'; cls = 'bad'; }
-    if (swing) m += (br === 'sp' ? ' Fluid rises towards the patient as they breathe in (negative pressure in the chest).' : ' Fluid moves away from the patient as the ventilator breathes in (positive pressure).');
+    var kind = pr === 'con' || lk === 2 ? 'continuous' : lk === 1 ? 'intermittent' : 'none', swing = sw();
+    if (m2 === 'sw') m = br === 'sp' ? 'Breathe in: the chest pressure drops, so water is pulled UP the tube towards the patient. Breathe out: it falls back. Moving water means the tube is open to the chest, which is what we want.' : 'On a ventilator it is the opposite. The machine pushes air in, chest pressure rises, so water is pushed DOWN, away from the patient, on each breath in. It still moves, so the tube is still open to the chest.';
+    else if (m2 === 'stuck') {
+      if (pr === 'none') m = 'It swings, so the tube is open to the chest. Now pick what could stop it.';
+      else if (pr === 'kink') { m = 'A kink blocks the tube, so the meter cannot feel the chest. Air may still be building up. If the patient is worse, think tension pneumothorax: check the tube, get an X-ray, call your senior.'; cls = 'bad'; }
+      else if (pr === 'up') { m = 'The lung has re-expanded and covers the drain holes, so the tube cannot feel the chest. If the patient is well and nothing is bubbling this is often good news. Confirm on the X-ray.'; cls = 'ok'; }
+      else m = 'Suction is pulling on the tube all the time, so it stops swinging. To check the drain is still connected, disconnect it from suction briefly and look for the swing (NSW ACI says once a shift).';
+    } else {
+      if (kind === 'none') m = 'No bubbles: no air is coming out right now. Pick a leak size to see bubbles.';
+      else if (pr === 'con') { m = 'Bubbles all the time but the lung is not the cause: air is getting in at a loose connection. Check every join first.'; cls = 'bad'; }
+      else if (kind === 'intermittent') m = 'A few bubbles at one moment of each breath (' + (br === 'sp' ? 'end of breathing out' : 'top of the ventilator breath') + '). Small leak. This pattern is expected.';
+      else { m = 'Bubbles all the time: a large air leak from the lung. Chart it as continuous. A leak that lasts for days means asking cardiothoracic surgery.'; cls = 'bad'; }
+    }
     var t = $('say2'); t.textContent = m; t.className = 'say ' + cls;
-    $('rd2').textContent = 'Chart it as: swinging ' + (swing ? 'yes' : 'no') + ', bubbling ' + kind + '.';
+    $('rd2').textContent = m2 === 'sw' ? '' : 'Chart it as: swinging ' + (swing ? 'yes' : 'no') + ', bubbling ' + kind + '.';
   }
   function anim2() {
     var p = Math.sin(T * 1.6), swing = sw(), up = br === 'sp' ? p : -p;
@@ -268,8 +307,8 @@ svg text { font-family: var(--body); fill: var(--ink); }
 
   var dt = 0;
   function loop(now) { dt = Math.min(0.1, (now - last) / 1000); last = now; if (!reduce) T += dt;
-    if (cur === 0) anim0(); else if (cur === 2) anim2(); requestAnimationFrame(loop); }
-  showTab(0); draw0(); draw1(); upd2(); upd3(); drawQ(); requestAnimationFrame(loop);
+    if (cur === 0) anim0(); else if (cur === 1) anim1(); else if (cur === 2) anim2(); requestAnimationFrame(loop); }
+  showTab(0); draw0(); draw1(); ctl2(); upd2(); upd3(); drawQ(); requestAnimationFrame(loop);
 })();
 </script>
 <script src="../look.js"></script>
