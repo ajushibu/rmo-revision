@@ -208,16 +208,17 @@ svg text { font-family: var(--body); fill: var(--ink); }
 
   /* ---- tab 2: bubble and swing ---- */
   var br = 'sp', lk = 0, pr = 'none', s2 = $('s2'), g2 = {};
-  var m2 = 'sw';
+  var m2 = 'sw', cl = 0;
   function ctl2() {
-    chips($('sub2'), [{ t: 'It swings', v: 'sw' }, { t: 'It stops swinging', v: 'stuck' }, { t: 'It bubbles', v: 'bub' }], function () { return m2; }, function (v) { m2 = v; pr = 'none'; lk = 0; ctl2(); upd2(); });
+    chips($('sub2'), [{ t: 'It swings', v: 'sw' }, { t: 'It stops swinging', v: 'stuck' }, { t: 'It bubbles', v: 'bub' }], function () { return m2; }, function (v) { m2 = v; pr = 'none'; lk = 0; cl = 0; ctl2(); upd2(); });
     var h = $('r2'); h.innerHTML = '';
     function row(label, id) { var l = document.createElement('span'); l.className = 'lab'; l.textContent = label; var c = document.createElement('span'); c.id = id; h.appendChild(l); h.appendChild(c); }
     if (m2 !== 'stuck') row('Breathing', 'cbr');
     if (m2 !== 'stuck') chips($('cbr'), [{ t: 'On their own', v: 'sp' }, { t: 'On a ventilator', v: 'vt' }], function () { return br; }, function (v) { br = v; upd2(); });
     if (m2 === 'stuck') { row('What is wrong', 'cpr'); chips($('cpr'), [{ t: 'Nothing', v: 'none' }, { t: 'Kinked tube', v: 'kink', warn: 1 }, { t: 'Lung fills the holes', v: 'up' }, { t: 'Suction on', v: 'suc' }], function () { return pr; }, function (v) { pr = v; upd2(); }); }
     if (m2 === 'bub') { row('Air leak from the lung', 'clk'); chips($('clk'), [{ t: 'None', v: 0 }, { t: 'Small', v: 1 }, { t: 'Large', v: 2 }], function () { return lk; }, function (v) { lk = v; pr = 'none'; upd2(); });
-      row('or', 'cpr'); chips($('cpr'), [{ t: 'Loose connection', v: 'con', warn: 1 }, { t: 'Connection tight', v: 'none' }], function () { return pr; }, function (v) { pr = v; if (v === 'con') lk = 0; upd2(); ctl2(); }); }
+      row('or', 'cpr'); chips($('cpr'), [{ t: 'Loose connection', v: 'con', warn: 1 }, { t: 'Connection tight', v: 'none' }], function () { return pr; }, function (v) { pr = v; if (v === 'con') lk = 0; upd2(); ctl2(); });
+      row('Clamp close to the skin (briefly)', 'ccl'); chips($('ccl'), [{ t: 'No', v: 0 }, { t: 'Yes, clamp it', v: 1 }], function () { return cl; }, function (v) { cl = v; upd2(); }); }
   }
   /* real-looking layout: chest with a lung, tube out through the chest wall, bottle on the floor with the tube dipping under water */
   el('rect', { x: 8, y: 14, width: 140, height: 140, rx: 44, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 3 }, s2);
@@ -240,9 +241,9 @@ svg text { font-family: var(--body); fill: var(--ink); }
   txt(s2, 6, 232, 'The blue line inside the tube', { 'font-size': 10 }); txt(s2, 6, 245, 'is the water level you watch.', { 'font-size': 10 });
   g2.bub = []; for (i = 0; i < 6; i++) g2.bub.push(el('circle', { r: 4, fill: 'var(--surface)', stroke: 'var(--ink)', opacity: 0, cx: 250 }, s2));
   var bub = [0, 0, 0, 0, 0, 0], bi = 0, lastBurst = false;
-  function sw() { return !(pr === 'kink' || pr === 'up' || pr === 'suc'); }
+  function sw() { return !(pr === 'kink' || pr === 'up' || pr === 'suc' || (cl && m2 === 'bub')); }
   function ov2() {
-    var o = g2.ov; o.innerHTML = ''; if (m2 !== 'stuck') return;
+    var o = g2.ov; o.innerHTML = ''; if (m2 === 'bub' && cl) { el('rect', { x: 152, y: 91, width: 7, height: 18, rx: 2, fill: 'var(--a-fill)' }, o); txt(o, 156, 84, 'clamp', { 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 700, fill: 'var(--a-fill)' }); return; } if (m2 !== 'stuck') return;
     if (pr === 'kink') { el('path', { d: 'M196 90 L206 100 L196 110 M216 90 L206 100 L216 110', fill: 'none', stroke: 'var(--a-fill)', 'stroke-width': 4 }, o); txt(o, 206, 68, 'tube pinched shut', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: 'var(--a-fill)' }); }
     if (pr === 'up') { txt(o, 156, 134, 'lung pressed', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); txt(o, 156, 146, 'against the', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); txt(o, 156, 158, 'holes', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); }
     if (pr === 'suc') { el('path', { d: 'M286 150 V132 H320 V150', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, o); el('rect', { x: 306, y: 150, width: 50, height: 44, rx: 6, fill: 'var(--b-tint)', stroke: 'var(--b-fill)', 'stroke-width': 2 }, o); txt(o, 331, 168, 'suction', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700 }); txt(o, 331, 182, 'pulling', { 'text-anchor': 'middle', 'font-size': 10 }); txt(o, 356, 124, 'constant pull', { 'text-anchor': 'end', 'font-size': 10, 'font-weight': 700 }); }
@@ -256,6 +257,10 @@ svg text { font-family: var(--body); fill: var(--ink); }
       else if (pr === 'kink') { m = 'A kink blocks the tube, so the meter cannot feel the chest. Air may still be building up. If the patient is worse, think tension pneumothorax: check the tube, get an X-ray, call your senior.'; cls = 'bad'; }
       else if (pr === 'up') { m = 'The lung has re-expanded and covers the drain holes, so the tube cannot feel the chest. If the patient is well and nothing is bubbling this is often good news. Confirm on the X-ray.'; cls = 'ok'; }
       else m = 'Suction is pulling on the tube all the time, so it stops swinging. To check the drain is still connected, disconnect it from suction briefly and look for the swing (NSW ACI says once a shift).';
+    } else if (cl) {
+      if (kind === 'none') m = 'Clamped, but there was no leak, so nothing changes. Pick a leak size first.';
+      else if (pr === 'con') { m = 'Clamped close to the skin and it STILL bubbles: the air is not coming from the patient. The leak is in the tubing or a connection beyond the clamp, pulling room air in. Move the clamp further down the tube in steps until the bubbling stops.'; cls = 'bad'; }
+      else { m = 'Clamped close to the skin and the bubbling STOPPED: you cut off the air coming from the patient side (the lung or the insertion site). Think of a vacuum hose: hand over the nozzle and the noise stops. Tell your senior. Do not leave it clamped: the air has nowhere to go and can build into a tension pneumothorax.'; cls = 'ok'; }
     } else {
       if (kind === 'none') m = 'No bubbles: no air is coming out right now. Pick a leak size to see bubbles.';
       else if (pr === 'con') { m = 'Bubbles all the time but the lung is not the cause: air is getting in at a loose connection. Check every join first.'; cls = 'bad'; }
@@ -273,7 +278,7 @@ svg text { font-family: var(--body); fill: var(--ink); }
     g2.cap.textContent = m2 === 'stuck' ? (pr === 'none' ? 'Normal: it swings' : 'It has stopped swinging') : inh ? 'Breathing in' : 'Breathing out';
     g2.cap2.textContent = m2 === 'stuck' && !swing ? 'water stays still' : !swing ? 'water does not move' : (br === 'sp' ? (inh ? 'chest pulls: water goes UP' : 'chest pushes: water goes DOWN') : (inh ? 'machine pushes in: water goes DOWN' : 'air leaves: water goes UP'));
     g2.arrow.textContent = !swing ? '' : (up > 0.15 ? '\u25B2' : up < -0.15 ? '\u25BC' : '');
-    var kind = pr === 'con' || lk === 2 ? 2 : lk === 1 ? 1 : 0, can = pr !== 'kink' && (kind > 0), win = br === 'sp' ? p < -0.9 : p > 0.9;
+    var kind = pr === 'con' || lk === 2 ? 2 : lk === 1 ? 1 : 0, can = pr !== 'kink' && (kind > 0) && !(cl && pr !== 'con'), win = br === 'sp' ? p < -0.9 : p > 0.9;
     var fire = can && (kind === 2 || win);
     if (fire && (kind === 2 ? (Math.floor(T * 8) !== bi) : !lastBurst)) { bi = Math.floor(T * 8); bub[bub.indexOf(Math.min.apply(null, bub))] = 1; }
     lastBurst = win;
