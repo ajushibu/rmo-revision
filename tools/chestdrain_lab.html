@@ -85,7 +85,7 @@ svg text { font-family: var(--body); fill: var(--ink); }
   <p style="margin:0">The tube joins the chest to the bottle. Whatever pressure the chest has, the water in the tube shows it. Pick one thing to look at.</p>
   <div class="row" id="sub2"></div>
   <div class="row" id="r2"></div>
-  <div class="grid2"><svg id="s2" viewBox="0 0 360 256" role="img" aria-label="Drain tubing and water seal showing swing and bubbles"></svg>
+  <div class="grid2"><svg id="s2" viewBox="0 0 360 270" role="img" aria-label="Drain tubing and water seal showing swing and bubbles"></svg>
   <div style="display:flex;flex-direction:column;gap:12px"><div class="say" id="say2"></div><div id="rd2" class="small"></div></div></div>
 </section>
 
@@ -220,19 +220,23 @@ svg text { font-family: var(--body); fill: var(--ink); }
     if (m2 === 'bub') { row('Air leak from the lung', 'clk'); chips($('clk'), [{ t: 'None', v: 0 }, { t: 'Small', v: 1 }, { t: 'Large', v: 2 }], function () { return lk; }, function (v) { lk = v; pr = 'none'; upd2(); });
       row('or', 'cpr'); chips($('cpr'), [{ t: 'Loose connection', v: 'con', warn: 1 }, { t: 'Connection tight', v: 'none' }], function () { return pr; }, function (v) { pr = v; if (v === 'con') lk = 0; upd2(); ctl2(); }); }
   }
-  el('rect', { x: 20, y: 130, width: 100, height: 100, rx: 8, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
-  txt(s2, 70, 148, 'Patient', { 'text-anchor': 'middle', 'font-weight': 700 });
-  g2.lung = el('ellipse', { cx: 70, cy: 190, rx: 30, ry: 28, fill: 'var(--lung)' }, s2);
-  el('path', { d: 'M120 200 H190', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s2);
-  el('rect', { x: 180, y: 40, width: 30, height: 160, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
-  g2.col = el('rect', { x: 182, y: 120, width: 26, height: 78, fill: 'var(--b-fill)', opacity: .75 }, s2);
-  txt(s2, 195, 22, 'Water in the tube', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s2, 150, 70, 'up = pulled', { 'text-anchor': 'end', 'font-size': 10 }); txt(s2, 150, 82, 'to patient', { 'text-anchor': 'end', 'font-size': 10 });
-  el('rect', { x: 250, y: 90, width: 90, height: 110, rx: 6, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
-  el('rect', { x: 251, y: 150, width: 88, height: 49, fill: 'var(--b-fill)', opacity: .5 }, s2);
-  txt(s2, 295, 218, 'Water seal', { 'text-anchor': 'middle' });
-  el('path', { d: 'M210 60 H295 V150', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 3 }, s2);
-  g2.bub = []; for (i = 0; i < 6; i++) g2.bub.push(el('circle', { r: 4, fill: 'var(--surface)', stroke: 'var(--ink)', opacity: 0, cx: 295 }, s2));
-  g2.cap = txt(s2, 195, 244, '', { 'text-anchor': 'middle', 'font-size': 11 });
+  /* real-looking layout: chest with a lung, tube out through the chest wall, bottle on the floor with the tube dipping under water */
+  el('rect', { x: 8, y: 14, width: 140, height: 140, rx: 44, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 3 }, s2);
+  txt(s2, 78, 10, 'Chest', { 'text-anchor': 'middle', 'font-weight': 700 });
+  g2.lung = el('ellipse', { cx: 78, cy: 84, rx: 40, ry: 44, fill: 'var(--lung)', stroke: 'var(--a-fill)', 'stroke-width': 2 }, s2);
+  txt(s2, 78, 88, 'Lung', { 'text-anchor': 'middle', 'font-weight': 700 });
+  el('path', { d: 'M148 100 H250 V120', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s2);
+  txt(s2, 200, 92, 'tube from chest', { 'text-anchor': 'middle', 'font-size': 10 });
+  el('rect', { x: 196, y: 150, width: 108, height: 96, rx: 8, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
+  el('rect', { x: 197, y: 196, width: 106, height: 49, fill: 'var(--b-fill)', opacity: .45 }, s2);
+  txt(s2, 330, 200, 'water', { 'text-anchor': 'end', 'font-size': 10 }); txt(s2, 252, 262, 'Bottle with water', { 'text-anchor': 'middle', 'font-weight': 700 });
+  el('rect', { x: 245, y: 118, width: 10, height: 108, rx: 3, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
+  g2.col = el('rect', { x: 246.5, y: 170, width: 7, height: 56, fill: 'var(--b-fill)', opacity: .9 }, s2);
+  g2.arrow = txt(s2, 262, 140, '', { 'font-size': 12, 'font-weight': 700 });
+  g2.cap = txt(s2, 78, 178, '', { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700 });
+  g2.cap2 = txt(s2, 78, 194, '', { 'text-anchor': 'middle', 'font-size': 11 });
+  txt(s2, 6, 232, 'The blue line inside the tube', { 'font-size': 10 }); txt(s2, 6, 245, 'is the water level you watch.', { 'font-size': 10 });
+  g2.bub = []; for (i = 0; i < 6; i++) g2.bub.push(el('circle', { r: 4, fill: 'var(--surface)', stroke: 'var(--ink)', opacity: 0, cx: 250 }, s2));
   var bub = [0, 0, 0, 0, 0, 0], bi = 0, lastBurst = false;
   function sw() { return !(pr === 'kink' || pr === 'up' || pr === 'suc'); }
   function upd2() {
@@ -254,16 +258,18 @@ svg text { font-family: var(--body); fill: var(--ink); }
     $('rd2').textContent = m2 === 'sw' ? '' : 'Chart it as: swinging ' + (swing ? 'yes' : 'no') + ', bubbling ' + kind + '.';
   }
   function anim2() {
-    var p = Math.sin(T * 1.6), swing = sw(), up = br === 'sp' ? p : -p;
-    var d = swing ? up * 22 : 0, top = 120 - d; g2.col.setAttribute('y', top); g2.col.setAttribute('height', 198 - top);
-    g2.lung.setAttribute('rx', 30 + p * 4); g2.lung.setAttribute('ry', 28 + p * 4);
-    g2.cap.textContent = p > 0 ? 'Breathing in' : 'Breathing out';
+    var p = Math.sin(T * 1.6), swing = sw(), up = br === 'sp' ? p : -p, inh = p > 0;
+    var d = swing ? up * 38 : 0, top = 190 - d; if (top < 122) top = 122; g2.col.setAttribute('y', top); g2.col.setAttribute('height', 226 - top);
+    g2.lung.setAttribute('rx', 40 + p * 8); g2.lung.setAttribute('ry', 44 + p * 8);
+    g2.cap.textContent = inh ? 'Breathing in' : 'Breathing out';
+    g2.cap2.textContent = !swing ? 'water does not move' : (br === 'sp' ? (inh ? 'chest pulls: water goes UP' : 'chest pushes: water goes DOWN') : (inh ? 'machine pushes in: water goes DOWN' : 'air leaves: water goes UP'));
+    g2.arrow.textContent = !swing ? '' : (up > 0.15 ? '\u25B2' : up < -0.15 ? '\u25BC' : '');
     var kind = pr === 'con' || lk === 2 ? 2 : lk === 1 ? 1 : 0, can = pr !== 'kink' && (kind > 0), win = br === 'sp' ? p < -0.9 : p > 0.9;
     var fire = can && (kind === 2 || win);
     if (fire && (kind === 2 ? (Math.floor(T * 8) !== bi) : !lastBurst)) { bi = Math.floor(T * 8); bub[bub.indexOf(Math.min.apply(null, bub))] = 1; }
     lastBurst = win;
-    bub = bub.map(function (v) { return v > 0 ? v + dt * 0.9 : 0; }).map(function (v) { return v > 1.4 ? 0 : v; });
-    g2.bub.forEach(function (b, k) { var v = bub[k]; b.setAttribute('opacity', v > 0 ? 1 : 0); b.setAttribute('cy', 195 - v * 100); b.setAttribute('cx', 295 + Math.sin(k + v * 6) * 8); });
+    bub = bub.map(function (v) { return v > 0 ? v + dt * 0.9 : 0; }).map(function (v) { return v > 1.2 ? 0 : v; });
+    g2.bub.forEach(function (b, k) { var v = bub[k]; b.setAttribute('opacity', v > 0 ? 1 : 0); b.setAttribute('cy', 224 - v * 50); b.setAttribute('cx', 250 + Math.sin(k + v * 6) * 8); });
   }
 
   /* ---- tab 3: suction ---- */
