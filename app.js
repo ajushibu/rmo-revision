@@ -642,8 +642,11 @@
     h += '<details class="fold"><summary>Paste a note for Claude</summary><p class="meta">Paste an answer from Gemini, a book or a senior. Claude checks it against Australian sources and turns it into cards at the next refresh.</p><form id="pasteform" class="form"><label><span>What you are pasting</span><textarea id="pastetext" rows="5" maxlength="8000" placeholder="Paste the explanation here"></textarea></label><div class="inline"><label><span>Where it came from</span><input type="text" id="pastesrc" placeholder="Gemini, Harrison, my registrar" autocomplete="off"></label><button class="btn primary" type="submit">Save for Claude</button></div></form></details></section></div>';
     return shell(h, { page: 'topic', sys: t.system, topic: t.id });
   }
+  var later = [];   // cards sent to the back of today's queue, this page load only; they stay unrated
   function revise() {
-    var q = queue(), h = '<header class="head"><h1>Revise</h1>' + (q.all.length ? rtBlock(q) : '<p class="meta">All caught up</p>') + '</header>';
+    var q = queue();
+    if (later.length) { var lo = {}; later.forEach(function (id, i) { lo[id] = i + 1; }); var ix = {}; q.all.forEach(function (x, i) { ix[x.it.id] = i; }); q.all.sort(function (a, b) { return (lo[a.it.id] || 0) - (lo[b.it.id] || 0) || ix[a.it.id] - ix[b.it.id]; }); }
+    var h = '<header class="head"><h1>Revise</h1>' + (q.all.length ? rtBlock(q) : '<p class="meta">All caught up</p>') + '</header>';
     if (!q.all.length) {
       h += '<p class="meta">Nothing to recall right now. Items you rate come back on their date. To add a topic, open it and press "Studied today".</p><p><a class="btn" href="#/topics">Browse topics</a></p>';
       return shell(h, { page: 'revise' });
@@ -652,8 +655,8 @@
     rtShown = x.it.id;
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
-    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns"><button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
-    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true);
+    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns">' + (q.all.length > 1 ? '<button class="link" data-later="' + x.it.id + '">Bring back later' + KH('L') + '</button>' : '') + '<button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
+    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true) + (q.all.length > 1 ? '<p class="ctxbtns"><button class="link" data-later="' + x.it.id + '">Not sure yet: bring back at the end' + KH('L') + '</button></p>' : '');
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
@@ -800,6 +803,7 @@
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
     if ((el = e.target.closest('[data-ctxt]'))) { var cid = el.getAttribute('data-ctxt'), cbx = document.querySelector('[data-ctx="' + cid + '"]'); if (cbx) setCtx(cid, cbx.value); ctxOpen[cid] = !ctxOpen[cid]; save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-later]'))) { var lid = el.getAttribute('data-later'), nb2 = document.querySelector('[data-note="' + lid + '"]'); if (nb2) setNote(lid, nb2.value); later = later.filter(function (i) { return i !== lid; }); later.push(lid); revealed = false; keepScroll = false; save(); render(); return; }
     if ((el = e.target.closest('[data-skiprev]'))) { var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
@@ -860,7 +864,7 @@
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
-  /* Keyboard shortcuts on Revise: Space shows the answer, J = Shaky, K = Got it, N = note box, Esc leaves the box.
+  /* Keyboard shortcuts on Revise: Space shows the answer, J = Shaky, K = Got it, L = bring back later, N = note box, Esc leaves the box.
      Ignored while typing, with modifier keys, and on key repeat. Key hints show once a key is pressed, and hide on touch. */
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -873,6 +877,7 @@
     if (k === 'space') el = document.querySelector('[data-act="reveal"]');
     else if (k === 'j') el = document.querySelector('.flash [data-rate="shaky"]');
     else if (k === 'k') el = document.querySelector('.flash [data-rate="got"]');
+    else if (k === 'l') el = document.querySelector('.flash [data-later]');
     else if (k === 'n') { var nb = document.querySelector('.flash textarea[data-note]'); if (nb) { e.preventDefault(); nb.focus(); } return; }
     else return;
     if (k === 'space') e.preventDefault();   // no page scroll, and no double press on a focused button
