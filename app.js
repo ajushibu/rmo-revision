@@ -369,8 +369,8 @@
      after 2 minutes without a touch or key, and ignores any gap over 5 s between ticks (sleep, throttling,
      clock changes). Durations use performance.now(), which does not jump when the wall clock is changed.
      Today's total and an optional short goal live on this device (rmo-revtime); per-card times (capped
-     at 2 min) are synced in S.pace, and the estimate uses the median of the last 40 so one slow card
-     does not skew it. Only one tab counts at a time. */
+     at 2 min) are synced in S.pace, and the estimate is count x mean pace, separately for new and due cards
+     (slow outliers capped, pulled toward a prior while samples are few). Only one tab counts at a time. */
   var RT_KEY = 'rmo-revtime', RT_IDLE = 120000, RT_MAXDT = 5000, RT_CAP = 120000, RT_MIN = 1000, RT_DEF = 25000;
   var rtTab = Math.random().toString(36).slice(2), rtLast = null, rtInput = performance.now(), rtShown = null, rtMem = null, rtLastRate = null, rtTouched = true, rtMsAtInput = 0, rtWasIdle = false, RT_GRACE = 30000;
   function rtFresh() { return { day: today(), ms: 0, cards: 0, card: null, cardAt: 0, goal: null, owner: null, beat: 0 }; }
@@ -406,12 +406,25 @@
     if (s.card !== rtShown) { s.card = rtShown; s.cardAt = s.ms; }
     rtSave(s); rtPaint(s, idle ? 'idle' : '');
   }
-  function rtPace() {
-    var p = (S.pace || []).slice(-40).map(function (x) { return x.ms; }).filter(function (m) { return m > 0; }).sort(function (a, b) { return a - b; });
-    if (p.length < 3) return { ms: RT_DEF, rough: true };
-    var m = p.length >> 1;
-    return { ms: p.length % 2 ? p[m] : (p[m - 1] + p[m]) / 2, rough: p.length < 8 };
+  /* Pace for one kind of card ('n' new, 'd' due). A total is count x mean, so the mean (not the median) is the right
+     estimator; slow outliers are capped at 3x the median so one distracted card cannot inflate it. With few samples
+     it is pulled toward a prior (the other kind, scaled, else 25 s) as if 4 prior cards had been timed. */
+  function rtMeanOf(a) {
+    if (!a.length) return null;
+    var so = a.slice().sort(function (x, y) { return x - y; }), med = so[so.length >> 1], cap = Math.max(med * 3, 8000);
+    return a.reduce(function (t, m) { return t + Math.min(m, cap); }, 0) / a.length;
   }
+  function rtPace(kind) {
+    kind = kind === 'n' ? 'n' : 'd';
+    var all = (S.pace || []).filter(function (x) { return x.ms > 0; }).slice(-60);
+    var own = all.filter(function (x) { return (x.k || 'd') === kind; }).slice(-30).map(function (x) { return x.ms; });
+    var oth = all.filter(function (x) { return (x.k || 'd') !== kind; }).slice(-30).map(function (x) { return x.ms; });
+    var om = rtMeanOf(oth), prior = om ? om * (kind === 'n' ? 1.5 : 0.7) : RT_DEF, N = 4;
+    if (!own.length) return { ms: prior, rough: true };
+    var m = rtMeanOf(own);
+    return { ms: (m * own.length + prior * N) / (own.length + N), rough: own.length < 8 };
+  }
+  function rtEst(q) { return q.due.length * rtPace('d').ms + q.fresh.length * rtPace('n').ms; }
   function rtClock(ms) { var t = Math.floor(Math.max(0, ms) / 1000), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = t % 60; return (h ? h + ':' + pad(m) : m) + ':' + pad(x); }
   function rtAbout(ms) { var m = Math.round(ms / 60000); if (m < 1) return '<1 min'; if (m < 60) return '~' + m + ' min'; return '~' + Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + m % 60 + ' min' : ''); }
   var rtMenu = false;
@@ -437,18 +450,18 @@
   }
   function rtBlock(q) {
     var s = rtLoad(), n = q.all.length;
-    return '<div class="rtline"><span>' + [q.due.length ? q.due.length + ' due' : '', q.fresh.length ? q.fresh.length + ' new' : ''].filter(Boolean).join(' + ') + '</span><span class="dot">·</span><span>' + rtAbout(n * rtPace().ms) + ' left</span><span class="dot">·</span><span><b id="rtclock">' + rtClock(s.ms + rtOthers()) + '</b> <span id="rtstate">today</span></span>' +
+    return '<div class="rtline"><span>' + [q.due.length ? q.due.length + ' due' : '', q.fresh.length ? q.fresh.length + ' new' : ''].filter(Boolean).join(' + ') + '</span><span class="dot">·</span><span>' + rtAbout(rtEst(q)) + ' left</span><span class="dot">·</span><span><b id="rtclock">' + rtClock(s.ms + rtOthers()) + '</b> <span id="rtstate">today</span></span>' +
       '<button class="rtbtn' + (rtMenu ? ' on' : '') + '" data-act="rtmenu" aria-label="Short session" aria-expanded="' + rtMenu + '"' + (s.goal ? ' hidden' : '') + '>' + RT_ICON + '</button></div>' +
       '<div id="rgoal" data-n="' + n + '">' + rtGoalHTML(s, n) + '</div>';
   }
-  function rtRated(id) {
+  function rtRated(id, kind) {
     rtLastRate = null;
     if (route[0] !== 'revise') return false;
     rtTick(true);
     var s = rtLoad(); if (s.card !== id || rtOther(s)) return false;
     var d = Math.max(0, s.ms - s.cardAt), smp = null;
     s.cards++; s.card = null; rtSave(s);
-    if (d >= RT_MIN) { smp = { id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), ms: Math.round(Math.min(d, RT_CAP)) }; S.pace.push(smp); if (S.pace.length > 60) S.pace = S.pace.slice(-60); }
+    if (d >= RT_MIN) { smp = { id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), at: Date.now(), k: kind === 'n' ? 'n' : 'd', ms: Math.round(Math.min(d, RT_CAP)) }; S.pace.push(smp); if (S.pace.length > 60) S.pace = S.pace.slice(-60); }
     rtLastRate = { id: id, d: d, smp: smp };
     return !!smp;
   }
@@ -516,7 +529,7 @@
     var q = queue(), studied = 0;
     TOP.forEach(function (t) { var s = S.topics[t.id] || {}; if (s.studied) studied++; });
     var h = '<header class="head"><h1>Today</h1><p class="meta">' + esc(longToday()) + '</p><p class="meta small"><span id="syncline">' + syncLine() + '</span> <a class="phone-only-i" href="#/settings">Settings</a></p></header>';
-    var mins = Math.max(1, Math.round(q.all.length * rtPace().ms / 60000));
+    var mins = Math.max(1, Math.round(rtEst(q) / 60000));
     var side = '<section class="vitals" aria-label="Today\'s revision"><div class="vrow">' +
       '<div class="vt"><span class="vl">Due</span><b class="vn' + (q.due.length ? ' v-due' : '') + '">' + q.due.length + '</b></div>' +
       '<div class="vt"><span class="vl">New</span><b class="vn v-new">' + q.fresh.length + '</b></div>' +
@@ -790,7 +803,7 @@
     if ((el = e.target.closest('[data-skiprev]'))) { var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); var wasNew = itState(iid).k === 'new'; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid, wasNew ? 'n' : 'd'); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
