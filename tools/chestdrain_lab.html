@@ -90,14 +90,13 @@ svg text { font-family: var(--body); fill: var(--ink); }
 </section>
 
 <section class="panel" id="p3" role="tabpanel" hidden>
-  <h2>Suction</h2>
-  <p>Suction helps pull air out when the lung needs help. Choose the patient, set the suction, and see what is sensible.</p>
-  <div class="row"><span class="lab">Patient</span><span id="cpt"></span></div>
-  <div class="row"><span class="lab">Wall suction</span><span id="csu"></span></div>
-  <div class="row" id="rtub"><span class="lab">Suction tubing</span><span id="ctu"></span></div>
-  <label class="sl" id="rsl"><span>Suction pressure: -<b id="spv">20</b> cm water</span><input type="range" id="sp" min="10" max="40" step="10" value="20"></label>
-  <svg id="s3" style="max-width:520px" viewBox="0 0 360 150" role="img" aria-label="Suction compared with what the patient can generate"></svg>
-  <div class="say" id="say3"></div>
+  <h2 id="h3t"></h2>
+  <p id="p3txt" style="margin:0"></p>
+  <div class="row" id="c3"></div>
+  <div class="grid2"><svg id="s3" viewBox="0 0 360 270" role="img" aria-label="Chest, tube, bottle and suction pump"></svg>
+  <div style="display:flex;flex-direction:column;gap:12px"><div class="say" id="say3"></div></div></div>
+  <div class="row"><button class="chip" id="b3back">Back</button><span class="small" id="b3n"></span><button class="chip" id="b3next" style="margin-left:auto">Next</button></div>
+  <p class="small">Simplified. Pressure values are from the Melbourne ICU video; your unit's suction order decides the real setting.</p>
 </section>
 
 <section class="panel" id="p4" role="tabpanel" hidden>
@@ -282,26 +281,57 @@ svg text { font-family: var(--body); fill: var(--ink); }
     g2.bub.forEach(function (b, k) { var v = bub[k]; b.setAttribute('opacity', v > 0 ? 1 : 0); b.setAttribute('cy', 224 - v * 50); b.setAttribute('cx', 250 + Math.sin(k + v * 6) * 8); });
   }
 
-  /* ---- tab 3: suction ---- */
-  var pt = 'aw', su = 'on', tu = 'on', sp = 20, s3 = $('s3');
-  chips($('cpt'), [{ t: 'Awake, can cough', v: 'aw' }, { t: 'Sedated, ventilated', v: 'vt' }], function () { return pt; }, function (v) { pt = v; upd3(); });
-  chips($('csu'), [{ t: 'On', v: 'on' }, { t: 'Switched off', v: 'off' }], function () { return su; }, function (v) { su = v; upd3(); });
-  chips($('ctu'), [{ t: 'Left connected', v: 'on', warn: 1 }, { t: 'Taken off the drain', v: 'off' }], function () { return tu; }, function (v) { tu = v; upd3(); });
-  $('sp').oninput = function () { sp = +this.value; upd3(); };
-  function upd3() {
-    $('spv').textContent = sp; $('rtub').hidden = su !== 'off'; $('rsl').hidden = su !== 'on';
-    s3.innerHTML = '';
-    var cough = pt === 'aw' ? 150 : 40;
-    txt(s3, 10, 30, 'Suction (set)', { 'font-weight': 700 }); el('rect', { x: 10, y: 38, width: su === 'on' ? sp * 5 : 0, height: 22, fill: 'var(--b-fill)', rx: 4 }, s3);
-    txt(s3, 10, 92, pt === 'aw' ? 'Pull the patient can make by coughing and breathing' : 'Pull the patient can make (sedated: little)', { 'font-weight': 700 }); el('rect', { x: 10, y: 100, width: cough * 2, height: 22, fill: 'var(--good)', rx: 4 }, s3);
-    txt(s3, 10, 142, 'Bars are illustrative, not measured.', { 'font-size': 10 });
-    var m, cls = '';
-    if (su === 'off' && tu === 'on') { m = 'Suction is off but the tubing is still on the drain, so the system is closed. Air cannot leave the chest. Danger: take the suction tubing off the drain so it is open to air again.'; cls = 'bad'; }
-    else if (su === 'off') m = 'Suction off and the tubing taken off: the drain works as a plain water seal again. (NSW ACI: if suction is off, check the suction orders and resume as ordered.)';
-    else if (pt === 'aw') m = 'An awake patient who can cough already generates more pull than ICU suction, so suction is rarely needed. Ward guidance is no routine suction: it risks re-expansion pulmonary oedema (NSW ACI).';
-    else m = 'Sedated and ventilated: they cannot cough, so suction is commonly set at -20 cm water until bubbling has stopped and the X-ray shows the pneumothorax resolved. Then stop. Range on a dry system is -10 to -40; bellows moving show it is working. Follow your unit’s suction order.';
-    var t = $('say3'); t.textContent = m; t.className = 'say ' + cls;
+  /* ---- tab 3: suction, three steps, same picture as the swing view ---- */
+  var st3 = 1, pat = 'aw', tub = 'on', s3 = $('s3'), g3 = {}, t3 = 0;
+  var ST3 = [
+    ['1. What suction does', 'A pump on the wall pulls on the bottle. That pull reaches the chest tube, so air is drawn out of the chest faster than it would leave on its own.'],
+    ['2. Who needs it?', 'Choose the patient. Suction is for patients who cannot clear the air themselves.'],
+    ['3. When the pump is switched off', 'Suction has been stopped. What you do with the tubing decides whether air can still leave.']
+  ];
+  function along(pts, u) { var L = [], tot = 0, i; for (i = 1; i < pts.length; i++) { var d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); L.push(d); tot += d; }
+    var t = u * tot; for (i = 0; i < L.length; i++) { if (t <= L[i]) { var f = t / L[i]; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f]; } t -= L[i]; } return pts[pts.length - 1]; }
+  var PATH_ON = [[100, 100], [250, 100], [250, 200], [272, 200], [272, 158], [296, 140], [330, 140]];
+  var PATH_OFF = [[100, 100], [250, 100], [250, 200], [272, 200], [272, 158], [296, 132], [296, 100]];
+  function draw3() {
+    s3.innerHTML = ''; g3 = { dots: [] };
+    $('h3t').textContent = ST3[st3 - 1][0]; $('p3txt').textContent = ST3[st3 - 1][1]; $('b3n').textContent = 'Step ' + st3 + ' of 3'; $('b3back').disabled = st3 === 1; $('b3next').disabled = st3 === 3;
+    var c = $('c3'); c.hidden = st3 === 1;
+    if (st3 === 2) chips(c, [{ t: 'Awake, can cough', v: 'aw' }, { t: 'Sedated, on a ventilator', v: 'vt' }], function () { return pat; }, function (v) { pat = v; draw3(); });
+    if (st3 === 3) chips(c, [{ t: 'Tubing left on the drain', v: 'on', warn: 1 }, { t: 'Tubing taken off the drain', v: 'off' }], function () { return tub; }, function (v) { tub = v; draw3(); });
+    el('rect', { x: 8, y: 14, width: 140, height: 140, rx: 44, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 3 }, s3); txt(s3, 78, 10, 'Chest', { 'text-anchor': 'middle', 'font-weight': 700 });
+    el('ellipse', { cx: 70, cy: 84, rx: 32, ry: 40, fill: 'var(--lung)', stroke: 'var(--a-fill)', 'stroke-width': 2 }, s3); txt(s3, 62, 88, 'Lung', { 'text-anchor': 'middle', 'font-weight': 700 });
+    el('path', { d: 'M124 100 H250 V120', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s3);
+    el('rect', { x: 196, y: 150, width: 108, height: 96, rx: 8, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s3);
+    el('rect', { x: 197, y: 196, width: 106, height: 49, fill: 'var(--b-fill)', opacity: .45 }, s3); txt(s3, 250, 262, 'Bottle with water', { 'text-anchor': 'middle', 'font-weight': 700 });
+    el('rect', { x: 245, y: 118, width: 10, height: 90, rx: 3, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s3);
+    var msg = '', cls = '', pumpOn = st3 === 1 || (st3 === 2 && pat === 'vt'), showPipe = !(st3 === 3 && tub === 'off');
+    // pump + pipe from the bottle lid
+    if (showPipe) el('path', { d: 'M296 150 V132 H320 V150', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s3);
+    el('rect', { x: 306, y: 150, width: 50, height: 44, rx: 6, fill: pumpOn ? 'var(--b-tint)' : 'var(--n-tint)', stroke: pumpOn ? 'var(--b-fill)' : 'var(--muted)', 'stroke-width': 2, 'stroke-dasharray': (st3 === 2 && pat === 'aw') || st3 === 3 ? '4 3' : '' }, s3);
+    txt(s3, 331, 168, 'wall', { 'text-anchor': 'middle', 'font-size': 10 }); txt(s3, 331, 182, 'suction', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700 });
+    txt(s3, 331, 208, pumpOn ? 'ON  -20' : 'OFF', { 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700 });
+    if (st3 === 1) { for (var k = 0; k < 6; k++) g3.dots.push(el('circle', { r: 3.5, fill: 'var(--b-fill)' }, s3)); g3.path = PATH_ON; txt(s3, 78, 178, 'air is pulled out', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s3, 78, 194, 'faster', { 'text-anchor': 'middle', 'font-size': 11 });
+      msg = 'The pump pulls on the bottle, the bottle pulls on the tube, the tube pulls air out of the chest. Modern dry systems are set at -20 cm water, adjustable from -10 to -40.'; }
+    else if (st3 === 2) {
+      if (pat === 'aw') { txt(s3, 78, 178, 'Awake: can cough', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s3, 78, 194, 'the cough pushes air out', { 'text-anchor': 'middle', 'font-size': 11 }); el('path', { d: 'M100 70 L118 70 M100 84 L118 84 M100 98 L118 98', stroke: 'var(--good)', 'stroke-width': 3, 'stroke-linecap': 'round' }, s3);
+        msg = 'Awake patients who can cough: suction is rarely needed. Their own effort pushes air out harder than the suction would. Ward guidance is no routine suction, as it risks re-expansion pulmonary oedema (NSW ACI).'; cls = ''; }
+      else { txt(s3, 78, 178, 'Sedated, ventilated', { 'text-anchor': 'middle', 'font-weight': 700 }); txt(s3, 78, 194, 'cannot cough', { 'text-anchor': 'middle', 'font-size': 11 }); for (k = 0; k < 6; k++) g3.dots.push(el('circle', { r: 3.5, fill: 'var(--b-fill)' }, s3)); g3.path = PATH_ON;
+        msg = 'Sedated and ventilated patients cannot cough, so suction is commonly set at -20 cm water. Keep it on until the bubbling has stopped and the X-ray shows the pneumothorax has resolved, then stop it. Follow your unit\u2019s suction order.'; cls = 'ok'; }
+    } else {
+      txt(s3, 331, 226, '(switched off)', { 'text-anchor': 'middle', 'font-size': 10 });
+      if (tub === 'on') { el('path', { d: 'M310 120 L330 140 M330 120 L310 140', stroke: 'var(--a-fill)', 'stroke-width': 4 }, s3); txt(s3, 78, 178, 'Air is stuck', { 'text-anchor': 'middle', 'font-weight': 700, fill: 'var(--a-fill)' }); txt(s3, 78, 194, 'closed system', { 'text-anchor': 'middle', 'font-size': 11 });
+        msg = 'The pump is off but its tubing is still on the drain. The system is now closed: air has nowhere to go, so it builds up in the chest. Danger: take the suction tubing off the drain, or restart suction as ordered.'; cls = 'bad'; }
+      else { for (k = 0; k < 6; k++) g3.dots.push(el('circle', { r: 3.5, fill: 'var(--b-fill)' }, s3)); g3.path = PATH_OFF; txt(s3, 296, 90, 'open to air', { 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 700 });
+        msg = 'Suction tubing taken off: the bottle is open to the room again, so air can leave on its own. The drain now works as a plain water seal.'; cls = 'ok'; }
+    }
+    var t = $('say3'); t.textContent = msg; t.className = 'say ' + cls;
   }
+  function anim3() {
+    if (!g3.dots || !g3.dots.length) return; t3 += dt;
+    g3.dots.forEach(function (d, k) { var u = (t3 * 0.18 + k / g3.dots.length) % 1, q = along(g3.path, u); d.setAttribute('cx', q[0]); d.setAttribute('cy', q[1]); });
+  }
+  $('b3back').onclick = function () { st3 = Math.max(1, st3 - 1); draw3(); };
+  $('b3next').onclick = function () { st3 = Math.min(3, st3 + 1); draw3(); };
 
   /* ---- tab 4: scenarios ---- */
   var Q = [
@@ -323,8 +353,8 @@ svg text { font-family: var(--body); fill: var(--ink); }
 
   var dt = 0;
   function loop(now) { dt = Math.min(0.1, (now - last) / 1000); last = now; if (!reduce) T += dt;
-    if (cur === 0) anim0(); else if (cur === 1) anim1(); else if (cur === 2) anim2(); requestAnimationFrame(loop); }
-  showTab(0); draw0(); draw1(); ctl2(); upd2(); upd3(); drawQ(); requestAnimationFrame(loop);
+    if (cur === 0) anim0(); else if (cur === 1) anim1(); else if (cur === 2) anim2(); else if (cur === 3) anim3(); requestAnimationFrame(loop); }
+  showTab(0); draw0(); draw1(); ctl2(); upd2(); draw3(); drawQ(); requestAnimationFrame(loop);
 })();
 </script>
 <script src="../look.js"></script>
