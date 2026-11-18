@@ -214,8 +214,8 @@ svg text { font-family: var(--body); fill: var(--ink); }
     chips($('sub2'), [{ t: 'It swings', v: 'sw' }, { t: 'It stops swinging', v: 'stuck' }, { t: 'It bubbles', v: 'bub' }], function () { return m2; }, function (v) { m2 = v; pr = 'none'; lk = 0; ctl2(); upd2(); });
     var h = $('r2'); h.innerHTML = '';
     function row(label, id) { var l = document.createElement('span'); l.className = 'lab'; l.textContent = label; var c = document.createElement('span'); c.id = id; h.appendChild(l); h.appendChild(c); }
-    row('Breathing', 'cbr');
-    chips($('cbr'), [{ t: 'On their own', v: 'sp' }, { t: 'On a ventilator', v: 'vt' }], function () { return br; }, function (v) { br = v; upd2(); });
+    if (m2 !== 'stuck') row('Breathing', 'cbr');
+    if (m2 !== 'stuck') chips($('cbr'), [{ t: 'On their own', v: 'sp' }, { t: 'On a ventilator', v: 'vt' }], function () { return br; }, function (v) { br = v; upd2(); });
     if (m2 === 'stuck') { row('What is wrong', 'cpr'); chips($('cpr'), [{ t: 'Nothing', v: 'none' }, { t: 'Kinked tube', v: 'kink', warn: 1 }, { t: 'Lung fills the holes', v: 'up' }, { t: 'Suction on', v: 'suc' }], function () { return pr; }, function (v) { pr = v; upd2(); }); }
     if (m2 === 'bub') { row('Air leak from the lung', 'clk'); chips($('clk'), [{ t: 'None', v: 0 }, { t: 'Small', v: 1 }, { t: 'Large', v: 2 }], function () { return lk; }, function (v) { lk = v; pr = 'none'; upd2(); });
       row('or', 'cpr'); chips($('cpr'), [{ t: 'Loose connection', v: 'con', warn: 1 }, { t: 'Connection tight', v: 'none' }], function () { return pr; }, function (v) { pr = v; if (v === 'con') lk = 0; upd2(); ctl2(); }); }
@@ -223,13 +223,16 @@ svg text { font-family: var(--body); fill: var(--ink); }
   /* real-looking layout: chest with a lung, tube out through the chest wall, bottle on the floor with the tube dipping under water */
   el('rect', { x: 8, y: 14, width: 140, height: 140, rx: 44, fill: 'var(--air)', stroke: 'var(--muted)', 'stroke-width': 3 }, s2);
   txt(s2, 78, 10, 'Chest', { 'text-anchor': 'middle', 'font-weight': 700 });
-  g2.lung = el('ellipse', { cx: 78, cy: 84, rx: 40, ry: 44, fill: 'var(--lung)', stroke: 'var(--a-fill)', 'stroke-width': 2 }, s2);
-  txt(s2, 78, 88, 'Lung', { 'text-anchor': 'middle', 'font-weight': 700 });
-  el('path', { d: 'M148 100 H250 V120', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s2);
+  el('path', { d: 'M124 100 H250 V120', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, s2);
+  [128, 136, 144].forEach(function (x) { el('circle', { cx: x, cy: 100, r: 2.5, fill: 'var(--a-fill)' }, s2); });
+  txt(s2, 136, 118, 'holes', { 'text-anchor': 'middle', 'font-size': 9 });
+  g2.lung = el('ellipse', { cx: 70, cy: 84, rx: 32, ry: 40, fill: 'var(--lung)', stroke: 'var(--a-fill)', 'stroke-width': 2, 'fill-opacity': .95 }, s2);
+  txt(s2, 62, 88, 'Lung', { 'text-anchor': 'middle', 'font-weight': 700 });
+  g2.ov = el('g', {}, s2);
   txt(s2, 200, 92, 'tube from chest', { 'text-anchor': 'middle', 'font-size': 10 });
   el('rect', { x: 196, y: 150, width: 108, height: 96, rx: 8, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
   el('rect', { x: 197, y: 196, width: 106, height: 49, fill: 'var(--b-fill)', opacity: .45 }, s2);
-  txt(s2, 330, 200, 'water', { 'text-anchor': 'end', 'font-size': 10 }); txt(s2, 252, 262, 'Bottle with water', { 'text-anchor': 'middle', 'font-weight': 700 });
+  txt(s2, 298, 238, 'water', { 'text-anchor': 'end', 'font-size': 10 }); txt(s2, 252, 262, 'Bottle with water', { 'text-anchor': 'middle', 'font-weight': 700 });
   el('rect', { x: 245, y: 118, width: 10, height: 108, rx: 3, fill: 'var(--surface)', stroke: 'var(--muted)', 'stroke-width': 2 }, s2);
   g2.col = el('rect', { x: 246.5, y: 170, width: 7, height: 56, fill: 'var(--b-fill)', opacity: .9 }, s2);
   g2.arrow = txt(s2, 262, 140, '', { 'font-size': 12, 'font-weight': 700 });
@@ -239,6 +242,12 @@ svg text { font-family: var(--body); fill: var(--ink); }
   g2.bub = []; for (i = 0; i < 6; i++) g2.bub.push(el('circle', { r: 4, fill: 'var(--surface)', stroke: 'var(--ink)', opacity: 0, cx: 250 }, s2));
   var bub = [0, 0, 0, 0, 0, 0], bi = 0, lastBurst = false;
   function sw() { return !(pr === 'kink' || pr === 'up' || pr === 'suc'); }
+  function ov2() {
+    var o = g2.ov; o.innerHTML = ''; if (m2 !== 'stuck') return;
+    if (pr === 'kink') { el('path', { d: 'M196 90 L206 100 L196 110 M216 90 L206 100 L216 110', fill: 'none', stroke: 'var(--a-fill)', 'stroke-width': 4 }, o); txt(o, 206, 68, 'tube pinched shut', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700, fill: 'var(--a-fill)' }); }
+    if (pr === 'up') { txt(o, 156, 134, 'lung pressed', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); txt(o, 156, 146, 'against the', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); txt(o, 156, 158, 'holes', { 'text-anchor': 'start', 'font-size': 10, 'font-weight': 700 }); }
+    if (pr === 'suc') { el('path', { d: 'M286 150 V132 H320 V150', fill: 'none', stroke: 'var(--muted)', 'stroke-width': 4 }, o); el('rect', { x: 306, y: 150, width: 50, height: 44, rx: 6, fill: 'var(--b-tint)', stroke: 'var(--b-fill)', 'stroke-width': 2 }, o); txt(o, 331, 168, 'suction', { 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 700 }); txt(o, 331, 182, 'pulling', { 'text-anchor': 'middle', 'font-size': 10 }); txt(o, 356, 124, 'constant pull', { 'text-anchor': 'end', 'font-size': 10, 'font-weight': 700 }); }
+  }
   function upd2() {
     var m, cls = '';
     var kind = pr === 'con' || lk === 2 ? 'continuous' : lk === 1 ? 'intermittent' : 'none', swing = sw();
@@ -254,15 +263,16 @@ svg text { font-family: var(--body); fill: var(--ink); }
       else if (kind === 'intermittent') m = 'A few bubbles at one moment of each breath (' + (br === 'sp' ? 'end of breathing out' : 'top of the ventilator breath') + '). Small leak. This pattern is expected.';
       else { m = 'Bubbles all the time: a large air leak from the lung. Chart it as continuous. A leak that lasts for days means asking cardiothoracic surgery.'; cls = 'bad'; }
     }
+    ov2();
     var t = $('say2'); t.textContent = m; t.className = 'say ' + cls;
     $('rd2').textContent = m2 === 'sw' ? '' : 'Chart it as: swinging ' + (swing ? 'yes' : 'no') + ', bubbling ' + kind + '.';
   }
   function anim2() {
     var p = Math.sin(T * 1.6), swing = sw(), up = br === 'sp' ? p : -p, inh = p > 0;
     var d = swing ? up * 38 : 0, top = 190 - d; if (top < 122) top = 122; g2.col.setAttribute('y', top); g2.col.setAttribute('height', 226 - top);
-    g2.lung.setAttribute('rx', 40 + p * 8); g2.lung.setAttribute('ry', 44 + p * 8);
-    g2.cap.textContent = inh ? 'Breathing in' : 'Breathing out';
-    g2.cap2.textContent = !swing ? 'water does not move' : (br === 'sp' ? (inh ? 'chest pulls: water goes UP' : 'chest pushes: water goes DOWN') : (inh ? 'machine pushes in: water goes DOWN' : 'air leaves: water goes UP'));
+    var amp = pr === 'up' ? 0.5 : 4; g2.lung.setAttribute('rx', (pr === 'up' ? 60 : 32) + p * amp); g2.lung.setAttribute('ry', 40 + p * amp);
+    g2.cap.textContent = m2 === 'stuck' ? (pr === 'none' ? 'Normal: it swings' : 'It has stopped swinging') : inh ? 'Breathing in' : 'Breathing out';
+    g2.cap2.textContent = m2 === 'stuck' && !swing ? 'water stays still' : !swing ? 'water does not move' : (br === 'sp' ? (inh ? 'chest pulls: water goes UP' : 'chest pushes: water goes DOWN') : (inh ? 'machine pushes in: water goes DOWN' : 'air leaves: water goes UP'));
     g2.arrow.textContent = !swing ? '' : (up > 0.15 ? '\u25B2' : up < -0.15 ? '\u25BC' : '');
     var kind = pr === 'con' || lk === 2 ? 2 : lk === 1 ? 1 : 0, can = pr !== 'kink' && (kind > 0), win = br === 'sp' ? p < -0.9 : p > 0.9;
     var fire = can && (kind === 2 || win);
