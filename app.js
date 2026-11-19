@@ -261,7 +261,15 @@
     }).then(function (rows) {
       var remote = rows && rows[0] ? rows[0].data : {};
       S = merge(S, remote); fix(); store(); mirrorStars(); mirrorCards();
-      return api('/rest/v1/rmo_revision_state', { method: 'POST', auth: true, headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: sess.uid, data: S, updated_at: new Date().toISOString() } });
+      return api('/rest/v1/rmo_kindle_ratings?select=card_id,item,t&user_id=eq.' + sess.uid, { auth: true }).catch(function () { return []; }).then(function (kr) {
+        (kr || []).forEach(function (r) { // ratings made on the Kindle: newest wins, same rule as merge()
+          var cur = S.items[r.card_id], t = +r.t || 0;
+          if (t < (S.resetAt || 0) || (S.dead[r.card_id] || 0) >= t || (cur && (cur.t || 0) >= t) || !r.item || !r.item.due) return;
+          S.items[r.card_id] = r.item;
+        });
+        fix(); store();
+        return api('/rest/v1/rmo_revision_state', { method: 'POST', auth: true, headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: { user_id: sess.uid, data: S, updated_at: new Date().toISOString() } });
+      });
     }).then(function () {
       busy = false; setSync('ok');
       if (JSON.stringify(S) !== before) softRender();
@@ -665,6 +673,7 @@
     var n = pendingHighlights(t.id).length;
     return '<div class="toolbar">' + (fromToday ? '<a class="back" href="#/">Today</a>' : '<a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a>') + '<b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) + (fromToday ? '&run=today' : '') : '') + '"></iframe>';
   }
+  var kcode = '', kmsg = '';
   function settings() {
     var h = '<header class="head"><h1>Settings</h1></header>';
     var lk = window.RMOLook ? window.RMOLook.get() : 'auto';
@@ -680,6 +689,9 @@
         '<form id="signin" class="form"><label><span>Email</span><input type="email" id="si-email" autocomplete="username" required></label><label><span>Password</span><input type="password" id="si-pass" autocomplete="current-password"></label><div class="btns"><button class="btn primary" type="submit">Sign in and sync</button><button class="btn" type="button" data-act="sendcode">Email me a code instead</button></div></form>' +
         '<div id="codebox" hidden><p class="meta">Check your email. Type the code here, or open the link on this device.</p><form id="codeform" class="form"><label><span>Code from the email</span><input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code"></label><div><button class="btn primary" type="submit">Sign in</button></div></form></div><p class="meta" id="simsg"></p>';
     }
+    if (sess) h += '<h2>Kindle</h2><p class="meta">Revise on a jailbroken Kindle with KOReader. Make a one-time code and type it on the Kindle. The Kindle can read your card schedule and add Got it or Shaky ratings. It cannot see your notes, highlights or account.</p>' +
+      (kcode ? '<p class="kcode" style="font:700 26px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.08em">' + kcode + '</p><p class="meta">Type this on the Kindle now. It is shown once and not saved here.</p>' : '') + (kmsg ? '<p class="meta">' + esc(kmsg) + '</p>' : '') +
+      '<p class="btns"><button class="btn" data-act="kmake">Make a Kindle code</button><button class="btn" data-act="kunlink">Unlink all Kindles</button></p>';
     h += '<h2>Backup file</h2><p class="meta">A copy you keep yourself. Importing merges it with what is on this device.</p><p class="btns"><button class="btn" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
       '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and notes' + (sess ? ' on every synced device' : ' on this device') + '.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
     return shell(h, { page: 'settings' });
@@ -691,7 +703,7 @@
   function render() {
     var r = location.hash.replace(/^#\/?/, '').split('/'), h, y = 0;
     if (keepScroll) y = window.scrollY;
-    route = r; app.className = ''; rtShown = null;
+    route = r; app.className = ''; rtShown = null; if (r[0] !== 'settings') { kcode = ''; kmsg = ''; }
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
     else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3], r[4] === 'today'); app.className = 'tool'; }
@@ -817,6 +829,22 @@
     if (!(el = e.target.closest('[data-act]'))) return;
     var a = el.getAttribute('data-act'), t;
     if (a === 'syncnow') { syncNow(); return; }
+    if (a === 'kmake') {
+      var AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', raw = '', rnd = new Uint8Array(12); crypto.getRandomValues(rnd);
+      for (var ki = 0; ki < 12; ki++) raw += AL[rnd[ki] % 32];
+      kmsg = 'Making the code…'; kcode = ''; keepScroll = true; render();
+      crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw)).then(function (buf) {
+        var hex = Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+        return fresh().then(function () { return api('/rest/v1/rmo_kindle_links', { method: 'POST', auth: true, headers: { Prefer: 'return=minimal' }, body: { token_hash: hex, label: 'Kindle' } }); });
+      }).then(function () { kcode = raw.slice(0, 4) + '-' + raw.slice(4, 8) + '-' + raw.slice(8); kmsg = ''; }).catch(function (e) { kcode = ''; kmsg = 'Could not make a code: ' + e.message; }).then(function () { keepScroll = true; render(); });
+      return;
+    }
+    if (a === 'kunlink') {
+      if (!window.confirm('Unlink every Kindle? Each one will need a new code.')) return;
+      fresh().then(function () { return api('/rest/v1/rmo_kindle_links?user_id=eq.' + sess.uid, { method: 'DELETE', auth: true, headers: { Prefer: 'return=minimal' } }); })
+        .then(function () { kmsg = 'All Kindles unlinked.'; kcode = ''; }).catch(function (e) { kmsg = 'Could not unlink: ' + e.message; }).then(function () { keepScroll = true; render(); });
+      return;
+    }
     if (a === 'signout') { keepSess(null); setSync('off'); render(); return; }
     if (a === 'sendcode') {
       var em = (document.getElementById('si-email') || {}).value || '', m = document.getElementById('simsg');
