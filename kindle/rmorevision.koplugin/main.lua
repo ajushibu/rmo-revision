@@ -106,6 +106,7 @@ function RMORevision:startSession()
         return
     end
     self.done = 0
+    self.later = {}
     self.sessSecs = 0
     self.lapAt = os.time()
     self:showQuestion()
@@ -144,10 +145,19 @@ end
 function RMORevision:showQuestion()
     local q = self:queue()
     if not q or #q.all == 0 then self:finish(); return end
+    -- cards sent "later" go to the end of today's queue, in the order you sent them, still unrated
+    local pos, n = {}, 0
+    for i, id in ipairs(self.later or {}) do pos[id] = i end
+    local head, tail = {}, {}
+    for _, x in ipairs(q.all) do if pos[x.card.id] then tail[#tail + 1] = x else head[#head + 1] = x end end
+    table.sort(tail, function(a, b) return pos[a.card.id] < pos[b.card.id] end)
+    for _, x in ipairs(tail) do head[#head + 1] = x end
+    q.all = head
     local e = q.all[1]
     local title = string.format("%s   (%d left, %s)", e.topic, #q.all, clock(self.sessSecs or 0))
     self:show(title, e.card.t, {
         { { text = _("Stop"), callback = function() self:finish() end }, { text = _("Show answer"), callback = function() self:showAnswer(e) end } },
+        { { text = _("Bring back later"), callback = function() self:bringBack(e) end } },
     })
 end
 
@@ -158,8 +168,18 @@ function RMORevision:showAnswer(e)
     self:show(title, e.card.t .. "\n\n" .. Core.answerText(e.card.k), {
         { { text = _("Shaky: tomorrow"), callback = function() self:rate(e, "shaky") end },
           { text = _("Got it"), callback = function() self:rate(e, "got") end } },
-        { { text = _("Stop"), callback = function() self:finish() end } },
+        { { text = _("Bring back later"), callback = function() self:bringBack(e) end },
+          { text = _("Stop"), callback = function() self:finish() end } },
     })
+end
+
+function RMORevision:bringBack(e)
+    self:lap()
+    local id = e.card.id
+    self.later = self.later or {}
+    for i = #self.later, 1, -1 do if self.later[i] == id then table.remove(self.later, i) end end
+    self.later[#self.later + 1] = id
+    self:showQuestion()
 end
 
 function RMORevision:rate(e, how)
