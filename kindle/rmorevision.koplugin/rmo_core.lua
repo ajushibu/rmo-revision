@@ -64,6 +64,26 @@ function Core.rate(items, id, how, today, nowMs)
     return { step = n, due = Core.addDays(today, Core.INT[n + 1]), last = today, r = how, t = nowMs }
 end
 
+local function esc(x) return (tostring(x):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")) end
+Core.esc = esc
+
+-- HTML for the card screen: "Label: text" gets a bold label, arrows and (notes) are indented
+function Core.answerHtml(k)
+    local out = {}
+    for line in (tostring(k) .. "\n"):gmatch("(.-)\n") do
+        if line ~= "" then
+            if line:match("^%s*\226\134\146") then out[#out + 1] = '<p class="arrow">' .. esc(line:gsub("^%s+", "")) .. "</p>"
+            elseif line:match("^%s*%(") then out[#out + 1] = '<p class="note">' .. esc(line:gsub("^%s+", "")) .. "</p>"
+            else
+                local label, rest = line:match("^([^:]+):%s+(.+)$")
+                if label and #label <= 40 then out[#out + 1] = '<p class="ln">\226\128\162 <b>' .. esc(label) .. ":</b> " .. esc(rest) .. "</p>"
+                else out[#out + 1] = '<p class="ln">\226\128\162 ' .. esc(line) .. "</p>" end
+            end
+        end
+    end
+    return table.concat(out, "\n")
+end
+
 -- 2-line text for the answer: bullets for plain lines, arrows and notes left as they are
 function Core.answerText(k)
     local out = {}

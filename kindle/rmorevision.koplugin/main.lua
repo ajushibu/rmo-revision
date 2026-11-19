@@ -142,6 +142,31 @@ function RMORevision:show(title, text, buttons)
     UIManager:show(self.viewer)
 end
 
+-- Full-screen card (cardview.lua); if it cannot be built, the plain viewer is used so revision never stops.
+function RMORevision:card(e, status, html, buttons, plainTitle, plainText)
+    local ok, CardView = pcall(require, "cardview")
+    if ok then
+        self:closeViewer()
+        local ok2, w = pcall(function()
+            local q = self:queue()
+            local left = q and #q.all or 0
+            local done = self.done or 0
+            local rows = {}
+            for _, row in ipairs(buttons) do
+                local r = {}
+                for _, b in ipairs(row) do r[#r + 1] = { text = b.text, callback = b.callback, font_size = 26, height = 90 } end
+                rows[#rows + 1] = r
+            end
+            return CardView:new{ topic = e.topic, status = status, progress = done / math.max(1, done + left), html = html, buttons = rows }
+        end)
+        if ok2 and w then self.viewer = w; UIManager:show(w); return end
+        logger.warn("rmorevision: card screen failed, using plain viewer:", tostring(w))
+    else
+        logger.warn("rmorevision: cardview not loaded:", tostring(CardView))
+    end
+    self:show(plainTitle, plainText, buttons)
+end
+
 function RMORevision:showQuestion()
     local q = self:queue()
     if not q or #q.all == 0 then self:finish(); return end
@@ -155,22 +180,25 @@ function RMORevision:showQuestion()
     q.all = head
     local e = q.all[1]
     local title = string.format("%s   (%d left, %s)", e.topic, #q.all, clock(self.sessSecs or 0))
-    self:show(title, e.card.t, {
-        { { text = _("Stop"), callback = function() self:finish() end }, { text = _("Show answer"), callback = function() self:showAnswer(e) end } },
-        { { text = _("Bring back later"), callback = function() self:bringBack(e) end } },
-    })
+    local status = string.format("%d left   %s", #q.all, clock(self.sessSecs or 0))
+    self:card(e, status, '<p class="q">' .. Core.esc(e.card.t) .. "</p>", {
+        { { text = _("Show answer"), callback = function() self:showAnswer(e) end } },
+        { { text = _("Bring back later"), callback = function() self:bringBack(e) end },
+          { text = _("Stop"), callback = function() self:finish() end } },
+    }, title, e.card.t)
 end
 
 function RMORevision:showAnswer(e)
     self:lap()
     local isNew = Core.state(self:items(), e.card.id, Core.today()) == "new"
     local title = string.format("%s%s", e.topic, isNew and "   (new)" or "")
-    self:show(title, e.card.t .. "\n\n" .. Core.answerText(e.card.k), {
+    local status = (isNew and "new   " or "") .. clock(self.sessSecs or 0)
+    self:card(e, status, '<p class="q old">' .. Core.esc(e.card.t) .. "</p><hr/>" .. Core.answerHtml(e.card.k), {
         { { text = _("Shaky: tomorrow"), callback = function() self:rate(e, "shaky") end },
           { text = _("Got it"), callback = function() self:rate(e, "got") end } },
         { { text = _("Bring back later"), callback = function() self:bringBack(e) end },
           { text = _("Stop"), callback = function() self:finish() end } },
-    })
+    }, title, e.card.t .. "\n\n" .. Core.answerText(e.card.k))
 end
 
 function RMORevision:bringBack(e)
