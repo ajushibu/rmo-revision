@@ -57,6 +57,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin-top: 8px; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
 
+/* before and after strip */
+.ba { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 12px; }
+.ba div { border-radius: 12px; padding: 10px 12px; background: var(--n-tint); }
+.ba small { display: block; color: var(--muted); font-size: 13px; }
+.ba b { font-size: 18px; }
+.ba .chg { background: var(--a-tint); }
+.ba .chg.up { background: var(--diff-t); }
+.ba span { display: block; font-size: 13px; font-weight: 650; margin-top: 2px; }
+ul.steps { margin: 12px 0 0; padding-left: 20px; max-width: 64ch; display: grid; gap: 8px; }
+ul.steps li::marker { color: var(--muted); }
+
 /* number line */
 #line { display: block; width: 100%; height: auto; }
 #line text, #chart text { fill: var(--ink); font-family: var(--body); font-size: 13px; }
@@ -100,12 +111,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
   <div class="card">
     <div class="stats">
       <div class="stat"><small>Measured gap</small><span class="big" id="gap"></span></div>
-      <div class="stat"><small>Normal for this albumin</small><span class="big" id="gapn"></span></div>
-      <div class="stat"><small>Corrected gap</small><span class="big" id="gapc"></span></div>
+      <div class="stat"><small>Normal gap for this albumin</small><span class="big" id="gapn"></span></div>
+      <div class="stat"><small>Extra gap = real acid</small><span class="big" id="gapc"></span></div>
       <div class="stat"><small>Bicarbonate</small><span class="big" id="hco"></span></div>
     </div>
     <div class="band" id="verdict" style="margin-top:12px"></div>
-    <p class="why" id="expl" style="margin-top:10px"></p>
+    <h3 style="margin-top:14px">What changed</h3>
+    <div class="ba" id="ba"></div>
+    <ul class="steps" id="expl"></ul>
   </div>
 </section>
 
@@ -186,7 +199,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 
   /* ---------- 1. ledger ---------- */
   var mode = 'none';
-  function seg(cls, val, label) { return '<i class="' + cls + '" style="flex:0 0 ' + (val / 140 * 100) + '%" title="' + label + ' ' + r1(val) + '">' + (val >= 16 ? label + ' ' + r1(val) : (val >= 6 ? r1(val) : '')) + '</i>'; }
+  function seg(cls, val, label) { var n = Math.round(val); return '<i class="' + cls + '" style="flex:0 0 ' + (val / 140 * 100) + '%" title="' + label + ' ' + n + '">' + (val >= 24 ? label + ' ' + n : (val >= 11 ? n : '')) + '</i>'; }
   function ledger() {
     var a = +$('#amt').value, alb = +$('#alb').value;
     var acid = (mode === 'acid' || mode === 'both') ? a : 0, gut = (mode === 'gut' || mode === 'both') ? a : 0;
@@ -194,19 +207,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
     $('#amtv').textContent = a; $('#albv').textContent = alb + ' g/L';
     $('#posbar').innerHTML = seg('s-na', na, 'Sodium');
     $('#negbar').innerHTML = seg('s-cl', cl, 'Cl') + seg('s-hco', hco, 'HCO3') + seg('s-alb', alUA + 2, 'Unmeasured') + (acid ? seg('s-acid', acid, 'Acid') : '');
-    var gap = na - cl - hco, norm = 2 + 0.25 * alb, corr = gap + 0.25 * (40 - alb);
-    $('#gap').textContent = r1(gap); $('#gapn').textContent = r1(norm); $('#gapc').textContent = r1(corr); $('#hco').textContent = r1(hco);
-    var v = $('#verdict'), x = $('#expl'), high = corr - 12 >= 3, low = hco < 22;
-    var look = gap < 12 && high ? ' The measured gap looks normal because the albumin is low: this is the hidden gap.' : '';
-    if (high && low) { v.className = 'band hi'; v.textContent = 'High-gap acidosis' + (gut ? ' with a normal-gap (bicarbonate loss) component as well' : '') + '.'; }
+    var gap = na - cl - hco, norm = 2 + 0.25 * alb, extra = gap - norm, R = Math.round;
+    $('#gap').textContent = R(gap); $('#gapn').textContent = R(norm); $('#gapc').textContent = (extra > 0.4 ? '+' : '') + R(extra); $('#hco').textContent = R(hco);
+    var v = $('#verdict'), x = $('#expl'), high = extra >= 3, low = hco < 22;
+    if (high && low) { v.className = 'band hi'; v.textContent = 'High-gap acidosis: the gap is ' + R(extra) + ' above normal for this albumin' + (gut ? ', and bicarbonate was also lost' : '') + '.'; }
     else if (low) { v.className = 'band mid'; v.textContent = 'Normal-gap acidosis: bicarbonate is low, chloride took its place.'; }
-    else { v.className = 'band ok'; v.textContent = 'Normal: the two sides balance with a normal gap.'; }
+    else { v.className = 'band ok'; v.textContent = 'Normal: the gap is where it should be.'; }
+    // before / after strip
+    var uaB = 2 + 0.25 * alb, hcoB = 24, clB = na - hcoB - uaB;
+    function cell(name, b, a) {
+      var d = R(a) - R(b), cls = d === 0 ? '' : (d < 0 ? 'chg' : 'chg up'), word = d === 0 ? 'no change' : (d < 0 ? 'down ' + (-d) : 'up ' + d);
+      return '<div class="' + cls + '"><small>' + name + '</small><b>' + R(b) + ' → ' + R(a) + '</b><span>' + word + '</span></div>';
+    }
+    $('#ba').innerHTML = cell('Bicarbonate', hcoB, hco) + cell('Chloride', clB, cl) + cell('Unmeasured anions (the gap)', uaB, ua);
     var t = [];
-    if (acid) t.push('The acid\'s hydrogen ion used up ' + acid + ' of bicarbonate. Its anion (lactate or ketone) stays behind and is not measured, so the gap rises by ' + acid + '.');
-    if (gut) t.push('Bicarbonate was lost with nothing new to replace it, so the kidney keeps chloride to stay neutral: chloride rises by ' + gut + ' and the gap does not change.');
-    if (!acid && !gut) t.push('Sodium 140 = chloride + bicarbonate + the unmeasured anions (mostly albumin). Try adding acid, then try losing bicarbonate.');
-    if (alb < 38) t.push('Albumin is an unmeasured anion. With less of it the normal gap is only ' + r1(norm) + ', so the corrected gap (' + r1(corr) + ') is the one to read.' + look);
-    x.textContent = t.join(' ');
+    if (!acid && !gut) t.push('Nothing has changed yet. Pick "Acid added" or "Bicarbonate lost" above, then watch the three numbers.');
+    if (acid) t.push('<b>Acid added.</b> Each hydrogen ion grabs one bicarbonate and removes it, so bicarbonate falls by ' + acid + '. The lactate or ketone that came with the acid stays in the blood, but no lab test counts it. So the unmeasured part grows by ' + acid + ', and the gap grows with it.');
+    if (gut) t.push('<b>Bicarbonate lost.</b> ' + gut + ' bicarbonate has left the body and nothing new has arrived. The kidney holds on to ' + gut + ' extra chloride to keep the two sides equal. The gap does not change, so it stays "normal".');
+    if (alb < 38) t.push('<b>Low albumin.</b> Albumin is the main unmeasured anion. With less of it, the normal gap is smaller: about ' + R(norm) + ', not 12. Compare the measured gap (' + R(gap) + ') with ' + R(norm) + ', not with 12. ' + (extra < 3 ? 'Right now they match, so there is no extra acid.' : '') + (extra >= 3 && gap < 12 ? 'Here the measured gap of ' + R(gap) + ' looks normal against 12, but it is ' + R(extra) + ' above this patient\'s normal. That is the hidden gap.' : (extra >= 3 ? 'Here that is ' + R(extra) + ' above normal.' : '')));
+    x.innerHTML = t.map(function (z) { return '<li>' + z + '</li>'; }).join('');
   }
   $('#modes').addEventListener('click', function (e) {
     var b = e.target.closest('[data-m]'); if (!b) return; mode = b.getAttribute('data-m');
