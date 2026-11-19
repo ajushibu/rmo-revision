@@ -1,0 +1,304 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Acid-base lab</title>
+<meta name="theme-color" content="#0D1518">
+<style>
+/* Three tabs, one panel at a time: anion gap ledger, delta-delta, acute vs chronic compensation. Pure arithmetic, no stored state. */
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --ink: #17202e; --muted: #566274; --line: #d3d9e3; --n-tint: #e9ecf1; --on: #ffffff;
+  --a-fill: #b3261e; --a-tint: #f6dddb; --b-fill: #1f5f8b; --b-tint: #d8e8f4; --good: #2e6b45; --good-t: #d9eadf; --diff: #86690a; --diff-t: #f2e9c9;
+  --display: system-ui, -apple-system, "Segoe UI", sans-serif; --body: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; margin: 0;
+  padding-block: 22px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h3 { font-family: var(--display); font-size: 16px; margin: 0 0 4px; }
+.lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 12px 14px; min-height: 44px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel[hidden] { display: none; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
+.hint { color: var(--muted); font-size: 14px; margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; min-height: 44px; padding: 4px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.dials { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; }
+@media (max-width: 640px) { .dials { grid-template-columns: 1fr; } }
+.dial label { display: flex; justify-content: space-between; font-weight: 650; }
+.dial label span { font-weight: 600; color: var(--muted); }
+.dial input { width: 100%; height: 44px; accent-color: var(--ink); margin: 2px 0 0; }
+.dial small { color: var(--muted); font-size: 13px; display: block; }
+.big { font-size: 28px; font-weight: 750; letter-spacing: -.02em; line-height: 1.1; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.stat { background: var(--n-tint); border-radius: 12px; padding: 10px 12px; }
+.stat small { display: block; color: var(--muted); font-size: 13px; }
+.band { border-radius: 12px; padding: 12px 14px; background: var(--n-tint); font-weight: 600; }
+.band.hi { background: var(--a-tint); } .band.mid { background: var(--diff-t); } .band.ok { background: var(--good-t); }
+.why { margin: 0; max-width: 64ch; }
+.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot p { margin: 0 0 8px; }
+
+/* ledger bars */
+.row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; margin: 6px 0; }
+.row > b { font-size: 14px; }
+.bar { display: flex; height: 54px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--n-tint); }
+.bar i { display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 13px; font-weight: 700; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex-basis .25s; color: var(--on); }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+.s-na { background: var(--ink); color: var(--bg) !important; }
+.s-cl { background: var(--b-fill); }
+.s-hco { background: var(--good); }
+.s-alb { background: var(--muted); }
+.s-acid { background: var(--a-fill); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+/* number line */
+#line { display: block; width: 100%; height: auto; }
+#line text, #chart text { fill: var(--ink); font-family: var(--body); font-size: 13px; }
+#chart { display: block; width: 100%; height: auto; max-width: 520px; margin-inline: auto; }
+#line { max-width: 520px; margin-inline: auto; }
+</style>
+<script src="../look.js"></script><link rel="stylesheet" href="look.css">
+</head><body><main>
+<header>
+  <h1>Acid-base lab</h1>
+  <p class="lede">Three small pictures for the three things that were hard to see: where the anion gap comes from, how to find a hidden alkalosis, and why chronic CO2 retention looks milder than acute.</p>
+</header>
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" id="t-ledger" aria-selected="true" aria-controls="p-ledger" data-t="ledger">Anion gap ledger</button>
+  <button role="tab" id="t-delta" aria-selected="false" aria-controls="p-delta" data-t="delta">Delta-delta</button>
+  <button role="tab" id="t-compare" aria-selected="false" aria-controls="p-compare" data-t="compare">Acute or chronic</button>
+</div>
+
+<section class="panel" id="p-ledger" role="tabpanel" aria-labelledby="t-ledger">
+  <div class="card">
+    <h2>The two sides must balance</h2>
+    <p class="why">The positive side (sodium) always equals the negative side. Chloride and bicarbonate are measured. Whatever is left over is the unmeasured anions: the anion gap. Pick what happens, then move the slider.</p>
+  </div>
+  <div class="card">
+    <div class="chips" id="modes" role="group" aria-label="What happens">
+      <button class="chip" data-m="none" aria-pressed="true">Normal</button>
+      <button class="chip" data-m="acid" aria-pressed="false">Acid added (lactate, ketones)</button>
+      <button class="chip" data-m="gut" aria-pressed="false">Bicarbonate lost (diarrhoea)</button>
+      <button class="chip" data-m="both" aria-pressed="false">Both</button>
+    </div>
+    <div class="dials" style="margin-top:12px">
+      <div class="dial"><label for="amt"><span style="color:var(--ink)">How much</span><span id="amtv"></span></label><input type="range" id="amt" min="0" max="10" step="1" value="0"><small>Each step is 1 mmol/L of bicarbonate.</small></div>
+      <div class="dial"><label for="alb"><span style="color:var(--ink)">Albumin</span><span id="albv"></span></label><input type="range" id="alb" min="15" max="45" step="1" value="40"><small>Normal is about 35 to 45 g/L.</small></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><b>Positive</b><div class="bar" id="posbar"></div></div>
+    <div class="row"><b>Negative</b><div class="bar" id="negbar"></div></div>
+    <div class="legend"><span><i class="s-na"></i>Sodium</span><span><i class="s-cl"></i>Chloride</span><span><i class="s-hco"></i>Bicarbonate</span><span><i class="s-alb"></i>Albumin (unmeasured)</span><span><i class="s-acid"></i>Added acid anion (unmeasured)</span></div>
+  </div>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><small>Measured gap</small><span class="big" id="gap"></span></div>
+      <div class="stat"><small>Normal for this albumin</small><span class="big" id="gapn"></span></div>
+      <div class="stat"><small>Corrected gap</small><span class="big" id="gapc"></span></div>
+      <div class="stat"><small>Bicarbonate</small><span class="big" id="hco"></span></div>
+    </div>
+    <div class="band" id="verdict" style="margin-top:12px"></div>
+    <p class="why" id="expl" style="margin-top:10px"></p>
+  </div>
+</section>
+
+<section class="panel" id="p-delta" role="tabpanel" aria-labelledby="t-delta" hidden>
+  <div class="card">
+    <h2>Where did the bicarbonate start?</h2>
+    <p class="why">In a high-gap acidosis each unit of extra gap used up about one unit of bicarbonate. Add the extra gap back to the measured bicarbonate to see where it started. Above normal means a metabolic alkalosis was there first.</p>
+  </div>
+  <div class="card">
+    <div class="chips" id="presets" role="group" aria-label="Examples"></div>
+    <div class="dials" style="margin-top:12px">
+      <div class="dial"><label for="dna"><span style="color:var(--ink)">Sodium</span><span id="dnav"></span></label><input type="range" id="dna" min="120" max="155" step="1" value="138"></div>
+      <div class="dial"><label for="dcl"><span style="color:var(--ink)">Chloride</span><span id="dclv"></span></label><input type="range" id="dcl" min="70" max="120" step="1" value="104"></div>
+      <div class="dial"><label for="dhc"><span style="color:var(--ink)">Bicarbonate</span><span id="dhcv"></span></label><input type="range" id="dhc" min="3" max="45" step="1" value="24"></div>
+    </div>
+  </div>
+  <div class="card">
+    <svg id="line" viewBox="0 0 420 175" role="img" aria-label="Number line of bicarbonate: measured value, extra gap added back, and the normal band"></svg>
+    <div class="stats" style="margin-top:8px">
+      <div class="stat"><small>Anion gap</small><span class="big" id="dgap"></span></div>
+      <div class="stat"><small>Extra gap (above 12)</small><span class="big" id="dextra"></span></div>
+      <div class="stat"><small>Started near</small><span class="big" id="dstart"></span></div>
+      <div class="stat"><small>Delta ratio</small><span class="big" id="dratio"></span></div>
+    </div>
+    <div class="band" id="dverdict" style="margin-top:12px"></div>
+    <p class="why" id="dexpl" style="margin-top:10px"></p>
+  </div>
+</section>
+
+<section class="panel" id="p-compare" role="tabpanel" aria-labelledby="t-compare" hidden>
+  <div class="card">
+    <h2>The kidney needs days</h2>
+    <p class="why">The same CO2 gives a very different pH depending on how long the kidney has had to hold on to (or dump) bicarbonate. Slide the days from 0 (acute) to 5 (chronic).</p>
+  </div>
+  <div class="card">
+    <div class="chips" id="dirs" role="group" aria-label="Which problem">
+      <button class="chip" data-d="acid" aria-pressed="true">Respiratory acidosis (CO2 up)</button>
+      <button class="chip" data-d="alk" aria-pressed="false">Respiratory alkalosis (CO2 down)</button>
+    </div>
+    <div class="dials" style="margin-top:12px">
+      <div class="dial"><label for="co2"><span style="color:var(--ink)">pCO2</span><span id="co2v"></span></label><input type="range" id="co2" min="50" max="100" step="5" value="80"><small>mmHg. Normal is about 40.</small></div>
+      <div class="dial"><label for="day"><span style="color:var(--ink)">Time since it started</span><span id="dayv"></span></label><input type="range" id="day" min="0" max="5" step="0.5" value="0"><small>Kidney response takes hours to days.</small></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><small>pH</small><span class="big" id="cph"></span></div>
+      <div class="stat"><small>pCO2</small><span class="big" id="cco"></span></div>
+      <div class="stat"><small>Bicarbonate</small><span class="big" id="chc"></span></div>
+      <div class="stat"><small>Bicarbonate change per 10 of CO2</small><span class="big" id="ck"></span></div>
+    </div>
+    <svg id="chart" viewBox="0 0 420 235" role="img" aria-label="pH over five days: acute dip and slow recovery as the kidney compensates" style="margin-top:12px"></svg>
+    <div class="band" id="cverdict" style="margin-top:12px"></div>
+    <p class="why" id="cexpl" style="margin-top:10px"></p>
+  </div>
+</section>
+
+<div class="foot" id="foot">
+  <p><b>How far to trust this.</b> The pH values are calculated from hydrogen ion (nmol/L) = 24 x pCO2 / bicarbonate. The bicarbonate change per 10 mmHg of CO2 uses mid-range values: acidosis 1 acute and 3.5 chronic, alkalosis 2 acute and 4.5 chronic (Merck Manual ranges are 1 to 2 and 3 to 4 for acidosis, 1 to 2 and 4 to 5 for alkalosis). Real patients vary and the time course is a smooth teaching curve, not measured data.</p>
+  <p>The anion gap here has a normal of 12 at an albumin of 40 g/L and falls 0.25 for every 1 g/L of albumin lost (2.5 per g/dL). I could not check these against an Australian laboratory reference; some labs include potassium and quote a different range.</p>
+</div>
+</main>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function r1(x) { return Math.round(x * 10) / 10; }
+  function pH(co2, hco) { return 9 - Math.log(24 * co2 / hco) / Math.LN10; }
+
+  /* ---------- tabs ---------- */
+  var TABS = ['ledger', 'delta', 'compare'];
+  function showTab(id) {
+    TABS.forEach(function (t) { $('#p-' + t).hidden = t !== id; $('#t-' + t).setAttribute('aria-selected', t === id ? 'true' : 'false'); });
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+  $('#tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) showTab(b.getAttribute('data-t')); });
+
+  /* ---------- 1. ledger ---------- */
+  var mode = 'none';
+  function seg(cls, val, label) { return '<i class="' + cls + '" style="flex:0 0 ' + (val / 140 * 100) + '%" title="' + label + ' ' + r1(val) + '">' + (val >= 16 ? label + ' ' + r1(val) : (val >= 6 ? r1(val) : '')) + '</i>'; }
+  function ledger() {
+    var a = +$('#amt').value, alb = +$('#alb').value;
+    var acid = (mode === 'acid' || mode === 'both') ? a : 0, gut = (mode === 'gut' || mode === 'both') ? a : 0;
+    var na = 140, hco = 24 - acid - gut, alUA = 0.25 * alb, ua = alUA + 2 + acid, cl = na - hco - ua;
+    $('#amtv').textContent = a; $('#albv').textContent = alb + ' g/L';
+    $('#posbar').innerHTML = seg('s-na', na, 'Sodium');
+    $('#negbar').innerHTML = seg('s-cl', cl, 'Cl') + seg('s-hco', hco, 'HCO3') + seg('s-alb', alUA + 2, 'Unmeasured') + (acid ? seg('s-acid', acid, 'Acid') : '');
+    var gap = na - cl - hco, norm = 2 + 0.25 * alb, corr = gap + 0.25 * (40 - alb);
+    $('#gap').textContent = r1(gap); $('#gapn').textContent = r1(norm); $('#gapc').textContent = r1(corr); $('#hco').textContent = r1(hco);
+    var v = $('#verdict'), x = $('#expl'), high = corr - 12 >= 3, low = hco < 22;
+    var look = gap < 12 && high ? ' The measured gap looks normal because the albumin is low: this is the hidden gap.' : '';
+    if (high && low) { v.className = 'band hi'; v.textContent = 'High-gap acidosis' + (gut ? ' with a normal-gap (bicarbonate loss) component as well' : '') + '.'; }
+    else if (low) { v.className = 'band mid'; v.textContent = 'Normal-gap acidosis: bicarbonate is low, chloride took its place.'; }
+    else { v.className = 'band ok'; v.textContent = 'Normal: the two sides balance with a normal gap.'; }
+    var t = [];
+    if (acid) t.push('The acid\'s hydrogen ion used up ' + acid + ' of bicarbonate. Its anion (lactate or ketone) stays behind and is not measured, so the gap rises by ' + acid + '.');
+    if (gut) t.push('Bicarbonate was lost with nothing new to replace it, so the kidney keeps chloride to stay neutral: chloride rises by ' + gut + ' and the gap does not change.');
+    if (!acid && !gut) t.push('Sodium 140 = chloride + bicarbonate + the unmeasured anions (mostly albumin). Try adding acid, then try losing bicarbonate.');
+    if (alb < 38) t.push('Albumin is an unmeasured anion. With less of it the normal gap is only ' + r1(norm) + ', so the corrected gap (' + r1(corr) + ') is the one to read.' + look);
+    x.textContent = t.join(' ');
+  }
+  $('#modes').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-m]'); if (!b) return; mode = b.getAttribute('data-m');
+    $$('#modes .chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+    if (mode !== 'none' && +$('#amt').value === 0) $('#amt').value = 6;
+    if (mode === 'none') $('#amt').value = 0;
+    ledger();
+  });
+  $('#amt').addEventListener('input', ledger); $('#alb').addEventListener('input', ledger);
+
+  /* ---------- 2. delta-delta ---------- */
+  var PRE = [
+    { n: 'Pure ketoacidosis', na: 138, cl: 100, hc: 12 },
+    { n: 'DKA with vomiting', na: 138, cl: 88, hc: 24 },
+    { n: 'Lactate plus diarrhoea', na: 138, cl: 108, hc: 10 },
+    { n: 'Lactate on chronic CO2 retention', na: 140, cl: 92, hc: 26 }
+  ];
+  $('#presets').innerHTML = PRE.map(function (p, i) { return '<button class="chip" data-p="' + i + '" aria-pressed="false">' + p.n + '</button>'; }).join('');
+  function X(v) { return 24 + v * 372 / 50; }
+  function delta() {
+    var na = +$('#dna').value, cl = +$('#dcl').value, hc = +$('#dhc').value;
+    $('#dnav').textContent = na; $('#dclv').textContent = cl; $('#dhcv').textContent = hc;
+    var gap = na - cl - hc, extra = gap - 12, start = hc + Math.max(0, extra), drop = 24 - hc;
+    var ratio = drop > 0 ? extra / drop : null;
+    $('#dgap').textContent = gap; $('#dextra').textContent = extra > 0 ? extra : 'none'; $('#dstart').textContent = extra > 2 ? r1(start) : r1(hc);
+    $('#dratio').textContent = ratio === null || extra <= 2 ? 'n/a' : r1(ratio);
+    var s = '<rect x="' + X(22) + '" y="40" width="' + (X(29) - X(22)) + '" height="34" rx="6" fill="var(--good-t)" stroke="var(--good)"/>' +
+      '<text x="' + (X(22) + X(29)) / 2 + '" y="32" text-anchor="middle">normal 22 to 29</text>' +
+      '<line x1="24" y1="100" x2="396" y2="100" stroke="var(--muted)"/>';
+    for (var v = 0; v <= 50; v += 10) s += '<line x1="' + X(v) + '" y1="96" x2="' + X(v) + '" y2="104" stroke="var(--muted)"/><text x="' + X(v) + '" y="122" text-anchor="middle">' + v + '</text>';
+    s += '<circle cx="' + X(hc) + '" cy="100" r="8" fill="var(--b-fill)"/><text x="' + X(hc) + '" y="146" text-anchor="middle" style="font-weight:700">measured ' + hc + '</text>';
+    if (extra > 2) {
+      var sx = Math.min(X(start), 396);
+      s += '<line x1="' + (X(hc) + 9) + '" y1="100" x2="' + (sx - 18) + '" y2="100" stroke="var(--a-fill)" stroke-width="3"/><path d="M' + (sx - 9) + ' 100 l-9 -5 v10 z" fill="var(--a-fill)"/>' +
+        '<circle cx="' + sx + '" cy="100" r="8" fill="var(--a-fill)"/><text x="' + sx + '" y="90" text-anchor="middle" style="font-weight:700">started ' + r1(start) + '</text>' +
+        '<text x="210" y="168" text-anchor="middle">extra gap added back: +' + extra + '</text>';
+    }
+    $('#line').innerHTML = s;
+    var v = $('#dverdict'), t = $('#dexpl');
+    if (extra <= 2) { v.className = 'band'; v.textContent = 'No extra gap: this tool is for a high-gap acidosis.'; t.textContent = hc < 22 ? 'Bicarbonate is low with a normal gap: a normal-gap (hyperchloraemic) acidosis, such as diarrhoea or a saline load.' : 'Bicarbonate and gap are both normal.'; return; }
+    if (start > 29) { v.className = 'band hi'; v.textContent = 'High-gap acidosis plus a metabolic alkalosis.'; t.textContent = 'The bicarbonate would have been about ' + r1(start) + ' before the acid arrived. That is above normal, so something raised it first (vomiting, diuretics, a CO2 retainer). The acid has pulled it back down, and the pH can look reassuring.'; }
+    else if (start < 22) { v.className = 'band mid'; v.textContent = 'High-gap acidosis plus a normal-gap acidosis.'; t.textContent = 'Even after adding the extra gap back, the bicarbonate started low. Something else also lost bicarbonate (for example diarrhoea or renal tubular acidosis).'; }
+    else { v.className = 'band ok'; v.textContent = 'A pure high-gap acidosis.'; t.textContent = 'Adding the extra gap back gives about ' + r1(start) + ', inside the normal band: the acid explains the fall in bicarbonate.'; }
+  }
+  $('#presets').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-p]'); if (!b) return; var p = PRE[+b.getAttribute('data-p')];
+    $('#dna').value = p.na; $('#dcl').value = p.cl; $('#dhc').value = p.hc;
+    $$('#presets .chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); }); delta();
+  });
+  ['#dna', '#dcl', '#dhc'].forEach(function (id) { $(id).addEventListener('input', function () { $$('#presets .chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); }); delta(); }); });
+
+  /* ---------- 3. acute vs chronic ---------- */
+  var dir = 'acid', RULE = { acid: { ac: 1, ch: 3.5, full: 4 }, alk: { ac: 2, ch: 4.5, full: 3 } };
+  function kAt(d, t) { var R = RULE[d], f = Math.min(1, t / R.full); f = f * f * (3 - 2 * f); return R.ac + (R.ch - R.ac) * f; }
+  function state(d, co2, t) { var dc = co2 - 40, k = kAt(d, t), hc = 24 + k * dc / 10; return { hc: hc, ph: pH(co2, hc), k: k }; }
+  function compare() {
+    var co2 = +$('#co2').value, t = +$('#day').value;
+    var st = state(dir, co2, t);
+    $('#co2v').textContent = co2 + ' mmHg'; $('#dayv').textContent = t === 0 ? 'acute' : (t >= RULE[dir].full ? 'chronic (' + t + ' days)' : t + ' days');
+    $('#cph').textContent = st.ph.toFixed(2); $('#cco').textContent = co2; $('#chc').textContent = r1(st.hc); $('#ck').textContent = (dir === 'acid' ? '+' : '-') + r1(st.k);
+    var x0 = 44, dx = 70, y0 = 24, y1 = 190;
+    var lo = dir === 'acid' ? 7.05 : 7.35, hi = dir === 'acid' ? 7.45 : 7.75;
+    function Y(p) { return y1 - (p - lo) / (hi - lo) * (y1 - y0); }
+    var s = '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + y1 + '" stroke="var(--muted)"/><line x1="' + x0 + '" y1="' + y1 + '" x2="' + (x0 + 5 * dx) + '" y2="' + y1 + '" stroke="var(--muted)"/>';
+    for (var d = 0; d <= 5; d++) s += '<text x="' + (x0 + d * dx) + '" y="212" text-anchor="middle">day ' + d + '</text>';
+    s += '<rect x="' + x0 + '" y="' + Y(7.45) + '" width="' + (5 * dx) + '" height="' + (Y(7.35) - Y(7.45)) + '" fill="var(--good-t)"/><text x="' + (x0 + 6) + '" y="' + (Y(7.40) + 5) + '" style="font-weight:700">normal 7.35 to 7.45</text>';
+    var ticks = dir === 'acid' ? [7.1, 7.2, 7.3] : [7.5, 7.6, 7.7];
+    ticks.forEach(function (tv) { s += '<line x1="' + (x0 - 4) + '" y1="' + Y(tv) + '" x2="' + x0 + '" y2="' + Y(tv) + '" stroke="var(--muted)"/><text x="' + (x0 - 7) + '" y="' + (Y(tv) + 4) + '" text-anchor="end">' + tv.toFixed(1) + '</text>'; });
+    var pts = [];
+    for (var i = 0; i <= 50; i++) { var tt = i / 10; pts.push((x0 + tt * dx) + ',' + Y(state(dir, co2, tt).ph)); }
+    var px = x0 + t * dx, left = t > 3.5;
+    s += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--b-fill)" stroke-width="3"/>' +
+      '<circle cx="' + px + '" cy="' + Y(st.ph) + '" r="7" fill="var(--a-fill)"/>' +
+      '<text x="' + (px + (left ? -12 : 12)) + '" y="' + (Y(st.ph) + (dir === 'acid' ? 22 : -12)) + '" text-anchor="' + (left ? 'end' : 'start') + '" style="font-weight:700">pH ' + st.ph.toFixed(2) + '</text>';
+    $('#chart').innerHTML = s;
+    var ac = state(dir, co2, 0), ch = state(dir, co2, 5), v = $('#cverdict');
+    v.className = 'band ' + (st.ph < 7.2 || st.ph > 7.6 ? 'hi' : (st.ph < 7.35 || st.ph > 7.45 ? 'mid' : 'ok'));
+    v.textContent = 'Same CO2 of ' + co2 + ': acute pH ' + ac.ph.toFixed(2) + ' (bicarbonate ' + r1(ac.hc) + '), chronic pH ' + ch.ph.toFixed(2) + ' (bicarbonate ' + r1(ch.hc) + ').';
+    $('#cexpl').textContent = dir === 'acid'
+      ? 'At first only quick buffering has happened, so bicarbonate barely moves and the pH falls a lot. Over days the kidney keeps bicarbonate, and the same CO2 gives a much milder acidaemia. This is why a COPD patient with a CO2 of 80 can look well, while the same CO2 in a young asthmatic is an emergency. A chronic retainer whose CO2 rises further on top is "acute on chronic".'
+      : 'At first only quick buffering has happened, so the pH rises a lot. Over days the kidney dumps bicarbonate and the pH comes back down towards normal. A bicarbonate that is much lower than expected for the time course is a second problem: a metabolic acidosis as well.';
+  }
+  $('#dirs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-d]'); if (!b) return; dir = b.getAttribute('data-d');
+    $$('#dirs .chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
+    var el = $('#co2'); if (dir === 'acid') { el.min = 50; el.max = 100; el.value = 80; } else { el.min = 15; el.max = 35; el.value = 20; }
+    compare();
+  });
+  $('#co2').addEventListener('input', compare); $('#day').addEventListener('input', compare);
+
+  /* ---------- start ---------- */
+  ledger(); delta(); compare();
+  var h = location.hash.slice(1); showTab(TABS.indexOf(h) >= 0 ? h : 'ledger');
+})();
+</script></body></html>
