@@ -249,7 +249,7 @@ function RMORevision:syncNow(verbose)
         s:saveSetting("items", fromServer)
         s:saveSetting("resetAt", tonumber(d.resetAt) or 0)
         local studied = {}
-        for id, t in pairs(d.topics or {}) do if t.studied then studied[id] = t.studied end end
+        for id, t in pairs(d.topics or {}) do if type(t) == "table" and type(t.studied) == "string" and t.studied ~= "" then studied[id] = t.studied end end
         s:saveSetting("studied", studied)
         s:saveSetting("skipRev", d.skipRev or {})
         if pushed then s:saveSetting("pending", {}) end

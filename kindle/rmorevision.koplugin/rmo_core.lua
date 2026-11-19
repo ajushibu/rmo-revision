@@ -38,7 +38,7 @@ end
 function Core.queue(topics, studied, skipRev, items, today)
     local due, fresh = {}, {}
     for _, t in ipairs(topics) do
-        local started = studied[t.id]
+        local started = type(studied[t.id]) == "string"
         for _, c in ipairs(t.cards) do
             local sk = skipRev[c.id]
             if not (sk and sk.on) then
