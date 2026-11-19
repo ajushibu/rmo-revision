@@ -36,7 +36,17 @@ function RMORevision:init()
     self.settings = LuaSettings:open(DataStorage:getSettingsDir() .. "/rmorevision.lua")
     self.cardsFile = DataStorage:getSettingsDir() .. "/rmorevision_cards.json"
     self.ui.menu:registerToMainMenu(self)
+    -- lets you pick "RMO Revision: start revising" under Settings > Taps and gestures
+    local ok, Dispatcher = pcall(require, "dispatcher")
+    if ok and Dispatcher then
+        pcall(function()
+            Dispatcher:registerAction("rmorevision_start", { category = "none", event = "RMORevisionStart",
+                title = _("RMO Revision: start revising"), general = true, filemanager = true })
+        end)
+    end
 end
+
+function RMORevision:onRMORevisionStart() self:startSession(); return true end
 
 function RMORevision:addToMainMenu(menu_items)
     menu_items.rmorevision = {
