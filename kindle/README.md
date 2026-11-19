@@ -1,6 +1,6 @@
 # RMO Revision on a Kindle (KOReader)
 
-Bare-bones recall cards: question, show answer, Shaky or Got it. No animations, no tools or cases (they need a screen that moves).
+Bare-bones recall cards: question, show answer, Shaky or Got it, with a session timer (a pause over 2 minutes counts as 2) and today's total in the menu. The timer stays on the Kindle; it is not added to the app's revise time. No animations, no tools or cases (they need a screen that moves).
 Ratings sync with the app over Wi-Fi and use the same spacing as the app (1, 3, 7, 14, 28 days).
 
 ## Install (USB)

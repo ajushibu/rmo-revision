@@ -84,7 +84,7 @@ end
 function RMORevision:revisionLabel()
     local q = self:queue()
     if not q then return _("Revise (no cards found)") end
-    return string.format(_("Revise: %d due, %d new"), #q.due, #q.fresh)
+    return string.format(_("Revise: %d due, %d new (today %d min)"), #q.due, #q.fresh, self:todayMinutes())
 end
 
 -- ---------- review ----------
@@ -96,7 +96,31 @@ function RMORevision:startSession()
         return
     end
     self.done = 0
+    self.sessSecs = 0
+    self.lapAt = os.time()
     self:showQuestion()
+end
+
+-- Active time: gaps between taps count, but a gap over 2 minutes counts as 2 (you walked away), like the app.
+function RMORevision:lap()
+    local now = os.time()
+    local d = now - (self.lapAt or now)
+    if d > 120 then d = 120 elseif d < 0 then d = 0 end
+    self.lapAt = now
+    self.sessSecs = (self.sessSecs or 0) + d
+    local day = Core.today()
+    local t = self.settings:readSetting("time", {})
+    if t.date ~= day then t = { date = day, secs = 0 } end
+    t.secs = t.secs + d
+    self.settings:saveSetting("time", t)
+end
+
+local function clock(secs) return string.format("%d:%02d", math.floor(secs / 60), secs % 60) end
+
+function RMORevision:todayMinutes()
+    local t = self.settings:readSetting("time", {})
+    if t.date ~= Core.today() then return 0 end
+    return math.floor(t.secs / 60 + 0.5)
 end
 
 function RMORevision:closeViewer() if self.viewer then UIManager:close(self.viewer); self.viewer = nil end end
@@ -111,13 +135,14 @@ function RMORevision:showQuestion()
     local q = self:queue()
     if not q or #q.all == 0 then self:finish(); return end
     local e = q.all[1]
-    local title = string.format("%s   (%d left)", e.topic, #q.all)
+    local title = string.format("%s   (%d left, %s)", e.topic, #q.all, clock(self.sessSecs or 0))
     self:show(title, e.card.t, {
         { { text = _("Stop"), callback = function() self:finish() end }, { text = _("Show answer"), callback = function() self:showAnswer(e) end } },
     })
 end
 
 function RMORevision:showAnswer(e)
+    self:lap()
     local isNew = Core.state(self:items(), e.card.id, Core.today()) == "new"
     local title = string.format("%s%s", e.topic, isNew and "   (new)" or "")
     self:show(title, e.card.t .. "\n\n" .. Core.answerText(e.card.k), {
@@ -128,6 +153,7 @@ function RMORevision:showAnswer(e)
 end
 
 function RMORevision:rate(e, how)
+    self:lap()
     local item = Core.rate(self:items(), e.card.id, how, Core.today(), os.time() * 1000)
     if item then
         local pending = self.settings:readSetting("pending", {})
@@ -139,10 +165,12 @@ function RMORevision:rate(e, how)
 end
 
 function RMORevision:finish()
+    if self.lapAt then self:lap(); self.lapAt = nil end
+    self.settings:flush()
     self:closeViewer()
     local n = 0
     for _ in pairs(self.settings:readSetting("pending", {})) do n = n + 1 end
-    local msg = string.format(_("%d cards done."), self.done or 0)
+    local msg = string.format(_("%d cards done in %s. Today: %d min."), self.done or 0, clock(self.sessSecs or 0), self:todayMinutes())
     if n > 0 then
         if NetworkMgr:isOnline() and self.settings:readSetting("token") then self:syncNow(false); msg = msg .. " " .. _("Syncing…")
         else msg = msg .. " " .. string.format(_("%d ratings wait for Wi-Fi. Use Sync now."), n) end
