@@ -253,12 +253,28 @@ function RMORevision:request(url, method, bodyTable, headers)
         else params.verify = "none" end   -- no CA file found on this device
     end
     self.unverified = params.verify ~= "peer"
-    local ok, res, code = pcall(https.request, params)
-    if not ok then return nil, tostring(res) end
-    code = tonumber(code)
-    local text = table.concat(sink)
-    if not code or code < 200 or code >= 300 then return nil, string.format("HTTP %s %s", tostring(code or res), text:sub(1, 120)) end
-    return text
+    -- Wi-Fi on a Kindle often needs a moment after "online": try twice before giving up.
+    local lastErr
+    for attempt = 1, 2 do
+        sink = {}
+        params.sink = ltn12.sink.table(sink)
+        if payload then params.source = ltn12.source.string(payload) end
+        local ok, res, code = pcall(https.request, params)
+        if not ok then
+            lastErr = "network: " .. tostring(res)
+        elseif res == nil then
+            -- https.request returns nil plus the reason (timeout, connection refused, certificate verify failed ...)
+            lastErr = "network: " .. tostring(code)
+        else
+            local status = tonumber(code)
+            local text = table.concat(sink)
+            if status and status >= 200 and status < 300 then return text end
+            return nil, string.format("HTTP %s %s", tostring(code), text:sub(1, 120))   -- the server answered: do not retry
+        end
+        if attempt == 1 then pcall(function() require("socket").sleep(1.5) end) end
+    end
+    if lastErr and lastErr:find("certificate") then lastErr = lastErr .. " (try the menu: untick Check HTTPS certificates, and check the Kindle date and time)" end
+    return nil, lastErr
 end
 
 function RMORevision:rpc(fn, args)
