@@ -426,7 +426,12 @@ html.kbd .kh { display: inline-block; }
 .kbody .kl.lead { font-size: 1.05em; margin-bottom: 8px; }
 .kbody .kl b.lb { font-weight: 700; color: var(--ink); }
 .kbody .kl.hd { font-size: 1.04em; font-weight: 750; margin: 12px 0 5px; padding-left: 0; text-indent: 0; color: var(--ink); }
-.kbody .kl.hd.lead { font-size: 1.08em; margin-top: 0; }
+.kbody .kl.hd.lead { font-size: 1.04em; margin-top: 0; }
 .kbody .kl.in, .kbody .kl.in:first-child { padding-left: 2.6em; text-indent: -1.2em; font-size: .97em; }
 .kbody .kl.in::before { content: "\2022"; display: inline-block; width: 1.2em; text-indent: 0; color: var(--muted); }
 .kbody .kl.kn { margin-top: 10px; }
+.kbody .kl.ch { color: var(--ink); }
+.kbody .kl.ch .ar { color: var(--shaky); font-weight: 700; padding: 0 .2em; }
+.kbody .kl.nv b.lb { color: var(--shaky); }
+.kbody .kl.av b.lb { color: var(--due); }
+.kbody .kl.hd .ar { color: var(--muted); }
