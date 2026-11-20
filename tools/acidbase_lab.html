@@ -53,6 +53,14 @@ html.noin #p-ledger > .card:first-child, html.noin #p-compare > .card:first-chil
 html.noin #p-delta > .card:first-child > h2, html.noin #p-delta > .card:first-child > .why, html.noin #p-delta > .card:first-child > ol { display: none; }
 html.emb .foot summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; }
 
+/* urine chloride gauge */
+.gauge { position: relative; height: 14px; border-radius: 7px; background: var(--n-tint); margin-top: 8px; }
+.gauge .gl { position: absolute; left: 33.3%; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
+.gauge b { position: absolute; top: -3px; width: 20px; height: 20px; border-radius: 50%; background: var(--a-fill); border: 3px solid var(--surface); transform: translateX(-50%); transition: left .3s; }
+.gscale { position: relative; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.gscale span:nth-child(2) { position: absolute; left: 33.3%; transform: translateX(-50%); }
+@media (prefers-reduced-motion: reduce) { .gauge b { transition: none; } }
+
 /* ledger bars */
 .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; margin: 6px 0; }
 .row > b { font-size: 14px; }
@@ -219,7 +227,13 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
       <rect id="st-drain" x="55" y="170" width="40" height="9" rx="2" fill="var(--good)"/>
       <text id="st-dl" x="75" y="198" text-anchor="middle" font-size="11" fill="var(--ink)">kidney drain open</text>
     </svg>
-    <div><div class="band" id="st-band"></div><p class="why" id="st-fix" style="margin-top:10px"></p></div>
+    <div><div class="band" id="st-band"></div><p class="why" id="st-fix" style="margin-top:10px"></p>
+      <div id="st-ucl" style="margin-top:12px" hidden>
+        <b style="font-size:14px">Urine chloride test (shape only, not a measured value)</b>
+        <div class="gauge" aria-hidden="true"><i class="gl"></i><b id="st-mark"></b></div>
+        <div class="gscale"><span>0</span><span>20 mmol/L</span><span>60+</span></div>
+        <p class="why" id="st-uct" style="margin-top:6px"></p>
+      </div></div>
   </div>
   <div class="card"><h3>Why? (what you picked)</h3><div id="st-why"></div></div>
 </section>
@@ -402,20 +416,29 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
   var STARTS = {
     none: { n: 'Nothing new', up: 0, w: '' },
     vom: { n: 'Vomiting or NG aspirate', up: 1, w: ['The stomach lining makes hydrochloric acid. For every hydrogen ion it pumps into the stomach, one bicarbonate is put into the blood.', 'Normally the acid is reabsorbed further down, so it balances. If the acid is vomited or sucked out, the extra bicarbonate stays in the blood.', 'The chloride from the acid is lost too. That matters for the next step: low chloride.'] },
-    diu: { n: 'Loop or thiazide diuretic', up: 1, w: ['The diuretic makes the kidney lose sodium, chloride and water, so volume and chloride fall.', 'Low volume raises aldosterone, and more sodium now reaches the collecting duct. The kidney swaps that sodium for potassium and hydrogen ions, so acid and potassium go into the urine.', 'Acid lost in urine leaves bicarbonate behind in the blood. This one both starts it and holds it (low volume, low chloride, low potassium).'] },
+    diu: { n: 'Loop or thiazide diuretic', up: 1, w: ['The diuretic makes the kidney lose sodium, chloride and water, so volume and chloride fall.', 'Low volume raises aldosterone, and more sodium now reaches the collecting duct. The kidney swaps that sodium for potassium and hydrogen ions, so acid and potassium go into the urine.', 'Acid lost in urine leaves bicarbonate behind in the blood. This one both starts it and holds it (low volume, low chloride, low potassium).', 'Warning for the urine chloride: while the diuretic is acting, the kidney is losing chloride, so the urine chloride is high even when the patient is volume depleted. It fools the test for a day or two.'] },
     gain: { n: 'Bicarbonate gained', up: 1, w: ['Hartmann or Ringer lactate: the liver turns lactate into bicarbonate. A large transfusion gives citrate and parenteral nutrition gives acetate; both are turned into bicarbonate too. Or bicarbonate is given directly.', 'A healthy kidney simply dumps the extra, so this alone rarely makes a lasting alkalosis. It needs a blocker from step 2.'] },
     co2: { n: 'CO2 brought down fast', up: 1, w: ['A long-standing CO2 retainer has kept extra bicarbonate to balance the CO2.', 'If NIV or a ventilator brings the CO2 down quickly, the bicarbonate stays high for days, because the kidney is slow to dump it. It does not happen after an acute rise, because the bicarbonate never rose much.'] }
   };
   var HOLDS = {
-    vol: { n: 'Low volume and low chloride', w: ['When volume is low, the kidney\'s priority is to keep sodium (and so water).', 'Sodium cannot be reabsorbed alone: it travels with a negative charge, normally chloride. If chloride is short, the kidney reabsorbs sodium with bicarbonate instead, and swaps the rest for hydrogen and potassium.', 'So the kidney holds on to bicarbonate to save sodium. Saline gives sodium with chloride and restores volume, so the kidney can let the bicarbonate go.'], fix: '0.9% saline gives the chloride and the volume the kidney needs to let the bicarbonate go.', cl: 'low' },
+    vol: { n: 'Low volume and low chloride', w: ['When volume is low, the kidney\'s priority is to keep sodium (and so water).', 'Sodium cannot be reabsorbed alone: it travels with a negative charge, normally chloride. If chloride is short, the kidney reabsorbs sodium with bicarbonate instead, and swaps the rest for hydrogen and potassium.', 'So the kidney holds on to bicarbonate to save sodium. Saline gives sodium with chloride and restores volume, so the kidney can let the bicarbonate go.', 'This is why the urine chloride sorts it: a kidney that is clinging to chloride lets almost none escape, so the urine chloride is low (under 20 mmol/L). Low means chloride-responsive: saline works.'], fix: '0.9% saline gives the chloride and the volume the kidney needs to let the bicarbonate go.', cl: 'low' },
     k: { n: 'Low potassium', w: ['When potassium is low, potassium leaves cells and hydrogen ions move in to replace it. The blood loses acid, so bicarbonate rises.', 'The kidney cells also fill with hydrogen ions, so the kidney puts more hydrogen into the urine and makes more new bicarbonate.', 'It will not correct until the potassium is replaced.'], fix: 'Replace the potassium (and magnesium): without it the alkalosis will not correct.', cl: '' },
-    ald: { n: 'High aldosterone', w: ['Aldosterone makes the collecting duct keep sodium. To keep sodium, the kidney pays with potassium and hydrogen ions, which go into the urine.', 'Potassium falls, acid is lost, bicarbonate rises. Blood pressure is usually high because the sodium and water are kept.', 'The volume is not low and the urine chloride is high, so saline does not fix it. Treat the cause (Conn syndrome, steroids, liquorice).'], fix: 'Saline will not fix this. Replace potassium, then look for the cause (aldosterone and renin, cortisol).', cl: 'high' }
+    ald: { n: 'High aldosterone', w: ['Aldosterone makes the collecting duct keep sodium. To keep sodium, the kidney pays with potassium and hydrogen ions, which go into the urine.', 'Potassium falls, acid is lost, bicarbonate rises. Blood pressure is usually high because the sodium and water are kept.', 'The volume is not low and the urine chloride is high, so saline does not fix it. Treat the cause (Conn syndrome, steroids, liquorice).', 'The kidney is not short of chloride, so it lets it go: the urine chloride is high (over 20 mmol/L). High means chloride-resistant.'], fix: 'Saline will not fix this. Replace potassium, then look for the cause (aldosterone and renin, cortisol).', cl: 'high' }
   };
   var stS = 'vom', stH = {}, stW = 'now';
   function stChips() {
     $('#st-start').innerHTML = Object.keys(STARTS).map(function (k) { return '<button class="chip" data-s="' + k + '" aria-pressed="' + (stS === k) + '">' + STARTS[k].n + '</button>'; }).join('');
     $('#st-hold').innerHTML = Object.keys(HOLDS).map(function (k) { return '<button class="chip" data-h="' + k + '" aria-pressed="' + !!stH[k] + '">' + HOLDS[k].n + '</button>'; }).join('');
     $$('#st-when .chip').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-w') === stW ? 'true' : 'false'); });
+  }
+  function ucl(start, h, show) {
+    if (!show) return null;
+    if (start === 'diu') return { pos: 85, t: '<b>High, but do not trust it.</b> The diuretic makes the kidney lose chloride, so the urine chloride is high even if the patient is dry. Check the history and drug chart before you read this number.' };
+    if (h.vol && h.ald) return { pos: 50, t: '<b>Could be either side.</b> Low volume pulls it down, aldosterone excess pushes it up. Go by the history and look for the cause.' };
+    if (h.ald) return { pos: 85, t: '<b>High (over 20).</b> The volume is not low, so the kidney has no reason to cling to chloride. This is the chloride-resistant group: saline will not fix it.' };
+    if (h.vol) return { pos: 12, t: '<b>Low (under 20).</b> The kidney is clinging to chloride to save sodium, so almost none reaches the urine. This is the chloride-responsive group: saline works.' };
+    if (h.k) return { pos: 70, t: '<b>Usually high.</b> Severe potassium loss sits with the chloride-resistant group: the kidney is not short of chloride.' };
+    return null;
   }
   function stay() {
     var st = STARTS[stS], hs = Object.keys(HOLDS).filter(function (k) { return stH[k]; }), blocked = hs.length > 0;
@@ -430,9 +453,10 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
     else if (!blocked) { band.className = 'band ok'; band.textContent = 'It corrects itself. The kidney dumped the extra bicarbonate.'; fix.textContent = 'Nothing is holding it back, so a lasting alkalosis is unlikely. If you see one, look for a blocker.'; }
     else {
       band.className = 'band hi'; band.textContent = 'It stays high. The kidney is held back by: ' + hs.map(function (k) { return HOLDS[k].n.toLowerCase(); }).join(', ') + '.';
-      var cl = stH.ald ? 'Urine chloride would be over 20 mmol/L: chloride-resistant.' : (stH.vol ? 'Urine chloride would be under 20 mmol/L: chloride-responsive.' : '');
-      fix.innerHTML = '<b>What to do:</b> ' + hs.map(function (k) { return HOLDS[k].fix; }).join(' ') + (cl ? ' ' + cl : '') + (stH.vol && stH.ald ? ' (Both can be present; treat each.)' : '');
+      fix.innerHTML = '<b>What to do:</b> ' + hs.map(function (k) { return HOLDS[k].fix; }).join(' ') + (stH.vol && stH.ald ? ' (Both can be present; treat each.)' : '');
     }
+    var u = $('#st-ucl'), uc = ucl(stS, stH, high && stW !== 'now');
+    u.hidden = !uc; if (uc) { $('#st-mark').style.left = uc.pos + '%'; $('#st-uct').innerHTML = uc.t; }
     var w = '';
     if (st.up) w += '<h3>How it starts: ' + st.n.replace('NG','nasogastric').replace(/^([A-Z])(?![A-Z])/, function (c) { return c.toLowerCase(); }) + '</h3><ol class="why">' + st.w.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>';
     hs.forEach(function (k) { w += '<h3 style="margin-top:12px">Why it stays: ' + HOLDS[k].n.toLowerCase() + '</h3><ol class="why">' + HOLDS[k].w.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol>'; });
