@@ -44,6 +44,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 .foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
 .foot p { margin: 0 0 8px; }
 
+/* embedded in a study kit */
+html.emb header, html.emb .tabs { display: none; }
+html.emb, html.emb body { background: transparent; }
+html.emb body { padding-block: 4px 8px; padding-left: 2px; padding-right: 2px; }
+html.emb #p-stay > .card:first-child { display: none; }
+html.noin #p-ledger > .card:first-child, html.noin #p-compare > .card:first-child { display: none; }
+html.noin #p-delta > .card:first-child > h2, html.noin #p-delta > .card:first-child > .why, html.noin #p-delta > .card:first-child > ol { display: none; }
+html.emb .foot summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; }
+
 /* ledger bars */
 .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; margin: 6px 0; }
 .row > b { font-size: 14px; }
@@ -231,9 +240,10 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
 
   /* ---------- tabs ---------- */
   var TABS = ['ledger', 'delta', 'compare', 'stay'];
+  var EMBQ = /[?&]embed=(\w+)/.exec(location.search), EMB = EMBQ && TABS.indexOf(EMBQ[1]) >= 0 ? EMBQ[1] : null;
   function showTab(id) {
     TABS.forEach(function (t) { $('#p-' + t).hidden = t !== id; $('#t-' + t).setAttribute('aria-selected', t === id ? 'true' : 'false'); });
-    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+    if (!EMB) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
   }
   $('#tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) showTab(b.getAttribute('data-t')); });
 
@@ -438,6 +448,12 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
 
   /* ---------- start ---------- */
   ledger(); deltaShow(); compare(); stay();
-  var h = location.hash.slice(1); showTab(TABS.indexOf(h) >= 0 ? h : 'ledger');
+  if (EMB) {
+    /* shown inside a study kit step: one tab only, no title or tab bar, height reported to the kit */
+    document.documentElement.classList.add('emb'); if (/[?&]intro=0/.test(location.search)) document.documentElement.classList.add('noin'); showTab(EMB);
+    var ft = $('#foot'); ft.innerHTML = '<details><summary>How far to trust this picture</summary>' + ft.innerHTML + '</details>';
+    var send = function () { try { parent.postMessage({ rmoEmbedH: document.body.offsetHeight, src: location.search }, '*'); } catch (e) {} };
+    if (window.ResizeObserver) new ResizeObserver(send).observe(document.body); window.addEventListener('resize', send); send();
+  } else { var h = location.hash.slice(1); showTab(TABS.indexOf(h) >= 0 ? h : 'ledger'); }
 })();
 </script></body></html>

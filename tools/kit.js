@@ -15,8 +15,13 @@
         t.rows.map(function (r) { return '<tr>' + r.map(function (c, i) { return '<td' + (t.aus === i ? ' class="aus"' : '') + '>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
     }
     if (b.rx) return '<div class="rx ' + (b.rx.cls || '') + '"><h3>' + b.rx.h + '</h3>' + (b.rx.p ? '<p>' + b.rx.p + '</p>' : '') + (b.rx.items ? '<ul class="tight">' + b.rx.items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' : '') + '</div>';
+    if (b.embed) return (b.embed.title ? '<p class="hint"><b>' + b.embed.title + '</b></p>' : '') + '<iframe class="embf" src="' + b.embed.src + '" title="' + (b.embed.title || 'Interactive picture') + '" style="height:' + (b.embed.h || 480) + 'px"></iframe>';
     return '';
   }
+  window.addEventListener('message', function (e) {
+    var d = e.data; if (!d || typeof d.rmoEmbedH !== 'number') return;
+    Array.prototype.forEach.call(document.querySelectorAll('iframe.embf'), function (f) { if (f.contentWindow === e.source) f.style.height = Math.ceil(d.rmoEmbedH) + 'px'; });
+  });
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   var order = [], pos = 0, fc = 0, missed = [], ans = null, total = 0, n = 0;
   function startD(l) { order = shuffle(l.slice()); pos = 0; fc = 0; missed = []; ans = null; total = order.length; drawD(); }

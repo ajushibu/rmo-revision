@@ -82,3 +82,6 @@ figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 
 figure { margin: 0; }
 .foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
 .foot p { margin: 0 0 8px; }
+
+/* interactive picture from a lab, shown inside a step (height set by the lab) */
+.embf { display: block; width: 100%; border: 0; background: transparent; }
