@@ -15,7 +15,7 @@ window.KIT = {
         ['Under 20 mmol/L', 'Chloride-responsive (volume depleted)', 'Vomiting, nasogastric losses, past diuretic use'],
         ['Over 20 mmol/L', 'Chloride-resistant', 'Hyperaldosteronism, Cushing, severe potassium loss, current diuretic']] } },
       { rx: { h: 'Trap', cls: 'warn', items: ['A diuretic in the last day or two raises the urine chloride and fools you. Look at the history and drug chart first.'] } },
-      { rx: { h: 'A metabolic alkalosis can sit behind another problem', items: ['In diabetic ketoacidosis with vomiting, the ketoacids pull the bicarbonate down and can hide the alkalosis. Add the extra anion gap back to the bicarbonate: if the result is high, the alkalosis was there too.'] } },
+      { rx: { h: 'A metabolic alkalosis can sit behind another problem', items: ['In diabetic ketoacidosis with vomiting, the ketoacids pull the bicarbonate down and can hide the alkalosis. Work out where the bicarbonate should be (24 minus the extra anion gap, which is the gap minus 12). If it comes out higher than that, the alkalosis was there too.'] } },
       { embed: { src: 'acidbase_lab.html?embed=delta', title: 'Try your own numbers: where did the bicarbonate start?', h: 900 } }] },
     { h: 'Treat it', blocks: [
       { rx: { h: 'Chloride-responsive', items: ['0.9% saline gives the chloride and the volume the kidney needs to excrete the bicarbonate.', 'Replace the potassium and magnesium: without them it will not correct.', 'Replace nasogastric losses and treat the cause (vomiting, ileus, obstruction).'] } },
