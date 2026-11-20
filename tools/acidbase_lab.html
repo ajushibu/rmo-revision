@@ -62,6 +62,18 @@ html.emb .foot summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; 
 .gscale span:nth-child(2) { position: absolute; left: 33.3%; transform: translateX(-50%); }
 @media (prefers-reduced-motion: reduce) { .gauge b { transition: none; } }
 
+/* chloride: dry or not */
+.cflow { display: flex; flex-direction: column; gap: 6px; }
+.cn { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
+.cn h3 { margin: 0 0 2px; font-size: 14px; color: var(--muted); font-weight: 700; }
+.cn p { margin: 0; }
+.cn.k { background: var(--n-tint); border-color: transparent; }
+.carrow { text-align: center; color: var(--muted); line-height: 1; }
+.mini { display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px; align-items: center; margin: 8px 0; font-size: 14px; }
+.mini .tr { height: 16px; border-radius: 8px; background: var(--n-tint); position: relative; overflow: hidden; }
+.mini .tr i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--b-fill); border-radius: 8px; }
+.mini .tr s { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); text-decoration: none; }
+
 /* ledger bars */
 .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; margin: 6px 0; }
 .row > b { font-size: 14px; }
@@ -98,13 +110,14 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
 </head><body><main>
 <header>
   <h1>Acid-base lab</h1>
-  <p class="lede">Four small pictures for the things that were hard to see: where the anion gap comes from, how to find a hidden alkalosis, why chronic CO2 retention looks milder than acute, and why a metabolic alkalosis starts and then stays.</p>
+  <p class="lede">Five small pictures for the things that were hard to see: where the anion gap comes from, how to find a hidden alkalosis, why chronic CO2 retention looks milder than acute, and why a metabolic alkalosis starts and then stays.</p>
 </header>
 <div class="tabs" role="tablist" id="tabs">
   <button role="tab" id="t-ledger" aria-selected="true" aria-controls="p-ledger" data-t="ledger">Anion gap ledger</button>
   <button role="tab" id="t-delta" aria-selected="false" aria-controls="p-delta" data-t="delta">Delta-delta</button>
   <button role="tab" id="t-compare" aria-selected="false" aria-controls="p-compare" data-t="compare">Acute or chronic</button>
   <button role="tab" id="t-stay" aria-selected="false" aria-controls="p-stay" data-t="stay">Alkalosis: start and stay</button>
+  <button role="tab" id="t-cl" aria-selected="false" aria-controls="p-cl" data-t="cl">Chloride: dry or not</button>
 </div>
 
 <section class="panel" id="p-ledger" role="tabpanel" aria-labelledby="t-ledger">
@@ -224,8 +237,32 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
   <div class="card"><h3>Why? (what you picked)</h3><div id="st-why"></div></div>
 </section>
 
+<section class="panel" id="p-cl" role="tabpanel" aria-labelledby="t-cl" hidden>
+  <div class="card">
+    <h2>One question: is the kidney short of chloride?</h2>
+    <p class="why">The kidney's first job is to protect the body's volume. It does that by keeping sodium, and sodium cannot be kept alone: it needs a negative partner, and the main one is chloride. So how much chloride the urine lets go tells you whether the body is short of it.</p>
+    <h3 style="margin-top:12px">Pick a patient</h3>
+    <div class="chips" id="cl-pick" role="group" aria-label="Pick a patient"></div>
+  </div>
+  <div class="card" id="cl-flow"></div>
+  <div class="card">
+    <h3>Why is the chloride low in vomiting?</h3>
+    <ol class="why">
+      <li>Stomach acid is hydrochloric acid (HCl): hydrogen ions and chloride leave the blood together to make it.</li>
+      <li>When the stomach contents are vomited or sucked out, the chloride goes with them. The blood is left short of chloride.</li>
+      <li>The blood must stay balanced (sodium on one side, chloride plus bicarbonate plus the rest on the other). With less chloride, bicarbonate takes its place, so it rises.</li>
+      <li>Water and sodium are lost too, so the volume falls. Now the kidney is short of both, and clings to everything it can.</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>What the names mean</h3>
+    <p class="why"><b>Chloride-responsive:</b> the alkalosis goes away when you give chloride (as saline). The body was short of chloride, so it responds to getting it. Urine chloride is low.</p>
+    <p class="why" style="margin-top:8px"><b>Chloride-resistant:</b> giving chloride does nothing, because chloride was never the problem. Something else is driving it (aldosterone, severe potassium loss). Urine chloride is high.</p>
+  </div>
+</section>
+
 <div class="foot" id="foot">
-  <p><b>Alkalosis tab.</b> The reasons given (acid left behind, sodium kept with bicarbonate when chloride is short, potassium and aldosterone) are standard physiology teaching. I did not check them against an Australian source here, and the picture shows direction only, not measured values.</p>
+  <p><b>Alkalosis and chloride tabs.</b> The reasons given (acid left behind, sodium kept with bicarbonate when chloride is short, potassium and aldosterone) are standard physiology teaching. I did not check them against an Australian source here, and the picture shows direction only, not measured values.</p>
   <p><b>How far to trust this.</b> The pH values are calculated from hydrogen ion (nmol/L) = 24 x pCO2 / bicarbonate. The bicarbonate change per 10 mmHg of CO2 uses mid-range values: acidosis 1 acute and 3.5 chronic, alkalosis 2 acute and 4.5 chronic (Merck Manual ranges are 1 to 2 and 3 to 4 for acidosis, 1 to 2 and 4 to 5 for alkalosis). Real patients vary and the time course is a smooth teaching curve, not measured data.</p>
   <p>The anion gap here has a normal of 12 at an albumin of 40 g/L and falls 0.25 for every 1 g/L of albumin lost (2.5 per g/dL). I could not check these against an Australian laboratory reference; some labs include potassium and quote a different range.</p>
 </div>
@@ -239,7 +276,7 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
   function pH(co2, hco) { return 9 - Math.log(24 * co2 / hco) / Math.LN10; }
 
   /* ---------- tabs ---------- */
-  var TABS = ['ledger', 'delta', 'compare', 'stay'];
+  var TABS = ['ledger', 'delta', 'compare', 'stay', 'cl'];
   var EMBQ = /[?&]embed=(\w+)/.exec(location.search), EMB = EMBQ && TABS.indexOf(EMBQ[1]) >= 0 ? EMBQ[1] : null;
   function showTab(id) {
     TABS.forEach(function (t) { $('#p-' + t).hidden = t !== id; $('#t-' + t).setAttribute('aria-selected', t === id ? 'true' : 'false'); });
@@ -435,8 +472,27 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
     stay();
   });
 
+
+  /* ---------- 5. chloride: dry or not ---------- */
+  var CLP = {
+    vom: { n: 'Vomiting or NG aspirate', blood: 'Volume low and chloride low. The vomit took acid (HCl) and water with it.', kidney: 'Short of both, so the kidney clings to sodium and chloride and gives almost none back. To save sodium it also keeps bicarbonate.', u: 12, ut: '<b>Low (under 20).</b> The kidney is hoarding chloride, so the patient is dry and short of chloride.', saline: 'Saline gives back volume, and sodium with chloride. The kidney can now keep sodium with chloride, so it no longer needs to hold bicarbonate, and aldosterone falls. It lets the bicarbonate go.', after: 45, tag: 'Chloride-responsive: it responds to chloride.' },
+    ald: { n: 'Aldosterone excess', blood: 'Volume normal or high, chloride normal. A hormone is driving the kidney, not a shortage.', kidney: 'Aldosterone makes the kidney keep sodium and pay with potassium and acid (hydrogen), whatever the volume. It is not short of chloride, so it lets chloride go.', u: 85, ut: '<b>High (over 20).</b> The kidney is not hoarding chloride, so the patient is not dry.', saline: 'Nothing to fix: volume and chloride were already fine. The hormone keeps driving the loss of acid and potassium, so the bicarbonate stays high. Saline can raise the blood pressure.', after: 75, tag: 'Chloride-resistant: chloride was never the problem.' },
+    diu: { n: 'A diuretic taken today', blood: 'Volume may be low and chloride low.', kidney: 'The diuretic forces the kidney to dump sodium, chloride and water for hours to a day or two. It is losing chloride because it is made to, not because it has plenty.', u: 85, ut: '<b>High, but misleading.</b> The patient may be dry; the drug is spoiling the test. Use the history and drug chart, and trust the number more once the diuretic has worn off.', saline: 'If the patient is dry, saline works as in vomiting. This urine test cannot tell you, so decide from the history and examination.', after: 45, tag: 'Cannot be read from this test while the diuretic is acting.' }
+  };
+  var clS = 'vom';
+  function clDraw() {
+    var c = CLP[clS];
+    $('#cl-pick').innerHTML = Object.keys(CLP).map(function (k) { return '<button class="chip" data-c="' + k + '" aria-pressed="' + (k === clS) + '">' + CLP[k].n + '</button>'; }).join('');
+    $('#cl-flow').innerHTML = '<div class="cflow">' +
+      '<div class="cn"><h3>In the body</h3><p>' + c.blood + '</p></div><div class="carrow">&#8595;</div>' +
+      '<div class="cn"><h3>What the kidney does</h3><p>' + c.kidney + '</p></div><div class="carrow">&#8595;</div>' +
+      '<div class="cn k"><h3>Urine chloride (shape only, not a measured value)</h3><div class="gauge" aria-hidden="true"><i class="gl"></i><b style="left:' + c.u + '%"></b></div><div class="gscale"><span>0</span><span>20 mmol/L</span><span>60+</span></div><p style="margin-top:6px">' + c.ut + '</p></div><div class="carrow">&#8595;</div>' +
+      '<div class="cn"><h3>Give 0.9% saline</h3><div class="mini"><span>Before (line = normal)</span><div class="tr"><i style="width:75%"></i><s style="left:45%"></s></div><span>After saline</span><div class="tr"><i style="width:' + c.after + '%"></i><s style="left:45%"></s></div></div><p>' + c.saline + '</p><p style="margin-top:8px;font-weight:700">' + c.tag + '</p></div></div>';
+  }
+  $('#p-cl').addEventListener('click', function (e) { var b = e.target.closest('[data-c]'); if (b) { clS = b.getAttribute('data-c'); clDraw(); } });
+
   /* ---------- start ---------- */
-  ledger(); deltaShow(); compare(); stay();
+  ledger(); deltaShow(); compare(); stay(); clDraw();
   if (EMB) {
     /* shown inside a study kit step: one tab only, no title or tab bar, height reported to the kit */
     document.documentElement.classList.add('emb'); if (/[?&]intro=0/.test(location.search)) document.documentElement.classList.add('noin'); showTab(EMB);
