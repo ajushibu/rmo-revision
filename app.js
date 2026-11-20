@@ -23,12 +23,16 @@
   /* ---------- helpers ---------- */
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function kfmt(k) {
-    var lines = String(k).split('\n'), many = lines.filter(function (l) { return !/^\(/.test(l); }).length >= 2;
-    return lines.map(function (ln) {
-      var s = esc(ln), note = /^\(/.test(ln), sub = /^\s*→/.test(ln), m = !note && /^([^:→(]{2,34}):(\s|$)/.exec(ln), plain = !note && !m && ln.indexOf('→') < 0;
-      if (m) s = '<b>' + esc(m[1]) + ':</b>' + esc(ln.slice(m[0].length - (m[2] ? 1 : 0)));
+    var lines = String(k).split('\n'), many = lines.filter(function (l) { return !/^\(/.test(l); }).length >= 2, under = false;
+    return lines.map(function (ln, i) {
+      var note = /^\(/.test(ln), sub = /^\s*→/.test(ln), m = !note && !sub && /^([^:→.]{2,46}?):(\s|$)/.exec(ln), head = !!m && !ln.slice(m[0].length).trim() && i < lines.length - 1 && !/^\(/.test(lines[i + 1]), s, ar = null;
+      if (note || sub || (m && !head)) under = false; else if (head) under = true;
+      var kid = under && !head && !note;
+      if (m) s = '<b class="lb">' + esc(m[1]) + ':</b>' + esc(ln.slice(m[0].length - (m[2] ? 1 : 0)));
+      else if (kid && !sub && (ar = /^([^→:]{2,26}?)\s→\s/.exec(ln))) s = '<b class="lb">' + esc(ar[1]) + '</b> →' + esc(ln.slice(ar[0].length - 1));
+      else s = esc(ln);
       s = s.replace(/→/g, '<span class="ar">→</span>');
-      return '<span class="kl' + (note ? ' kn' : '') + (!note && many && !sub ? ' bl' : '') + (sub ? ' sub' : '') + '">' + s + '</span>';
+      return '<span class="kl' + (note ? ' kn' : '') + (head ? ' hd' : '') + (kid ? ' in' : '') + (!note && !head && !kid && many && !sub ? ' bl' : '') + (sub ? ' sub' : '') + (i === 0 && many && !note ? ' lead' : '') + '">' + s + '</span>';
     }).join('');
   }
   function pad(n) { return (n < 10 ? '0' : '') + n; }

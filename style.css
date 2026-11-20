@@ -421,3 +421,12 @@ html.kbd .kh { display: inline-block; }
 .kbody .kl.sub, .kbody .kl.sub:first-child { padding-left: 2.4em; text-indent: -1.2em; }
 .kbody .kl.sub .ar:first-child { display: inline-block; width: .95em; text-indent: 0; padding: 0; }
 .kbody .kl.bl::before { content: "\2022"; display: inline-block; width: 1.2em; text-indent: 0; color: var(--muted); }
+
+/* Recall answers: hierarchy (heading lines, indented items, bold labels, lead line) */
+.kbody .kl.lead { font-size: 1.05em; margin-bottom: 8px; }
+.kbody .kl b.lb { font-weight: 700; color: var(--ink); }
+.kbody .kl.hd { font-size: 1.04em; font-weight: 750; margin: 12px 0 5px; padding-left: 0; text-indent: 0; color: var(--ink); }
+.kbody .kl.hd.lead { font-size: 1.08em; margin-top: 0; }
+.kbody .kl.in, .kbody .kl.in:first-child { padding-left: 2.6em; text-indent: -1.2em; font-size: .97em; }
+.kbody .kl.in::before { content: "\2022"; display: inline-block; width: 1.2em; text-indent: 0; color: var(--muted); }
+.kbody .kl.kn { margin-top: 10px; }
