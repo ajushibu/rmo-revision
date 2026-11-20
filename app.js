@@ -758,12 +758,27 @@
           setTimeout(function () { try { var e0 = d.documentElement; if (e0.scrollHeight <= e0.clientHeight + 40) doneKit(); } catch (e) {} }, 30000); // a short kit that never scrolls: counts after 30 seconds
         }
       }
-      d.addEventListener('selectionchange', function () {
-        var s = f.contentWindow.getSelection(), txt = s ? String(s).replace(/\s+/g, ' ').trim() : '';
-        var b = document.getElementById('hlbtn'); if (!b) return;
-        if (txt.length >= 3) { var r = s.getRangeAt(0); lastSel = { text: txt.slice(0, 600), where: headingBefore(d, r.startContainer), range: r.cloneRange() }; b.disabled = false; }
-        else b.disabled = !lastSel;
-      });
+      function hookSel(doc, win, outerEl) {
+        doc.addEventListener('selectionchange', function () {
+          var s = win.getSelection(), txt = s ? String(s).replace(/\s+/g, ' ').trim() : '';
+          var b = document.getElementById('hlbtn'); if (!b) return;
+          if (txt.length >= 3) {
+            var r = s.getRangeAt(0), where = headingBefore(doc, r.startContainer);
+            if (outerEl) { var step = headingBefore(d, outerEl); where = step && where ? step + ' > ' + where : (where || step); }
+            lastSel = { text: txt.slice(0, 600), where: where, range: r.cloneRange() }; b.disabled = false;
+          } else b.disabled = !lastSel;
+        });
+      }
+      hookSel(d, f.contentWindow, null);
+      /* pictures shown inside a study kit step are frames of their own: hook each one too */
+      function hookEmbeds() {
+        Array.prototype.forEach.call(d.querySelectorAll('iframe.embf'), function (ef) {
+          if (ef.__hl) return; ef.__hl = 1;
+          var go = function () { try { hookSel(ef.contentDocument, ef.contentWindow, ef); } catch (e) {} };
+          ef.addEventListener('load', go); try { if (ef.contentDocument && ef.contentDocument.readyState === 'complete' && ef.contentDocument.URL !== 'about:blank') go(); } catch (e) {}
+        });
+      }
+      hookEmbeds(); try { new MutationObserver(hookEmbeds).observe(d.body, { childList: true, subtree: true }); } catch (e) {}
     }
     f.addEventListener('load', attach); if (f.contentDocument && f.contentDocument.readyState === 'complete') attach();
   }
