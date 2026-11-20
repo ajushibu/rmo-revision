@@ -126,6 +126,75 @@
         },
         ok: { text: 'The diarrhoea settles, creatinine is 130 by day four.' }, miss: { text: 'The diarrhoea continues and her kidney function worsens.' } }
     ] }
+  },
+  {
+    id: 'c20261120e', fromCard: 'ma17', title: 'Normal gap, high potassium', time: '16:30', where: 'Medical ward',
+    blurb: 'A man with diabetic kidney disease on perindopril and spironolactone, now on trimethoprim, with a normal-gap acidosis and a potassium of 6.1. Tests why low aldosterone action holds back both potassium and acid.',
+    intro: '68-year-old man with type 2 diabetes, kidney disease (eGFR 38) and heart failure, on perindopril and spironolactone. Started trimethoprim 3 days ago for a urine infection. Admitted for a fall. Afternoon bloods: sodium 137, chloride 113, bicarbonate 17, potassium 6.1, creatinine 165 (baseline 150). Sample not haemolysed.',
+    vit: { rhythm: 'sinus', hr: 72, sbp: 138, dbp: 76, spo2: 97, rr: 16 },
+    facts: ['68M, type 2 diabetes, kidney disease (eGFR 38), heart failure', 'Perindopril, spironolactone, metformin; trimethoprim started 3 days ago', 'Sodium 137, chloride 113, bicarbonate 17, potassium 6.1 (not haemolysed)', 'Creatinine 165 (baseline 150), glucose 9, lactate 1.2', 'ECG: no peaked T waves, normal QRS', 'Not dry, not overloaded'],
+    decisions: [
+      { tag: 'macid-gap', scene: 'Sodium 137, chloride 113, bicarbonate 17. What is the gap and what does it tell you?', opts: [
+        o('best', 'About 7: a normal-gap acidosis, with a high potassium', '137 − 113 − 17 = 7. Bicarbonate has been lost or acid not excreted, and chloride has risen in its place.'),
+        o('ok', 'A high-gap acidosis from kidney failure', 'Check the sum: the gap is 7. Kidney failure gives a high gap mostly when it is advanced; here something else is going on.'),
+        o('poor', 'No acidosis: a bicarbonate of 17 is normal for kidney disease', 'It is low, and it comes with a high potassium. That pairing is the clue.'),
+        o('harm', 'Ignore the gas, just treat the potassium', 'The gas and the potassium have the same cause.')] },
+      { tag: 'macid-cause', scene: 'Normal gap, high potassium, no diarrhoea. What is the cause?', opts: [
+        o('best', 'Too little aldosterone action (type 4 renal tubular acidosis): diabetic kidney disease lowers it, and perindopril, spironolactone and trimethoprim all block it, so the kidney holds back both potassium and acid', 'Aldosterone makes the collecting duct pass out potassium and hydrogen ions. Block it and both build up.'),
+        o('ok', 'His kidney disease alone', 'It contributes, but at an eGFR of 38 the drugs are the part you can fix tonight.'),
+        o('poor', 'Diarrhoea', 'He has none. A normal gap with a low potassium points to the gut; a normal gap with a high potassium points to aldosterone.'),
+        o('harm', 'Not enough potassium in his diet: carry on', 'Nothing about this needs more potassium.')] },
+      { tag: 'macid-call', scene: 'Potassium 6.1, ECG normal. What do you do now?', opts: [
+        o('best', 'Moderate high potassium: tell your registrar, ECG and monitor, withhold spironolactone and perindopril, stop the trimethoprim and choose another antibiotic, shift the potassium with insulin and glucose per your protocol with glucose checks, and recheck in 2 hours', 'Treat the level and remove the causes. The ECG is normal, so calcium is not needed now.'),
+        o('ok', 'Withhold the drugs and recheck in the morning', 'Removing the cause is right, but 6.1 needs treatment and a recheck within hours.'),
+        o('poor', 'Calcium gluconate and nothing else', 'Calcium protects the heart when the ECG changes; it does not lower the potassium.'),
+        o('harm', 'Carry on with the trimethoprim; it is only 3 more days', 'Trimethoprim blocks potassium excretion the same way amiloride does.')] },
+      { tag: 'macid-bic', scene: 'The student asks whether to give a bicarbonate push for the bicarbonate of 17.', opts: [
+        o('best', 'No. Stop the drugs and treat the potassium; the acidosis improves as aldosterone action returns. If it stays low, long-term oral bicarbonate is a decision for the renal team', 'There is no emergency here. An IV push adds sodium and fluid to a man with heart failure.'),
+        o('ok', 'Yes, 50 mL slowly to help the potassium', 'Bicarbonate is not a first-line potassium treatment; the drugs and insulin with glucose do more.'),
+        o('poor', 'Yes, 100 mL push', 'Never a push.'),
+        o('harm', 'Yes, an infusion until the bicarbonate is normal', 'Sodium and fluid overload in heart failure.')] }
+    ],
+    ends: { hi: 'You saw the normal gap and high potassium as one problem, stopped the three drugs, and treated the potassium.', mid: 'His potassium came down, but one step was missed.', lo: 'His potassium keeps rising on the drugs and he needs urgent renal input.' },
+    hard: { debrief: 'Normal gap plus a high potassium means too little aldosterone action. Stop the drugs that block it (ACE inhibitor, spironolactone, trimethoprim), treat the potassium, and leave bicarbonate to the renal team.', steps: [
+      { label: 'The first hour', tag: 'macid-call', time: '16:30', window: 'Now: the first hour',
+        scene: 'Potassium 6.1, ECG normal, bicarbonate 17, gap 7, on perindopril, spironolactone and trimethoprim. What do you order?',
+        first: ['ecg'], firstWhy: 'The ECG decides how urgent this is and whether calcium is needed.',
+        plan: PL(['reg', ['none'], 'Potassium over 6: tell your registrar.'], ['spo2ecg', ['q15'], 'A cardiac monitor while the potassium is over 6.'], ['h1', ['m20'], 'Glucose check after the insulin and a repeat potassium within 2 hours.']),
+        orders: { ecg: N('A 12-lead ECG and a monitor.', { crit: true }),
+          stop_raas: N('Withhold spironolactone and perindopril: both block aldosterone action.', { crit: true }),
+          drugchart: N('Stop the trimethoprim: it blocks potassium excretion like amiloride. Choose another antibiotic.'),
+          insulin_k: N('Insulin with glucose to shift the potassium (moderate, 6.0 to 6.4).', { d: [0], harmDose: [1, 2, 3, 4] }),
+          bsl: N('Glucose checks after the insulin: the low can come late.'),
+          uec: N('Repeat the potassium and creatinine in about 2 hours.'),
+          vbg: G('A gas gives a quick potassium and the bicarbonate.'),
+          salb_k: G('An extra shift if needed.', { d: [0], harmDose: [1, 2] }),
+          resonium: G('A binder helps remove potassium over hours, per your hospital protocol.', { d: [0], harmDose: [1, 2] }),
+          stop_metformin: G('Reasonable to hold metformin while his kidney function is worse and he is acidotic.'),
+          cefalexin: G('An alternative for the urine infection, guided by the culture and eTG.'),
+          ca_gluc: S('The ECG is normal: calcium is for ECG changes.', { harmDose: [3] }),
+          bicarb: S('Not first-line here, and he has heart failure.', { harmDose: [1, 2] }),
+          trim_oral: X('Trimethoprim is raising his potassium.'),
+          kcl_iv: X('He has too much potassium.', { harmDose: [0, 1, 2, 3] }), kcl_oral: X('He has too much potassium.', { harmDose: [0, 1] }),
+          ibup: X('An NSAID worsens the kidney and the potassium.')
+        },
+        ok: { text: 'Two hours later the potassium is 5.5, glucose 6.8. ECG unchanged.', vit: { hr: 70 }, facts: ['Potassium 5.5', 'Glucose 6.8'] },
+        miss: { text: 'At 19:00 the potassium is 6.6 and the T waves are peaking.', vit: { hr: 60 }, facts: ['Potassium 6.6', 'Peaked T waves'] } },
+      { label: 'The next morning', tag: 'macid-bic', time: '08:00', window: 'Next morning',
+        scene: 'Potassium 5.3, bicarbonate 18, gap 7, creatinine 158. Drugs held. What is the plan?',
+        plan: PL(['none', ['reg'], 'Improving: no urgent call. Hand over the drug plan.'], ['routine', ['q15'], 'The ECG is normal: routine observations.'], ['am', ['h4'], 'Recheck tomorrow.']),
+        orders: { uec: N('Recheck the potassium, bicarbonate and creatinine.'),
+          stop_raas: N('Keep spironolactone and perindopril held until the team and renal decide how to restart.'),
+          neph_ref: N('Renal team: a long-term plan for his potassium and acidosis, including whether he needs oral bicarbonate or a binder.'),
+          team: G('Tell the treating team why the drugs are held, so they are not restarted by habit.'),
+          drugchart: G('Make sure the trimethoprim is off the chart.'),
+          bicarb: S('An IV dose is not needed; long-term oral treatment is a renal decision.', { harmDose: [1, 2] }),
+          bolus: S('He has heart failure and is not dry.'),
+          kcl_oral: X('He has too much potassium.', { harmDose: [0, 1] })
+        },
+        ok: { text: 'Three days later the potassium is 4.9 and the bicarbonate 20. Renal restart perindopril at a low dose and leave the spironolactone off.' },
+        miss: { text: 'The drugs are restarted at the same doses on discharge. He is back in 2 weeks with a potassium of 6.8.' } }
+    ] }
   }
   ];
 })(window);

@@ -963,5 +963,256 @@ window.RMO_CASES = [
   "mid": "She recovered, but a step was missed. Review the severity grades.",
   "lo": "Review steps 1, 2, 3 and 5 of the Study Kit."
  }
+},
+{
+ "id": "c20261120a",
+ "from": "c1",
+ "title": "Full sentences, 93%",
+ "where": "Gastroenterology ward",
+ "time": "03:20",
+ "blurb": "A woman with gastroenteritis who ran out of her preventer. She talks in full sentences and is not using her neck muscles, but her SpO2 is 93% on air. Tests that the SpO2 alone can make it severe, and what to do with the steroid when she is vomiting.",
+ "intro": "Nurse call: 44-year-old woman admitted yesterday with gastroenteritis. Known asthma. Wheezy since midnight. \"She's chatting away in full sentences, but her sats are 93%.\"",
+ "vit": {
+  "hr": 108,
+  "sbp": 124,
+  "dbp": 76,
+  "spo2": 93,
+  "rr": 24
+ },
+ "facts": [
+  "44F; asthma; ran out of her preventer 3 weeks ago",
+  "Admitted with gastroenteritis; vomited twice in the last hour",
+  "Talks in full sentences; no neck muscle use; no tracheal tug",
+  "SpO2 93% on air; widespread wheeze; alert"
+ ],
+ "decisions": [
+  {
+   "tag": "sev",
+   "scene": "Full sentences, no accessory muscles, alert. SpO2 93% on air. How severe is this?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Severe: an SpO2 of 94% or below is a severe feature on its own, even with full sentences and no neck muscle use",
+     "fb": "Asthma Handbook: any one severe feature makes it severe. Grade by the worst feature, not the best ones."
+    },
+    {
+     "q": "poor",
+     "t": "Mild to moderate: she talks in full sentences and is not using her neck muscles",
+     "fb": "Those are mild features, but the SpO2 of 93% is a severe one. One is enough."
+    },
+    {
+     "q": "poor",
+     "t": "Life-threatening: SpO2 under 95%",
+     "fb": "Life-threatening means an SpO2 under 90%, exhaustion, drowsiness or a silent chest. She is severe."
+    }
+   ]
+  },
+  {
+   "tag": "bd",
+   "scene": "What do you start?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Salbutamol 12 puffs (100 microg each) and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour. Oxygen only if the SpO2 falls under 92%, aiming at 92 to 96%",
+     "fb": "The severe plan (Asthma Handbook). At 93% she does not need oxygen yet; watch for a fall.",
+     "vit": {
+      "hr": 112,
+      "spo2": 96,
+      "rr": 20
+     }
+    },
+    {
+     "q": "poor",
+     "t": "Hudson mask at 8 L/min to bring her to 100% first, then salbutamol",
+     "fb": "Oxygen is not the treatment, and aiming at 100% is not the target. Bronchodilator first."
+    },
+    {
+     "q": "poor",
+     "t": "Salbutamol 4 puffs as needed",
+     "fb": "Underdosed for severe asthma.",
+     "vit": {
+      "spo2": 91,
+      "rr": 28
+     }
+    }
+   ]
+  },
+  {
+   "tag": "steroid",
+   "scene": "She vomited twice in the last hour. What about the steroid?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Give it now. If she cannot keep tablets down, IV hydrocortisone (dose per your hospital protocol), then oral prednisolone 37.5 to 50 mg each morning once she can, for 5 to 10 days in total",
+     "fb": "Every severe attack needs an early steroid. The oral dose is from the Asthma Handbook; when the gut cannot take it, use the IV route rather than skip it."
+    },
+    {
+     "q": "ok",
+     "t": "Oral prednisolone 50 mg now with an antiemetic, and see if it stays down",
+     "fb": "Reasonable if she can keep it down. If she vomits it, switch to IV: do not let the dose be lost."
+    },
+    {
+     "q": "poor",
+     "t": "Hold the steroid until the vomiting stops",
+     "fb": "That could be a day. The steroid takes hours to work, so it goes in early, by whichever route works."
+    }
+   ]
+  },
+  {
+   "tag": "home",
+   "scene": "Two days later she is well and eating. What goes on her discharge plan?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Restart her preventer with an inhaled steroid and make sure she has a script, check her inhaler and spacer technique, finish the steroid course, a written action plan, and GP review within a few days",
+     "fb": "Running out of her preventer started this. Fix the supply and the plan before she leaves."
+    },
+    {
+     "q": "poor",
+     "t": "A new reliever only; the gastro was the trigger",
+     "fb": "The virus may have tipped her over, but no preventer for 3 weeks set it up. A reliever alone repeats the problem."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "You graded her by her SpO2, not her sentences, and kept the steroid going despite the vomiting.",
+  "mid": "She recovered, but a step was missed. Review the severity grades.",
+  "lo": "Review steps 1, 2 and 5 of the Study Kit."
+ }
+},
+{
+ "id": "c20261120b",
+ "from": "c20261115a",
+ "title": "Still pulling at one hour",
+ "where": "Medical admissions unit",
+ "time": "23:30",
+ "blurb": "A university student talking in sentences with good sats, but with a tracheal tug. After an hour of treatment she is no better. Tests one severe feature, and what to do when the first hour has not worked.",
+ "intro": "Nurse call: 19-year-old woman, asthma, wheezy for 2 days after a cold. Sent up from ED an hour ago. \"Her sats are 95% and she's talking to me, but she looks like she's working.\"",
+ "vit": {
+  "hr": 124,
+  "sbp": 122,
+  "dbp": 74,
+  "spo2": 95,
+  "rr": 28
+ },
+ "facts": [
+  "19F; asthma; uses her reliever most days, no preventer",
+  "Talks in sentences; tracheal tug and intercostal recession",
+  "SpO2 95% on air; RR 28; widespread wheeze; alert",
+  "ED gave 4 puffs of salbutamol before she came up"
+ ],
+ "decisions": [
+  {
+   "tag": "sev",
+   "scene": "Sentences and an SpO2 of 95%, with a tracheal tug and recession. How severe is this?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Severe: she is using her accessory muscles. One severe feature is enough",
+     "fb": "Asthma Handbook: a tracheal tug, recession or neck muscle use is a severe feature, whatever the SpO2 and speech."
+    },
+    {
+     "q": "poor",
+     "t": "Mild to moderate: she talks in sentences and her SpO2 is over 94%",
+     "fb": "Two mild features do not cancel a severe one. Her work of breathing makes this severe."
+    },
+    {
+     "q": "poor",
+     "t": "Moderate, because ED already treated her",
+     "fb": "Four puffs is not severe treatment, and you grade her as she is now."
+    }
+   ]
+  },
+  {
+   "tag": "bd",
+   "scene": "What do you start?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Salbutamol 12 puffs (100 microg each) and ipratropium 8 puffs (21 microg each) by spacer, both every 20 minutes for the first hour, and tell your registrar she is severe",
+     "fb": "The severe plan from the Asthma Handbook. Oxygen only if the SpO2 falls under 92%.",
+     "vit": {
+      "hr": 128,
+      "spo2": 95,
+      "rr": 26
+     }
+    },
+    {
+     "q": "poor",
+     "t": "Another 4 puffs of salbutamol and review in an hour",
+     "fb": "Underdosed, and too long to wait for a severe patient."
+    }
+   ]
+  },
+  {
+   "tag": "steroid",
+   "scene": "What about a steroid?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Now: oral prednisolone 37.5 to 50 mg, then each morning for 5 to 10 days in total",
+     "fb": "Every severe attack gets an early steroid (Asthma Handbook)."
+    },
+    {
+     "q": "poor",
+     "t": "Only if she is still wheezy in the morning",
+     "fb": "Too late. The steroid takes hours to work."
+    }
+   ]
+  },
+  {
+   "tag": "sev",
+   "scene": "One hour later: still a tracheal tug, now speaking in short phrases, SpO2 92% on air, RR 30, HR 132 with a tremor. What now?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "She is not responding: still severe and tiring. Call your registrar and ICU outreach now, keep the salbutamol going (continuous nebulised if needed), oxygen to 92 to 96%, and IV magnesium sulfate 0.2 mmol/kg (maximum 10 mmol) over 20 minutes with your senior",
+     "fb": "No better after the first hour means escalate. The Asthma Handbook lists IV magnesium (0.2 mmol/kg, maximum 10 mmol, over 20 minutes) for severe asthma not responding to repeated bronchodilators.",
+     "vit": {
+      "hr": 126,
+      "spo2": 95,
+      "rr": 24
+     }
+    },
+    {
+     "q": "poor",
+     "t": "The fast heart rate and tremor are from the salbutamol: space out the puffs and review in the morning",
+     "fb": "The heart rate is from salbutamol, but her speech, effort and SpO2 are all worse. Re-grade by those, not the heart rate.",
+     "vit": {
+      "hr": 136,
+      "spo2": 89,
+      "rr": 34
+     }
+    },
+    {
+     "q": "ok",
+     "t": "Another hour of 12 puffs every 20 minutes, then reassess",
+     "fb": "More bronchodilator is right, but she is getting worse: she needs a senior and ICU outreach now, not in an hour."
+    }
+   ]
+  },
+  {
+   "tag": "home",
+   "scene": "Two days later she is well. What goes on her discharge plan?",
+   "opts": [
+    {
+     "q": "best",
+     "t": "Start a preventer with an inhaled steroid, check her spacer technique, finish the prednisolone, a written action plan, and GP review within a few days",
+     "fb": "Reliever most days and no preventer is why this happened."
+    },
+    {
+     "q": "poor",
+     "t": "A new reliever and a script for more prednisolone in case it happens again",
+     "fb": "Repeated steroid courses are not a plan. She needs a preventer."
+    }
+   ]
+  }
+ ],
+ "ends": {
+  "hi": "You graded her by her work of breathing, saw that the first hour had not worked, and escalated.",
+  "mid": "She recovered, but a step was missed. Review the severity grades and the escalation step.",
+  "lo": "Review steps 1, 2, 3 and 5 of the Study Kit."
+ }
 }
 ];

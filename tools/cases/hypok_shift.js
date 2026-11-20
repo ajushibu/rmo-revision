@@ -185,6 +185,70 @@
         ok: { text: 'His potassium is 4.1 two days later. The aldosterone to renin ratio comes back raised, and the endocrine team takes over his blood pressure.' },
         miss: { text: 'He goes home on his thiazide. Three months later he is back with a potassium of 2.8 and a BP of 180/105.' } }
     ] }
+  },
+  {
+    id: 'c20261120d', title: 'Weak legs, no diuretic', time: '21:30', where: 'Emergency short-stay unit',
+    blurb: 'A woman with hard-to-control blood pressure and a potassium of 2.5, with no vomiting, diarrhoea or diuretic. Tests safe IV potassium when she is not dry, and why low potassium with high BP and no other cause points to primary aldosteronism.',
+    intro: '46-year-old woman with leg weakness and cramps for a week. Hypertension for 3 years, on amlodipine and perindopril, still 170s at her GP. No vomiting, no diarrhoea, no diuretic, no laxatives. The potassium is 2.5.',
+    vit: { rhythm: 'sinus+u+flat', hr: 78, sbp: 174, dbp: 104, spo2: 99, rr: 14 },
+    facts: ['46F, hypertension on amlodipine 10 mg and perindopril', 'Weak legs and cramps for a week', 'No vomiting, diarrhoea, diuretic, laxatives or liquorice', 'Potassium 2.5, sodium 143, bicarbonate 31, creatinine 70, magnesium 0.65', 'ECG: flat T waves and U waves, no ectopics', 'Well hydrated, eating and drinking'],
+    decisions: [
+      { tag: 'hypok-cause', scene: 'Potassium 2.5 with U waves, and no gut loss or diuretic. How do you see it?', opts: [
+        o('best', 'Severe with ECG changes: treat now on a monitor. With no gut loss and no diuretic, the kidney is losing it, and with a high BP that points to too much aldosterone', 'Low potassium + high BP + a high bicarbonate, with no other cause, is the classic picture of mineralocorticoid excess.'),
+        o('ok', 'Severe, probably poor diet', 'Diet alone rarely drops it to 2.5. Look for where it is going.'),
+        o('poor', 'Mild, oral potassium and home', 'Too low, with ECG changes.'),
+        o('harm', 'Add a thiazide for the BP', 'A thiazide loses more potassium.')] },
+      { tag: 'hypok-safe', scene: 'She is eating and drinking and is not dry. What do you write for the potassium?', opts: [
+        o('best', 'Potassium chloride 10 mmol in 100 mL over 1 hour, premixed, peripheral line, on a cardiac monitor; repeat and recheck. Oral potassium as well once the ECG has settled. No fluid bolus: she is not dry', 'The safe ward rate. She does not need fluid, only potassium, so do not add a bolus out of habit.', { hr: 76 }),
+        o('ok', 'The same bag, plus a 500 mL saline bolus as usual', 'The potassium order is right, but she is not dry and her BP is 174/104: the bolus is not needed.'),
+        o('poor', 'Oral potassium only, she can swallow', 'With U waves and a potassium of 2.5, start IV on a monitor.'),
+        o('harm', '40 mmol added to a litre of saline running at 250 mL an hour', 'Never add potassium to a running bag; the dose is uncontrolled.')] },
+      { tag: 'hypok-after', scene: 'The first bag is running. What else goes on the chart now?', opts: [
+        o('best', 'Replace the magnesium (0.65), repeat the potassium after the bags, keep the monitor on until the ECG settles, and review the chart for anything that lowers potassium', 'Low magnesium keeps the kidney losing potassium. Recheck before you stop.'),
+        o('ok', 'Recheck the potassium in the morning only', 'Recheck after the bags, and replace the magnesium.'),
+        o('poor', 'Stop the potassium after one bag if her legs feel better', 'Symptoms are not the target: the level is.'),
+        o('harm', 'Salbutamol neb for her cramps', 'Salbutamol drives potassium into cells and lowers it further.')] },
+      { tag: 'hypok-aldo', scene: 'Next morning: potassium 3.6 after replacement. BP 168/102. She asks why this happened.', opts: [
+        o('best', 'Screen for primary aldosteronism: aldosterone and renin once the potassium is normal. Perindopril can raise renin and hide a positive result, so the team reads it with her drugs in mind or arranges a change before testing. Then endocrine follow-up', 'Australian guidance (AJGP 2020): screen anyone with hypertension and low potassium. Low potassium and ACE inhibitors can both give a false negative.'),
+        o('ok', 'Send the aldosterone and renin today while the potassium is still being replaced', 'Right test, but a low potassium can make it falsely normal. Correct it first.'),
+        o('poor', 'Start spironolactone for the BP and skip the test', 'That treats it blind and upsets the test. Screen first unless a specialist says otherwise.'),
+        o('harm', 'Add hydrochlorothiazide for the BP', 'More potassium loss, and the cause stays hidden.')] }
+    ],
+    ends: { hi: 'Potassium replaced safely without needless fluid, magnesium fixed, and an aldosterone screen planned the right way.', mid: 'Her potassium recovers, but one step was missed.', lo: 'She goes home with a low potassium and the cause of her hypertension is missed.' },
+    hard: { debrief: 'Low potassium with ECG changes: 10 mmol an hour IV on a monitor, plus magnesium and a recheck. Order fluid only if the patient is dry. High BP with low potassium and no other cause: screen for primary aldosteronism once the potassium is corrected.', steps: [
+      { label: 'The first hour', tag: 'hypok-safe', time: '21:30', window: 'Now: the first hour',
+        scene: 'Potassium 2.5, U waves, magnesium 0.65, BP 174/104, not dry, eating and drinking. What do you order?',
+        first: ['kcl_iv'], firstWhy: 'Replace it by the safe IV route: this is the treatment.',
+        plan: PL(['reg', ['none'], 'Potassium under 3 with ECG changes: tell your registrar.'], ['spo2ecg', ['q15'], 'A cardiac monitor while the potassium is under 3 with ECG changes.'], ['h1', ['m20'], 'Come back after the first bag with a repeat potassium.']),
+        orders: { kcl: S('Too vague: choose oral or IV, and the dose.'), kcl_iv: N('10 mmol in 100 mL over an hour, peripheral line, on a monitor. Repeat and recheck.', { d: [0], crit: true, harmDose: [1, 2, 3] }),
+          ecg: N('A 12-lead ECG and a continuous monitor.'), uec: N('Repeat the potassium after the bags.'),
+          mgso4: N('Magnesium is 0.65: replace it. The dose is a protocol and senior decision.', { d: [0] }), mg: G('Magnesium and phosphate again after replacement.'),
+          kcl_oral: G('Oral potassium alongside, since her gut works, per your hospital protocol.', { d: [0], harmDose: [1] }),
+          drugchart: N('Review the chart for anything that lowers potassium.'),
+          vbg: G('A gas gives a quick potassium and shows the alkalosis.'),
+          bolus: S('She is not dry and her BP is high: no fluid needed.'), bolus250: S('She is not dry: no fluid needed.'),
+          arr: S('Right idea, but not tonight: a low potassium can make the result falsely normal. Correct it first.'),
+          antiemetic: S('She is not vomiting.', { d: [0] }),
+          insulin_k: X('Insulin pushes potassium down further.', { harmDose: [0, 1, 2, 3, 4] }), salb_k: X('Salbutamol lowers potassium.', { harmDose: [0, 1, 2] }),
+          furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] }), bicarb: X('Bicarbonate lowers potassium and she is already alkalotic.', { harmDose: [0, 1, 2] })
+        },
+        ok: { text: 'Two bags in. Potassium 3.0 at 00:30, U waves fading. Magnesium being replaced.', vit: { rhythm: 'sinus+flat', hr: 74, sbp: 170, dbp: 102 }, facts: ['Potassium 3.0', 'U waves fading'] },
+        miss: { text: 'At 00:30 the potassium is still 2.6 and she has new ventricular ectopics.', vit: { rhythm: 'sinus+u+pvc+flat', hr: 92 }, facts: ['Potassium 2.6', 'Ventricular ectopics'] } },
+      { label: 'The morning', tag: 'hypok-aldo', time: '08:00', window: 'Next morning',
+        scene: 'Potassium 3.6, magnesium 0.8, ECG normal. BP 168/102 on amlodipine and perindopril. What is new on the chart?',
+        plan: PL(['none', ['reg'], 'Stable: no urgent call. Hand the screening plan to the team.'], ['routine', ['spo2ecg'], 'The ECG has settled: routine observations.'], ['am', ['h4'], 'Recheck the potassium tomorrow.']),
+        orders: { kcl_oral: N('Keep up oral replacement until the cause is treated, per your hospital protocol.', { d: [0], harmDose: [1] }),
+          arr: N('Screen for primary aldosteronism now the potassium is near normal (AJGP 2020). Perindopril can raise renin and hide a positive result: the team reads it with that in mind or changes her drugs first.'),
+          endo_ref: N('Endocrine hypertension service: spontaneous low potassium with hypertension needs specialist work-up whatever the first result.'),
+          uec: N('Recheck the potassium tomorrow.'), drugchart: G('List her BP drugs for the endocrine team: some change the ratio.'),
+          mg: G('Recheck the magnesium.'),
+          kcl_iv: S('Her ECG has settled and she eats: oral is enough.', { d: [0], harmDose: [1, 2, 3] }),
+          bolus: S('Not dry.'), bolus250: S('Not dry.'),
+          furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] })
+        },
+        ok: { text: 'The aldosterone to renin ratio comes back raised. The endocrine team confirms primary aldosteronism and finds a small adrenal adenoma.' },
+        miss: { text: 'She goes home on a thiazide for her BP. Two months later her potassium is 2.4.' } }
+    ] }
   }
   ];
 })(window);

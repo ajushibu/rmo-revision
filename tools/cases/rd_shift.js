@@ -607,5 +607,148 @@ window.RMO_CASES = [
    "mid": "He improved, but a step was missed.",
    "lo": "Review steps 2, 4 and 5 of the Study Kit."
   }
+ },
+ {
+  "id": "c20261120c",
+  "from": "c2",
+  "title": "Boluses for a low urine output",
+  "where": "Colorectal surgical ward",
+  "time": "01:40",
+  "blurb": "A woman two days after bowel surgery, given fluid boluses all evening for a low urine output, now wheezy and hypoxic. Tests cardiac wheeze, CPAP, stopping the fluids, and what to do once she is a bit better on CPAP.",
+  "intro": "Nurse call: 79-year-old woman, day 2 after a right hemicolectomy. Urine output was low this evening, so she had three 500 mL boluses on top of her maintenance fluids. Now wheezy and breathless. 'Should I give her a salbutamol neb?'",
+  "vit": {
+   "hr": 114,
+   "sbp": 168,
+   "dbp": 92,
+   "spo2": 86,
+   "rr": 30
+  },
+  "facts": [
+   "79F; hypertension and heart failure; her furosemide has been held since surgery",
+   "Maintenance fluids 100 mL an hour plus three 500 mL boluses tonight: 4 L positive since surgery",
+   "Wheeze and crackles at both bases; cannot lie flat; raised JVP",
+   "No asthma or COPD; afebrile"
+  ],
+  "decisions": [
+   {
+    "tag": "look",
+    "scene": "She is sitting up, sweaty and wheezy. First moves?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Call for help, sit her up, oxygen to bring the SpO2 up, monitoring, IV access, ECG",
+      "fb": "Treat the hypoxia now and get help while you work out the cause.",
+      "vit": {
+       "spo2": 89
+      }
+     },
+     {
+      "q": "poor",
+      "t": "A salbutamol neb as the nurse suggests, and see if it helps",
+      "fb": "She has no asthma or COPD. Treat the hypoxia first and think about the fluid."
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "What is your working diagnosis?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Acute pulmonary oedema from fluid overload (cardiac wheeze): 4 L positive, her diuretic held, crackles and a raised JVP",
+      "fb": "Wheeze is not always asthma. The fluid chart tells the story."
+     },
+     {
+      "q": "poor",
+      "t": "Bronchospasm: nebulisers and a steroid",
+      "fb": "No airways disease, and the signs point to fluid. Bronchodilators will not treat this."
+     },
+     {
+      "q": "poor",
+      "t": "Aspiration pneumonia: start antibiotics",
+      "fb": "No fever, and the fluid balance explains everything. Keep it on the list if the X-ray shows consolidation."
+     }
+    ]
+   },
+   {
+    "tag": "o2",
+    "scene": "On a non-rebreather she reaches only 89% with a RR of 30. Next step?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "CPAP or NIV with your senior and ICU outreach, and IV furosemide as per your acute heart failure protocol",
+      "fb": "CPAP improves oxygenation and work of breathing in cardiogenic pulmonary oedema.",
+      "vit": {
+       "spo2": 94,
+       "rr": 24
+      }
+     },
+     {
+      "q": "poor",
+      "t": "Change to nasal prongs and keep watching",
+      "fb": "She needs more support, not a weaker device.",
+      "vit": {
+       "spo2": 84
+      }
+     },
+     {
+      "q": "harm",
+      "t": "Morphine to ease her breathlessness",
+      "fb": "Not routinely recommended in pulmonary oedema, and it can depress her breathing.",
+      "vit": {
+       "spo2": 80,
+       "rr": 26
+      }
+     }
+    ]
+   },
+   {
+    "tag": "cause",
+    "scene": "The fluid orders still say 100 mL an hour, and 'bolus 500 mL if urine under 30 mL an hour'. What do you do?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Stop the maintenance fluid and cross off the bolus order, chart a strict fluid balance and daily weights, and tell the surgical team the low urine output was not dryness",
+      "fb": "A low urine output after surgery is not always dryness. Here every bolus made her wetter."
+     },
+     {
+      "q": "poor",
+      "t": "Keep the maintenance fluid for her kidneys and add furosemide on top",
+      "fb": "You would be pouring in what you are trying to remove. Stop the cause."
+     },
+     {
+      "q": "ok",
+      "t": "Halve the maintenance rate",
+      "fb": "Better, but she is overloaded and the bolus order is still live. Stop both."
+     }
+    ]
+   },
+   {
+    "tag": "call",
+    "scene": "One hour on CPAP and furosemide: 400 mL of urine, SpO2 95% on CPAP, RR 22. The nurse asks whether she can go back to a normal bed and be seen on the morning round. What is the plan?",
+    "opts": [
+     {
+      "q": "best",
+      "t": "Better, but still needing CPAP: keep her in a monitored bed with ICU outreach aware, tell your registrar, reassess within the hour (SpO2, RR, BP, urine output), and call ICU at once if she tires or the SpO2 falls",
+      "fb": "Improving on CPAP is not the same as safe off it. Someone needs to see her again tonight, not at 8 am."
+     },
+     {
+      "q": "poor",
+      "t": "She is better: general bed, CPAP overnight, review on the morning round",
+      "fb": "A patient who needs CPAP needs close monitoring and a plan for tonight. Waiting for the round risks finding her tired and worse at 6 am."
+     },
+     {
+      "q": "poor",
+      "t": "Take the CPAP off now so she can sleep",
+      "fb": "Too early. Wean it with your senior once she is clearly better on less support."
+     }
+    ]
+   }
+  ],
+  "ends": {
+   "hi": "You saw past the wheeze, stopped the fluids, and kept a close plan for the night.",
+   "mid": "She improved, but a step was missed.",
+   "lo": "Review steps 2, 4 and 5 of the Study Kit."
+  }
  }
 ];

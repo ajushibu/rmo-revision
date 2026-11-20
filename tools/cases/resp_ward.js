@@ -9,7 +9,8 @@
    plan = the three fixed questions (call, monitor, review): best and ok are option keys (see PQ in ward.js); crit = a wrong call sends the patient down the worse path.
    w20261117a: Asthma Handbook ED and primary care pages (severity, salbutamol, ipratropium, oxygen, prednisolone 37.5 to 50 mg for 5 to 10 days); timolol and asthma from Australian product information.
    Not verified against an Australian source: the GTN 400 microgram dose, naloxone in hypercapnia, NSAID-triggered asthma (standard teaching),
-   the NIV pH threshold in your hospital, and the 40 mg furosemide option. */
+   the NIV pH threshold in your hospital, and the 40 mg furosemide option.
+   w20261120a: same COPD sources as w20261116b; air-driven nebulisers in COPD from TSANZ oxygen guidance (via NSW ACI). */
 window.WARD = {
   concepts: {
     'as-first': 'Severe asthma: the first 15 minutes', 'as-hour': 'Asthma: the first hour', 'as-life': 'Life-threatening asthma', 'as-dc': 'Asthma discharge',
@@ -429,6 +430,110 @@ window.WARD = {
       }
     ],
     debrief: 'Severe asthma orders first, every medicine checked including eye drops, the surgical team told, and a daily preventer and a letter to the eye specialist before she goes home.'
+  },
+  {
+    id: 'w20261120a', title: 'Tired after the nebulisers', time: '01:30', where: 'Medical admissions unit',
+    blurb: 'A woman with a COPD flare whose nebulisers have been driven by 8 L of oxygen all evening. Tests controlled oxygen, air-driven nebulisers, NIV with treatment limits, and the discharge plan.',
+    intro: '68-year-old woman with COPD, admitted from ED at 22:00 with a viral flare. On 2 L nasal prongs with SpO2 90%. Salbutamol and ipratropium nebulisers every 2 hours, each driven by oxygen at 8 L/min. The nurse calls: she is more tired after each neb, and a gas taken just after the last one is back.',
+    vit: { hr: 104, sbp: 142, dbp: 84, spo2: 97, rr: 24 },
+    facts: ['68F, COPD; ex-smoker (quit 10 years ago); no home oxygen', 'Viral flare: no fever, clear chest X-ray in ED', 'Nebulisers driven by oxygen 8 L/min every 2 hours', 'Gas after the last neb: pH 7.29, PaCO2 70 mmHg, bicarbonate 33, PaO2 98', 'Rousable, tired, talks in short phrases; no prednisolone charted yet'],
+    steps: [
+      {
+        label: 'First 15 minutes', tag: 'co-o2', time: '01:30', window: 'Now: the first 15 minutes',
+        scene: 'SpO2 97% straight after an oxygen-driven neb, pH 7.29, PaCO2 70, tired but rousable. What do you order now?',
+        first: ['o2'], firstWhy: 'Get the oxygen back into the 88 to 92% range first: high oxygen through the nebs is pushing her CO2 up.',
+        plan: {
+          call: { best: ['reg'], ok: ['icu'], why: 'A respiratory acidosis in a tiring COPD patient: call your registrar now.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg', 'q15'], why: 'Continuous oximetry while you bring the oxygen back to target.' },
+          review: { best: ['m20'], ok: ['m5'], why: 'Recheck her and repeat the gas about 30 minutes after the change.' }
+        },
+        orders: {
+          o2: { q: 'need', d: [0, 2], harmDose: [3, 4], crit: true, why: 'Controlled oxygen to 88 to 92% by prongs or a 28% Venturi (TSANZ, NSW ACI).' },
+          salb_neb: { q: 'need', d: [2], why: 'Keep the bronchodilator, but drive the neb with air and run prong oxygen alongside, so she is not given 8 L of oxygen every 2 hours.' },
+          ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms, also driven by air.' },
+          salb_mdi: { q: 'good', why: 'A puffer and spacer avoids the driving-gas problem altogether, if she can use it.' },
+          pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily for a COPD flare (COPD-X, NSW ACI). None is charted yet.' },
+          abg: { q: 'need', alt: ['vbg'], why: 'Repeat the gas about 30 minutes after the oxygen is back in range: it decides on NIV.' },
+          vbg: { q: 'good', why: 'Shows the pH and CO2 trend; an arterial gas is the usual standard.' },
+          gcs: { q: 'good', why: 'Track her conscious level.' },
+          drugchart: { q: 'good', why: 'Look for sedatives or opioids adding to the CO2: none are charted, which points at the oxygen.' },
+          limits: { q: 'good', why: 'Start the conversation early: she may need NIV within the hour.' },
+          o2off: { q: 'harm', why: 'Stopping oxygen completely can drop her oxygen dangerously. Turn it down; do not stop it.' },
+          midaz: { q: 'harm', why: 'Sedating a tired, hypercapnic patient can stop her breathing.' }, morph: { q: 'harm', why: 'Opioids will push the CO2 higher.' },
+          ceftri: { q: 'skip', why: 'Viral flare with a clear chest and no fever: no antibiotic is needed tonight.' }, benpen: { q: 'skip', why: 'Viral flare with a clear chest and no fever.' },
+          cthead: { q: 'skip', why: 'The CO2 explains the drowsiness.' }
+        },
+        ok: { text: 'On 1 L prongs her SpO2 is 90%. The air-driven neb is in. The repeat gas at 02:10: pH 7.28, PaCO2 72. She is more tired and talking less.', vit: { spo2: 90, rr: 26, hr: 106 }, facts: ['ABG 02:10: pH 7.28, PaCO2 72, HCO3 33, PaO2 60'] },
+        miss: { text: 'Another oxygen-driven neb at 01:45. At 02:10 she is hard to rouse. Gas: pH 7.19, PaCO2 92.', vit: { spo2: 98, rr: 10, hr: 98 }, facts: ['Gas: pH 7.19, PaCO2 92', 'Responds to pain only'] }
+      },
+      {
+        label: 'The repeat gas', tag: 'co-niv', time: '02:10', window: 'Next 30 minutes',
+        scene: 'Oxygen back in range for 30 minutes, nebs driven by air, but the pH is 7.28 and the CO2 72. She is rousable but tiring. What now?',
+        first: ['niv', 'call'], firstWhy: 'A respiratory acidosis that persists after controlled oxygen and bronchodilators: NIV, with your senior.',
+        plan: {
+          call: { best: ['reg'], ok: ['icu'], why: 'NIV is started with your registrar or ICU.' },
+          monitor: { best: ['spo2'], ok: ['spo2ecg'], why: 'Continuous SpO2 on NIV.' },
+          review: { best: ['h1'], ok: ['m20'], why: 'Repeat the gas about an hour after starting NIV.' }
+        },
+        orders: {
+          niv: { q: 'need', crit: true, why: 'pH under 7.35 with a high CO2 despite treatment: NIV lowers death in a COPD flare (COPD-X, NSW ACI). Your hospital may use a different pH cut-off.' },
+          limits: { q: 'need', why: 'Before NIV: if it fails, is she for intubation and ICU? Ask her now, while she can answer.' },
+          salb_neb: { q: 'need', d: [2], why: 'Keep the bronchodilator going, air-driven. On NIV it can go in-line or between sessions.' },
+          ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms.' },
+          pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily.' },
+          abg: { q: 'good', alt: ['vbg'], why: 'Repeat the gas about an hour after starting NIV.' },
+          o2: { q: 'good', d: [0, 2], harmDose: [3, 4], why: 'Oxygen into the NIV circuit, still to 88 to 92%.' },
+          cpap: { q: 'skip', why: 'CPAP does not help her blow off CO2. BiPAP does.' },
+          hfno: { q: 'skip', why: 'Not the first choice for hypercapnic COPD; NIV is.' },
+          midaz: { q: 'harm', why: 'Sedating her to tolerate the mask can stop her breathing.' }, morph: { q: 'harm', why: 'More CO2.' }
+        },
+        ok: { text: 'She agrees to NIV and says she would want ICU if it failed. One hour on NIV: pH 7.33, PaCO2 63. She is talking in sentences.', vit: { spo2: 90, rr: 20, hr: 96 } },
+        miss: { text: 'An hour later she is no better and nobody knows what she would want. ICU review her in a hurry.', vit: { spo2: 89, rr: 28, hr: 112 } },
+        alt: {
+          label: 'Hard to rouse', tag: 'co-niv', time: '02:10', window: 'Now: she is getting worse',
+          scene: 'pH 7.19, PaCO2 92, responds only to pain. What do you order now?',
+          first: ['call'], firstWhy: 'This is a MET call.',
+          plan: {
+            call: { best: ['met'], ok: ['icu'], crit: true, why: 'Hard to rouse with a pH of 7.19: MET call or ICU now.' },
+            monitor: { best: ['spo2ecg'], ok: ['spo2'], why: 'Continuous SpO2 and ECG while she is critical.' },
+            review: { best: ['m5'], ok: [], why: 'Stay with her until ICU arrive.' }
+          },
+          orders: {
+            o2: { q: 'need', d: [0, 2], harmDose: [3, 4], why: 'Oxygen to 88 to 92%: no more oxygen-driven nebs.' },
+            limits: { q: 'need', why: 'Ask her family or check her records: NIV, intubation or comfort care.' },
+            niv: { q: 'good', why: 'May still be tried, but at this conscious level ICU decides.' },
+            intub: { q: 'good', why: 'ICU’s decision, within her treatment limits.' },
+            midaz: { q: 'harm', why: 'Sedation will stop her breathing.' }
+          },
+          ok: { text: 'ICU start NIV and take her to HDU. By morning her pH is 7.32.', vit: { spo2: 90, rr: 20, hr: 98 } },
+          miss: { text: 'She has a respiratory arrest at 02:30 and is intubated on the ward.', vit: { spo2: 76, rr: 4, hr: 48 } }
+        }
+      },
+      {
+        label: 'Going home', tag: 'co-dc', heads: true, time: '10:00', window: 'Day 4: before discharge',
+        scene: 'Off NIV for 2 days, SpO2 92% on air at rest. Home tomorrow. What goes in the plan?',
+        plan: {
+          call: { best: ['none'], ok: ['reg'], why: 'Nothing urgent: she is well.' },
+          monitor: { best: ['routine'], ok: [], why: 'Routine observations are enough now.' },
+          review: { best: ['am'], ok: ['h4'], why: 'The discharge review tomorrow.' }
+        },
+        orders: {
+          pred_home: { q: 'need', why: 'Finish the prednisolone with a stop date; many units use about 5 days (follow your protocol).' },
+          technique: { q: 'need', why: 'Check her inhaler technique: a spacer can replace the nebulisers at home.' },
+          co2alert: { q: 'need', why: 'Write a CO2 retention alert, so the next ED gives target-range oxygen.' },
+          o2rx: { q: 'need', why: 'Write that her oxygen target is 88 to 92% and that nebulisers must be driven by air: that is what went wrong this time.' },
+          rehab: { q: 'need', why: 'Pulmonary rehabilitation after a flare cuts readmissions (COPD-X).' },
+          gp: { q: 'need', why: 'GP review within a week of discharge.' },
+          vacc: { q: 'good', why: 'Influenza, pneumococcal and COVID-19 vaccines if not up to date.' },
+          aap: { q: 'good', why: 'A written COPD action plan for the next flare.' },
+          nrt: { q: 'skip', why: 'She quit 10 years ago.' },
+          homeneb: { q: 'skip', why: 'Not needed; a puffer and spacer work as well.' },
+          o2off: { q: 'skip', why: 'She is already on air.' }
+        },
+        ok: { text: 'She goes home with an oxygen alert on her record, an action plan, rehab booked and a GP visit next week.' }
+      }
+    ],
+    debrief: 'Nebulisers driven by 8 L of oxygen can push the CO2 up in COPD. Drive them with air and give oxygen to 88 to 92% by prongs. A persisting acidosis needs NIV, after asking about treatment limits. Write the oxygen target and an air-driven neb note for the next team.'
   }
   ]
 };
