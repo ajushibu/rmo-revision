@@ -435,7 +435,7 @@
   function rtOther(s) { return s.owner && s.owner !== rtTab && Math.abs(Date.now() - (s.beat || 0)) < 4000; }
   function rtTick(force) {
     var now = performance.now(), dt = rtLast == null ? 0 : now - rtLast; rtLast = now;
-    var on = route[0] === 'revise' && rtShown && (force || document.visibilityState === 'visible');
+    var on = route[0] === 'revise' && rtShown && (force || document.visibilityState === 'visible' || now - rtInput < 5000); // some iPad windows report 'hidden' while open: a recent touch proves it is on screen
     if (!on) return;
     var s = rtLoad(), idle = now - rtInput > RT_IDLE;
     if (rtOther(s)) { rtPaint(s, 'other'); return; }
@@ -512,7 +512,8 @@
     if (r.smp) { S.pace = S.pace.filter(function (x) { return x.id !== r.smp.id; }); S.dead[r.smp.id] = Date.now(); }
     var s = rtLoad(); s.cards = Math.max(0, s.cards - 1); s.card = id; s.cardAt = Math.max(0, s.ms - r.d); rtSave(s);
   }
-  function rtActive() { rtInput = performance.now(); rtTouched = true; }
+  function rtActive() { rtInput = performance.now(); rtTouched = true; if (!rtBusy) { rtBusy = true; setTimeout(function () { rtBusy = false; rtTick(false); }, 400); } } // also tick on touches, in case the timer itself is not firing
+  var rtBusy = false;
   ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, rtActive, { passive: true, capture: true }); });
   window.addEventListener('scroll', rtActive, { passive: true });
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } rtPublish(false); if (sess) syncNow(); } else { rtLast = performance.now(); rtActive(); } });
