@@ -55,13 +55,55 @@ function Core.queue(topics, studied, skipRev, items, today)
     return { due = due, fresh = fresh, all = all }
 end
 
--- Same rule as rate() in app.js. Returns the new item, or nil when 'got' is refused (not due yet).
+-- Same rule as rate() in app.js. Again: first rung (1 day). Hard: same rung. Good: up one. Easy: up two.
+-- Older ratings used "shaky" (= again) and "got" (= good). Returns the new item, or nil when Good/Easy is refused (not due yet).
+function Core.normHow(h)
+    if h == "shaky" then return "again" elseif h == "got" then return "good" end
+    return h
+end
+
+function Core.nextStep(prev, how)
+    local p, top = prev or 0, #Core.INT - 1
+    if how == "again" then return 0 elseif how == "hard" then return p elseif how == "good" then return math.min(p + 1, top) end
+    return math.min(p + 2, top)
+end
+
 function Core.rate(items, id, how, today, nowMs)
-    if how == "got" and Core.state(items, id, today) == "ok" then return nil end
+    how = Core.normHow(how)
+    if how ~= "again" and how ~= "hard" and how ~= "good" and how ~= "easy" then return nil end
+    if (how == "good" or how == "easy") and Core.state(items, id, today) == "ok" then return nil end
     local prev = items[id]
-    local n = 0
-    if how == "got" then n = math.min(((prev and tonumber(prev.step)) or 0) + 1, #Core.INT - 1) end
+    local n = Core.nextStep(prev and tonumber(prev.step) or nil, how)
     return { step = n, due = Core.addDays(today, Core.INT[n + 1]), last = today, r = how, t = nowMs }
+end
+
+-- Days until the card comes back for each answer (shown on the buttons)
+function Core.days(items, id, how)
+    local prev = items[id]
+    return Core.INT[Core.nextStep(prev and tonumber(prev.step) or nil, how) + 1]
+end
+
+-- new, weak (last answer was Again), learning (rung 0 to 1), young (rung 2 to 3), mature (rung 4 = 28 days)
+Core.LEVELS = { "all", "weak", "learning", "young", "mature", "new" }
+Core.LEVEL_NAME = { all = "All", weak = "Weak", learning = "Learning", young = "Young", mature = "Mature", new = "New" }
+function Core.level(items, id)
+    local s = items[id]
+    if not s then return "new" end
+    if s.r == "again" or s.r == "shaky" then return "weak" end
+    local n = tonumber(s.step) or 0
+    if n >= 4 then return "mature" elseif n >= 2 then return "young" end
+    return "learning"
+end
+
+-- Keep only the cards at one level ("all" keeps everything)
+function Core.filter(q, items, level)
+    if not level or level == "all" then return q end
+    local function keep(list) local o = {} for _, e in ipairs(list) do if Core.level(items, e.card.id) == level then o[#o + 1] = e end end return o end
+    local due, fresh = keep(q.due), keep(q.fresh)
+    local all = {}
+    for _, e in ipairs(due) do all[#all + 1] = e end
+    for _, e in ipairs(fresh) do all[#all + 1] = e end
+    return { due = due, fresh = fresh, all = all }
 end
 
 local function esc(x) return (tostring(x):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")) end

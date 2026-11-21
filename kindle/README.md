@@ -1,6 +1,6 @@
 # RMO Revision on a Kindle (KOReader)
 
-Bare-bones recall cards: question, show answer, Shaky or Got it, with a session timer (a pause over 2 minutes counts as 2) and today's total in the menu. The timer stays on the Kindle; it is not added to the app's revise time. No animations, no tools or cases (they need a screen that moves).
+Bare-bones recall cards: question, show answer, Again, Hard, Good or Easy (each shows the days until the card returns), with a session timer (a pause over 2 minutes counts as 2) and today's total in the menu. The timer stays on the Kindle; it is not added to the app's revise time. No animations, no tools or cases (they need a screen that moves).
 Ratings sync with the app over Wi-Fi and use the same spacing as the app (1, 3, 7, 14, 28 days).
 
 ## Install (USB)
@@ -17,7 +17,7 @@ Ratings sync with the app over Wi-Fi and use the same spacing as the app (1, 3, 
 The code lets the Kindle read your card schedule and add ratings. It cannot see notes, highlights or your account. "Unlink all Kindles" in the app cancels every code.
 
 ## Every day
-- RMO Revision, "Revise: N due, M new". Tap Show answer, then Shaky or Got it. Stop any time.
+- RMO Revision, "Revise: N due, M new". Tap Show answer, then Again, Hard, Good or Easy. The menu item "Study level" cycles through All, Weak, Learning, Young, Mature and New, so you can study one level. Stop any time.
 - Ratings are saved on the Kindle straight away and sent when Wi-Fi is on (at the end of a session if Wi-Fi is already on, otherwise "Sync now").
 - Cards the app thinks are due only appear for topics you have started in the app (Revise since...). Sync first.
 - New or edited cards: "Update cards" (needs Wi-Fi) downloads the latest list. Cards you add yourself in the app (your own subtopics) are not on the Kindle.

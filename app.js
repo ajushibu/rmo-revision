@@ -98,10 +98,31 @@
     return { k: diff(today(), s.due) >= 0 ? 'due' : 'ok', s: s };
   }
   var undo = null;
+  /* Four recall buttons. Again: back to the first rung (1 day). Hard: the same rung again. Good: up one rung. Easy: up two.
+     The ladder is INT (1, 3, 7, 14, 28 days). Good and Easy cannot be pressed before a card is due, so the spacing stays honest.
+     The Kindle plugin (rmo_core.lua) copies this rule; keep them the same. Older ratings used 'shaky' (= again) and 'got' (= good). */
+  var HOWS = { again: 1, hard: 1, good: 1, easy: 1 };
+  function normHow(h) { return h === 'shaky' ? 'again' : h === 'got' ? 'good' : h; }
+  function nextStep(prev, how) {
+    var p = prev || 0, top = INT.length - 1;
+    return how === 'again' ? 0 : how === 'hard' ? p : how === 'good' ? Math.min(p + 1, top) : Math.min(p + 2, top);
+  }
+  function previewTxt(id, how) {
+    var s = S.items[id], d = INT[nextStep(s ? s.step : 0, how)];
+    return d === 1 ? '1 day' : d + ' days';
+  }
+  /* Level of a card, worked out from its rating: new, weak (last answer was Again), learning (rung 0 to 1), young (rung 2 to 3), mature (rung 4 = 28 days). */
+  var LV = { new: 'New', weak: 'Weak', learning: 'Learning', young: 'Young', mature: 'Mature' };
+  function levelOf(id) {
+    var s = S.items[id]; if (!s) return 'new';
+    if (s.r === 'again' || s.r === 'shaky') return 'weak';
+    var n = s.step || 0; return n >= 4 ? 'mature' : n >= 2 ? 'young' : 'learning';
+  }
   function rate(id, how) {
+    how = normHow(how); if (!HOWS[how]) return false;
     var st = itState(id);
-    if (how === 'got' && st.k === 'ok') return false; // not due yet: cannot be marked known early
-    var s = S.items[id] || { step: 0 }, n = how === 'got' ? Math.min((s.step || 0) + 1, INT.length - 1) : 0;
+    if ((how === 'good' || how === 'easy') && st.k === 'ok') return false; // not due yet: cannot be marked known early
+    var n = nextStep(S.items[id] ? S.items[id].step : 0, how);
     undo = { id: id, prev: S.items[id] ? JSON.parse(JSON.stringify(S.items[id])) : null, how: how, at: Date.now() };
     S.items[id] = { step: n, due: addDays(today(), INT[n]), last: today(), r: how, t: Date.now() };
     save();
@@ -127,19 +148,19 @@
     return { due: due, fresh: fresh, all: due.concat(fresh) };
   }
   function topicDueCount(tid) { return topicItems(tid).filter(function (x) { return !skipped(x.it.id) && itState(x.it.id).k === 'due'; }).length; }
-  function tagFor(st) {
+  function tagFor(st, id) {
     if (st.k === 'new') return '<span class="tag">Not rated</span>';
-    if (st.k === 'due') return '<span class="tag due">Due</span>';
-    if (st.s.r === 'shaky') return '<span class="tag shaky">Shaky, ' + nice(st.s.due) + '</span>';
-    return '<span class="tag">Next ' + nice(st.s.due) + '</span>';
+    var lv = levelOf(id), lt = '<span class="tag lv-' + lv + '">' + LV[lv] + '</span>';
+    if (st.k === 'due') return '<span class="tag due">Due</span>' + lt;
+    return lt + '<span class="tag">Next ' + nice(st.s.due) + '</span>';
   }
   function KH(k) { return '<kbd class="kh" aria-hidden="true">' + k + '</kbd>'; }
   function rateButtons(id, keys) {
     var st = itState(id);
-    if (st.k === 'ok') return '<p class="src">Next review ' + nice(st.s.due) + '. You can mark it known again on that day, so the spacing stays honest.</p><button class="link" data-rate="shaky" data-it="' + id + '">I have forgotten this: bring it back tomorrow</button>';
-    return '<div class="rate"><button class="b shaky" data-rate="shaky" data-it="' + id + '">Shaky' + (keys ? KH('J') : '') + '</button><button class="b got" data-rate="got" data-it="' + id + '">Got it' + (keys ? KH('K') : '') + '</button></div>';
+    if (st.k === 'ok') return '<p class="src">Next review ' + nice(st.s.due) + '. You can mark it known again on that day, so the spacing stays honest.</p><button class="link" data-rate="again" data-it="' + id + '">I have forgotten this: bring it back tomorrow</button>';
+    function b(how, label, key) { return '<button class="b r-' + how + '" data-rate="' + how + '" data-it="' + id + '"><span>' + label + (keys ? KH(key) : '') + '</span><small>' + previewTxt(id, how) + '</small></button>'; }
+    return '<div class="rate four">' + b('again', 'Again', '1') + b('hard', 'Hard', '2') + b('good', 'Good', '3') + b('easy', 'Easy', '4') + '</div>';
   }
-
 
   /* ---------- merge (used by sync and import) ---------- */
   function merge(a, b) {
@@ -536,8 +557,8 @@
     if (!undo || Date.now() - undo.at > 8000) return '';
     var btn = '<button class="undo-btn" data-act="undo">Undo</button>';
     if (undo.skip) return '<div class="undo" role="status"><span>Removed from Revise</span>' + btn + '</div>';
-    var it = S.items[undo.id], got = undo.how === 'got';
-    return '<div class="undo" role="status"><span><b class="' + (got ? 'u-got' : 'u-shaky') + '">' + (got ? 'Got it' : 'Shaky') + '</b>' + (it ? ' \u00B7 ' + backIn(it.due) : '') + '</span>' + btn + '</div>';
+    var it = S.items[undo.id], hw = normHow(undo.how), got = hw === 'good' || hw === 'easy';
+    return '<div class="undo" role="status"><span><b class="' + (got ? 'u-got' : 'u-shaky') + '">' + ({ again: 'Again', hard: 'Hard', good: 'Good', easy: 'Easy' }[hw] || hw) + '</b>' + (it ? ' \u00B7 ' + backIn(it.due) : '') + '</span>' + btn + '</div>';
   }
   function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '"' + (cur.sys ? ' data-sys="' + cur.sys + '"' : '') + ' id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
   function row(href, title, right, sub, sys) {
@@ -627,7 +648,7 @@
   function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st)) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st, it.id)) + '</button>';
     if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -663,10 +684,23 @@
     return shell(h, { page: 'topic', sys: t.system, topic: t.id });
   }
   var later = [];   // cards sent to the back of today's queue, this page load only; they stay unrated
+  /* Study one level at a time: all, weak, learning, young, mature or new. Kept on this device only. */
+  var revLevel = (function () { try { return localStorage.getItem('rmo-revlevel') || 'all'; } catch (e) { return 'all'; } })();
+  function levelBar(all) {
+    var c = { all: all.length }; Object.keys(LV).forEach(function (k) { c[k] = 0; });
+    all.forEach(function (x) { c[levelOf(x.it.id)]++; });
+    var order = ['all', 'weak', 'learning', 'young', 'mature', 'new'];
+    return '<div class="lvbar" role="group" aria-label="Study one level">' + order.map(function (k) {
+      if (k !== 'all' && !c[k] && revLevel !== k) return '';
+      return '<button type="button" class="chip lv-' + k + (revLevel === k ? ' on' : '') + '" data-lvl="' + k + '" aria-pressed="' + (revLevel === k) + '">' + (k === 'all' ? 'All' : LV[k]) + ' <b>' + c[k] + '</b></button>';
+    }).join('') + '</div>';
+  }
   function revise() {
-    var q = queue();
+    var q = queue(), every = q.all.slice();
+    if (revLevel !== 'all') { q.all = q.all.filter(function (x) { return levelOf(x.it.id) === revLevel; }); q.due = q.due.filter(function (x) { return levelOf(x.it.id) === revLevel; }); q.fresh = q.fresh.filter(function (x) { return levelOf(x.it.id) === revLevel; }); }
     if (later.length) { var lo = {}; later.forEach(function (id, i) { lo[id] = i + 1; }); var ix = {}; q.all.forEach(function (x, i) { ix[x.it.id] = i; }); q.all.sort(function (a, b) { return (lo[a.it.id] || 0) - (lo[b.it.id] || 0) || ix[a.it.id] - ix[b.it.id]; }); }
-    var h = '<header class="head"><h1>Revise</h1>' + (q.all.length ? rtBlock(q) : '<p class="meta">All caught up</p>') + '</header>';
+    var h = '<header class="head"><h1>Revise</h1>' + (q.all.length ? rtBlock(q) : '<p class="meta">' + (every.length ? 'Nothing at this level right now' : 'All caught up') + '</p>') + '</header>' + (every.length ? levelBar(every) : '');
+    if (!q.all.length && every.length) { return shell(h + '<p class="meta">Pick another level above, or All to see everything that is due.</p>', { page: 'revise' }); }
     if (!q.all.length) {
       h += '<p class="meta">Nothing to recall right now. Items you rate come back on their date. To add a topic, open it and press "Studied today".</p><p><a class="btn" href="#/topics">Browse topics</a></p>';
       return shell(h, { page: 'revise' });
@@ -701,7 +735,7 @@
         '<form id="signin" class="form"><label><span>Email</span><input type="email" id="si-email" autocomplete="username" required></label><label><span>Password</span><input type="password" id="si-pass" autocomplete="current-password"></label><div class="btns"><button class="btn primary" type="submit">Sign in and sync</button><button class="btn" type="button" data-act="sendcode">Email me a code instead</button></div></form>' +
         '<div id="codebox" hidden><p class="meta">Check your email. Type the code here, or open the link on this device.</p><form id="codeform" class="form"><label><span>Code from the email</span><input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code"></label><div><button class="btn primary" type="submit">Sign in</button></div></form></div><p class="meta" id="simsg"></p>';
     }
-    if (sess) h += '<h2>Kindle</h2><p class="meta">Revise on a jailbroken Kindle with KOReader. Make a one-time code and type it on the Kindle. The Kindle can read your card schedule and add Got it or Shaky ratings. It cannot see your notes, highlights or account.</p>' +
+    if (sess) h += '<h2>Kindle</h2><p class="meta">Revise on a jailbroken Kindle with KOReader. Make a one-time code and type it on the Kindle. The Kindle can read your card schedule and add Again, Hard, Good or Easy ratings. It cannot see your notes, highlights or account.</p>' +
       (kcode ? '<p class="kcode" style="font:700 26px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.08em">' + kcode + '</p><p class="meta">Type this on the Kindle now. It is shown once and not saved here.</p>' : '') + (kmsg ? '<p class="meta">' + esc(kmsg) + '</p>' : '') +
       '<p class="btns"><button class="btn" data-act="kmake">Make a Kindle code</button><button class="btn" data-act="kunlink">Unlink all Kindles</button></p>';
     h += '<h2>Backup file</h2><p class="meta">A copy you keep yourself. Importing merges it with what is on this device.</p><p class="btns"><button class="btn" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
@@ -846,6 +880,7 @@
     if ((el = e.target.closest('[data-skiprev]'))) { var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-lvl]'))) { revLevel = el.getAttribute('data-lvl'); try { localStorage.setItem('rmo-revlevel', revLevel); } catch (er) {} revealed = false; keepScroll = false; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); var wasNew = itState(iid).k === 'new'; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid, wasNew ? 'n' : 'd'); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
     if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
@@ -919,7 +954,7 @@
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
-  /* Keyboard shortcuts on Revise: Space shows the answer, J = Shaky, K = Got it, L = bring back later, N = note box, Esc leaves the box.
+  /* Keyboard shortcuts on Revise: Space shows the answer, 1 or J = Again, 2 = Hard, 3 or K = Good, 4 = Easy, L = bring back later, N = note box, Esc leaves the box.
      Ignored while typing, with modifier keys, and on key repeat. Key hints show once a key is pressed, and hide on touch. */
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -930,8 +965,10 @@
     if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
     var k = e.key === ' ' ? 'space' : (e.key || '').toLowerCase(), el = null;
     if (k === 'space') el = document.querySelector('[data-act="reveal"]');
-    else if (k === 'j') el = document.querySelector('.flash [data-rate="shaky"]');
-    else if (k === 'k') el = document.querySelector('.flash [data-rate="got"]');
+    else if (k === 'j' || k === '1') el = document.querySelector('.flash [data-rate="again"]');
+    else if (k === '2') el = document.querySelector('.flash [data-rate="hard"]');
+    else if (k === 'k' || k === '3') el = document.querySelector('.flash [data-rate="good"]');
+    else if (k === '4') el = document.querySelector('.flash [data-rate="easy"]');
     else if (k === 'l') el = document.querySelector('.flash [data-later]');
     else if (k === 'n') { var nb = document.querySelector('.flash textarea[data-note]'); if (nb) { e.preventDefault(); nb.focus(); } return; }
     else return;

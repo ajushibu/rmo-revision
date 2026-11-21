@@ -1,5 +1,5 @@
 --[[ RMO Revision for KOReader.
-Bare-bones recall cards: question -> show answer -> Shaky / Got it. Same spacing rules as the web app (rmo_core.lua).
+Bare-bones recall cards: question -> show answer -> Again / Hard / Good / Easy. Same spacing rules as the web app (rmo_core.lua).
 Sync: a Kindle code made in the app (Settings > Kindle) lets this plugin read your card schedule and add ratings
 through two server functions. It cannot see notes, highlights or your account.
 Written without a device to test on: if something fails, the message on screen says what and where.
@@ -54,6 +54,8 @@ function RMORevision:addToMainMenu(menu_items)
         sorting_hint = "tools",
         sub_item_table = {
             { text_func = function() return self:revisionLabel() end, callback = function() self:startSession() end },
+            { text_func = function() return string.format(_("Study level: %s (tap to change)"), Core.LEVEL_NAME[self.settings:readSetting("level", "all")] or "All") end,
+              keep_menu_open = true, callback = function(touchmenu_instance) self:nextLevel(); if touchmenu_instance then touchmenu_instance:updateItems() end end },
             { text = _("Sync now"), callback = function() self:syncNow(true) end },
             { text = _("Link to the app (type the Kindle code)"), callback = function() self:askCode() end },
             { text = _("Update cards"), callback = function() self:updateCards() end },
@@ -88,7 +90,17 @@ function RMORevision:queue()
     local cards = self:loadCards()
     if not cards then return nil end
     local s = self.settings
-    return Core.queue(cards, s:readSetting("studied", {}), s:readSetting("skipRev", {}), self:items(), Core.today())
+    local items = self:items()
+    return Core.filter(Core.queue(cards, s:readSetting("studied", {}), s:readSetting("skipRev", {}), items, Core.today()), items, s:readSetting("level", "all"))
+end
+
+-- One tap on the menu item moves to the next level: all, weak, learning, young, mature, new
+function RMORevision:nextLevel()
+    local cur = self.settings:readSetting("level", "all")
+    local nxt = Core.LEVELS[1]
+    for i, k in ipairs(Core.LEVELS) do if k == cur then nxt = Core.LEVELS[(i % #Core.LEVELS) + 1] end end
+    self.settings:saveSetting("level", nxt); self.settings:flush()
+    self:say(string.format(_("Study level: %s"), Core.LEVEL_NAME[nxt]), 2)
 end
 
 function RMORevision:revisionLabel()
@@ -154,7 +166,7 @@ function RMORevision:card(e, status, html, buttons, plainTitle, plainText)
             local rows = {}
             for _, row in ipairs(buttons) do
                 local r = {}
-                for _, b in ipairs(row) do r[#r + 1] = { text = b.text, callback = b.callback, font_size = 26, height = 90 } end
+                for _, b in ipairs(row) do r[#r + 1] = { text = b.text, callback = b.callback, font_size = (#row > 2) and 22 or 26, height = 90 } end
                 rows[#rows + 1] = r
             end
             return CardView:new{ topic = e.topic, status = status, progress = done / math.max(1, done + left), html = html, buttons = rows }
@@ -190,12 +202,16 @@ end
 
 function RMORevision:showAnswer(e)
     self:lap()
-    local isNew = Core.state(self:items(), e.card.id, Core.today()) == "new"
-    local title = string.format("%s%s", e.topic, isNew and "   (new)" or "")
-    local status = (isNew and "new   " or "") .. clock(self.sessSecs or 0)
+    local items = self:items()
+    local lv = Core.level(items, e.card.id)
+    local title = string.format("%s   (%s)", e.topic, string.lower(Core.LEVEL_NAME[lv]))
+    local status = string.lower(Core.LEVEL_NAME[lv]) .. "   " .. clock(self.sessSecs or 0)
+    local function lab(name, how) return string.format("%s %dd", name, Core.days(items, e.card.id, how)) end
     self:card(e, status, '<p class="q old">' .. Core.esc(e.card.t) .. "</p><hr/>" .. Core.answerHtml(e.card.k), {
-        { { text = _("Shaky: tomorrow"), callback = function() self:rate(e, "shaky") end },
-          { text = _("Got it"), callback = function() self:rate(e, "got") end } },
+        { { text = lab(_("Again"), "again"), callback = function() self:rate(e, "again") end },
+          { text = lab(_("Hard"), "hard"), callback = function() self:rate(e, "hard") end },
+          { text = lab(_("Good"), "good"), callback = function() self:rate(e, "good") end },
+          { text = lab(_("Easy"), "easy"), callback = function() self:rate(e, "easy") end } },
         { { text = _("Bring back later"), callback = function() self:bringBack(e) end },
           { text = _("Stop"), callback = function() self:finish() end } },
     }, title, e.card.t .. "\n\n" .. Core.answerText(e.card.k))
