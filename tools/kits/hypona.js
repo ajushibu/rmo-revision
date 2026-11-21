@@ -3,18 +3,25 @@ window.KIT = {
   lede: 'Treat the symptoms first, then the cause. The danger is correcting too fast. Press Next.',
   flag: '<b>How far to trust this.</b> The 3% saline bolus (150 mL over 20 minutes) and the correction limits follow NSW SESLHD hyponatraemia guidance. The fluid restriction volume, and the regimen for reversing an overcorrection, are not checked here: follow your hospital protocol and ask a senior.',
   steps: [
+    { h: 'What low sodium means', say: 'Sodium is low because there is too much water, not always too little salt. Play with how much water the kidney can lose.', blocks: [
+      { embed: { src: 'hypona_lab.html?embed=water', title: 'Water balance: how much can the kidney get rid of?', h: 900 } }] },
     { h: 'How bad, and what kind', blocks: [
       { table: { head: ['Sodium (mmol/L)', 'Grade', 'Note'], aus: 1, rows: [
         ['130 to 134', 'Mild', 'Often found by chance.'],
         ['125 to 129', 'Moderate', 'Nausea, headache, confusion.'],
         ['Below 125, or any seizure or coma', 'Severe', 'Seizure and coma are the emergency, whatever the number.']] } },
-      { rx: { h: 'Sort it before you treat it', items: ['Serum osmolality (true low-sodium state), urine osmolality and urine sodium.', 'Look at the volume: dry (hypovolaemic), normal (SIADH, adrenal, thyroid) or wet (heart failure, cirrhosis, kidney).', 'Drugs: thiazides, SSRIs, carbamazepine, PPIs. Stop what you can.', 'Check cortisol and thyroid before calling it SIADH.'] } }] },
+      { rx: { h: 'Sort it before you treat it', items: ['Serum osmolality (true low-sodium state), urine osmolality and urine sodium.', 'Look at the volume: dry (hypovolaemic), normal (SIADH, adrenal, thyroid) or wet (heart failure, cirrhosis, kidney).', 'Drugs: thiazides, SSRIs, carbamazepine, PPIs. Stop what you can.', 'Check cortisol and thyroid before calling it SIADH.'] } },
+      { embed: { src: 'hypona_lab.html?embed=shelf', title: 'Three shelves: low, normal or high osmolality', h: 1000 } },
+      { embed: { src: 'hypona_lab.html?embed=fake', title: 'Fake low sodium: sugar and the machine', h: 1000 } },
+      { embed: { src: 'hypona_lab.html?embed=path', title: 'Diagnosis game', h: 1000 } }] },
     { h: 'Treat by symptoms and by type', blocks: [
+      { embed: { src: 'hypona_lab.html?embed=fluid', title: 'Which fluid, and how fast may the sodium rise?', h: 1000 } },
       { rx: { h: 'Severe symptoms: seizure, coma', cls: 'stop', items: ['Hypertonic saline 3%: 150 mL over 20 minutes, check the sodium after each, repeat up to twice (NSW SESLHD).', 'Aim for a rise of about 5 mmol/L in the first hour, then stop the 3% saline.', 'Check the glucose. Antiepileptics do not fix this: the sodium does.', 'Call your registrar and critical care.'] } },
       { rx: { h: 'Mild or chronic', items: ['Dry: 0.9% saline. Watch for a sudden rise once the volume is back, because the kidney starts to pass dilute urine.', 'SIADH (euvolaemic, urine concentrated): fluid restriction. Do not give saline: he keeps the water and passes the salt.', 'Wet: fluid restriction and treat the heart, liver or kidney.', 'Stop hypotonic IV fluids (glucose 5%, 0.45% saline).'] } }] },
     { h: 'Do not overcorrect', say: 'Raising the sodium too fast can cause osmotic demyelination, days later. It cannot be undone.', blocks: [
       { rx: { h: 'Limits and checks', cls: 'warn', items: ['Do not rise by more than 10 mmol/L in 24 hours (8 if alcohol, malnutrition, liver disease or low potassium).', 'Check the sodium every 2 to 4 hours while treating (after each bolus in severe cases).', 'Chart urine output hourly: a sudden large dilute urine output means the sodium is about to shoot up.'] } },
-      { rx: { h: 'If it is rising too fast', items: ['Stop the hypertonic saline.', 'Ask your registrar about desmopressin and glucose 5% to bring it back (a senior decision, per protocol).'] } }] }
+      { rx: { h: 'If it is rising too fast', items: ['Stop the hypertonic saline.', 'Ask your registrar about desmopressin and glucose 5% to bring it back (a senior decision, per protocol).'] } },
+      { embed: { src: 'hypona_lab.html?embed=sheet', title: 'The path in one picture', h: 900 } }] }
   ],
   opts: [['hyp', '3% saline bolus'], ['fr', 'Fluid restriction'], ['ns', '0.9% saline'], ['stop', 'Stop the drug or fluid'], ['mon', 'Check sodium and urine output']],
   items: [
