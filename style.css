@@ -456,3 +456,7 @@ html.kbd .kh { display: inline-block; }
 .tag.lv-learning { color: var(--shaky); background: var(--shaky-t); }
 .tag.lv-young { color: var(--good); background: var(--good-t); }
 .tag.lv-mature { color: var(--good); background: var(--good-t); font-weight: 700; }
+
+/* Keep the four answer buttons on screen while a long card is read: they stick to the bottom of the view (above the tab bar on a phone). */
+.flash .rate.four { position: sticky; bottom: 10px; z-index: 4; background: var(--pane); padding: 10px 0 8px; margin: 12px 0 0; box-shadow: 0 -12px 14px -10px color-mix(in srgb, var(--ink) 22%, transparent); }
+@media (max-width: 760px) { .flash .rate.four { bottom: calc(66px + env(safe-area-inset-bottom)); } }
