@@ -417,7 +417,7 @@
   function rtFresh() { return { day: today(), ms: 0, cards: 0, card: null, cardAt: 0, goal: null, owner: null, beat: 0 }; }
   function rtLoad() {
     var s = rtMem;
-    try { var v = localStorage.getItem(RT_KEY); if (v) s = JSON.parse(v); } catch (e) {}
+    try { var v = localStorage.getItem(RT_KEY); if (v) { var o = JSON.parse(v); if (!(s && s.day === o.day && s.ms > o.ms && (s.owner === rtTab || !o.owner))) s = o; } } catch (e) {} // if the device refuses to save (full storage), the copy in memory is ahead of the stored one: keep the newer, or the clock flips back each second
     if (!s || s.day !== today() || typeof s.ms !== 'number' || !(s.ms >= 0)) { s = rtFresh(); var mine = ((S.revtime || {})[s.day] || {})[rtDev]; if (mine && mine.ms > 0) s.ms = mine.ms; }
     return s;
   }
