@@ -441,7 +441,7 @@
     if (rtOther(s)) { rtPaint(s, 'other'); return; }
     s.owner = rtTab; s.beat = Date.now();
     if (rtTouched) { rtTouched = false; rtMsAtInput = s.ms; }
-    if (dt > 0 && dt <= RT_MAXDT && !idle) s.ms += dt;
+    if (dt > 0 && !idle && (dt <= RT_MAXDT || (dt <= 30000 && now - rtInput < 30000))) s.ms += dt; // a throttled timer (iPad power saving) can tick every 5 to 30 s: still count it while you are touching the screen
     if (idle && !rtWasIdle) { s.ms = Math.max(0, Math.min(s.ms, rtMsAtInput + RT_GRACE)); s.cardAt = Math.min(s.cardAt, s.ms); if (s.goal) s.goal.start = Math.min(s.goal.start, s.ms); } // walked away: keep only 30 s after the last touch
     rtWasIdle = idle;
     if (s.card !== rtShown) { s.card = rtShown; s.cardAt = s.ms; }
@@ -518,6 +518,7 @@
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } rtPublish(false); if (sess) syncNow(); } else { rtLast = performance.now(); rtActive(); } });
   window.addEventListener('pagehide', function () { rtTick(true); rtLast = null; var ps = rtLoad(); if (ps.owner === rtTab) { ps.beat = 0; rtSave(ps); } rtPublish(false); });
   setInterval(function () { rtTick(false); }, 1000);
+  window.addEventListener('focus', function () { rtLast = null; });
 
   /* ---------- shell ---------- */
   var route = [];
