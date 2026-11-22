@@ -651,7 +651,7 @@
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
     var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st, it.id)) + '</button>';
-    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
+    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + kitLink(it.id, x.tid, 't') + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
   function topic(id) {
@@ -712,14 +712,23 @@
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns">' + (q.all.length > 1 ? '<button class="link" data-later="' + x.it.id + '">Bring back later' + KH('L') + '</button>' : '') + '<button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
-    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true) + (q.all.length > 1 ? '<p class="ctxbtns"><button class="link" data-later="' + x.it.id + '">Not sure yet: bring back at the end' + KH('L') + '</button></p>' : '');
+    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + kitLink(x.it.id, x.tid, 'rv') + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true) + (q.all.length > 1 ? '<p class="ctxbtns"><button class="link" data-later="' + x.it.id + '">Not sure yet: bring back at the end' + KH('L') + '</button></p>' : '');
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
-  function tool(id, i, cs, fromToday) {
+  /* "Open in the study kit": each recall card links to the kit step that teaches it (kitmap.js). Back returns to where you were (rv = Revise, t = topic page). */
+  function kitLink(id, tid, from) {
+    var M = window.KITMAP; if (!M || !M.k || !M.k[tid]) return '';
+    var k = M.k[tid], v = M.c[id], base = '#/tool/' + tid + '/' + k.i + '/k/', lab, n;
+    if (v === 0) return '<p class="kitlink"><a href="' + base + '0/' + from + '">Open the picture for this topic</a></p>';
+    if (v === undefined) v = k.p ? k.p[0] : 1;
+    n = k.p ? k.p.indexOf(v) : (+v - 1); lab = (k.s && k.s[n]) || '';
+    return '<p class="kitlink"><a href="' + base + encodeURIComponent(k.p ? String(v).replace(/^p-/, '') : v) + '/' + from + '">Open in the study kit<b>' + (k.p ? '' : ' step ' + v) + (lab ? ': ' + esc(lab) : '') + '</b></a></p>';
+  }
+  function tool(id, i, cs, fromToday, kstep, kfrom) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
     var n = pendingHighlights(t.id).length;
-    return '<div class="toolbar">' + (fromToday ? '<a class="back" href="#/">Today</a>' : '<a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a>') + '<b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs ? '?case=' + encodeURIComponent(cs) + (fromToday ? '&run=today' : '') : '') + '"></iframe>';
+    return '<div class="toolbar">' + (cs === 'k' && kfrom === 'rv' ? '<a class="back" href="#/revise">Revise</a>' : fromToday ? '<a class="back" href="#/">Today</a>' : '<a class="back" href="#/t/' + t.id + '">' + esc(t.name) + '</a>') + '<b>' + esc(t.tools[i].label) + '</b><span class="hlcount" id="hlcount">' + (n ? n + ' saved' : 'Select text to save it') + '</span><button type="button" class="btn small navfocus" data-focus="tool"><span data-focus-label>Focus</span></button><button class="btn small" id="hlbtn" data-act="highlight" disabled>Save highlight</button></div><iframe class="frame" title="' + esc(t.tools[i].label) + '" src="tools/' + t.tools[i].file + (cs === 'k' ? (kstep && kstep !== '0' ? '#' + esc(kstep) : '') : cs ? '?case=' + encodeURIComponent(cs) + (fromToday ? '&run=today' : '') : '') + '"></iframe>';
   }
   var kcode = '', kmsg = '';
   function settings() {
@@ -754,7 +763,7 @@
     route = r; app.className = ''; rtShown = null; if (r[0] !== 'settings') { kcode = ''; kmsg = ''; }
     if (r[0] === 's') h = system(r[1]);
     else if (r[0] === 't') h = topic(r[1]);
-    else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3], r[4] === 'today'); app.className = 'tool'; }
+    else if (r[0] === 'tool') { h = tool(r[1], +r[2], r[3], r[4] === 'today', r[4], r[5]); app.className = 'tool'; }
     else if (r[0] === 'topics') h = topicsPage();
     else if (r[0] === 'revise') h = revise();
     else if (r[0] === 'settings') h = settings();

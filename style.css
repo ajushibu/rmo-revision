@@ -460,3 +460,5 @@ html.kbd .kh { display: inline-block; }
 /* Keep the four answer buttons on screen while a long card is read: they stick to the bottom of the view (above the tab bar on a phone). */
 .flash .rate.four { position: sticky; bottom: 10px; z-index: 4; background: var(--pane); padding: 10px 0 8px; margin: 12px 0 0; box-shadow: 0 -12px 14px -10px color-mix(in srgb, var(--ink) 22%, transparent); }
 @media (max-width: 760px) { .flash .rate.four { bottom: calc(66px + env(safe-area-inset-bottom)); } }
+
+.kitlink{margin:10px 0 2px}.kitlink a{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-size:.92rem;background:var(--surface)}.kitlink a b{font-weight:600}.kitlink a:hover{border-color:var(--n-tint,var(--line))}
