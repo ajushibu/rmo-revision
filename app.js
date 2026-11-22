@@ -803,7 +803,7 @@
       }).join('') + '</div>';
     var fz = window.RMOFont ? window.RMOFont.get() : 1;
     h += '<h2>Text size</h2><p class="meta">Applies to the app, recall cards, study kits and cases on this device.</p><div class="fsizes" role="radiogroup" aria-label="Text size">' +
-      [[0.9, 'Small'], [1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']].map(function (x) {
+      [[0.9, 'Small'], [1, 'Normal'], [1.35, 'Large'], [1.6, 'Larger'], [1.9, 'Largest']].map(function (x) {
         return '<button type="button" class="fsz' + (Math.abs(fz - x[0]) < 0.01 ? ' on' : '') + '" role="radio" aria-checked="' + (Math.abs(fz - x[0]) < 0.01) + '" data-fs-set="' + x[0] + '"><span style="font-size:' + Math.round(15 * x[0]) + 'px">Aa</span><small>' + x[1] + '</small></button>';
       }).join('') + '</div>';
     h += '<h2>Sync between devices</h2>';
