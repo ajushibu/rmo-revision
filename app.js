@@ -526,9 +526,13 @@
   function navLink(href, label, on, count, extra) {
     return '<a href="' + href + '" class="' + (on ? 'on' : '') + '"' + (on ? ' aria-current="page"' : '') + '><span>' + label + '</span><span class="ns">' + (count ? '<span class="n">' + count + '</span>' : '') + (extra || '') + '</span></a>';
   }
+  var IC_SIDE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>';
+  function sideOff() { try { return localStorage.getItem('rmo-side') === 'off'; } catch (e) { return false; } }
+  function applySide() { document.documentElement.setAttribute('data-side', sideOff() ? 'off' : ''); }
+  applySide();
   function sidebar(cur) {
     var q = queue(), curSys = cur.sys || '';
-    var h = '<aside class="side" aria-label="Navigation"><a class="brand" href="#/">RMO Revision</a><nav class="nav">' +
+    var h = '<aside class="side" aria-label="Navigation"><div class="sidetop"><a class="brand" href="#/">RMO Revision</a><button type="button" class="sidehide" data-side-toggle aria-label="Hide the menu" title="Hide the menu">' + IC_SIDE + '</button></div><nav class="nav">' +
       navLink('#/', 'Today', cur.page === 'home', 0, newCaseList().length ? '<span class="n nc">' + newCaseList().length + '</span>' : '') +
       navLink('#/revise', 'Revise', cur.page === 'revise', q.all.length) +
       '<button type="button" class="navfocus" data-focus="full"><span>Focus</span><span class="ns fl" data-focus-label></span></button>' + '</nav><nav class="nav sys" aria-label="Systems">';
@@ -562,7 +566,7 @@
     var it = S.items[undo.id], hw = normHow(undo.how), got = hw === 'good' || hw === 'easy';
     return '<div class="undo" role="status"><span><b class="' + (got ? 'u-got' : 'u-shaky') + '">' + ({ again: 'Again', hard: 'Hard', good: 'Good', easy: 'Easy' }[hw] || hw) + '</b>' + (it ? ' \u00B7 ' + backIn(it.due) : '') + '</span>' + btn + '</div>';
   }
-  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '"' + (cur.sys ? ' data-sys="' + cur.sys + '"' : '') + ' id="main">' + inner + '</main>' + tabbar(cur) + undoBar() + '</div>'; }
+  function shell(inner, cur) { return '<div class="app">' + sidebar(cur) + '<main class="main pg-' + (cur.page || 'x') + '"' + (cur.sys ? ' data-sys="' + cur.sys + '"' : '') + ' id="main">' + inner + '</main><button type="button" class="sideshow" data-side-toggle aria-label="Show the menu" title="Show the menu">' + IC_SIDE + '</button>' + tabbar(cur) + undoBar() + '</div>'; }
   function row(href, title, right, sub, sys) {
     return '<li' + (sys ? ' data-sys="' + sys + '"' : '') + '><a class="row" href="' + href + '"><span class="t"><span>' + title + '</span>' + (sub ? '<small>' + sub + '</small>' : '') + '</span>' + (right || '') + '</a></li>';
   }
@@ -958,6 +962,7 @@
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-lvl]'))) { revLevel = el.getAttribute('data-lvl'); try { localStorage.setItem('rmo-revlevel', revLevel); } catch (er) {} revealed = false; keepScroll = false; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); var wasNew = itState(iid).k === 'new'; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid, wasNew ? 'n' : 'd'); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if (e.target.closest('[data-side-toggle]')) { try { if (sideOff()) localStorage.removeItem('rmo-side'); else localStorage.setItem('rmo-side', 'off'); } catch (er) {} applySide(); return; }
     if ((el = e.target.closest('[data-fs-set]'))) { if (window.RMOFont) window.RMOFont.set(parseFloat(el.getAttribute('data-fs-set'))); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
