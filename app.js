@@ -723,7 +723,7 @@
     if (v === 0) return '<p class="kitlink"><a href="' + base + '0/' + from + '">Open the picture for this topic</a></p>';
     if (v === undefined) v = k.p ? k.p[0] : 1;
     n = k.p ? k.p.indexOf(v) : (+v - 1); lab = (k.s && k.s[n]) || '';
-    return '<p class="kitlink"><a href="' + base + encodeURIComponent(k.p ? String(v).replace(/^p-/, '') : v) + '/' + from + '">Open in the study kit<b>' + (k.p ? '' : ' step ' + v) + (lab ? ': ' + esc(lab) : '') + '</b></a></p>';
+    return '<p class="kitlink"><a href="' + base + encodeURIComponent(k.p ? String(v).replace(/^p-/, '') : v) + '/' + from + '">Open in the study kit<b>: ' + (k.p ? '' : 'step ' + v + (lab ? ', ' : '')) + esc(lab) + '</b></a></p>';
   }
   function tool(id, i, cs, fromToday, kstep, kfrom) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
