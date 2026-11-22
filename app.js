@@ -737,8 +737,8 @@
         '<form id="signin" class="form"><label><span>Email</span><input type="email" id="si-email" autocomplete="username" required></label><label><span>Password</span><input type="password" id="si-pass" autocomplete="current-password"></label><div class="btns"><button class="btn primary" type="submit">Sign in and sync</button><button class="btn" type="button" data-act="sendcode">Email me a code instead</button></div></form>' +
         '<div id="codebox" hidden><p class="meta">Check your email. Type the code here, or open the link on this device.</p><form id="codeform" class="form"><label><span>Code from the email</span><input type="text" id="si-code" inputmode="numeric" autocomplete="one-time-code"></label><div><button class="btn primary" type="submit">Sign in</button></div></form></div><p class="meta" id="simsg"></p>';
     }
-    if (sess) h += '<h2>Kindle</h2><p class="meta">Revise on a jailbroken Kindle with KOReader. Make a one-time code and type it on the Kindle. The Kindle can read your card schedule and add Again, Hard, Good or Easy ratings. It cannot see your notes, highlights or account.</p>' +
-      (kcode ? '<p class="kcode" style="font:700 26px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.08em">' + kcode + '</p><p class="meta">Type this on the Kindle now. It is shown once and not saved here.</p>' : '') + (kmsg ? '<p class="meta">' + esc(kmsg) + '</p>' : '') +
+    if (sess) h += '<h2>Kindle</h2><p class="meta">Revise on a jailbroken Kindle with KOReader. Make a 4-digit code and type it on the Kindle within 10 minutes. It works once. The Kindle can read your card schedule and add Again, Hard, Good or Easy ratings. It cannot see your notes, highlights or account.</p>' +
+      (kcode ? '<p class="kcode" style="font:700 26px/1.3 ui-monospace,Menlo,monospace;letter-spacing:.3em">' + kcode + '</p><p class="meta">Type this on the Kindle within 10 minutes. It works once, then the Kindle stays linked until you unlink it.</p>' : '') + (kmsg ? '<p class="meta">' + esc(kmsg) + '</p>' : '') +
       '<p class="btns"><button class="btn" data-act="kmake">Make a Kindle code</button><button class="btn" data-act="kunlink">Unlink all Kindles</button></p>';
     h += '<h2>Backup file</h2><p class="meta">A copy you keep yourself. Importing merges it with what is on this device.</p><p class="btns"><button class="btn" data-act="export">Export backup</button><label class="btn">Import backup<input type="file" id="imp" accept="application/json" hidden></label></p><p class="meta" id="msg"></p>' +
       '<h2>Reset</h2><p class="meta">Deletes all progress, ratings and notes' + (sess ? ' on every synced device' : ' on this device') + '.</p><p><button class="btn danger" data-act="reset">Reset everything</button></p>';
@@ -894,13 +894,9 @@
     var a = el.getAttribute('data-act'), t;
     if (a === 'syncnow') { syncNow(); return; }
     if (a === 'kmake') {
-      var AL = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', raw = '', rnd = new Uint8Array(12); crypto.getRandomValues(rnd);
-      for (var ki = 0; ki < 12; ki++) raw += AL[rnd[ki] % 32];
       kmsg = 'Making the code…'; kcode = ''; keepScroll = true; render();
-      crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw)).then(function (buf) {
-        var hex = Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-        return fresh().then(function () { return api('/rest/v1/rmo_kindle_links', { method: 'POST', auth: true, headers: { Prefer: 'return=minimal' }, body: { token_hash: hex, label: 'Kindle' } }); });
-      }).then(function () { kcode = raw.slice(0, 4) + '-' + raw.slice(4, 8) + '-' + raw.slice(8); kmsg = ''; }).catch(function (e) { kcode = ''; kmsg = 'Could not make a code: ' + e.message; }).then(function () { keepScroll = true; render(); });
+      fresh().then(function () { return api('/rest/v1/rpc/rmo_kindle_pair_new', { method: 'POST', auth: true, body: {} }); })
+        .then(function (c) { kcode = String(c); kmsg = ''; }).catch(function (e) { kcode = ''; kmsg = 'Could not make a code: ' + e.message; }).then(function () { keepScroll = true; render(); });
       return;
     }
     if (a === 'kunlink') {

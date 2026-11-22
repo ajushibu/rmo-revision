@@ -10,8 +10,8 @@ Ratings sync with the app over Wi-Fi and use the same spacing as the app (1, 3, 
 4. In KOReader: top menu, tools (the gear/spanner tab), RMO Revision.
 
 ## Link it to the app (once)
-1. In the app: Settings, Kindle, "Make a Kindle code". It shows a code like `K7QD-4M2X-9PTH` once.
-2. On the Kindle: RMO Revision, "Link to the app", type the code, Link. Wi-Fi must be on.
+1. In the app: Settings, Kindle, "Make a Kindle code". It shows a 4-digit code (works once, expires in 10 minutes).
+2. On the Kindle: RMO Revision, "Link to the app", type the 4 digits, Link (old 12-character codes still work). Wi-Fi must be on.
 3. It syncs straight away and shows how many cards are due.
 
 The code lets the Kindle read your card schedule and add ratings. It cannot see notes, highlights or your account. "Unlink all Kindles" in the app cancels every code.

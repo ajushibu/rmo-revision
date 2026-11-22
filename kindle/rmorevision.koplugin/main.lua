@@ -297,6 +297,8 @@ function RMORevision:rpc(fn, args)
     local text, err = self:request(SB .. "/rest/v1/rpc/" .. fn, "POST", args)
     if not text then
         if err and err:find("bad_token") then return nil, _("The Kindle code was not accepted. Make a new one in the app (Settings > Kindle).") end
+        if err and err:find("locked") then return nil, _("Too many wrong codes. Wait 10 minutes, then make a new code in the app.") end
+        if err and err:find("bad_pin") then return nil, _("That code was wrong or has run out (10 minutes). Make a new one in the app.") end
         return nil, err
     end
     local ok, data = pcall(JSON.decode, text)
@@ -307,13 +309,23 @@ end
 function RMORevision:askCode()
     local dlg
     dlg = InputDialog:new{
-        title = _("Kindle code from the app"), input = "", input_hint = "XXXX-XXXX-XXXX",
+        title = _("4-digit code from the app"), input = "", input_hint = "1234",
         buttons = { { { text = _("Cancel"), callback = function() UIManager:close(dlg) end },
                       { text = _("Link"), is_enter_default = true, callback = function()
-                          local code = (dlg:getInputText() or ""):upper():gsub("[^A-Z0-9]", "")
+                          local code = (dlg:getInputText() or ""):gsub("[^A-Za-z0-9]", "")
                           UIManager:close(dlg)
-                          if #code ~= 12 then self:say(_("The code has 12 letters and numbers.")); return end
-                          self.settings:saveSetting("token", code); self.settings:flush()
+                          if #code == 4 and code:match("^%d+$") then
+                              NetworkMgr:runWhenOnline(function()
+                                  local tok, err = self:rpc("rmo_kindle_claim", { pin = code })
+                                  if type(tok) == "table" then tok = nil end
+                                  if not tok then self:say(err or _("That code was not accepted. Make a new one in the app.")); return end
+                                  self.settings:saveSetting("token", tostring(tok):upper()); self.settings:flush()
+                                  self:syncNow(true)
+                              end)
+                              return
+                          end
+                          if #code ~= 12 then self:say(_("Type the 4 digits shown in the app (Settings > Kindle).")); return end
+                          self.settings:saveSetting("token", code:upper()); self.settings:flush()
                           self:syncNow(true)
                       end } } },
     }
