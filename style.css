@@ -462,3 +462,12 @@ html.kbd .kh { display: inline-block; }
 @media (max-width: 760px) { .flash .rate.four { bottom: calc(66px + env(safe-area-inset-bottom)); } }
 
 .kitlink{margin:10px 0 2px}.kitlink a{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-size:.92rem;background:var(--surface)}.kitlink a b{font-weight:600}.kitlink a:hover{border-color:var(--n-tint,var(--line))}
+
+/* Text size (Settings): scales the app's own pages; a study tool scales itself inside its frame */
+html[data-fs="on"] #app:not(.tool) { zoom: var(--fs); }
+html[data-fs="on"] #app.tool .toolbar { zoom: var(--fs); }
+.fsizes { display: flex; flex-wrap: wrap; gap: 8px; }
+.fsz { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 78px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; }
+.fsz span { font-weight: 600; line-height: 1.2; }
+.fsz small { color: var(--muted); font-size: 12px; }
+.fsz.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }

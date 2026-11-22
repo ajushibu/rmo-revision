@@ -797,6 +797,11 @@
       [['auto', 'Match device', 'Chart paper by day, Night ward when your device is dark'], ['night', 'Night ward', 'Dark. Colour only where it means something'], ['paper', 'Chart paper', 'Light, like an observation chart'], ['classic', 'Classic blue', 'The earlier blue look']].map(function (x) {
         return '<button type="button" class="look lk-' + x[0] + (lk === x[0] ? ' on' : '') + '" role="radio" aria-checked="' + (lk === x[0]) + '" data-look-set="' + x[0] + '"><span class="sw" aria-hidden="true"><i></i><i></i><i></i></span><b>' + x[1] + '</b><small>' + x[2] + '</small></button>';
       }).join('') + '</div>';
+    var fz = window.RMOFont ? window.RMOFont.get() : 1;
+    h += '<h2>Text size</h2><p class="meta">Applies to the app, recall cards, study kits and cases on this device.</p><div class="fsizes" role="radiogroup" aria-label="Text size">' +
+      [[0.9, 'Small'], [1, 'Normal'], [1.15, 'Large'], [1.3, 'Larger']].map(function (x) {
+        return '<button type="button" class="fsz' + (Math.abs(fz - x[0]) < 0.01 ? ' on' : '') + '" role="radio" aria-checked="' + (Math.abs(fz - x[0]) < 0.01) + '" data-fs-set="' + x[0] + '"><span style="font-size:' + Math.round(15 * x[0]) + 'px">Aa</span><small>' + x[1] + '</small></button>';
+      }).join('') + '</div>';
     h += '<h2>Sync between devices</h2>';
     if (sess) {
       h += '<p class="meta" id="syncline">' + syncLine() + '</p><p class="meta">Your ratings, notes, highlights, case results and topic progress are kept the same on every device where you sign in with this account. Changes made offline sync when you reconnect.</p><p class="btns"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="signout">Sign out on this device</button></p>';
@@ -953,6 +958,7 @@
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-lvl]'))) { revLevel = el.getAttribute('data-lvl'); try { localStorage.setItem('rmo-revlevel', revLevel); } catch (er) {} revealed = false; keepScroll = false; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); var wasNew = itState(iid).k === 'new'; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid, wasNew ? 'n' : 'd'); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-fs-set]'))) { if (window.RMOFont) window.RMOFont.set(parseFloat(el.getAttribute('data-fs-set'))); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-look-set]'))) { if (window.RMOLook) window.RMOLook.set(el.getAttribute('data-look-set')); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-skipcase]'))) { S.caseSkip = S.caseSkip || {}; S.caseSkip[el.getAttribute('data-skipcase')] = Date.now(); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-addsg]'))) { var tp = el.getAttribute('data-tp'); (S.added[tp] = S.added[tp] || []).push(el.getAttribute('data-addsg')); S.addedAt[el.getAttribute('data-addsg')] = Date.now(); save(); keepScroll = true; render(); return; }
