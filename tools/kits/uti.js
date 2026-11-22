@@ -12,7 +12,8 @@ window.KIT = {
         ['Cystitis', 'Lower symptoms, no fever', 'Short oral course per eTG, culture if risk factors.'],
         ['Pyelonephritis', 'Fever, loin pain, unwell', 'Urine and blood cultures first, then antibiotics. IV if vomiting or septic.'],
         ['Complicated', 'Man, pregnancy, catheter, diabetes, kidney disease, stones', 'Culture always, longer course, look for obstruction.']] } },
-      { rx: { h: 'Tests', items: ['Midstream urine culture before antibiotics. Blood cultures if febrile.', 'Pregnancy test in any woman who could be pregnant.', 'Creatinine, white cell count.', 'Imaging (ultrasound or CT) if not improving in 48 to 72 hours, or if you suspect a stone or obstruction.'] } }] },
+      { rx: { h: 'Tests', items: ['Midstream urine culture before antibiotics. Blood cultures if febrile.', 'Pregnancy test in any woman who could be pregnant.', 'Creatinine, white cell count.', 'Imaging (ultrasound or CT) if not improving in 48 to 72 hours, or if you suspect a stone or obstruction.'] } },
+      { rx: { h: 'Nitrofurantoin: cystitis only', items: ['Does not reach effective levels in kidney tissue', 'For cystitis only'] } }] },
     { h: 'Treat to the culture', blocks: [
       { rx: { h: 'Antibiotics', items: ['Choose by eTG and your local resistance data. Do not delay for the culture if she is septic.', 'Mild pyelonephritis: an oral antibiotic if she can swallow and keep it down.', 'Severe: IV antibiotics, then switch to oral when she is improving and the sensitivities are back.', 'In men, consider the prostate and use a longer course.'] } },
       { rx: { h: 'Call your registrar if', cls: 'warn', items: ['Septic: low BP, fast pulse, lactate above 2.', 'Pregnant, a transplant patient, or an obstructed kidney.', 'Not improving after 48 hours of the right antibiotic.'] } }] }

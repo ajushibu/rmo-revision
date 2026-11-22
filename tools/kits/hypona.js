@@ -13,7 +13,8 @@ window.KIT = {
       { rx: { h: 'Sort it before you treat it', items: ['Serum osmolality (true low-sodium state), urine osmolality and urine sodium.', 'Look at the volume: dry (hypovolaemic), normal (SIADH, adrenal, thyroid) or wet (heart failure, cirrhosis, kidney).', 'Drugs: thiazides, SSRIs, carbamazepine, PPIs. Stop what you can.', 'Check cortisol and thyroid before calling it SIADH.'] } },
       { embed: { src: 'hypona_lab.html?embed=shelf', title: 'Three shelves: low, normal or high osmolality', h: 1000 } },
       { embed: { src: 'hypona_lab.html?embed=fake', title: 'Fake low sodium: sugar and the machine', h: 1000 } },
-      { embed: { src: 'hypona_lab.html?embed=path', title: 'Diagnosis game', h: 1000 } }] },
+      { embed: { src: 'hypona_lab.html?embed=path', title: 'Diagnosis game', h: 1000 } },
+      { rx: { h: 'Urine results that fit SIADH', items: ['Euvolaemic patient', '<b>Urine concentrated:</b> osmolality inappropriately high (usually over 100 mmol/kg)', 'Urine sodium not low (usually over 30 mmol/L)', 'Normal cortisol and thyroid function', '<small>(Standard teaching.)</small>'] } }] },
     { h: 'Treat by symptoms and by type', blocks: [
       { embed: { src: 'hypona_lab.html?embed=fluid', title: 'Which fluid, and how fast may the sodium rise?', h: 1000 } },
       { rx: { h: 'Severe symptoms: seizure, coma', cls: 'stop', items: ['Hypertonic saline 3%: 150 mL over 20 minutes, check the sodium after each, repeat up to twice (NSW SESLHD).', 'Aim for a rise of about 5 mmol/L in the first hour, then stop the 3% saline.', 'Check the glucose. Antiepileptics do not fix this: the sodium does.', 'Call your registrar and critical care.'] } },

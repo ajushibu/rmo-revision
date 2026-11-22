@@ -718,12 +718,71 @@
   }
   /* "Open in the study kit": each recall card links to the kit step that teaches it (kitmap.js). Back returns to where you were (rv = Revise, t = topic page). */
   function kitLink(id, tid, from) {
-    var M = window.KITMAP; if (!M || !M.k || !M.k[tid]) return '';
-    var k = M.k[tid], v = M.c[id], base = '#/tool/' + tid + '/' + k.i + '/k/', lab, n;
-    if (v === 0) return '<p class="kitlink"><a href="' + base + '0/' + from + '">Open the picture for this topic</a></p>';
-    if (v === undefined) v = k.p ? k.p[0] : 1;
-    n = k.p ? k.p.indexOf(v) : (+v - 1); lab = (k.s && k.s[n]) || '';
-    return '<p class="kitlink"><a href="' + base + encodeURIComponent(k.p ? String(v).replace(/^p-/, '') : v) + '/' + from + '">Open in the study kit<b>: ' + (k.p ? '' : 'step ' + v + (lab ? ', ' : '')) + esc(lab) + '</b></a></p>';
+    var M = window.KITMAP, t = byId(tid); if (!M || !M.k || !M.k[tid] || !t) return '';
+    var k = M.k[tid], v = M.c[id] || ['k:' + (k.p ? k.p[0] : 1)], tg = String(v[0]), key, ti, lab;
+    if (tg.indexOf('t:') === 0) { ti = +tg.slice(2); key = '0'; lab = t.tools[ti] ? t.tools[ti].label : ''; }
+    else {
+      var st = tg.slice(2), n = k.p ? k.p.indexOf(st) : (+st - 1);
+      ti = k.i; key = k.p ? st.replace(/^p-/, '') : st;
+      lab = 'study kit, ' + (k.p ? '' : 'step ' + st + ': ') + ((k.s && k.s[n]) || '');
+    }
+    return '<p class="kitlink"><a href="#/tool/' + tid + '/' + ti + '/k/' + encodeURIComponent(key) + '/' + from + '/' + encodeURIComponent(id) + '">Where this is taught<b>' + esc(lab ? ': ' + lab : '') + '</b></a></p>';
+  }
+  /* After "Where this is taught": open the right tab, press any buttons the answer sits behind, then scroll to the line and mark it. */
+  function kitFocus(f, cardId) {
+    var M = window.KITMAP, v = M && M.c && M.c[cardId]; if (!v || !v[1]) return;
+    var want = norm(v[1]), clicks = (v[2] || []).slice(), tries = 0;
+    function norm(x) { return String(x || '').replace(/\s+/g, ' ').trim(); }
+    function docs() {
+      var out = [], d; try { d = f.contentDocument; } catch (e) { return out; } if (!d) return out; out.push({ d: d, fr: null });
+      Array.prototype.forEach.call(d.querySelectorAll('iframe'), function (x) { try { if (x.contentDocument && x.contentDocument.body) out.push({ d: x.contentDocument, fr: x }); } catch (e) {} });
+      return out;
+    }
+    function press(d) {
+      while (clicks.length) {
+        var lbl = clicks.shift(), b = Array.prototype.filter.call(d.querySelectorAll('main button, button'), function (x) { return norm(x.textContent) === lbl; })[0];
+        if (b) b.click();
+      }
+    }
+    function find() {
+      var L = docs(); if (L.length && clicks.length) press(L[0].d);
+      for (var i = 0; i < L.length; i++) {
+        var d = L[i].d, best = null;
+        Array.prototype.forEach.call(d.querySelectorAll('li,tr,p,h2,h3,h4,dt,dd,summary,label,figcaption,text,div,button,td,span,small,b'), function (e) {
+          var t = norm(e.textContent); if (t.indexOf(want) !== 0) return;
+          if (!best || best.contains(e)) best = e;
+        });
+        if (best) return { el: best, d: d, fr: L[i].fr };
+      }
+      return null;
+    }
+    function reveal(hit) {
+      var d = hit.d, e = hit.el, p;
+      for (p = e; p && p !== d.body; p = p.parentElement || p.parentNode) {
+        if (p.tagName === 'DETAILS') p.open = true;
+        if (p.hidden && p.id) {
+          var id = p.id, tab = d.querySelector('[aria-controls="' + id + '"]') || d.getElementById('t-' + id.replace(/^p-/, '')) || d.querySelector('[data-t="' + id.replace(/^p-/, '') + '"]') || d.querySelector('[data-tab="' + id.replace(/^p-/, '') + '"]');
+          if (tab) tab.click();
+        }
+      }
+    }
+    function mark(hit) {
+      var d = hit.d;
+      if (!d.getElementById('rmo-hit-css')) { var st = d.createElement('style'); st.id = 'rmo-hit-css'; st.textContent = '.rmo-hit{outline:3px solid #e0a100!important;outline-offset:3px;border-radius:4px;background:rgba(224,161,0,.16)!important;scroll-margin:90px}text.rmo-hit{fill:#c98a00!important;font-weight:700}'; d.head.appendChild(st); }
+      var old = d.querySelector('.rmo-hit'); if (old) old.classList.remove('rmo-hit');
+      var el = hit.el; if (el.tagName === 'TD' || el.tagName === 'SPAN' || el.tagName === 'B' || el.tagName === 'SMALL') el = el.closest('tr,li,p,div') || el;
+      if (/^H[234]$/.test(el.tagName) && el.parentElement && el.parentElement.matches('.rx, [data-card]')) el = el.parentElement; // a heading of a box: mark the whole box
+      el.classList.add('rmo-hit');
+      try {
+        if (hit.fr) { hit.fr.scrollIntoView({ block: 'start' }); var w = f.contentWindow, r = el.getBoundingClientRect(), fr = hit.fr.getBoundingClientRect(); w.scrollBy(0, fr.top + r.top - w.innerHeight / 3); }
+        else el.scrollIntoView({ block: 'center' });
+      } catch (e) {}
+    }
+    (function loop() {
+      var hit = find();
+      if (hit) { reveal(hit); setTimeout(function () { mark(hit); }, 120); return; }
+      if (++tries < 25) setTimeout(loop, 200);
+    })();
   }
   function tool(id, i, cs, fromToday, kstep, kfrom) {
     var t = byId(id); if (!t || !t.tools[i]) return notFound();
@@ -815,6 +874,7 @@
         });
       }
       hookSel(d, f.contentWindow, null);
+      if (route[3] === 'k' && route[6]) setTimeout(function () { kitFocus(f, decodeURIComponent(route[6])); }, 250);
       /* pictures shown inside a study kit step are frames of their own: hook each one too */
       function hookEmbeds() {
         Array.prototype.forEach.call(d.querySelectorAll('iframe.embf'), function (ef) {

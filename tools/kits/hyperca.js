@@ -15,7 +15,8 @@ window.KIT = {
       { rx: { h: 'Then lower the calcium', items: ['Zoledronic acid 4 mg IV over 15 minutes, after rehydration, and the dose is adjusted for kidney function.', 'It works in 2 to 4 days. Check the kidney function first.', 'Steroids (prednisolone) for lymphoma, myeloma or sarcoid. Not for hyperparathyroidism.'] } }] },
     { h: 'Find the cause', blocks: [
       { rx: { h: 'Tests', items: ['Calcium, albumin, phosphate, kidney function, magnesium.', 'PTH: high or normal points to the parathyroid. A low PTH points to cancer or vitamin D.', 'Serum protein electrophoresis and free light chains for myeloma. Chest X-ray.'] } },
-      { rx: { h: 'Call your registrar if', cls: 'warn', items: ['Corrected calcium 3.5 or more, or confusion.', 'ECG changes, or kidney injury.', 'A new cancer is suspected.'] } }] }
+      { rx: { h: 'Call your registrar if', cls: 'warn', items: ['Corrected calcium 3.5 or more, or confusion.', 'ECG changes, or kidney injury.', 'A new cancer is suspected.'] } },
+      { rx: { h: 'Mild, with a raised PTH', items: ['Stop contributing drugs', 'Oral fluids', 'Repeat calcium', 'Refer to endocrinology or surgery for primary hyperparathyroidism', 'No bisphosphonate or large-volume saline'] } }] }
   ],
   opts: [['sal', '0.9% saline first'], ['zol', 'Zoledronic acid'], ['stop', 'Stop the drug'], ['pth', 'Check the PTH and cause'], ['oral', 'Oral fluids and review']],
   items: [
