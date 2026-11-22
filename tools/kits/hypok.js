@@ -9,7 +9,8 @@ window.KIT = {
         ['2.5 to 2.9', 'Moderate', 'Oral or IV. ECG. Check magnesium.'],
         ['Below 2.5, or any ECG change or symptoms', 'Severe', 'IV replacement on a monitor. Call your registrar.']] } },
       { rx: { h: 'Causes: ask about these', items: ['Gut losses: vomiting, diarrhoea, a high-output stoma.', 'Kidney losses: furosemide, thiazides, high-dose steroid.', 'Shift into cells: insulin, salbutamol, alkalosis.', 'Low magnesium makes the potassium hard to correct.'] } },
-      { rx: { h: 'ECG changes of low potassium', items: ['Flat T waves, ST depression, prominent U waves.', 'Ectopics, then atrial and ventricular arrhythmias, including torsades.', 'Digoxin makes all of this worse: low potassium raises the risk of toxicity.'] } }] },
+      { rx: { h: 'ECG changes of low potassium', items: ['Flat T waves, ST depression, prominent U waves.', 'Ectopics, then atrial and ventricular arrhythmias, including torsades.', 'Digoxin makes all of this worse: low potassium raises the risk of toxicity.'] } },
+      { embed: { src: 'hypok_causes.html?embed=1&tabs=1', title: 'Low potassium: where does it go? (kidney lab, sort the cause, summary)', h: 1000 } }] },
     { h: 'Replace it safely', say: 'The route and the rate matter more than the dose. A push of potassium can stop the heart.', blocks: [
       { rx: { h: 'By mouth when you can', items: ['Mild or moderate with no ECG changes and a working gut: oral potassium chloride, per your hospital protocol.', 'Do not give a large number of tablets at once.'] } },
       { rx: { h: 'Into the vein', cls: 'stop', items: ['Potassium chloride 10 mmol in 100 mL over 1 hour through a peripheral line (NSW).', 'Never an IV push. Never add potassium to the Hartmann bag that is already running.', 'Faster than 10 mmol an hour needs a monitored setting and senior approval.', 'Recheck the potassium after each 20 to 40 mmol, and do not overshoot in kidney failure.'] } }] },
