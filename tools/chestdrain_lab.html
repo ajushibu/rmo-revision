@@ -15,11 +15,11 @@
   --diff: #d9b43a; --diff-t: #352e14; --good: #62b58a; --good-t: #1a3226; --lung: #a8645e; --air: #243445; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; margin: 0;
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(16px * var(--fs,1)); line-height: 1.55; margin: 0;
   padding-block: 22px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
 h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.25; margin: 0 0 6px; }
+h2 { font-family: var(--display); font-weight: 700; font-size: calc(20px * var(--fs,1)); line-height: 1.25; margin: 0 0 6px; }
 .lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .tab { font: inherit; font-weight: 600; padding: 9px 14px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
@@ -39,7 +39,7 @@ svg text { font-family: var(--body); fill: var(--ink); }
 .say { border-left: 4px solid var(--b-fill); background: var(--b-tint); padding: 10px 14px; border-radius: 8px; }
 .say.bad { border-color: var(--a-fill); background: var(--a-tint); }
 .say.ok { border-color: var(--good); background: var(--good-t); }
-.small { color: var(--muted); font-size: 14px; }
+.small { color: var(--muted); font-size: calc(14px * var(--fs,1)); }
 .grid2 { display: grid; gap: 14px; grid-template-columns: 1fr; }
 @media (min-width: 760px) { .grid2 { grid-template-columns: 3fr 2fr; } }
 .opt { text-align: left; font: inherit; padding: 11px 14px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }

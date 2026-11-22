@@ -190,7 +190,7 @@
       'background-image:linear-gradient(var(--mon-line,#22323f) 1px,transparent 1px),linear-gradient(90deg,var(--mon-line,#22323f) 1px,transparent 1px);' +
       'background-size:20px 20px;background-position:0 0;opacity:1}' +
       '.ecg-wrap canvas{display:block;width:100%;height:96px}' +
-      '.ecg-cap{position:absolute;left:6px;top:3px;font:10px/1 var(--mono,monospace);letter-spacing:.08em;color:var(--mon-dim,#6f8798)}';
+      '.ecg-cap{position:absolute;left:6px;top:3px;font:calc(10px * var(--fs,1))/1 var(--mono,monospace);letter-spacing:.08em;color:var(--mon-dim,#6f8798)}';
     document.head.appendChild(s);
   }
 

@@ -19,28 +19,12 @@
   if (mq) { if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply); }
   window.addEventListener('storage', function (e) { if (e.key === KEY) apply(); });
   document.addEventListener('DOMContentLoaded', apply);
-  /* Text size: localStorage 'rmo-fs' = 0.9 | 1 | 1.15 | 1.3, per device. The app scales its own pages (not the frame a study tool
-     sits in); each tool scales itself. A frame inside a scaled frame may already be scaled by the browser (Chromium shows this as a
-     larger devicePixelRatio), so it only adds what is still missing. */
-  var FS = 'rmo-fs', isApp = !/\/tools\//.test(location.pathname);
+  /* Text size: localStorage 'rmo-fs' = 0.9 | 1 | 1.15 | 1.3, per device. Only the words scale: every font size in the app and the tools is
+     calc(Npx * var(--fs,1)), and this file sets --fs on the page (app and each tool frame alike). Boxes and spacing stay the same. */
+  var FS = 'rmo-fs';
   function fsPref() { var v = 1; try { v = parseFloat(localStorage.getItem(FS)) || 1; } catch (e) {} return v >= 0.8 && v <= 1.6 ? v : 1; }
-  function applyFs() {
-    var z = fsPref();
-    if (isApp) { d.style.setProperty('--fs', z); d.setAttribute('data-fs', z === 1 ? '' : 'on'); effW(); return; }
-    var inh = 1; try { if (window.parent !== window && window.parent.devicePixelRatio) inh = window.devicePixelRatio / window.parent.devicePixelRatio; } catch (e) {}
-    if (!(inh > 0.5 && inh < 3)) inh = 1;
-    var own = Math.abs(z / inh - 1) < 0.03 ? 1 : z / inh;
-    d.style.zoom = own === 1 ? '' : String(own);
-  }
-  /* App pages only: the zoom makes the page behave as if the window were narrower, so tell the CSS which width bands apply (data-w: md = under 1100, sm = under 761) */
-  function effW() {
-    if (!isApp) return;
-    var z = fsPref(), w = (window.innerWidth || document.documentElement.clientWidth) / z, t = [];
-    if (z !== 1) { if (w <= 1099) t.push('md'); if (w <= 760) t.push('sm'); }
-    d.setAttribute('data-w', t.join(' '));
-  }
+  function applyFs() { var z = fsPref(); d.style.setProperty('--fs', z); d.setAttribute('data-fs', z === 1 ? '' : 'on'); }
   applyFs();
-  window.addEventListener('resize', effW); window.addEventListener('orientationchange', effW);
   window.addEventListener('storage', function (e) { if (e.key === FS) applyFs(); });
   window.RMOFont = { get: fsPref, set: function (v) { try { if (v === 1) localStorage.removeItem(FS); else localStorage.setItem(FS, String(v)); } catch (e) {} applyFs();
     try { Array.prototype.forEach.call(document.querySelectorAll('iframe'), function (f) { var w = f.contentWindow; if (w && w.RMOFont) w.RMOFont.apply(); }); } catch (e) {} }, apply: applyFs };

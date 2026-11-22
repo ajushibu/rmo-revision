@@ -10,12 +10,12 @@
 }
 html[data-theme="dark"] { color-scheme: dark; }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; margin: 0;
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(16px * var(--fs,1)); line-height: 1.55; margin: 0;
   padding-block: 22px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 main { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
 h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5vw, 32px); line-height: 1.15; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
-h3 { font-family: var(--display); font-size: 16px; margin: 0 0 4px; }
+h2 { font-family: var(--display); font-weight: 700; font-size: calc(20px * var(--fs,1)); line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h3 { font-family: var(--display); font-size: calc(16px * var(--fs,1)); margin: 0 0 4px; }
 .lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tabs button { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 12px 14px; min-height: 44px; cursor: pointer; white-space: nowrap; }
@@ -24,9 +24,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 .panel { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .panel[hidden] { display: none; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
-.hint { color: var(--muted); font-size: 14px; margin: 0; }
+.hint { color: var(--muted); font-size: calc(14px * var(--fs,1)); margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { font: inherit; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; min-height: 44px; padding: 4px 14px; cursor: pointer; }
+.chip { font: inherit; font-size: calc(14px * var(--fs,1)); font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; min-height: 44px; padding: 4px 14px; cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .dials { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 22px; }
 @media (max-width: 640px) { .dials { grid-template-columns: 1fr; } #st-card { grid-template-columns: 1fr !important; } }
@@ -34,15 +34,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--b-fill); ou
 .dial label { display: flex; justify-content: space-between; font-weight: 650; }
 .dial label span { font-weight: 600; color: var(--muted); }
 .dial input { width: 100%; height: 44px; accent-color: var(--ink); margin: 2px 0 0; }
-.dial small { color: var(--muted); font-size: 13px; display: block; }
-.big { font-size: 28px; font-weight: 750; letter-spacing: -.02em; line-height: 1.1; }
+.dial small { color: var(--muted); font-size: calc(13px * var(--fs,1)); display: block; }
+.big { font-size: calc(28px * var(--fs,1)); font-weight: 750; letter-spacing: -.02em; line-height: 1.1; }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 .stat { background: var(--n-tint); border-radius: 12px; padding: 10px 12px; }
-.stat small { display: block; color: var(--muted); font-size: 13px; }
+.stat small { display: block; color: var(--muted); font-size: calc(13px * var(--fs,1)); }
 .band { border-radius: 12px; padding: 12px 14px; background: var(--n-tint); font-weight: 600; }
 .band.hi { background: var(--a-tint); } .band.mid { background: var(--diff-t); } .band.ok { background: var(--good-t); }
 .why { margin: 0; max-width: 64ch; }
-.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot { font-size: calc(13px * var(--fs,1)); color: var(--muted); max-width: 80ch; }
 .foot p { margin: 0 0 8px; }
 
 /* embedded in a study kit */
@@ -58,50 +58,50 @@ html.emb .foot summary { cursor: pointer; font-weight: 600; margin-bottom: 6px; 
 .gauge { position: relative; height: 14px; border-radius: 7px; background: var(--n-tint); margin-top: 8px; }
 .gauge .gl { position: absolute; left: 33.3%; top: -3px; bottom: -3px; width: 2px; background: var(--ink); }
 .gauge b { position: absolute; top: -3px; width: 20px; height: 20px; border-radius: 50%; background: var(--a-fill); border: 3px solid var(--surface); transform: translateX(-50%); transition: left .3s; }
-.gscale { position: relative; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.gscale { position: relative; display: flex; justify-content: space-between; font-size: calc(12px * var(--fs,1)); color: var(--muted); margin-top: 4px; }
 .gscale span:nth-child(2) { position: absolute; left: 33.3%; transform: translateX(-50%); }
 @media (prefers-reduced-motion: reduce) { .gauge b { transition: none; } }
 
 /* chloride: dry or not */
 .cflow { display: flex; flex-direction: column; gap: 6px; }
 .cn { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
-.cn h3 { margin: 0 0 2px; font-size: 14px; color: var(--muted); font-weight: 700; }
+.cn h3 { margin: 0 0 2px; font-size: calc(14px * var(--fs,1)); color: var(--muted); font-weight: 700; }
 .cn p { margin: 0; }
 .cn.k { background: var(--n-tint); border-color: transparent; }
 .carrow { text-align: center; color: var(--muted); line-height: 1; }
-.mini { display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px; align-items: center; margin: 8px 0; font-size: 14px; }
+.mini { display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px; align-items: center; margin: 8px 0; font-size: calc(14px * var(--fs,1)); }
 .mini .tr { height: 16px; border-radius: 8px; background: var(--n-tint); position: relative; overflow: hidden; }
 .mini .tr i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--b-fill); border-radius: 8px; }
 .mini .tr s { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); text-decoration: none; }
 
 /* ledger bars */
 .row { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; margin: 6px 0; }
-.row > b { font-size: 14px; }
+.row > b { font-size: calc(14px * var(--fs,1)); }
 .bar { display: flex; height: 54px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--n-tint); }
-.bar i { display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 13px; font-weight: 700; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex-basis .25s; color: var(--on); }
+.bar i { display: flex; align-items: center; justify-content: center; font-style: normal; font-size: calc(13px * var(--fs,1)); font-weight: 700; min-width: 0; overflow: hidden; white-space: nowrap; transition: flex-basis .25s; color: var(--on); }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
 .s-na { background: var(--ink); color: var(--bg) !important; }
 .s-cl { background: var(--b-fill); }
 .s-hco { background: var(--good); }
 .s-alb { background: var(--muted); }
 .s-acid { background: var(--a-fill); }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin-top: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: calc(14px * var(--fs,1)); color: var(--muted); margin-top: 8px; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
 
 /* before and after strip */
 .ba { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 12px; }
 .ba div { border-radius: 12px; padding: 10px 12px; background: var(--n-tint); }
-.ba small { display: block; color: var(--muted); font-size: 13px; }
-.ba b { font-size: 18px; }
+.ba small { display: block; color: var(--muted); font-size: calc(13px * var(--fs,1)); }
+.ba b { font-size: calc(18px * var(--fs,1)); }
 .ba .chg { background: var(--a-tint); }
 .ba .chg.up { background: var(--diff-t); }
-.ba span { display: block; font-size: 13px; font-weight: 650; margin-top: 2px; }
+.ba span { display: block; font-size: calc(13px * var(--fs,1)); font-weight: 650; margin-top: 2px; }
 ol.steps, ul.steps { margin: 12px 0 0; padding-left: 20px; max-width: 64ch; display: grid; gap: 8px; }
 ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
 
 /* number line */
 #line { display: block; width: 100%; height: auto; }
-#tank text, #line text, #chart text { fill: var(--ink); font-family: var(--body); font-size: 13px; }
+#tank text, #line text, #chart text { fill: var(--ink); font-family: var(--body); font-size: calc(13px * var(--fs,1)); }
 #tank { display: block; width: 100%; height: auto; max-width: 520px; margin-inline: auto; }
 #chart { display: block; width: 100%; height: auto; max-width: 520px; margin-inline: auto; }
 #line { max-width: 520px; margin-inline: auto; }
@@ -228,7 +228,7 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
     </svg>
     <div><div class="band" id="st-band"></div><p class="why" id="st-fix" style="margin-top:10px"></p>
       <div id="st-ucl" style="margin-top:12px" hidden>
-        <b style="font-size:14px">Urine chloride test (shape only, not a measured value)</b>
+        <b style="font-size:calc(14px * var(--fs,1))">Urine chloride test (shape only, not a measured value)</b>
         <div class="gauge" aria-hidden="true"><i class="gl"></i><b id="st-mark"></b></div>
         <div class="gscale"><span>0</span><span>20 mmol/L</span><span>60+</span></div>
         <p class="why" id="st-uct" style="margin-top:6px"></p>
@@ -343,18 +343,18 @@ ol.steps li::marker, ul.steps li::marker { color: var(--muted); }
     for (var v = 0; v <= 40; v += 10) o += '<text x="' + (xl - 8) + '" y="' + (TY(v) + 4) + '" text-anchor="end">' + v + '</text>';
     o += tank(xl, exp, extra > 2) + tank(xr, hc, false);
     o += '<line x1="' + xl + '" y1="' + TY(24) + '" x2="' + (xr + w) + '" y2="' + TY(24) + '" stroke="var(--muted)" stroke-dasharray="2 4"/>';
-    o += '<text x="' + ((xl + w + xr) / 2) + '" y="' + (TY(24) - 6) + '" text-anchor="middle" style="fill:var(--muted);font-size:12px">healthy 24</text>';
+    o += '<text x="' + ((xl + w + xr) / 2) + '" y="' + (TY(24) - 6) + '" text-anchor="middle" style="fill:var(--muted);font-size:calc(12px * var(--fs,1))">healthy 24</text>';
     if (extra > 2 && 24 - exp >= 3) o += '<text x="' + (xl + w / 2) + '" y="' + ((TY(24) + TY(exp)) / 2 + 5) + '" text-anchor="middle" style="fill:#fff;font-weight:700">acid used up ' + Math.round(24 - exp) + '</text>';
     // the should-be line crosses to the right tank so the two can be compared by eye
     o += '<line x1="' + xl + '" y1="' + TY(exp) + '" x2="' + (xr + w + 8) + '" y2="' + TY(exp) + '" stroke="' + ink + '" stroke-width="2" stroke-dasharray="6 4"/>';
-    o += '<text x="' + (xl + w / 2) + '" y="' + (TY(exp) + 20) + '" text-anchor="middle" style="fill:#fff;font-weight:800;font-size:16px">' + Math.round(exp) + '</text>';
-    o += '<text x="' + (xr + w / 2) + '" y="' + (TY(hc) + (hc > 6 ? 20 : -6)) + '" text-anchor="middle" style="fill:' + (hc > 6 ? '#fff' : 'var(--ink)') + ';font-weight:800;font-size:16px">' + Math.round(hc) + '</text>';
-    o += '<text x="' + (xl + w / 2) + '" y="20" text-anchor="middle" style="font-weight:800;font-size:15px">Should be</text><text x="' + (xl + w / 2) + '" y="38" text-anchor="middle" style="fill:var(--muted);font-size:11px">if only acid happened</text>';
-    o += '<text x="' + (xr + w / 2) + '" y="20" text-anchor="middle" style="font-weight:800;font-size:15px">Comes out</text><text x="' + (xr + w / 2) + '" y="38" text-anchor="middle" style="fill:var(--muted);font-size:12px">the lab result</text>';
+    o += '<text x="' + (xl + w / 2) + '" y="' + (TY(exp) + 20) + '" text-anchor="middle" style="fill:#fff;font-weight:800;font-size:calc(16px * var(--fs,1))">' + Math.round(exp) + '</text>';
+    o += '<text x="' + (xr + w / 2) + '" y="' + (TY(hc) + (hc > 6 ? 20 : -6)) + '" text-anchor="middle" style="fill:' + (hc > 6 ? '#fff' : 'var(--ink)') + ';font-weight:800;font-size:calc(16px * var(--fs,1))">' + Math.round(hc) + '</text>';
+    o += '<text x="' + (xl + w / 2) + '" y="20" text-anchor="middle" style="font-weight:800;font-size:calc(15px * var(--fs,1))">Should be</text><text x="' + (xl + w / 2) + '" y="38" text-anchor="middle" style="fill:var(--muted);font-size:calc(11px * var(--fs,1))">if only acid happened</text>';
+    o += '<text x="' + (xr + w / 2) + '" y="20" text-anchor="middle" style="font-weight:800;font-size:calc(15px * var(--fs,1))">Comes out</text><text x="' + (xr + w / 2) + '" y="38" text-anchor="middle" style="fill:var(--muted);font-size:calc(12px * var(--fs,1))">the lab result</text>';
     if (Math.abs(d) > 3) {
       var y1 = TY(exp), y2 = TY(hc), col = d > 0 ? 'var(--diff)' : 'var(--a-fill)', bx = xr + w + 10;
       o += '<path d="M' + bx + ' ' + y1 + ' v' + (y2 - y1) + '" stroke="' + col + '" stroke-width="4" fill="none"/>';
-      o += '<text x="' + (bx + 8) + '" y="' + ((y1 + y2) / 2 + 2) + '" style="font-weight:800;fill:' + col + ';font-size:16px">' + Math.round(Math.abs(d)) + '</text><text x="' + (bx + 8) + '" y="' + ((y1 + y2) / 2 + 18) + '" style="font-weight:700;fill:' + col + ';font-size:12px">' + (d > 0 ? 'higher' : 'lower') + '</text>';
+      o += '<text x="' + (bx + 8) + '" y="' + ((y1 + y2) / 2 + 2) + '" style="font-weight:800;fill:' + col + ';font-size:calc(16px * var(--fs,1))">' + Math.round(Math.abs(d)) + '</text><text x="' + (bx + 8) + '" y="' + ((y1 + y2) / 2 + 18) + '" style="font-weight:700;fill:' + col + ';font-size:calc(12px * var(--fs,1))">' + (d > 0 ? 'higher' : 'lower') + '</text>';
     }
     $('#tank').innerHTML = o;
   }

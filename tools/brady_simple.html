@@ -26,13 +26,13 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(15px * var(--fs,1)); line-height: 1.55; margin: 0;
   padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
 h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: calc(20px * var(--fs,1)); line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
 .lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
-.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--mono); font-size: calc(11px * var(--fs,1)); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
@@ -43,20 +43,20 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 @media (max-width: 720px) { .split { grid-template-columns: minmax(0, 1fr); } }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
 .stack { display: flex; flex-direction: column; gap: 12px; }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
-.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+.hint { color: var(--muted); font-size: calc(13px * var(--fs,1)); margin: 0; }
+.flag { background: var(--diff-t); border-radius: 6px; padding: 10px 12px; font-size: calc(14px * var(--fs,1)); }
 .flag b { color: var(--diff); }
 .checks { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
 .checks label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
 .checks input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--b-fill); flex: none; }
-.checks .pts { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); flex: none; padding-left: 8px; }
+.checks .pts { margin-left: auto; font-family: var(--mono); font-size: calc(12px * var(--fs,1)); color: var(--muted); flex: none; padding-left: 8px; }
 .result { border-radius: 6px; padding: 10px 12px; background: var(--n-tint); margin-top: 12px; font-weight: 500; }
 .result.ok { background: var(--good-t); } .result.go { background: var(--go-t); } .result.diff { background: var(--diff-t); }
 .fields { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-.fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: calc(13px * var(--fs,1)); color: var(--muted); }
 .fields input[type="number"], .fields select { font: inherit; width: 130px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
 .drill { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
-.drill .item { font-family: var(--display); font-size: 21px; line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
+.drill .item { font-family: var(--display); font-size: calc(21px * var(--fs,1)); line-height: 1.35; font-weight: 600; max-width: 40ch; text-wrap: balance; }
 .drill .btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn { font: inherit; font-weight: 500; border: 1px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 8px 14px; cursor: pointer; }
 .btn:disabled { opacity: .55; cursor: default; }
@@ -68,40 +68,40 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 .bar { height: 6px; background: var(--n-tint); border-radius: 3px; width: 100%; max-width: 320px; overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--ink); }
 .scroll { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: calc(14px * var(--fs,1)); }
 th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+th { font-weight: 600; color: var(--muted); font-size: calc(12px * var(--fs,1)); text-transform: uppercase; letter-spacing: .06em; }
 td:first-child { font-weight: 500; width: 24%; }
 td.aus { background: var(--diff-t); }
 .scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
-svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
-svg .sm { font-size: 11px; fill: var(--muted); }
+svg text { font-family: var(--body); fill: var(--ink); font-size: calc(12px * var(--fs,1)); }
+svg .sm { font-size: calc(11px * var(--fs,1)); fill: var(--muted); }
 svg .box { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
 svg .go { fill: var(--good-t); stroke: var(--good); stroke-width: 1.5; }
 svg .stop { fill: var(--a-tint); stroke: var(--a-fill); stroke-width: 1.5; }
 svg .step { fill: var(--b-tint); stroke: var(--b-fill); stroke-width: 1.5; }
 svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
 svg .m-n { fill: var(--ink); }
-figcaption { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 72ch; }
+figcaption { margin-top: 10px; color: var(--muted); font-size: calc(14px * var(--fs,1)); max-width: 72ch; }
 figure { margin: 0; }
-.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot { font-size: calc(13px * var(--fs,1)); color: var(--muted); max-width: 80ch; }
 .foot p { margin: 0 0 8px; }
 </style>
 <script src="../look.js"></script><link rel="stylesheet" href="look.css">
 <style>
 .step{display:flex;flex-direction:column;gap:14px}
-.step h2{font-size:24px}
-.say{font-size:18px;line-height:1.5;max-width:56ch;margin:0}
+.step h2{font-size:calc(24px * var(--fs,1))}
+.say{font-size:calc(18px * var(--fs,1));line-height:1.5;max-width:56ch;margin:0}
 .say b{font-weight:600}
 .dots{display:flex;gap:6px;align-items:center}.dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:block}.dots i.on{background:var(--ink)}
 .nav{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 svg .p{stroke:var(--b-fill);stroke-width:2.5;fill:none}svg .q{stroke:var(--ink);stroke-width:2.5;fill:none}
 svg .pr{stroke:var(--diff);stroke-width:5;stroke-linecap:round}svg .prx{stroke:var(--a-fill);stroke-width:3}
-svg text{font-size:13px}svg .big{font-size:15px;font-weight:600}
+svg text{font-size:calc(13px * var(--fs,1))}svg .big{font-size:calc(15px * var(--fs,1));font-weight:600}
 svg .gate{fill:var(--b-tint);stroke:var(--b-fill);stroke-width:2}svg .wire{fill:var(--a-tint);stroke:var(--a-fill);stroke-width:2}svg .neutral{fill:var(--n-tint);stroke:var(--ink);stroke-width:1.5}
 svg .arr{stroke:var(--ink);stroke-width:2;fill:none}
 .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.sum .card h3{font-family:var(--display);font-size:18px;margin:0 0 6px}.sum p{margin:6px 0 0;font-size:15px}
+.sum .card h3{font-family:var(--display);font-size:calc(18px * var(--fs,1));margin:0 0 6px}.sum p{margin:6px 0 0;font-size:calc(15px * var(--fs,1))}
 </style>
 
 <main>

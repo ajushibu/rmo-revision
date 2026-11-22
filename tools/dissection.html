@@ -33,7 +33,7 @@ color-scheme: dark;
 color-scheme: dark;
 }
 body {
-background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55;
+background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(15px * var(--fs,1)); line-height: 1.55;
 padding-block: 28px 40px;
 padding-left: max(16px, env(safe-area-inset-left, 0px));
 padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -44,12 +44,12 @@ h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 
 figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; min-width: 0; }
 .scroll { overflow-x: auto; }
 .scroll svg { display: block; width: 100%; min-width: 720px; height: auto; }
-figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; max-width: 70ch; }
+figcaption { margin-top: 12px; color: var(--muted); font-size: calc(14px * var(--fs,1)); max-width: 70ch; }
 svg text { font-family: var(--body); fill: var(--ink); }
 .t-muted { fill: var(--muted); }
-.t-mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
-.t-row { font-size: 13px; font-weight: 600; }
-.t-in { font-size: 12px; font-weight: 500; }
+.t-mono { font-family: var(--mono); font-size: calc(11px * var(--fs,1)); letter-spacing: .08em; text-transform: uppercase; }
+.t-row { font-size: calc(13px * var(--fs,1)); font-weight: 600; }
+.t-in { font-size: calc(12px * var(--fs,1)); font-weight: 500; }
 .seg-a { fill: var(--a-tint); stroke: var(--line); }
 .seg-n { fill: var(--n-tint); stroke: var(--line); }
 .seg-b { fill: var(--b-tint); stroke: var(--line); }
@@ -63,14 +63,14 @@ svg text { font-family: var(--body); fill: var(--ink); }
 .tick { stroke: var(--ink); stroke-width: 1.5; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
-.card h2 { font-family: var(--display); font-size: 20px; line-height: 1.25; margin: 0 0 2px; }
-.card .map { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; margin: 0 0 12px; }
+.card h2 { font-family: var(--display); font-size: calc(20px * var(--fs,1)); line-height: 1.25; margin: 0 0 2px; }
+.card .map { font-family: var(--mono); font-size: calc(12px * var(--fs,1)); letter-spacing: .04em; margin: 0 0 12px; }
 .card.a { border-top: 4px solid var(--a-fill); }
 .card.b { border-top: 4px solid var(--b-fill); }
 .card.a .map { color: var(--a-fill); }
 .card.b .map { color: var(--b-fill); }
 .card ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
-.note { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.note { font-size: calc(13px * var(--fs,1)); color: var(--muted); max-width: 80ch; }
 .note p { margin: 0 0 8px; }
 </style>
 <script src="../look.js"></script><link rel="stylesheet" href="look.css">
@@ -87,7 +87,7 @@ svg text { font-family: var(--body); fill: var(--ink); }
 <line class="tick" x1="430" y1="60" x2="430" y2="44"/>
 <line class="tick" x1="460" y1="60" x2="460" y2="44"/>
 <line class="tick" x1="490" y1="60" x2="490" y2="44"/>
-<text class="t-in t-muted" x="460" y="34" text-anchor="middle" style="font-size:11px">brachiocephalic · L carotid · L subclavian</text>
+<text class="t-in t-muted" x="460" y="34" text-anchor="middle" style="font-size:calc(11px * var(--fs,1))">brachiocephalic · L carotid · L subclavian</text>
 <text class="t-mono t-muted" x="170" y="87" text-anchor="end">Aorta</text>
 <rect class="seg-a" x="180" y="60" width="60" height="44"/>
 <rect class="seg-a" x="240" y="60" width="160" height="44"/>
@@ -122,8 +122,8 @@ svg text { font-family: var(--body); fill: var(--ink); }
 <rect class="bar-b" x="520" y="316" width="250" height="24"/>
 <polygon class="bar-b" points="770,316 784,328 770,340"/>
 <text class="t-in on-b" x="645" y="332" text-anchor="middle">descending only</text>
-<text class="t-in t-muted" x="400" y="356" text-anchor="middle" style="font-size:11px">arch begins</text>
-<text class="t-in t-muted" x="520" y="356" text-anchor="middle" style="font-size:11px">beyond left subclavian</text>
+<text class="t-in t-muted" x="400" y="356" text-anchor="middle" style="font-size:calc(11px * var(--fs,1))">arch begins</text>
+<text class="t-in t-muted" x="520" y="356" text-anchor="middle" style="font-size:calc(11px * var(--fs,1))">beyond left subclavian</text>
 </svg>
 </div>
 <figcaption>Type A equals DeBakey I plus II. Type B equals DeBakey III. Arrowheads mean the tear can continue down into the abdominal aorta. Dashed outline means it may or may not extend that far.</figcaption>

@@ -2,12 +2,12 @@
 .modeseg { --ms-c: var(--line); --ms-t: var(--n-tint); display: inline-flex; margin: 0; padding: 3px; border: 1.5px solid var(--ms-c); border-radius: 999px; background: var(--ms-t); }
 .modeseg[data-m="easy"] { --ms-c: #2f9e6a; --ms-t: rgba(95,211,154,.16); }
 .modeseg[data-m="hard"] { --ms-c: #d5463b; --ms-t: rgba(255,122,112,.16); }
-.modeseg button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; min-width: 62px; padding: 0 14px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+.modeseg button { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; min-width: 62px; padding: 0 14px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; font-weight: 700; font-size: calc(15px * var(--fs,1)); cursor: pointer; }
 .modeseg button[aria-checked="true"][data-mode="easy"] { background: #5FD39A; color: #0D1518; }
 .modeseg button[aria-checked="true"][data-mode="hard"] { background: #FF7A70; color: #0D1518; }
 .modeseg button:disabled { opacity: .45; cursor: default; }
 .btns .modeseg { align-self: center; }
-.modehint { margin: 4px 0 12px; font-size: 14px; }
+.modehint { margin: 4px 0 12px; font-size: calc(14px * var(--fs,1)); }
 .casehead { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .casehead h2 { margin: 0; }
-.casehead .modeseg button { min-height: 32px; min-width: 54px; padding: 0 12px; font-size: 14px; }
+.casehead .modeseg button { min-height: 32px; min-width: 54px; padding: 0 12px; font-size: calc(14px * var(--fs,1)); }

@@ -21,14 +21,14 @@ color-scheme: dark;
 color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0;
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(15px * var(--fs,1)); line-height: 1.55; margin: 0;
 padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 main { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
 h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5vw, 34px); line-height: 1.15; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--display); font-weight: 600; font-size: 20px; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 600; font-size: calc(20px * var(--fs,1)); line-height: 1.25; margin: 0 0 6px; text-wrap: balance; }
 .lede { margin: 8px 0 0; color: var(--muted); max-width: 64ch; }
-.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.mono { font-family: var(--mono); font-size: calc(11px * var(--fs,1)); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hint { color: var(--muted); font-size: calc(13px * var(--fs,1)); margin: 0; }
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
 .tabs button { font: inherit; font-weight: 500; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; white-space: nowrap; }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
@@ -42,19 +42,19 @@ button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px s
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
 .ctl { display: flex; flex-direction: column; gap: 6px; }
-.ctl > span { font-size: 13px; color: var(--muted); }
+.ctl > span { font-size: calc(13px * var(--fs,1)); color: var(--muted); }
 .tog { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .tog input { width: 16px; height: 16px; accent-color: var(--atr); }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .stat { border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; background: var(--surface); }
-.stat b { display: block; font-family: var(--mono); font-size: 26px; line-height: 1.15; font-weight: 600; }
+.stat b { display: block; font-family: var(--mono); font-size: calc(26px * var(--fs,1)); line-height: 1.15; font-weight: 600; }
 .stat b.bad { color: var(--bad); } .stat b.warn { color: var(--warn); } .stat b.good { color: var(--good); }
 .verdict { border-radius: 6px; padding: 10px 14px; background: var(--n-tint); font-weight: 500; }
 .verdict.bad { background: var(--bad-t); } .verdict.good { background: var(--good-t); } .verdict.warn { background: var(--warn-t); }
 .scroll { overflow-x: auto; }
 .scroll svg { display: block; width: 100%; min-width: 640px; height: auto; }
-svg text { font-family: var(--body); fill: var(--ink); font-size: 12px; }
-svg .sm { font-size: 11px; fill: var(--muted); }
+svg text { font-family: var(--body); fill: var(--ink); font-size: calc(12px * var(--fs,1)); }
+svg .sm { font-size: calc(11px * var(--fs,1)); fill: var(--muted); }
 svg .chamber { fill: var(--n-tint); stroke: var(--ink); stroke-width: 1.5; }
 svg .atrium { fill: var(--atr-t); stroke: var(--atr); stroke-width: 1.5; }
 svg .scar { fill: var(--ink); opacity: .75; }
@@ -67,10 +67,10 @@ svg .no { stroke: var(--bad); stroke-width: 2.5; fill: none; }
 .gauge i { position: absolute; inset: 0 auto 0 0; background: var(--good); transition: width .3s, background .3s; }
 .gauge i.warn { background: var(--warn); } .gauge i.bad { background: var(--bad); }
 .gauge u { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed var(--ink); }
-.gl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.gl { display: flex; justify-content: space-between; font-size: calc(12px * var(--fs,1)); color: var(--muted); margin-top: 3px; }
 @media (prefers-reduced-motion: reduce) { .gauge i { transition: none; } }
 .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
-.foot { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.foot { font-size: calc(13px * var(--fs,1)); color: var(--muted); max-width: 80ch; }
 </style>
 <script src="../look.js"></script><link rel="stylesheet" href="look.css">
 </head><body><main>
@@ -315,12 +315,12 @@ function scar() {
 var fle = $('#s-fle').checked, sc = V.v === 'scar';
 var h = '<rect x="10" y="20" width="400" height="180" rx="22" fill="var(--n-tint)" stroke="var(--ink)" stroke-width="1.5"/>';
 h += '<text x="22" y="40" class="sm">Ventricular muscle: the wave should cross once, then stop</text>';
-if (sc) h += '<ellipse cx="215" cy="115" rx="34" ry="30" class="scar"/><text x="215" y="119" text-anchor="middle" style="fill:var(--bg);font-size:11px">scar</text>';
+if (sc) h += '<ellipse cx="215" cy="115" rx="34" ry="30" class="scar"/><text x="215" y="119" text-anchor="middle" style="fill:var(--bg);font-size:calc(11px * var(--fs,1))">scar</text>';
 var loop = sc && fle;
 h += '<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="' + (loop ? 'var(--bad)' : 'var(--good)') + '"/></marker></defs>';
 if (!sc) { h += '<path class="ok" d="M30 80 H380" marker-end="url(#ar)"/><path class="ok" d="M30 120 H380" marker-end="url(#ar)"/><path class="ok" d="M30 160 H380" marker-end="url(#ar)"/>'; }
 else if (!loop) { h += '<path class="ok" d="M30 70 H380" marker-end="url(#ar)"/><path class="ok" d="M30 165 H380" marker-end="url(#ar)"/><path class="ok" d="M30 118 H170 M260 118 H380" marker-end="url(#ar)"/>'; }
-else { h += '<path class="no" d="M30 70 H330 Q385 70 385 115 Q385 160 330 160 H215 Q160 160 160 115 Q160 80 190 78" marker-end="url(#ar)"/><text x="215" y="190" text-anchor="middle" style="fill:var(--bad);font-size:12px">wave circles the scar and re-excites the muscle</text>'; }
+else { h += '<path class="no" d="M30 70 H330 Q385 70 385 115 Q385 160 330 160 H215 Q160 160 160 115 Q160 80 190 78" marker-end="url(#ar)"/><text x="215" y="190" text-anchor="middle" style="fill:var(--bad);font-size:calc(12px * var(--fs,1))">wave circles the scar and re-excites the muscle</text>'; }
 $('#s-svg').innerHTML = h;
 var m = $('#s-msg');
 if (loop) { m.className = 'verdict bad'; m.textContent = 'Slowed conduction lets the wave catch its own tail around the scar: a re-entry loop, the basis of ventricular tachycardia and VF. This is why flecainide is not used with coronary disease, scar or LV dysfunction.'; }
@@ -336,7 +336,7 @@ var rs = rng(3), h = '';
 h += '<ellipse cx="130" cy="85" rx="90" ry="62" fill="var(--atr-t)" stroke="var(--atr)" stroke-width="1.5"/><text x="130" y="30" text-anchor="middle" class="sm">Atrium in AF (quivering, not emptying)</text>';
 for (var i = 0; i < 14; i++) h += '<circle cx="' + (80 + rs() * 100) + '" cy="' + (60 + rs() * 55) + '" r="4" fill="var(--bad)" opacity=".55"/>';
 var hasClot = longAF && !ac;
-if (hasClot) h += '<ellipse cx="160" cy="105" rx="26" ry="14" fill="var(--bad)"/><text x="160" y="109" text-anchor="middle" style="fill:#fff;font-size:11px">clot</text>';
+if (hasClot) h += '<ellipse cx="160" cy="105" rx="26" ry="14" fill="var(--bad)"/><text x="160" y="109" text-anchor="middle" style="fill:#fff;font-size:calc(11px * var(--fs,1))">clot</text>';
 h += '<path d="M230 85 H300" stroke="var(--ink)" stroke-width="2" marker-end="url(#ak)"/><defs><marker id="ak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--ink)"/></marker></defs>';
 h += '<text x="265" y="76" text-anchor="middle" class="sm">cardioversion</text>';
 h += '<ellipse cx="400" cy="85" rx="90" ry="62" fill="var(--good-t)" stroke="var(--good)" stroke-width="1.5"/><text x="400" y="30" text-anchor="middle" class="sm">Sinus rhythm: atrium contracts again</text>';
@@ -367,7 +367,7 @@ var wAV = sinus ? 6 : Math.max(1.5, avR / 25), wAC = sinus ? 2 : Math.max(2, acc
 var g = '<defs><marker id="pw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><polygon points="0,0 10,5 0,10" fill="var(--ink)"/></marker></defs>';
 g += '<rect class="atrium" x="60" y="8" width="580" height="44" rx="22"/><text x="350" y="35" text-anchor="middle">Atria' + (sinus ? ' (one regular signal at a time)' : ' (400+ chaotic signals a minute)') + '</text>';
 g += '<rect class="chamber" x="60" y="148" width="580" height="44" rx="22"/><text x="350" y="175" text-anchor="middle">Ventricles</text>';
-g += '<circle cx="200" cy="100" r="16" fill="var(--warn)"/><text x="200" y="104" text-anchor="middle" style="fill:#fff;font-size:11px">AV</text>';
+g += '<circle cx="200" cy="100" r="16" fill="var(--warn)"/><text x="200" y="104" text-anchor="middle" style="fill:#fff;font-size:calc(11px * var(--fs,1))">AV</text>';
 g += '<path d="M200 52 V84" stroke="var(--ink)" stroke-width="' + wAV + '" fill="none"/><path d="M200 116 V146" stroke="var(--ink)" stroke-width="' + wAV + '" fill="none"/>';
 g += '<text x="226" y="96" class="sm">AV node: speed limiter</text><text x="226" y="110" class="sm">' + (PW.drug === 'blk' ? 'tightened by the drug' : PW.drug === 'dig' ? 'slowed by digoxin' : 'filters the signals') + '</text>';
 g += '<path d="M500 52 V146" stroke="var(--bad)" stroke-width="' + wAC + '" fill="none" opacity="' + (sinus && PW.drug !== 'shock' ? '.5' : '1') + '"/>';
