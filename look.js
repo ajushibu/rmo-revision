@@ -19,10 +19,10 @@
   if (mq) { if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply); }
   window.addEventListener('storage', function (e) { if (e.key === KEY) apply(); });
   document.addEventListener('DOMContentLoaded', apply);
-  /* Text size: localStorage 'rmo-fs' = 0.9 | 1 | 1.35 | 1.6 | 1.9 (older saves 1.15 and 1.3 are read as 1.35 and 1.6), per device. Only the words scale: every font size in the app and the tools is
+  /* Text size: localStorage 'rmo-fs' = 0.9 | 1 | 1.25 | 1.5 | 1.8 (older saves are moved to the nearest slot), per device. Only the words scale: every font size in the app and the tools is
      calc(Npx * var(--fs,1)), and this file sets --fs on the page (app and each tool frame alike). Boxes and spacing stay the same. */
   var FS = 'rmo-fs';
-  function fsPref() { var v = 1; try { v = parseFloat(localStorage.getItem(FS)) || 1; } catch (e) {} if (Math.abs(v - 1.15) < 0.005) v = 1.35; else if (Math.abs(v - 1.3) < 0.005) v = 1.6; return v >= 0.8 && v <= 2 ? v : 1; }
+  function fsPref() { var v = 1; try { v = parseFloat(localStorage.getItem(FS)) || 1; } catch (e) {} if (Math.abs(v - 1.15) < 0.005 || Math.abs(v - 1.35) < 0.005) v = 1.25; else if (Math.abs(v - 1.3) < 0.005 || Math.abs(v - 1.6) < 0.005) v = 1.5; else if (Math.abs(v - 1.9) < 0.005) v = 1.8; return v >= 0.8 && v <= 2 ? v : 1; }
   function applyFs() { var z = fsPref(); d.style.setProperty('--fs', z); d.setAttribute('data-fs', z === 1 ? '' : 'on'); }
   applyFs();
   window.addEventListener('storage', function (e) { if (e.key === FS) applyFs(); });
