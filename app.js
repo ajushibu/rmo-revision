@@ -530,6 +530,9 @@
   function sideOff() { try { return localStorage.getItem('rmo-side') === 'off'; } catch (e) { return false; } }
   function applySide() { document.documentElement.setAttribute('data-side', sideOff() ? 'off' : ''); }
   applySide();
+  /* A card front is "Title" or "Title\n• ask\n• ask": the title line, then the parts the answer must cover as bullets. */
+  function qSplit(t) { var p = String(t || '').split('\n'), h = p.shift(); return { h: h, a: p.map(function (s) { return s.replace(/^•\s*/, ''); }).filter(Boolean) }; }
+  function qFlat(t) { var q = qSplit(t); return q.a.length ? q.h + ': ' + q.a.join(' · ') : q.h; }
   function sidebar(cur) {
     var q = queue(), curSys = cur.sys || '';
     var h = '<aside class="side" aria-label="Navigation"><div class="sidetop"><a class="brand" href="#/">RMO Revision</a><button type="button" class="sidehide" data-side-toggle aria-label="Hide the menu" title="Hide the menu">' + IC_SIDE + '</button></div><nav class="nav">' +
@@ -654,7 +657,7 @@
   function pendingHighlights(tid) { var done = processedHighlights(); return S.highlights.filter(function (h) { return h.topic === tid && !done[h.id]; }); }
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
-    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(it.t) + '</span>' + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st, it.id)) + '</button>';
+    var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(qSplit(it.t).h) + '</span>' + (qSplit(it.t).a.length ? '<em class="qa">' + esc(qSplit(it.t).a.join(' · ')) + '</em>' : '') + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st, it.id)) + '</button>';
     if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + kitLink(it.id, x.tid, 't') + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
@@ -713,7 +716,7 @@
     }
     var x = q.all[0], t = byId(x.tid), st = itState(x.it.id);
     rtShown = x.it.id;
-    h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p><h2>' + esc(x.it.t) + '</h2>';
+    h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p>' + (function () { var q = qSplit(x.it.t); return q.a.length ? '<h2 class="qh">' + esc(q.h) + '</h2><ul class="asks">' + q.a.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '<h2>' + esc(q.h) + '</h2>'; })();
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns">' + (q.all.length > 1 ? '<button class="link" data-later="' + x.it.id + '">Bring back later' + KH('L') + '</button>' : '') + '<button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
     else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + kitLink(x.it.id, x.tid, 'rv') + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true) + (q.all.length > 1 ? '<p class="ctxbtns"><button class="link" data-later="' + x.it.id + '">Not sure yet: bring back at the end' + KH('L') + '</button></p>' : '');

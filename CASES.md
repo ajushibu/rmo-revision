@@ -68,7 +68,8 @@ In any study tool the user can select text and press "Save highlight". Highlight
 # Card question rule (every card, including new ones from a refresh)
 
 Agreed with the user on 12 Nov 2026 after they found that short cue titles ("What loop diuretics cost you") were not enough to recall the answer.
-- `t` is a full question ending in "?" that names every part the answer covers ("Which electrolytes do loop diuretics waste, what acid-base change follows, and how do you protect against it?").
+- Front format (agreed 23 Nov 2026): when the answer has two or more parts, write `t` as a short title line, then one bullet per part, each starting `• ` and separated by `\n` (for example `"Atropine for bradycardia\n• What dose in Australia?\n• How often?\n• Up to what maximum?"`). The title says the topic; each bullet is a short plain question. A card with a single ask stays one line ending in "?". Keep every number in `t` that was there before. The app (Revise front, topic lists) and the Kindle plugin (`Core.questionHtml`) read this format.
+- Older wording of the same rule: `t` is a full question ending in "?" that names every part the answer covers ("Which electrolytes do loop diuretics waste, what acid-base change follows, and how do you protect against it?").
 - `k` answers that question and nothing more: trim facts the question does not ask for, or split them into their own card. Never trim a source line, "not verified" flag or "(My suggestion...)" note.
 - Nothing needed to answer may live only in the title: if the old title held part of the answer ("Prednisolone 40 to 50 mg daily"), move it into `k`.
 - Use the user's "what did you miss" notes (`notes`) to see which part a question failed to ask, and add that part to the question. Keep the notes.

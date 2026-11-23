@@ -25,6 +25,7 @@ local CSS = [[
 body { margin: 0; line-height: 1.35; }
 p { margin: 0 0 0.5em 0; }
 .q { font-size: 1.2em; font-weight: bold; }
+.qa { font-size: 1.05em; margin: 0.2em 0 0.2em 0.6em; }
 .old { color: #555555; }
 .ln { margin: 0 0 0.45em 0; }
 .arrow { margin: 0 0 0.45em 1.2em; }

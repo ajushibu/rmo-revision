@@ -193,7 +193,7 @@ function RMORevision:showQuestion()
     local e = q.all[1]
     local title = string.format("%s   (%d left, %s)", e.topic, #q.all, clock(self.sessSecs or 0))
     local status = string.format("%d left   %s", #q.all, clock(self.sessSecs or 0))
-    self:card(e, status, '<p class="q">' .. Core.esc(e.card.t) .. "</p>", {
+    self:card(e, status, Core.questionHtml(e.card.t, "q"), {
         { { text = _("Show answer"), callback = function() self:showAnswer(e) end } },
         { { text = _("Bring back later"), callback = function() self:bringBack(e) end },
           { text = _("Stop"), callback = function() self:finish() end } },
@@ -207,7 +207,7 @@ function RMORevision:showAnswer(e)
     local title = string.format("%s   (%s)", e.topic, string.lower(Core.LEVEL_NAME[lv]))
     local status = string.lower(Core.LEVEL_NAME[lv]) .. "   " .. clock(self.sessSecs or 0)
     local function lab(name, how) return string.format("%s %dd", name, Core.days(items, e.card.id, how)) end
-    self:card(e, status, '<p class="q old">' .. Core.esc(e.card.t) .. "</p><hr/>" .. Core.answerHtml(e.card.k), {
+    self:card(e, status, Core.questionHtml(e.card.t, "q old") .. "<hr/>" .. Core.answerHtml(e.card.k), {
         { { text = lab(_("Again"), "again"), callback = function() self:rate(e, "again") end },
           { text = lab(_("Hard"), "hard"), callback = function() self:rate(e, "hard") end },
           { text = lab(_("Good"), "good"), callback = function() self:rate(e, "good") end },

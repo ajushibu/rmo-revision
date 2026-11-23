@@ -109,6 +109,15 @@ end
 local function esc(x) return (tostring(x):gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")) end
 Core.esc = esc
 
+-- A card front is "Title" or "Title\n\226\128\162 ask\n\226\128\162 ask": title line, then the parts the answer covers
+function Core.questionHtml(t, cls)
+    local parts = {}
+    for line in (tostring(t) .. "\n"):gmatch("(.-)\n") do if line ~= "" then parts[#parts + 1] = line end end
+    local out = { '<p class="' .. cls .. '">' .. esc(parts[1] or "") .. "</p>" }
+    for i = 2, #parts do out[#out + 1] = '<p class="qa ' .. (cls:match("old") and "old" or "") .. '">' .. esc(parts[i]) .. "</p>" end
+    return table.concat(out, "\n")
+end
+
 -- HTML for the card screen: "Label: text" gets a bold label, arrows and (notes) are indented
 function Core.answerHtml(k)
     local out = {}

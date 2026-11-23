@@ -214,6 +214,11 @@ a.row:hover, button.row:hover { background: var(--hover); }
 .flash .ctx a { font-weight: 600; text-decoration: none; color: var(--mut); }
 .flash .ctx a:hover { color: var(--ink); }
 .flash h2 { font-size: calc(30px * var(--fs,1)); line-height: 1.2; letter-spacing: -.02em; margin: 14px 0 18px; text-wrap: balance; }
+.flash h2.qh { font-size: calc(24px * var(--fs,1)); margin: 14px 0 10px; }
+.flash .asks { margin: 0 0 18px; padding-left: 1.2em; font-size: calc(22px * var(--fs,1)); line-height: 1.4; font-weight: 600; letter-spacing: -.01em; max-width: 36ch; }
+.flash .asks li { margin: 0 0 8px; padding-left: 4px; }
+.flash .asks li::marker { color: var(--mut); }
+.row .t > .qa { font-style: normal; font-weight: 400; font-size: calc(14px * var(--fs,1)); color: var(--mut); line-height: 1.4; }
 .flash .answer { font-size: calc(19px * var(--fs,1)); line-height: 1.6; margin: 0 0 8px; max-width: 62ch; padding-top: 18px; border-top: 1px solid var(--line); }
 .flash .rate { margin-top: 18px; max-width: none; }
 .flash .rate .b { min-height: 58px; font-size: calc(17px * var(--fs,1)); }
@@ -352,6 +357,8 @@ html.kbd .kh { display: inline-block; }
   .row { padding: 11px 14px; }
   .flash { padding: 20px 18px 22px; border-radius: 18px; }
   .flash h2 { font-size: calc(23px * var(--fs,1)); margin: 10px 0 14px; }
+  .flash h2.qh { font-size: calc(20px * var(--fs,1)); margin: 10px 0 8px; }
+  .flash .asks { font-size: calc(19px * var(--fs,1)); }
   .flash .answer { font-size: calc(17px * var(--fs,1)); }
   .tabs { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: color-mix(in srgb, var(--pane) 92%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); }
   .tabs a, .tabs .navfocus { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 50px; border-radius: 12px; color: var(--mut); text-decoration: none; font-size: calc(12px * var(--fs,1)); font-weight: 600; }
