@@ -692,6 +692,7 @@
     h += '<details class="fold"><summary>Paste a note for Claude</summary><p class="meta">Paste an answer from Gemini, a book or a senior. Claude checks it against Australian sources and turns it into cards at the next refresh.</p><form id="pasteform" class="form"><label><span>What you are pasting</span><textarea id="pastetext" rows="5" maxlength="8000" placeholder="Paste the explanation here"></textarea></label><div class="inline"><label><span>Where it came from</span><input type="text" id="pastesrc" placeholder="Gemini, Harrison, my registrar" autocomplete="off"></label><button class="btn primary" type="submit">Save for Claude</button></div></form></details></section></div>';
     return shell(h, { page: 'topic', sys: t.system, topic: t.id });
   }
+  var optOpen = false, optFor = null;   // card options sheet on Revise: false, 'menu', 'note' or 'ctx'
   var later = [];   // cards sent to the back of today's queue, this page load only; they stay unrated
   /* Study one level at a time: all, weak, learning, young, mature or new. Kept on this device only. */
   var revLevel = (function () { try { return localStorage.getItem('rmo-revlevel') || 'all'; } catch (e) { return 'all'; } })();
@@ -704,6 +705,39 @@
       return '<button type="button" class="chip lv-' + k + (revLevel === k ? ' on' : '') + '" data-lvl="' + k + '" aria-pressed="' + (revLevel === k) + '">' + (k === 'all' ? 'All' : LV[k]) + ' <b>' + c[k] + '</b></button>';
     }).join('') + '</div>';
   }
+  /* Card options sheet (Revise): swipe up on the handle, tap it, or press O or Up. Keys inside the sheet: S study kit, N what I missed, C context, M make a case, L bring back at the end, R remove, Esc closes. */
+  function optGrab() { return '<button type="button" class="optgrab" data-opt="menu" aria-label="Card options">Swipe up for options' + KH('\u2191') + '</button>'; }
+  function optSheet(x, q) {
+    var id = x.it.id, ki = kitInfo(id, x.tid, 'rv'), made = caseMadeFor(id), req = S.caseReq[id] && S.caseReq[id].on, txt = ctxOf(id), tl = '';
+    var h = '<div class="optscrim" data-opt="close"></div><div class="optsheet" role="dialog" aria-modal="true" aria-label="Card options"><button type="button" class="optgrip" data-opt="close" aria-label="Close options"><i></i></button>';
+    if (optOpen === 'note') {
+      return h + '<div class="opthead"><button type="button" class="link" data-opt="menu">&lsaquo; Back</button><b>What I missed</b></div><label class="note"><span>Next time this card shows your note before the answer</span><textarea rows="3" data-note="' + id + '" placeholder="What did you miss?">' + esc(noteOf(id)) + '</textarea></label><button type="button" class="btn primary" data-opt="menu">Done' + KH('Esc') + '</button></div>';
+    }
+    if (optOpen === 'ctx') {
+      return h + '<div class="opthead"><button type="button" class="link" data-opt="menu">&lsaquo; Back</button><b>Add context</b></div><label class="note"><span>Extra context that makes the answer make sense</span><textarea rows="3" data-ctx="' + id + '" placeholder="Why it works this way, an example, a link to something you already know. Claude will use it to rewrite the answer.">' + esc(txt) + '</textarea></label><button type="button" class="btn primary" data-opt="menu">Done' + KH('Esc') + '</button></div>';
+    }
+    function tile(cls, icon, name, sub, key, attrs, tag) { tag = tag || 'button'; return '<' + tag + (tag === 'button' ? ' type="button"' : '') + ' class="optile ' + cls + '" ' + attrs + '><span class="oi">' + icon + '</span><b>' + name + KH(key) + '</b><small>' + sub + '</small></' + tag + '>'; }
+    var IC = { book: '<path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5v13c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13"/>', pen: '<path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 013 3L8 19z"/>', plus: '<path d="M12 5v14M5 12h14"/>', cs: '<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12h6M9 16h4"/>', clock: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 2"/>', trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>' };
+    function svg(n) { return '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[n] + '</svg>'; }
+    h += '<div class="opthead"><b>Card options</b></div><div class="optrow big">';
+    h += ki ? tile('', svg('book'), 'Study kit', 'Where this is taught', 'S', 'href="' + ki.href + '"', 'a') : '';
+    h += tile('', svg('pen'), 'What I missed', noteOf(id) ? 'Edit your note' : 'Add a note', 'N', 'data-opt="note"');
+    h += '</div><div class="optrow">';
+    h += tile('', svg('plus'), txt ? 'Edit context' : 'Add context', txt ? 'Saved' : 'Extra detail', 'C', 'data-opt="ctx"');
+    if (made) h += tile('', svg('cs'), 'Case made', esc(made.title), 'M', 'disabled');
+    else if (req) h += tile('', svg('cs'), 'Queued for a case', 'Tap to undo', 'M', 'data-mkcase="' + id + '" data-tp="' + x.tid + '"');
+    else h += tile('', svg('cs'), 'Make this a case', 'On-call practice', 'M', 'data-mkcase="' + id + '" data-tp="' + x.tid + '"');
+    if (q.all.length > 1) h += tile('', svg('clock'), 'Bring back later', 'At the end of today', 'L', 'data-later="' + id + '"');
+    h += tile('danger', svg('trash'), 'Remove', 'From Revise', 'R', 'data-skiprev="' + id + '"');
+    return h + '</div></div>';
+  }
+  function optLines(x) {
+    var id = x.it.id, txt = ctxOf(id), it = cardItem(id), wait = txt && S.ctx[id].t > ((it && it.cx) || 0), made = caseMadeFor(id), req = S.caseReq[id] && S.caseReq[id].on, h = '';
+    if (txt) h += '<p class="mynote ctxline"><b>Context:</b> ' + esc(txt) + (wait ? ' <small>(Claude will fold this into the answer at the next refresh)</small>' : '') + '</p>';
+    if (made) h += '<p class="meta">Case made: ' + esc(made.title) + '</p>';
+    else if (req) h += '<p class="meta">Queued for a case. <button class="link" data-mkcase="' + id + '" data-tp="' + x.tid + '">Undo</button></p>';
+    return h;
+  }
   function revise() {
     var q = queue(), every = q.all.slice();
     if (revLevel !== 'all') { q.all = q.all.filter(function (x) { return levelOf(x.it.id) === revLevel; }); q.due = q.due.filter(function (x) { return levelOf(x.it.id) === revLevel; }); q.fresh = q.fresh.filter(function (x) { return levelOf(x.it.id) === revLevel; }); }
@@ -715,17 +749,18 @@
       return shell(h, { page: 'revise' });
     }
     var x = q.all[0], t = byId(x.tid), st = itState(x.it.id);
-    rtShown = x.it.id;
+    rtShown = x.it.id; if (optFor !== x.it.id) { optFor = x.it.id; optOpen = false; }
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p>' + (function () { var q = qSplit(x.it.t); return q.a.length ? '<h2 class="qh">' + esc(q.h) + '</h2><ul class="asks">' + q.a.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '<h2>' + esc(q.h) + '</h2>'; })();
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
-    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><p class="ctxbtns">' + (q.all.length > 1 ? '<button class="link" data-later="' + x.it.id + '">Bring back later' + KH('L') + '</button>' : '') + '<button class="link" data-skiprev="' + x.it.id + '">Remove from Revise</button></p>';
-    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + kitLink(x.it.id, x.tid, 'rv') + noteBox(x.it.id, 'What did you miss this time? (optional)', true) + ctxBlock(x.it.id, x.tid) + rateButtons(x.it.id, true) + (q.all.length > 1 ? '<p class="ctxbtns"><button class="link" data-later="' + x.it.id + '">Not sure yet: bring back at the end' + KH('L') + '</button></p>' : '');
+    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button>' + optGrab();
+    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + optLines(x) + '<div class="ratebar">' + rateButtons(x.it.id, true) + optGrab() + '</div>';
+    if (optOpen) h += optSheet(x, q);
     h += '</section>';
     return shell(h, { page: 'revise' });
   }
   /* "Open in the study kit": each recall card links to the kit step that teaches it (kitmap.js). Back returns to where you were (rv = Revise, t = topic page). */
-  function kitLink(id, tid, from) {
-    var M = window.KITMAP, t = byId(tid); if (!M || !M.k || !M.k[tid] || !t) return '';
+  function kitInfo(id, tid, from) {
+    var M = window.KITMAP, t = byId(tid); if (!M || !M.k || !M.k[tid] || !t) return null;
     var k = M.k[tid], v = M.c[id] || ['k:' + (k.p ? k.p[0] : 1)], tg = String(v[0]), key, ti, lab;
     if (tg.indexOf('t:') === 0) { ti = +tg.slice(2); key = '0'; lab = t.tools[ti] ? t.tools[ti].label : ''; }
     else {
@@ -733,7 +768,11 @@
       ti = k.i; key = k.p ? st.replace(/^p-/, '') : st;
       lab = 'study kit, ' + (k.p ? '' : 'step ' + st + ': ') + ((k.s && k.s[n]) || '');
     }
-    return '<p class="kitlink"><a href="#/tool/' + tid + '/' + ti + '/k/' + encodeURIComponent(key) + '/' + from + '/' + encodeURIComponent(id) + '">Where this is taught<b>' + esc(lab ? ': ' + lab : '') + '</b></a></p>';
+    return { href: '#/tool/' + tid + '/' + ti + '/k/' + encodeURIComponent(key) + '/' + from + '/' + encodeURIComponent(id), lab: lab };
+  }
+  function kitLink(id, tid, from) {
+    var i = kitInfo(id, tid, from); if (!i) return '';
+    return '<p class="kitlink"><a href="' + i.href + '">Where this is taught<b>' + esc(i.lab ? ': ' + i.lab : '') + '</b></a></p>';
   }
   /* After "Where this is taught": open the right tab, press any buttons the answer sits behind, then scroll to the line and mark it. */
   function kitFocus(f, cardId) {
@@ -958,10 +997,17 @@
   app.addEventListener('click', function (e) {
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
+    if ((el = e.target.closest('[data-opt]'))) {
+      var ov = el.getAttribute('data-opt'), nb0 = document.querySelector('.optsheet [data-note]'), cx0 = document.querySelector('.optsheet [data-ctx]');
+      if (nb0) setNote(nb0.getAttribute('data-note'), nb0.value); if (cx0) setCtx(cx0.getAttribute('data-ctx'), cx0.value); if (nb0 || cx0) save();
+      optOpen = ov === 'close' ? false : ov; keepScroll = true; render();
+      if (ov === 'note' || ov === 'ctx') { var ta = document.querySelector('.optsheet textarea'); if (ta) ta.focus(); }
+      return;
+    }
     if ((el = e.target.closest('[data-ctxt]'))) { var cid = el.getAttribute('data-ctxt'), cbx = document.querySelector('[data-ctx="' + cid + '"]'); if (cbx) setCtx(cid, cbx.value); ctxOpen[cid] = !ctxOpen[cid]; save(); keepScroll = true; render(); return; }
-    if ((el = e.target.closest('[data-later]'))) { var lid = el.getAttribute('data-later'), nb2 = document.querySelector('[data-note="' + lid + '"]'); if (nb2) setNote(lid, nb2.value); later = later.filter(function (i) { return i !== lid; }); later.push(lid); revealed = false; keepScroll = false; save(); render(); return; }
-    if ((el = e.target.closest('[data-skiprev]'))) { var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
-    if ((el = e.target.closest('[data-mkcase]'))) { var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
+    if ((el = e.target.closest('[data-later]'))) { optOpen = false; var lid = el.getAttribute('data-later'), nb2 = document.querySelector('[data-note="' + lid + '"]'); if (nb2) setNote(lid, nb2.value); later = later.filter(function (i) { return i !== lid; }); later.push(lid); revealed = false; keepScroll = false; save(); render(); return; }
+    if ((el = e.target.closest('[data-skiprev]'))) { optOpen = false; var sid = el.getAttribute('data-skiprev'), son = !skipped(sid); S.skipRev[sid] = { on: son, t: Date.now() }; if (son) { undo = { id: sid, skip: true, at: Date.now() }; setTimeout(function () { var u = document.querySelector('.undo'); if (u && undo && undo.skip && Date.now() - undo.at >= 8000) u.remove(); }, 8100); } revealed = false; save(); keepScroll = route[0] !== 'revise'; render(); return; }
+    if ((el = e.target.closest('[data-mkcase]'))) { optOpen = false; var mid = el.getAttribute('data-mkcase'), cur = S.caseReq[mid] && S.caseReq[mid].on; S.caseReq[mid] = { on: !cur, t: Date.now(), topic: el.getAttribute('data-tp') || '' }; var cb2 = document.querySelector('[data-ctx="' + mid + '"]'); if (cb2) setCtx(mid, cb2.value); save(); keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-rv]'))) { lockUntil = Date.now() + 350; var rid = el.getAttribute('data-rv'); openSet[rid] = !openSet[rid]; keepScroll = true; render(); return; }
     if ((el = e.target.closest('[data-lvl]'))) { revLevel = el.getAttribute('data-lvl'); try { localStorage.setItem('rmo-revlevel', revLevel); } catch (er) {} revealed = false; keepScroll = false; render(); return; }
     if ((el = e.target.closest('[data-rate]'))) { var iid = el.getAttribute('data-it'); lockUntil = Date.now() + 700; var nb = document.querySelector('[data-note="' + iid + '"]'); if (nb) setNote(iid, nb.value); var cb = document.querySelector('[data-ctx="' + iid + '"]'); if (cb) setCtx(iid, cb.value); var wasNew = itState(iid).k === 'new'; if (!rate(iid, el.getAttribute('data-rate'))) { render(); return; } rtRated(iid, wasNew ? 'n' : 'd'); rtPublish(false); save(); setTimeout(function () { if (undo && Date.now() - undo.at >= 8000) { var u = document.querySelector('.undo'); if (u) u.remove(); } }, 8100); delete openSet[iid]; revealed = false; keepScroll = route[0] !== 'revise'; render(); return; }
@@ -1035,29 +1081,49 @@
   if (sess) syncNow();
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { drainAttempts(); drainStars(); drainCards(); if (sess) syncNow(); } });
   window.addEventListener('online', function () { if (sess) syncNow(); });
-  /* Keyboard shortcuts on Revise: Space shows the answer, 1 or J = Again, 2 = Hard, 3 or K = Good, 4 = Easy, L = bring back later, N = note box, Esc leaves the box.
+  /* Keyboard shortcuts on Revise: Space shows the answer, 1 or J = Again, 2 = Hard, 3 or K = Good, 4 = Easy, O or Up = card options sheet, L = bring back later, N = what I missed (both open the sheet first), Esc leaves the box or closes the sheet; more keys inside the sheet are listed by optSheet().
      Ignored while typing, with modifier keys, and on key repeat. Key hints show once a key is pressed, and hide on touch. */
   document.addEventListener('keydown', function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key && e.key.length === 1 || e.key === 'Escape' || e.key === 'Enter') document.documentElement.classList.add('kbd');
     if (route[0] !== 'revise' || (window.RMOFocus && window.RMOFocus.isOpen())) return;
     var t = e.target, typing = t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
-    if (typing) { if (e.key === 'Escape') t.blur(); return; }
+    if (typing) { if (e.key === 'Escape') { t.blur(); if (optOpen && optOpen !== 'menu') { var tn = document.querySelector('.optsheet [data-note]'), tc = document.querySelector('.optsheet [data-ctx]'); if (tn) setNote(tn.getAttribute('data-note'), tn.value); if (tc) setCtx(tc.getAttribute('data-ctx'), tc.value); save(); optOpen = 'menu'; keepScroll = true; render(); } } return; }
     if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
     var k = e.key === ' ' ? 'space' : (e.key || '').toLowerCase(), el = null;
+    function pick(sel) { var b = document.querySelector(sel); if (b) { if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) document.activeElement.blur(); b.click(); } }
+    if (optOpen === 'menu') {
+      if (k === 'escape') { e.preventDefault(); pick('.optsheet [data-opt="close"]'); }
+      else if (k === 's') { e.preventDefault(); pick('.optsheet a.optile'); }
+      else if (k === 'n') { e.preventDefault(); pick('.optsheet [data-opt="note"]'); }
+      else if (k === 'c') { e.preventDefault(); pick('.optsheet [data-opt="ctx"]'); }
+      else if (k === 'm') { e.preventDefault(); pick('.optsheet [data-mkcase]'); }
+      else if (k === 'l') { e.preventDefault(); pick('.optsheet [data-later]'); }
+      else if (k === 'r') { e.preventDefault(); pick('.optsheet [data-skiprev]'); }
+      return;
+    }
+    if (optOpen) { if (k === 'escape') { e.preventDefault(); pick('.optsheet [data-opt="menu"]'); } return; }
+    if (k === 'o' || k === 'arrowup') { if (document.querySelector('.optgrab')) { e.preventDefault(); pick('.optgrab'); } return; }
     if (k === 'space') el = document.querySelector('[data-act="reveal"]');
     else if (k === 'j' || k === '1') el = document.querySelector('.flash [data-rate="again"]');
     else if (k === '2') el = document.querySelector('.flash [data-rate="hard"]');
     else if (k === 'k' || k === '3') el = document.querySelector('.flash [data-rate="good"]');
     else if (k === '4') el = document.querySelector('.flash [data-rate="easy"]');
-    else if (k === 'l') el = document.querySelector('.flash [data-later]');
-    else if (k === 'n') { var nb = document.querySelector('.flash textarea[data-note]'); if (nb) { e.preventDefault(); nb.focus(); } return; }
+    else if (k === 'l' || k === 'n') { if (!document.querySelector('.optgrab')) return; e.preventDefault(); pick('.optgrab'); setTimeout(function () { pick(k === 'l' ? '.optsheet [data-later]' : '.optsheet [data-opt="note"]'); }, 0); return; }
     else return;
     if (k === 'space') e.preventDefault();   // no page scroll, and no double press on a focused button
     if (!el) return;
     if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) document.activeElement.blur();
     el.click();
   });
+  /* Swipe up on the options handle (or tap it) opens the sheet; swipe down on the sheet's grip, or tap the dim area, closes it. */
+  var swY = null, swEl = null;
+  document.addEventListener('pointerdown', function (e) { swEl = e.target.closest && e.target.closest('.optgrab, .optgrip'); swY = swEl ? e.clientY : null; }, { passive: true });
+  document.addEventListener('pointerup', function (e) {
+    if (swY === null || !swEl) return; var dy = e.clientY - swY, g = swEl; swY = null; swEl = null;
+    if (g.classList.contains('optgrab') && dy < -24) { g.dataset.swiped = '1'; g.click(); }
+    else if (g.classList.contains('optgrip') && dy > 24) { g.dataset.swiped = '1'; g.click(); }
+  }, { passive: true });
   document.addEventListener('keyup', function (e) { if (e.key === ' ' && route[0] === 'revise' && !(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) e.preventDefault(); });
   document.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch') document.documentElement.classList.remove('kbd'); }, { passive: true });
 
