@@ -195,6 +195,67 @@
         ok: { text: 'Three days later the potassium is 4.9 and the bicarbonate 20. Renal restart perindopril at a low dose and leave the spironolactone off.' },
         miss: { text: 'The drugs are restarted at the same doses on discharge. He is back in 2 weeks with a potassium of 6.8.' } }
     ] }
+  },
+  {
+    id: 'c20261126b', fromCard: 'ma3', title: 'A normal gap in a man with cirrhosis', time: '01:30', where: 'Gastroenterology ward',
+    blurb: 'A man with alcohol-related cirrhosis passes melaena overnight. The gap looks normal until you correct it for an albumin of 18. Tests the albumin trap, the lactate and the bleed behind it.',
+    intro: '58-year-old man with alcohol-related cirrhosis, admitted with ascites. The nurse calls at 01:30: two large black stools, he is clammy and his heart rate is up. Gas and bloods: pH 7.29, pCO2 30, bicarbonate 17, sodium 131, chloride 102, albumin 18, lactate 4.6.',
+    vit: { rhythm: 'sinus', hr: 114, sbp: 94, dbp: 56, spo2: 96, rr: 24 },
+    facts: ['58M, alcohol-related cirrhosis, ascites', 'Two melaena stools tonight, clammy', 'HR 114, BP 94/56 (usual 110s systolic), RR 24', 'Gas: pH 7.29, pCO2 30, bicarbonate 17, lactate 4.6', 'Sodium 131, chloride 102, albumin 18 g/L', 'Hb 92 (yesterday 118), INR 1.8, creatinine 110'],
+    decisions: [
+      { tag: 'macid-gap', scene: 'Sodium 131, chloride 102, bicarbonate 17, albumin 18. What is the gap, and what kind of acidosis is this?', opts: [
+        o('best', 'The gap is 12, which looks normal, but the albumin is 18. Corrected gap = 12 + 0.25 × (40 − 18) = 17.5: a high-gap acidosis', 'Albumin is the main unmeasured anion. Each 10 g/L fall hides about 2.5 of gap. Australian labs report g/L, so use 0.25 (LITFL).'),
+        o('ok', 'A gap of 12 is normal, but check the lactate anyway', 'Checking the lactate is right, but the reasoning is wrong: the gap is not normal once you correct it.'),
+        o('poor', 'A normal-gap acidosis: look for diarrhoea or saline', 'That is the trap. A low albumin makes a high gap look normal.'),
+        o('harm', 'pH 7.29 is close enough: review in the morning', 'He is bleeding and his lactate is 4.6.')] },
+      { tag: 'macid-cause', scene: 'Lactate 4.6. What is driving it?', opts: [
+        o('best', 'Poor perfusion from the bleed (heart rate 114, BP below his usual, Hb down 26), made worse because a cirrhotic liver clears lactate slowly. Treat the bleed', 'The liver problem makes the lactate rise higher and fall slower, but the cause tonight is blood loss.'),
+        o('ok', 'Infection: send cultures and give antibiotics', 'Infection is common in cirrhosis and antibiotic cover is usual in a GI bleed, but the numbers here point to blood loss first.'),
+        o('poor', 'Cirrhotic patients always run a high lactate; ignore it', 'A slow-clearing liver does not explain 4.6 with a falling Hb and a fast heart.'),
+        o('harm', 'His lactate is from alcohol; give a fluid bolus and go back to bed', 'He is bleeding. Leaving him is dangerous.')] },
+      { tag: 'macid-call', scene: 'What do you do now?', opts: [
+        o('best', 'Tell your registrar now. Two large-bore cannulas, group and hold (crossmatch), FBC, coags, UEC, LFT, repeat gas. Blood per your hospital protocol, measured fluid only while blood comes. Antibiotic cover per your hospital protocol. Urgent gastroenterology for endoscopy', 'An upper GI bleed in cirrhosis with a rising lactate is an emergency.'),
+        o('ok', 'Give 2 L of saline and recheck in the morning', 'He needs blood and endoscopy, not litres of saline into ascites and a dilute Hb.'),
+        o('poor', 'Recheck the gas in 4 hours', 'Too slow for an active bleed.'),
+        o('harm', 'Start his usual enoxaparin prophylaxis', 'Anticoagulant into an active bleed.')] },
+      { tag: 'macid-bic', scene: 'The nurse asks if bicarbonate would help the pH of 7.29.', opts: [
+        o('best', 'No. The acid is lactate from poor perfusion: it falls as the bleed is controlled and he is resuscitated', 'Treat the cause. Bicarbonate does not fix a lactic acidosis.'),
+        o('ok', 'Only if the pH falls below 7.2', 'Even then, the decision belongs to the senior team; the fix is the bleed.'),
+        o('poor', '50 mL to help his heart', 'No benefit here and it adds sodium to a man with ascites.'),
+        o('harm', '100 mL push', 'Never a push.')] }
+    ],
+    ends: { hi: 'You corrected the gap, saw the lactate as blood loss, and got him blood and an endoscopy. A bleeding varix is banded.', mid: 'He reaches endoscopy, but a step was missed on the way.', lo: 'The "normal" gap delays the call and he becomes shocked before the scope.' },
+    hard: { debrief: 'In cirrhosis, sepsis or malnutrition, correct the anion gap for albumin: AG + 0.25 × (40 − albumin in g/L). A normal-looking gap can hide a lactic acidosis. Here the lactate came from a GI bleed: escalate, blood, coags, endoscopy, no bicarbonate.', steps: [
+      { label: 'The 1:30 call', tag: 'macid-gap', time: '01:30', window: 'Now: the first hour',
+        scene: 'Melaena twice, HR 114, BP 94/56. pH 7.29, bicarbonate 17, gap 12, albumin 18, lactate 4.6, Hb 92 (was 118), INR 1.8. What do you order?',
+        first: ['gh', 'ivc'], firstWhy: 'Access and blood ready: the gap and the lactate both point to an active bleed.',
+        plan: PL(['reg', ['met'], 'Upper GI bleed in cirrhosis with a lactate over 4: tell your registrar now.', true], ['q15', ['spo2ecg'], 'Observations every 15 minutes while he is bleeding.'], ['m20', ['h1', 'm5'], 'Back within 20 minutes with a repeat set of observations.']),
+        orders: { ivc: N('Two large-bore cannulas.', { crit: true }), gh: N('Group and hold, and crossmatch.', { crit: true }),
+          fbc: N('Repeat Hb.'), coags: N('INR 1.8: repeat coags.'), uec: N('Kidney function: bleeding in cirrhosis can tip him into kidney injury.'),
+          vbg: N('A repeat gas and lactate after resuscitation.'), lactate: G('Trend the lactate.'), lft: G('Liver function.'),
+          gastro_urgent: N('Urgent gastroenterology: endoscopy for a likely variceal bleed.', { crit: true }),
+          transfuse: G('Blood per your hospital protocol, with a restrictive target in GI bleeding.', { d: [0] }),
+          bolus250: G('A measured bolus while blood comes.', { alt: ['bolus'] }), bolus: G('Fluid is reasonable in small amounts until blood arrives.'),
+          ceftri: G('Antibiotic cover is usual in a cirrhotic GI bleed, per your hospital protocol.'),
+          bcult: G('Cultures before antibiotics.'), fbal: G('Fluid balance and stool chart.'), limits: G('Check his goals of care.'),
+          bicarb: X('Lactate from blood loss: bicarbonate does not fix it.', { harmDose: [0, 1, 2] }),
+          enox: X('Anticoagulant into an active bleed.', { harmDose: [0, 1] }), ibup: X('An NSAID worsens bleeding and kidney injury in cirrhosis.')
+        },
+        ok: { text: 'Two units in. Your registrar starts the variceal bleed drugs per your hospital protocol. At 03:00: HR 96, BP 108/64, lactate 2.9, bicarbonate 20. Gastro will scope at 04:00.', vit: { hr: 96, sbp: 108, dbp: 64, rr: 20 }, facts: ['Lactate 2.9', 'Bicarbonate 20', 'Endoscopy at 04:00'] },
+        miss: { text: 'At 02:30 he vomits blood. HR 132, BP 78/40. A MET call is made.', vit: { hr: 132, sbp: 78, dbp: 40, rr: 28 }, facts: ['Haematemesis', 'BP 78/40'] } },
+      { label: 'Before the scope', tag: 'macid-bic', time: '03:00', window: 'Next hour',
+        scene: 'Lactate 2.9, bicarbonate 20, pH 7.34. The nurse asks about bicarbonate "to finish fixing the gas", and whether to give a large saline load before the scope. What do you order now?',
+        plan: PL(['reg', ['none'], 'Keep your registrar updated before the scope.'], ['q15', ['spo2ecg'], 'Still bleeding risk: 15-minute observations.'], ['h1', ['m20'], 'Repeat gas and Hb in an hour.']),
+        orders: { vbg: N('Repeat gas and lactate: the trend shows if resuscitation is working.'), fbc: N('Hb after the units.'),
+          calcium: G('Albumin, calcium and phosphate: needed to keep correcting the gap.'), fbal: G('Fluid balance.'),
+          transfuse: G('More blood only per your hospital protocol and Hb.', { d: [0] }),
+          bicarb: X('The lactate is falling with resuscitation: bicarbonate adds sodium and does not help.', { harmDose: [0, 1, 2] }),
+          maint: S('Maintenance crystalloid is not the fix: blood and the scope are. Big crystalloid loads worsen ascites and dilute the Hb.'), bolus: S('He is responding: no large saline load.'),
+          enox: X('Anticoagulant into a bleed.', { harmDose: [0, 1] })
+        },
+        ok: { text: 'At endoscopy a bleeding varix is banded. By morning lactate 1.6, corrected gap normal.' },
+        miss: { text: 'After a large saline load his Hb falls to 70 and his abdomen is tighter. The scope is delayed.' } }
+    ] }
   }
   ];
 })(window);

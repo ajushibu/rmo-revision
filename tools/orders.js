@@ -177,5 +177,11 @@ window.RMO_ORDERS = [
   { id: 'haem_ref', c: 'Calls and plans', n: 'Haematology or oncology referral', s: 'myeloma cancer oncologist haematologist' },
   { id: 'thiamine', c: 'Drugs', n: 'Thiamine IV', s: 'thiamine vitamin b1 wernicke alcohol', doses: ['Dose and route per your hospital protocol, given before any glucose'] },
   { id: 'bhcg', c: 'Bloods', n: 'Pregnancy test (urine or serum hCG)', s: 'pregnancy test hcg beta woman child bearing age' },
-  { id: 'stool', c: 'Bloods', n: 'Stool microscopy, culture and C. difficile', s: 'stool faeces diarrhoea culture c diff' }
+  { id: 'stool', c: 'Bloods', n: 'Stool microscopy, culture and C. difficile', s: 'stool faeces diarrhoea culture c diff' },
+  { id: 'dig_level', c: 'Bloods', n: 'Digoxin level', s: 'digoxin lanoxin drug level concentration' },
+  { id: 'stop_dig', c: 'Drugs', n: 'Withhold digoxin', s: 'digoxin lanoxin hold stop withhold' },
+  { id: 'amio', c: 'Drugs', n: 'Amiodarone IV', s: 'amiodarone cordarone antiarrhythmic', doses: ['Dose per your hospital protocol (senior decision)'] },
+  { id: 'dig_fab', c: 'Drugs', n: 'Digoxin antibody (Fab)', s: 'digibind digifab antidote digoxin toxicity fab', doses: ['Dose per toxicology advice (Poisons Information 13 11 26)'] },
+  { id: 'gastro_urgent', c: 'Calls and plans', n: 'Urgent gastroenterology: endoscopy', s: 'gastro endoscopy scope gi bleed varices' },
+  { id: 'transfuse', c: 'Fluids', n: 'Red cell transfusion', s: 'blood transfusion prbc packed cells', doses: ['Per your hospital protocol (restrictive target in GI bleeding)'] }
 ];

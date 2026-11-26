@@ -10,6 +10,7 @@
     'hypok-route': { n: 'Oral or IV', tab: 2, r: 'Oral when the gut works and the ECG is normal. IV when severe or symptomatic.' },
     'hypok-safe': { n: 'Give IV potassium safely', tab: 2, r: '10 mmol in 100 mL over an hour, never a push, never added to a running bag.' },
     'hypok-after': { n: 'Magnesium, recheck, cause', tab: 3, r: 'Check magnesium, recheck the potassium, and fix the cause.' },
+    'hypok-dig': { n: 'Low potassium on digoxin', tab: 1, r: 'Low potassium lets digoxin bind more. Monitor, hold the digoxin and the diuretic, send a level, replace potassium and magnesium. No reflex amiodarone.' },
     'hypok-aldo': { n: 'High BP with low potassium', tab: 1, r: 'Hypertension with low potassium (even on a diuretic) is a reason to screen for primary aldosteronism: aldosterone and renin once the potassium is corrected.' }
   };
   w.RMO_CASES = [
@@ -248,6 +249,71 @@
         },
         ok: { text: 'The aldosterone to renin ratio comes back raised. The endocrine team confirms primary aldosteronism and finds a small adrenal adenoma.' },
         miss: { text: 'She goes home on a thiazide for her BP. Two months later her potassium is 2.4.' } }
+    ] }
+  },
+  {
+    id: 'c20261126a', fromCard: 'hy7', title: 'Bigeminy on digoxin at 3 am', time: '03:00', where: 'Cardiology ward',
+    blurb: 'An old man with heart failure on digoxin, whose furosemide was doubled two days ago. Telemetry shows bigeminy and a short run of VT; potassium 2.7. Tests why low potassium makes digoxin dangerous, what to order, and the amiodarone trap.',
+    intro: '81-year-old man with heart failure and atrial fibrillation, on digoxin and furosemide. His furosemide was doubled two days ago for leg swelling. The telemetry nurse calls at 03:00: ventricular bigeminy for an hour and one 6-beat run of VT. He feels sick and has not eaten today. Potassium 2.7.',
+    vit: { rhythm: 'af+pvc+u+stdep', hr: 88, sbp: 112, dbp: 64, spo2: 95, rr: 18 },
+    facts: ['81M, heart failure (EF 30%), atrial fibrillation', 'Digoxin daily; furosemide doubled 2 days ago', 'Nausea, off his food today', 'Telemetry: ventricular bigeminy, one 6-beat run of VT', 'Potassium 2.7, creatinine 140 (baseline 100)', 'Magnesium and digoxin level not yet sent'],
+    decisions: [
+      { tag: 'hypok-dig', scene: 'Potassium 2.7 in a man on digoxin, with bigeminy and a run of VT. Why is this combination so dangerous?', opts: [
+        o('best', 'Potassium and digoxin compete for the same site on the Na⁺/K⁺ pump. Low potassium lets more digoxin bind, so sodium and then calcium build up in the heart cells, and they fire on their own: ectopics, VT, VF', 'The low potassium and the digoxin act together. Fix the potassium and stop more digoxin going in.'),
+        o('ok', 'Low potassium causes arrhythmias by itself; the digoxin is a side issue', 'Low potassium alone is arrhythmogenic, but here it also makes his digoxin more toxic. Both need action.'),
+        o('poor', 'His heart failure is worse: give more furosemide', 'The extra furosemide is what dropped the potassium.'),
+        o('harm', 'Give tonight\'s digoxin early to control the AF', 'More digoxin on a low potassium feeds the arrhythmia.')] },
+      { tag: 'hypok-safe', scene: 'What do you order now?', opts: [
+        o('best', '12-lead ECG and keep him on the monitor; hold the digoxin and the furosemide; send a digoxin level, magnesium and repeat UEC; potassium chloride 10 mmol in 100 mL over 1 hour, peripheral line; tell your registrar', 'Monitor, remove the causes, measure, replace safely, escalate.', { hr: 84 }),
+        o('ok', 'Potassium chloride 10 mmol over 1 hour and recheck, and carry on with his usual drugs', 'Right replacement, but the digoxin and the furosemide are still going in.'),
+        o('poor', 'Oral potassium in the morning', 'He has a run of VT on telemetry: IV replacement on a monitor, now.'),
+        o('harm', '20 mmol potassium chloride IV push to get it up fast', 'Never push potassium.')] },
+      { tag: 'hypok-dig', scene: 'The nurse says: "He has had another short run. Shall I get amiodarone ready?"', opts: [
+        o('best', 'No reflex amiodarone: it raises digoxin levels. Keep the monitor on, correct the potassium and magnesium, and get your registrar to the bedside. If a dangerous arrhythmia persists, your registrar discusses digoxin antibody (Fab) with toxicology (Poisons Information 13 11 26)', 'Treat the cause. Amiodarone adds to the digoxin problem.'),
+        o('ok', 'Wait for the registrar before giving anything', 'Escalating is right; say why amiodarone is a trap here.'),
+        o('poor', 'Metoprolol to settle the ectopics', 'A beta blocker adds to digoxin\'s slowing of the AV node and does not treat the cause.'),
+        o('harm', 'Yes, start amiodarone now', 'It raises the digoxin level and can make the toxicity worse.')] },
+      { tag: 'hypok-after', scene: 'Morning: potassium 3.9, magnesium 0.8 after replacement, no more runs. The digoxin level comes back high. What is the plan?', opts: [
+        o('best', 'Keep the digoxin held, tell the treating team, and let them decide when and at what dose to restart once the level falls and his kidney function settles. Review the furosemide dose, add a plan to keep the potassium up, and recheck potassium and magnesium daily', 'A high level, a worse kidney and a doubled diuretic: all three need a plan before the digoxin restarts.'),
+        o('ok', 'Restart the digoxin at the same dose now the potassium is normal', 'The level is still high and his kidney function is worse.'),
+        o('poor', 'Stop monitoring: the potassium is fixed', 'Keep the monitor while the digoxin level is high.'),
+        o('harm', 'Restart the doubled furosemide with no potassium plan', 'That repeats what caused the night.')] }
+    ],
+    ends: { hi: 'You held the digoxin and the diuretic, replaced potassium and magnesium on a monitor, and avoided amiodarone. No more VT.', mid: 'He settles, but one step was missed.', lo: 'He has a longer run of VT and needs the MET team.' },
+    hard: { debrief: 'Low potassium on digoxin: potassium and digoxin compete for the Na⁺/K⁺ pump, so low potassium makes digoxin toxic. Monitor, hold the digoxin and the diuretic, send a digoxin level and magnesium, replace potassium at 10 mmol an hour, tell your registrar. No reflex amiodarone: it raises digoxin levels.', steps: [
+      { label: 'The 3 am call', tag: 'hypok-dig', time: '03:00', window: 'Now: the first hour',
+        scene: 'Potassium 2.7, bigeminy and a 6-beat run of VT, on digoxin and a doubled dose of furosemide. Nauseated. What do you order?',
+        first: ['kcl_iv', 'stop_dig'], firstWhy: 'Replace the potassium and stop more digoxin going in: together they treat the cause.',
+        plan: PL(['reg', ['met'], 'A run of VT on digoxin with a potassium under 3: tell your registrar now. Call a MET if he becomes unstable.'], ['spo2ecg', ['q15'], 'Continuous cardiac monitoring.'], ['h1', ['m20'], 'Come back after the first bag with a repeat potassium.']),
+        orders: { kcl: S('Too vague: choose oral or IV, and the dose.'), kcl_iv: N('10 mmol in 100 mL over an hour, peripheral line, on a monitor. Repeat and recheck.', { d: [0], crit: true, harmDose: [1, 2, 3] }),
+          stop_dig: N('Hold the digoxin: low potassium is letting it bind more.', { crit: true }),
+          stop_diuretic: N('Hold the furosemide: it caused the fall.'),
+          ecg: N('A 12-lead ECG, and keep the monitor on.'), dig_level: N('A digoxin level (timing per your hospital protocol).'),
+          mg: N('Check magnesium: low magnesium adds to the arrhythmia risk and stops potassium correcting.'), uec: N('Repeat potassium and creatinine: his kidney function has worsened.'),
+          antiemetic: G('Treat the nausea (it may itself be from the digoxin).', { d: [0] }), vbg: G('A gas gives a quick potassium.'), drugchart: G('Look for other drugs that raise digoxin or lower potassium.'),
+          kcl_oral: S('He is nauseated and has VT on telemetry: IV first.', { d: [0], harmDose: [1] }),
+          dig_fab: S('Not yet: no sustained dangerous arrhythmia. If one appears, your registrar discusses it with toxicology (Poisons Information 13 11 26).'),
+          amio: X('Amiodarone raises digoxin levels and makes the toxicity worse.'),
+          metop: X('A beta blocker adds to digoxin\'s AV-node slowing and does not treat the cause.'),
+          furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] }),
+          insulin_k: X('Insulin pushes potassium down further.', { harmDose: [0, 1, 2, 3, 4] }), salb_k: X('Salbutamol lowers potassium.', { harmDose: [0, 1, 2] }), bicarb: X('Bicarbonate lowers potassium.', { harmDose: [0, 1, 2] })
+        },
+        ok: { text: 'First bag in. Potassium 3.0 at 04:15, bigeminy settling. Magnesium 0.55. The digoxin level is reported high.', vit: { rhythm: 'af+u', hr: 82 }, facts: ['Potassium 3.0', 'Magnesium 0.55 (low)', 'Digoxin level high'] },
+        miss: { text: 'At 04:00 he has a 20-beat run of VT and feels faint. Potassium still 2.7.', vit: { rhythm: 'af+pvc+u+stdep', hr: 104, sbp: 96, dbp: 58 }, facts: ['20-beat run of VT', 'Potassium 2.7'] } },
+      { label: 'The amiodarone question', tag: 'hypok-dig', time: '04:30', window: 'Next few hours',
+        scene: 'Magnesium 0.55 and a high digoxin level are back. The nurse asks whether to get amiodarone ready in case he has another run. What do you order now?',
+        plan: PL(['reg', ['none'], 'A high digoxin level with low magnesium: your registrar needs to know.'], ['spo2ecg', ['q15'], 'Keep the monitor on while the level is high.'], ['h4', ['h1'], 'Recheck potassium and magnesium within 4 hours.']),
+        orders: { mgso4: N('Magnesium is 0.55: replace it. The dose is a protocol and senior decision.', { d: [0] }),
+          kcl_iv: N('Another 10 mmol bag, then recheck.', { d: [0], harmDose: [1, 2, 3] }), uec: N('Recheck potassium and magnesium.'),
+          stop_dig: N('Keep the digoxin held: the level is high.'), stop_diuretic: N('Keep the furosemide held for now.'),
+          team: G('Tell the treating team about the level so the digoxin is not restarted by habit.'),
+          ecg: G('Repeat ECG.'), kcl_oral: G('Oral potassium alongside once the nausea settles, per your hospital protocol.', { d: [0], harmDose: [1] }),
+          dig_fab: S('Not needed while he is stable. Your registrar discusses it with toxicology if a dangerous arrhythmia appears.'),
+          amio: X('Amiodarone raises digoxin levels: not a reflex answer to ectopics here.'),
+          metop: X('Adds to AV-node slowing.'), furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] })
+        },
+        ok: { text: 'By 08:00 potassium 3.9 and magnesium 0.8. No more runs. The team holds the digoxin and halves the furosemide.' },
+        miss: { text: 'At 06:00 another run of VT. The registrar comes and finds the magnesium was never replaced.' } }
     ] }
   }
   ];
