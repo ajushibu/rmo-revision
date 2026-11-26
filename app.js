@@ -1049,7 +1049,7 @@
     if (a === 'rtgoaloff') { rtMenu = false; var go = rtLoad(); go.goal = null; rtSave(go); rtPaint(go, ''); return; }
     if (a === 'rtstop') { var gt = rtLoad(); gt.goal = null; rtSave(gt); location.hash = '#/'; return; }
     if (a === 'allcases') { caseAll = true; keepScroll = true; render(); return; }
-    if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); }
+    if (a === 'reveal') { lockUntil = Date.now() + 500; revealed = true; keepScroll = true; render(); var an = document.querySelector('.flash .answer'); if (an) window.scrollTo({ top: Math.max(0, an.getBoundingClientRect().top + window.scrollY - 14), behavior: 'smooth' }); }   // bring the start of the answer to the top of the screen
     else if (a === 'studied' || a === 'restudy') { t = ts(topicId()); t.studied = today(); t.rev = {}; if (t.status === 'new') t.status = 'learning'; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'unstudy') { t = ts(topicId()); t.studied = null; t.rev = {}; t.t = Date.now(); save(); keepScroll = true; render(); }
     else if (a === 'export') {
