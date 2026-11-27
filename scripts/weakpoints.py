@@ -10,7 +10,7 @@ Rules (agreed with the user):
 - A case is mastered (retire it) after two attempts on different days, each at least 80% with no poor or harmful answers.
 - Easy and Hard are two formats of the same case (same concept tags, same case id). Easy attempts have mode 'easy' and tool <pid>_shift; Hard attempts have mode 'hard' and tool <pid>_ward, and are folded into <pid>_shift here.
 - A case that has a Hard version is only mastered when at least one of the two good attempts was Hard. Two good Easy attempts alone mean "play it Hard", not "retire".
-- Hard attempts also record per step the orders missed (m), the orders that cost points (x, harmful or unneeded) and the wrong plan answers (pw): use them when you remake a case.
+- Hard attempts also record per step the orders missed (m), the orders that cost points (x, harmful or unneeded) and the plan points the user did not tick in the self-check (pw, e.g. call:not said): use them when you remake a case.
 """
 import json, sys, datetime, collections, re, os
 

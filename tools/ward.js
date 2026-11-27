@@ -22,11 +22,11 @@
   var $ = function (s) { return document.querySelector(s); };
   var view = $('#view'), prog = $('#progress');
   var PTS = { need: 2, good: 1, skip: -1, harm: -3 };
-  /* The plan: the same three questions every step. Each is 1 point; wrong is -1 (the step total never goes below 0). */
+  /* The plan: said in your own words at the steps where it changes (S.askPlan), then self-checked against three key points, 1 point each. PQ holds the key points and the names of the keyed answers. */
   var PQ = [
-    { k: 'call', q: 'Who do you call?', o: [['none', 'No one yet'], ['reg', 'Registrar'], ['icu', 'ICU outreach'], ['met', 'MET call']] },
-    { k: 'monitor', q: 'How do you monitor?', o: [['routine', 'Routine obs'], ['q15', 'Obs every 15 min'], ['spo2', 'Continuous SpO2'], ['spo2ecg', 'SpO2 and ECG']] },
-    { k: 'review', q: 'When do you review next?', o: [['m5', 'Within 5 min'], ['m20', 'In 20 min'], ['h1', 'In 1 hour'], ['h4', 'In 4 hours'], ['am', 'Next morning']] }
+    { k: 'call', label: 'Who you call, and why', q: 'Who do you call?', o: [['none', 'No one yet'], ['reg', 'Registrar'], ['icu', 'ICU outreach'], ['met', 'MET call']] },
+    { k: 'monitor', label: 'How you will watch', q: 'How do you monitor?', o: [['routine', 'Routine obs'], ['q15', 'Obs every 15 min'], ['spo2', 'Continuous SpO2'], ['spo2ecg', 'SpO2 and ECG']] },
+    { k: 'review', label: 'When you look again', q: 'When do you review next?', o: [['m5', 'Within 5 min'], ['m20', 'In 20 min'], ['h1', 'In 1 hour'], ['h4', 'In 4 hours'], ['am', 'Next morning']] }
   ];
   /* Discharge steps: orders file themselves under the same five headings every time, so an empty heading is the cue. */
   var DH = [['meds', 'Medicines to go home on'], ['prevent', 'Prevent the next one'], ['follow', 'Follow-up'], ['teach', 'Teach and safety-net'], ['write', 'Write down for the next team']];
@@ -34,7 +34,7 @@
   function optName(k, v) { var q = PQ.filter(function (x) { return x.k === k; })[0], r = q.o.filter(function (x) { return x[0] === v; })[0]; return r ? r[1] : ''; }
   function nm(id) { return id === 'call' ? 'Make the call' : BY[id].n; }
 
-  var S = { mode: 'home', ci: 0, si: 0, step: null, vit: {}, facts: [], newFacts: [], placed: [], plan: { call: null, monitor: null, review: null, callFirst: false }, hint: false, results: [], last: null, sel: 0 };
+  var S = { mode: 'home', ci: 0, si: 0, step: null, vit: {}, facts: [], newFacts: [], placed: [], plan: { text: '' }, hint: false, results: [], last: null, sel: 0 };
 
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function merge(a, b) { var o = {}, k; for (k in a) o[k] = a[k]; for (k in b || {}) o[k] = b[k]; return o; }
@@ -67,7 +67,7 @@
 
   /* ---------- flow ---------- */
   function startCase(i) {
-    var c = CASES[i]; S.ci = i; S.si = 0; S.results = []; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.last = null; S.active = []; S.carry = []; S.lastPlan = null; S.lastPlanDef = null;
+    var c = CASES[i]; S.ci = i; S.si = 0; S.results = []; S.vit = merge({}, c.vit); S.facts = c.facts.slice(); S.newFacts = []; S.last = null; S.active = []; S.carry = []; S.lastPlanKey = null; S.askPlan = false;
     S.mode = 'intro'; S.step = null; render();
   }
   function stepAt(c, si, failed) { var st = c.steps[si]; return failed && st.alt ? st.alt : st; }
@@ -77,13 +77,13 @@
     S.facts = S.facts.concat(S.newFacts); S.newFacts = (S.step.reveal || []).slice();
     if (S.step.vit) S.vit = merge(S.vit, S.step.vit);
     S.carry = S.step.heads ? [] : (S.active || []).map(function (a) { return { id: a.id, dose: a.dose, time: a.time, dec: null, reord: false }; });
-    S.placed = []; S.plan = { call: null, monitor: null, review: null, callFirst: false }; S.planKept = {}; S.hint = false; S.scope = null;
-    // plan answers carry over when the right answer has not changed since the last step
-    if (S.step.plan && S.lastPlan && S.lastPlanDef) PQ.forEach(function (q) {
-      var a = S.step.plan[q.k], b = S.lastPlanDef[q.k], pick = S.lastPlan[q.k];
-      var set = function (d) { return d ? d.best.concat(d.ok || []).slice().sort().join(',') : ''; };
-      if (a && b && pick && set(a) === set(b)) { S.plan[q.k] = pick; S.planKept[q.k] = true; }
-    });
+    S.placed = []; S.plan = { text: '' }; S.hint = false; S.scope = null; S.askPlan = false; S.pending = null;
+    // the plan is asked only where it matters: someone has to be called, and the right answer changed since the last plan step (or it is critical)
+    if (S.step.plan) {
+      var pc = S.step.plan, none = pc.call.best.length === 1 && pc.call.best[0] === 'none';
+      var key = PQ.map(function (q) { return pc[q.k].best.concat(pc[q.k].ok || []).slice().sort().join('+'); }).join('|');
+      S.askPlan = !none && (key !== S.lastPlanKey || !!(pc.call.crit || pc.monitor.crit || pc.review.crit)); S.lastPlanKey = key;
+    }
     S.mode = 'order'; render();
     var q = $('#q'); if (q && !matchMedia('(hover: none)').matches) q.focus();
   }
@@ -107,7 +107,7 @@
       if (!isAltOnly) max += PTS[g[id].q];
     });
     if ((st.first || []).length) max += 2;
-    if (st.plan) max += PQ.length;
+    if (S.askPlan && st.plan) max += PQ.length;
     // which needs are satisfied by an alternative the doctor placed instead
     Object.keys(g).forEach(function (k) {
       if (g[k].q !== 'need' || ids.indexOf(k) >= 0) return;
@@ -147,30 +147,38 @@
       if (g[id].crit) pass = false;
     });
     var planLines = [];
-    if (st.plan) PQ.forEach(function (q) {
-      var d = st.plan[q.k] || { best: [], ok: [] }, pick = S.plan[q.k], right = d.best.indexOf(pick) >= 0 || (d.ok || []).indexOf(pick) >= 0;
-      pts += right ? 1 : -1;
-      if (!right && d.crit) pass = false;
-      planLines.push({ k: q.k, q: q.q, pick: pick, right: right, crit: !!(d.crit && !right), best: d.best.map(function (v) { return optName(q.k, v); }), also: (d.ok || []).map(function (v) { return optName(q.k, v); }), why: d.why || '' });
+    if (S.askPlan && st.plan) PQ.forEach(function (q) {
+      var d = st.plan[q.k] || { best: [], ok: [] };
+      planLines.push({ k: q.k, q: q.q, label: q.label, best: d.best.map(function (v) { return optName(q.k, v); }), also: (d.ok || []).map(function (v) { return optName(q.k, v); }), why: d.why || '', crit: !!d.crit, ticked: false });
     });
-    var fp = S.plan.callFirst ? { id: 'call' } : S.placed.filter(function (p) { return p.first; })[0], firstOk = null;
+    var fp = S.placed.filter(function (p) { return p.first; })[0], firstOk = null;
     if ((st.first || []).length) { firstOk = !!(fp && st.first.indexOf(fp.id) >= 0); if (firstOk) pts += 2; }
     if (S.hint) pts -= 2;
     var score = Math.max(0, Math.min(max, pts));
-    return { lines: lines, plan: planLines, miss: miss, pass: pass, firstOk: firstOk, firstPick: fp ? fp.id : null, score: score, max: max, hint: S.hint, tag: st.tag, label: st.label };
+    return { lines: lines, plan: planLines, line: S.plan.text || '', basePts: pts, passBase: pass, miss: miss, pass: pass, firstOk: firstOk, firstPick: fp ? fp.id : null, score: score, max: max, hint: S.hint, tag: st.tag, label: st.label };
+  }
+  /* the plan points come from the doctor's own tick-list, so the step score and pass are worked out again once it is done */
+  function rescore(r) {
+    var n = r.plan.filter(function (l) { return l.ticked; }).length;
+    r.score = Math.max(0, Math.min(r.max, r.basePts + n));
+    r.pass = r.passBase && !r.plan.some(function (l) { return l.crit && !l.ticked; });
   }
   function sign() {
     var und = carryOpen().filter(function (p) { return !p.dec; });
     if (und.length) { var ue = document.querySelector('[data-cid="' + und[0].id + '"]'); if (ue) { ue.classList.add('need'); ue.scrollIntoView({ block: 'center' }); } announce('Keep or stop: ' + BY[und[0].id].n); return; }
     if (!S.placed.length && !liveCarry().length) return;
-    if (S.step.plan) {
-      var gap = PQ.filter(function (q) { return !S.plan[q.k]; })[0];
-      if (gap) { PQ.forEach(function (q) { var e = !S.plan[q.k] && document.querySelector('[data-pg="' + q.k + '"]'); if (e) e.classList.add('need'); }); var g = document.querySelector('[data-pg="' + gap.k + '"]'); if (g) { g.classList.add('need'); g.scrollIntoView({ block: 'center' }); var f0 = g.querySelector('input'); if (f0) f0.focus(); } announce('Answer: ' + gap.q); return; }
+    if (S.askPlan && S.step.plan && (S.plan.text || '').trim().length < 8) {
+      var pl = document.getElementById('pline'); if (pl) { pl.classList.add('need'); pl.scrollIntoView({ block: 'center' }); pl.focus(); }
+      announce('Say your plan in one line first: who you call and why, how you watch, when you look again.'); return;
     }
     var unset = S.placed.filter(function (p) { return BY[p.id].doses && p.dose === null; });
     if (unset.length) { var el = document.querySelector('[data-dose="' + unset[0].id + '"]'); if (el) { el.focus(); el.classList.add('need'); } announce('Choose a dose for ' + BY[unset[0].id].n + ' first.'); return; }
-    var r = grade(); S.last = r; S.results.push(r);
-    if (S.step.plan) { S.lastPlan = merge({}, S.plan); S.lastPlanDef = S.step.plan; }
+    var r = grade();
+    if (r.plan.length) { S.pending = r; S.mode = 'check'; render(); window.scrollTo(0, 0); return; }
+    finishSign(r);
+  }
+  function finishSign(r) {
+    S.last = r; S.results.push(r); S.pending = null;
     if (!S.step.heads) {
       var keep = liveCarry().map(function (p) { return { id: p.id, dose: p.dose, time: p.time }; }), tm = S.step.time;
       S.placed.forEach(function (p) { keep.push({ id: p.id, dose: p.dose, time: tm }); });
@@ -189,7 +197,7 @@
     try {
       var pts = 0, max = 0; S.results.forEach(function (r) { pts += r.score; max += r.max; });
       var rec = { id: 'a' + Date.now() + Math.random().toString(36).slice(2, 6), tool: TOOL, cs: c.id, title: c.title, at: Date.now(), pts: pts, max: max, mode: 'hard',
-        d: S.results.map(function (r) { var f = r.max ? r.score / r.max : 0; return { tag: r.tag, q: f >= 0.8 ? 'best' : f >= 0.5 ? 'ok' : r.lines.some(function (l) { return l.q === 'harm'; }) ? 'harm' : 'poor', c: r.label || '', m: r.miss.map(function (x) { return x.id; }), x: r.lines.filter(function (l) { return l.q === 'harm' || l.q === 'skip'; }).map(function (l) { return l.id; }), pw: (r.plan || []).filter(function (l) { return !l.right; }).map(function (l) { return l.k + ':' + l.pick; }) }; }) };
+        d: S.results.map(function (r) { var f = r.max ? r.score / r.max : 0; return { tag: r.tag, q: f >= 0.8 ? 'best' : f >= 0.5 ? 'ok' : r.lines.some(function (l) { return l.q === 'harm'; }) ? 'harm' : 'poor', c: r.label || '', m: r.miss.map(function (x) { return x.id; }), x: r.lines.filter(function (l) { return l.q === 'harm' || l.q === 'skip'; }).map(function (l) { return l.id; }), pw: (r.plan || []).filter(function (l) { return !l.ticked; }).map(function (l) { return l.k + ':not said'; }) }; }) };
       var q = JSON.parse(localStorage.getItem('rmo-attempt-queue') || '[]'); q.push(rec); localStorage.setItem('rmo-attempt-queue', JSON.stringify(q));
       if (window.parent !== window) window.parent.postMessage({ rmoAttempt: true }, location.origin);
     } catch (e) { /* storage blocked: not recorded */ }
@@ -275,13 +283,7 @@
 
   function drawPlan() {
     var box = $('#plan'); if (!box) return;
-    box.innerHTML = PQ.map(function (q) {
-      var cur = S.plan[q.k];
-      if (S.planKept && S.planKept[q.k]) return '<div class="pkept"><span>' + esc(q.q) + '</span><b>' + esc(optName(q.k, cur)) + '</b><button type="button" class="link" data-pchange="' + q.k + '">Change</button></div>';
-      return '<fieldset class="pq" data-pg="' + q.k + '"><legend>' + esc(q.q) + '</legend><div class="pchips">' + q.o.map(function (o) {
-        return '<label class="pc"><input type="radio" name="pl-' + q.k + '" data-pk="' + q.k + '" value="' + o[0] + '"' + (cur === o[0] ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>';
-      }).join('') + (q.k === 'call' && cur && cur !== 'none' ? '<button type="button" class="pfirst" data-cfirst="1" aria-pressed="' + S.plan.callFirst + '" title="Do this first">' + (S.plan.callFirst ? 'First' : 'Do first?') + '</button>' : '') + '</div></fieldset>';
-    }).join('');
+    box.innerHTML = '<label class="sr" for="pline">Your plan in one line</label><textarea id="pline" class="pline" rows="3" maxlength="400" placeholder="Who you call and why, how you will watch, when you look again. Say it as you would on the phone." autocomplete="off">' + esc(S.plan.text || '') + '</textarea>';
   }
 
   /* ---------- views ---------- */
@@ -299,7 +301,7 @@
     if (S.mode === 'intro') {
       prog.textContent = '';
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><div class="casehead"><h2>' + esc(c.title) + '</h2>' + modeSeg(c) + '</div><div class="pager"><b>' + esc(c.time + ', ' + c.where) + '</b><p>' + esc(c.intro) + '</p></div>' +
-        '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. Then answer the plan: who you call, how you monitor, when you review. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
+        '<p class="howto">Type to place orders, as in the eMR. Pick doses and star the one you would do first. At the key moments, say your plan in one line: who you call and why, how you watch, when you look again. The patient responds to what you order.</p><div class="btns"><button class="btn primary" data-a="go">Go to the bedside</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'order') {
@@ -311,9 +313,17 @@
         '<div class="osearch"><label for="q">' + (S.carry && S.carry.length ? 'Anything new?' : 'Place an order') + ' <span id="scopechip" class="scopechip" hidden></span></label><input id="q" type="text" placeholder="Type a test, drug or action" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="ores" aria-expanded="false"><ul id="ores" role="listbox" hidden></ul></div>' +
         '<p class="browse"><button type="button" class="link" data-a="browse">' + (S.hint ? 'Browse orders (hint used)' : 'Stuck on a name? Browse orders (counts as a hint)') + '</button></p>' +
         '<h3 id="ocount"></h3>' + (st.heads ? '<p class="hnote">Discharge planning. Your orders file under these headings: fill every heading.</p>' : '') + '<ul id="placed" class="placed"></ul>' +
-        (st.plan ? '<h3 class="plh">Your plan <span>' + (S.planKept && Object.keys(S.planKept).length ? 'Kept from the last step unless the situation changed' : 'Answer all three') + '</span></h3><div id="plan" class="plan"></div>' : '') +
+        (S.askPlan && st.plan ? '<h3 class="plh">Your plan in one line <span>Say it as you would on the phone</span></h3><div id="plan" class="plan"></div>' : '') +
         '<div class="btns signrow"><button class="btn primary" id="sign" data-a="sign" disabled>Sign orders</button></div><p class="sr" id="announce" aria-live="polite"></p></div></div></div>';
       drawCarry(); drawPlaced(); drawResults(); drawPlan();
+      return;
+    }
+    if (S.mode === 'check') {
+      var pr = S.pending;
+      view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card"><h2 class="ctitle">Check your line</h2><p class="muted">What you wrote:</p><blockquote class="myline">' + esc(pr.line) + '</blockquote>' +
+        '<p class="muted">Tick only what you really said. A vague line does not count.</p><ul class="chk">' + pr.plan.map(function (l, i) {
+          return '<li><label><input type="checkbox" data-ck="' + i + '"' + (l.ticked ? ' checked' : '') + '><span class="ckb" aria-hidden="true"></span><span class="ckt"><b>' + esc(l.label) + (l.crit ? ' (critical)' : '') + '</b><span>' + esc(l.best.join(' or ')) + (l.also.length ? ' (also fine: ' + esc(l.also.join(', ')) + ')' : '') + '. ' + esc(l.why) + '</span></span></label></li>';
+        }).join('') + '</ul><div class="btns"><button class="btn primary" data-a="checkdone">See what happens</button></div></div></div></div>';
       return;
     }
     if (S.mode === 'result') {
@@ -326,8 +336,8 @@
       }).join('');
       var missed = r.miss.map(function (m) { var o = BY[m.id]; return '<li class="rl ' + (m.q === 'need' ? 'miss' : 'also') + '"><span class="rk">' + (m.stopped ? 'You stopped it, but ' + (m.q === 'need' ? 'it is still needed' : 'it was worth keeping') : m.crit ? 'Missed, critical' : m.q === 'need' ? 'Missed' : 'Also worth doing') + (st2.heads && headName(m.id) ? ' · ' + esc(headName(m.id)) : '') + '</span><b>' + esc(o.n) + '</b>' + (st2.orders[m.id].d && o.doses ? '<span class="rdose">' + esc(st2.orders[m.id].d.map(function (k) { return o.doses[k]; }).join(' or ')) + '</span>' : '') + '<span class="rw">' + esc(m.why) + '</span></li>'; }).join('');
       var planRows = (r.plan || []).map(function (l) {
-        var cl = l.right ? 'ok' : l.crit ? 'miss' : 'skip', tag = l.right ? 'Right' : l.crit ? 'Missed, critical' : 'Not best';
-        return '<li class="rl ' + cl + '"><span class="rk">' + tag + ' · ' + esc(l.q) + '</span><b>' + esc(optName(l.k, l.pick)) + '</b><span class="rw">' + esc(l.why) + (l.right ? '' : ' Best: ' + esc(l.best.join(' or ')) + (l.also.length ? ' (also fine: ' + esc(l.also.join(', ')) + ')' : '') + '.') + '</span></li>';
+        var cl = l.ticked ? 'ok' : l.crit ? 'miss' : 'skip', tag = l.ticked ? 'You said it' : l.crit ? 'Missed, critical' : 'Not in your line';
+        return '<li class="rl ' + cl + '"><span class="rk">' + tag + '</span><b>' + esc(l.label) + '</b><span class="rw">' + esc(l.best.join(' or ')) + '. ' + esc(l.why) + '</span></li>';
       }).join('');
       var firstLine = r.firstOk === null ? '' : '<p class="fline ' + (r.firstOk ? 'ok' : 'bad') + '"><b>' + (r.firstOk ? 'Right first move.' : r.firstPick ? 'Not the first move.' : 'You did not star a first move.') + '</b> First: ' + esc(st2.first.map(nm).join(' or ')) + '. ' + esc(st2.firstWhy || '') + '</p>';
       var keyItems = [];
@@ -344,7 +354,7 @@
         '<div class="out ' + (r.pass ? 'good' : 'bad') + '"><b>' + (r.pass ? 'What happens next' : 'The patient gets worse') + '</b><p>' + esc(out.text) + '</p></div>' +
         '<details class="rall"><summary>Show everything (' + nAll + ')</summary>' +
         (rows ? '<h3>Your orders</h3><ul class="rlist">' + rows + '</ul>' : '') + (missed ? '<h3>Not ordered</h3><ul class="rlist">' + missed + '</ul>' : '') +
-        (planRows ? '<h3>Your plan</h3><ul class="rlist">' + planRows + '</ul>' : '') +
+        (planRows ? '<h3>Your plan</h3>' + (r.line ? '<blockquote class="myline">' + esc(r.line) + '</blockquote>' : '') + '<ul class="rlist">' + planRows + '</ul>' : '') +
         (st2.teach ? '<p class="teach">' + esc(st2.teach) + '</p>' : '') + '</details>' +
         '<div class="btns"><button class="btn primary" data-a="cont">' + (S.si + 1 < c.steps.length ? 'Next step' : 'Hand over') + '</button></div></div></div></div>';
       return;
@@ -384,10 +394,8 @@
     if ((el = t.closest('[data-add]'))) { add(el.getAttribute('data-add')); if (el.classList.contains('bo')) { el.disabled = true; el.classList.add('on'); } return; }
     if ((el = t.closest('[data-dec]'))) { var did = el.getAttribute('data-did'), dv = el.getAttribute('data-dec'); (S.carry || []).forEach(function (p) { if (p.id === did) p.dec = p.dec === dv ? null : dv; }); drawCarry(); drawPlaced(); return; }
     if ((el = t.closest('[data-scope]'))) { var sk = el.getAttribute('data-scope') || null; setScope(S.scope === sk ? null : sk); var qq = $('#q'); if (qq) { qq.focus(); if (sk) qq.scrollIntoView({ block: 'center' }); } drawResults(); return; }
-    if ((el = t.closest('[data-pchange]'))) { delete S.planKept[el.getAttribute('data-pchange')]; drawPlan(); return; }
     if ((el = t.closest('[data-rm]'))) { var id = el.getAttribute('data-rm'); S.placed = S.placed.filter(function (p) { return p.id !== id; }); (S.carry || []).forEach(function (p) { if (p.id === id) p.reord = false; }); drawCarry(); drawPlaced(); drawResults(); return; }
-    if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); if (f) S.plan.callFirst = false; drawPlaced(); drawPlan(); return; }
-    if ((el = t.closest('[data-cfirst]'))) { S.plan.callFirst = !S.plan.callFirst; if (S.plan.callFirst) S.placed.forEach(function (p) { p.first = false; }); drawPlaced(); drawPlan(); return; }
+    if ((el = t.closest('[data-first]'))) { var f = el.getAttribute('data-first'); S.placed.forEach(function (p) { p.first = p.id === f ? !p.first : false; }); drawPlaced(); return; }
     if ((el = t.closest('button[data-mode]'))) { if (el.getAttribute('data-mode') === 'easy') { var cid = el.getAttribute('data-id'); if (cid) setCaseMode(cid, 'easy'); else setMode('easy'); var cc = cid ? { id: cid } : S.mode !== 'home' && CASES[S.ci]; location.href = SHIFTPAGE + (cc ? '?case=' + encodeURIComponent(cc.id) + (RUN ? '&run=today' : '') : ''); } return; }
     if (!(el = t.closest('[data-a]'))) return;
     var a = el.getAttribute('data-a');
@@ -395,15 +403,17 @@
     else if (a === 'go') beginStep();
     else if (a === 'sign') sign();
     else if (a === 'cont') cont();
+    else if (a === 'checkdone') { var pr2 = S.pending; if (pr2) { rescore(pr2); finishSign(pr2); } }
     else if (a === 'home') { S.mode = 'home'; render(); }
     else if (a === 'replay') startCase(S.ci);
     else if (a === 'nextcase') { var P = parentCases(); if (P) P.next(BASE0 + ':' + CASES[S.ci].id); }
     else if (a === 'browse') browse();
     else if (a === 'bclose') { var w = document.querySelector('.bwrap'); if (w) w.remove(); var q = $('#q'); if (q) q.focus(); }
   });
+  document.addEventListener('input', function (e) { if (e.target && e.target.id === 'pline') { S.plan.text = e.target.value; e.target.classList.remove('need'); } });
   document.addEventListener('change', function (e) {
-    var pk = e.target.getAttribute && e.target.getAttribute('data-pk');
-    if (pk) { S.plan[pk] = e.target.value; if (pk === 'call' && e.target.value === 'none') S.plan.callFirst = false; var gp = document.querySelector('[data-pg="' + pk + '"]'); if (gp) gp.classList.remove('need'); drawPlan(); return; }
+    var ck = e.target.getAttribute && e.target.getAttribute('data-ck');
+    if (ck !== null && ck !== undefined && S.pending) { S.pending.plan[+ck].ticked = e.target.checked; return; }
     var id = e.target.getAttribute && e.target.getAttribute('data-dose'); if (!id) return;
     S.placed.forEach(function (p) { if (p.id === id) p.dose = e.target.value === '' ? null : +e.target.value; });
     e.target.classList.remove('need');
