@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Acute kidney injury: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Acute kidney injury: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -99,7 +99,7 @@
         o('harm', 'Give furosemide to wash it out', 'A diuretic does nothing against an obstruction.')] },
       { tag: 'aki-call', scene: 'The catheter drains 1.4 L. His potassium is 6.1 and the ECG is normal. What next?', opts: [
         o('best', 'Hourly urine output, repeat bloods in a few hours, and treat the potassium per protocol if it stays high', 'Watch for post-obstructive diuresis and recheck the potassium.'),
-        o('ok', 'Remove the catheter now that it has drained', 'Too early: he needs a trial of void after the cause is treated.'),
+        o('poor', 'Remove the catheter now that it has drained', 'Too early: he needs a trial of void after the cause is treated.'),
         o('poor', 'Stop the observations, the problem is solved', 'He may diurese heavily and become dry.'),
         o('harm', 'Give 10 units of insulin on its own to push the potassium down', 'Insulin without glucose risks severe hypoglycaemia. Relieve the obstruction first and recheck the potassium.')] }
     ],

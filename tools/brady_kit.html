@@ -239,7 +239,7 @@ figure { margin: 0; }
   drawB();
 
   /* ---------- Drill ---------- */
-  var OPTS = [['atro', 'Atropine'], ['pace', 'Pace or adrenaline'], ['tox', 'Toxicology: glucagon, high-dose adrenaline'], ['watch', 'Monitor, pads on, call cardiology'], ['cause', 'Treat the cause']];
+  var OPTS = [['atro', 'Atropine'], ['pace', 'Pace or adrenaline'], ['tox', 'Toxicology: glucagon, high-dose adrenaline'], ['watch', 'Monitor, pads on, call cardiology'], ['cause', 'Treat the cause'], ['none', 'No treatment: observe and reassure']];
   var ITEMS = [
     { t: 'HR 34, BP 78/44, drowsy. Sinus bradycardia, no heart block.', a: 'atro', why: 'Adverse signs. Atropine 500-600 mcg IV every 3-5 minutes up to 3 mg is first line.' },
     { t: 'Atropine 3 mg given, HR 36, BP 80/48, still drowsy.', a: 'pace', why: 'Atropine failed. Move to transcutaneous pacing or an adrenaline infusion (2-10 mcg/min).' },
@@ -248,7 +248,7 @@ figure { margin: 0; }
     { t: 'Mobitz II, HR 48, BP 130/80, no symptoms.', a: 'watch', why: 'No adverse signs, but Mobitz II is an asystole-risk marker. Monitor with pads on and call cardiology.' },
     { t: 'Potassium 7.1, wide QRS, HR 40, BP 100/60.', a: 'cause', why: 'Reversible cause. Treat the hyperkalaemia (calcium, insulin with glucose) per protocol, and keep pacing ready.' },
     { t: 'Inferior STEMI, complete heart block, HR 38, BP 84/50.', a: 'atro', why: 'Block above the His bundle in an inferior MI can respond to atropine, so it is a reasonable first trial. Have pads on and be ready to pace early, and call cardiology for reperfusion.' },
-    { t: 'HR 44, BP 125/78, feels fine, sleeping and fit 25-year-old.', a: 'watch', why: 'Likely physiological. No treatment needed. Observe and reassure; do not give atropine for a number.' }
+    { t: 'HR 44, BP 125/78, feels fine, sleeping and fit 25-year-old.', a: 'none', why: 'Likely physiological. No treatment needed. Observe and reassure; do not give atropine for a number.' }
   ];
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   var order = [], pos = 0, firstCorrect = 0, missed = [], answered = null, total = 0;

@@ -18,10 +18,10 @@ window.KIT = {
       { rx: { h: 'Antibiotics', items: ['Choose by eTG and your local resistance data. Do not delay for the culture if she is septic.', 'Mild pyelonephritis: an oral antibiotic if she can swallow and keep it down.', 'Severe: IV antibiotics, then switch to oral when she is improving and the sensitivities are back.', 'In men, consider the prostate and use a longer course.'] } },
       { rx: { h: 'Call your registrar if', cls: 'warn', items: ['Septic: low BP, fast pulse, lactate above 2.', 'Pregnant, a transplant patient, or an obstructed kidney.', 'Not improving after 48 hours of the right antibiotic.'] } }] }
   ],
-  opts: [['no', 'Do not treat. Look for another cause'], ['cult', 'Culture, then treat'], ['iv', 'IV antibiotics'], ['img', 'Image the kidneys'], ['oral', 'Switch to oral']],
+  opts: [['no', 'Do not treat. Look for another cause'], ['cult', 'Culture, then treat'], ['iv', 'IV antibiotics'], ['img', 'Image the kidneys'], ['oral', 'Switch to oral'], ['short', 'Oral antibiotic, short course']],
   items: [
     { t: 'An 86-year-old, confused, afebrile, no urinary symptoms, dipstick positive for nitrite.', a: 'no', why: 'Probably asymptomatic bacteriuria. Look for the real cause of the confusion.' },
-    { t: 'A 30-year-old woman with 2 days of dysuria and frequency, no fever.', a: 'cult', why: 'A simple cystitis: a short course per eTG. A culture helps if there are risk factors.' },
+    { t: 'A 30-year-old woman with 2 days of dysuria and frequency, no fever.', a: 'short', why: 'Simple cystitis: a short oral course per eTG. A culture is not needed unless she is pregnant, has risk factors or it comes back.' },
     { t: 'A woman with fever 38.8, loin pain, vomiting twice.', a: 'iv', why: 'Pyelonephritis she cannot keep tablets down for: cultures, then an IV antibiotic.' },
     { t: 'Pyelonephritis, still febrile and in pain after 72 hours of the right antibiotic.', a: 'img', why: 'Not responding: scan for a stone, obstruction or abscess.' },
     { t: 'Pyelonephritis on day 2, afebrile, eating, the culture shows a sensitive E. coli.', a: 'oral', why: 'Switch to a sensitive oral antibiotic and plan the total course.' },

@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'stone-dx', scene: 'Young man, writhing, haematuria, afebrile. What is the likely diagnosis, and what must you not miss?', opts: [
         o('best', 'Renal colic from a stone. Not to miss: testicular torsion and an obstructed infection', 'Look at the testicle, and check for fever and signs of infection.'),
-        o('ok', 'Appendicitis', 'The pain pattern is loin to groin.'),
+        o('poor', 'Appendicitis', 'The pain pattern is loin to groin.'),
         o('poor', 'A muscle strain', 'Haematuria and writhing are not muscle strain.'),
         o('harm', 'Just anxiety', 'Never.')] },
       { tag: 'stone-pain', scene: 'What do you give first?', opts: [
         o('best', 'An NSAID, an antiemetic, and small IV doses of morphine if the pain is not controlled', 'NSAID is first-line for colic with normal kidneys.', { hr: 92 }),
-        o('ok', 'Paracetamol only', 'Too weak for this pain.'),
+        o('poor', 'Paracetamol only', 'Too weak for this pain.'),
         o('poor', 'A large 10 mg dose of IV morphine at once', 'Titrate in small steps.'),
         o('harm', 'Oral fluids only', 'He is vomiting.')] },
       { tag: 'stone-pain', scene: 'What imaging do you request?', opts: [
         o('best', 'CT KUB without contrast', 'This shows the stone and any hydronephrosis. Check pregnancy status in women.'),
-        o('ok', 'Plain abdominal X-ray only', 'It misses many stones.'),
+        o('poor', 'Plain abdominal X-ray only', 'It misses many stones.'),
         o('poor', 'A CT with contrast and delayed phases', 'Not needed for a stone, with more radiation.'),
         o('harm', 'No imaging, discharge him', 'The first episode needs imaging.')] },
       { tag: 'stone-go', scene: 'CT: a 5 mm stone in the lower ureter, mild hydronephrosis. He is afebrile, the creatinine is normal and the pain is controlled. What now?', opts: [
         o('best', 'Discharge with analgesia, a strainer, safety-net advice and urology follow-up', 'A stone this size often passes. Tell him when to return.'),
-        o('ok', 'Admit and give antibiotics', 'No infection.'),
+        o('poor', 'Admit and give antibiotics', 'No infection.'),
         o('poor', 'Discharge without advice', 'He needs return advice.'),
         o('harm', 'Book him for theatre tonight', 'Not needed.')] }
     ],
@@ -77,12 +77,12 @@
     decisions: [
       { tag: 'stone-emerg', scene: 'Fever, shock signs, a stone and hydronephrosis with a creatinine rise. What is this?', opts: [
         o('best', 'An infected, obstructed kidney: sepsis and an emergency', 'Pus behind a blocked kidney. It will not clear without drainage.'),
-        o('ok', 'Pyelonephritis, treat with oral antibiotics', 'It is obstructed and she is septic.'),
+        o('poor', 'Pyelonephritis, treat with oral antibiotics', 'It is obstructed and she is septic.'),
         o('poor', 'A simple stone, give an NSAID', 'The NSAID would harm the kidney and she is septic.'),
         o('harm', 'Just constipation', 'Dangerous.')] },
       { tag: 'stone-emerg', scene: 'What do you do in the first hour?', opts: [
         o('best', 'Cultures, IV antibiotics, fluids in boluses, lactate, and call the urology registrar to decompress the kidney', 'Antibiotics and drainage: both are needed.', { sbp: 108, hr: 108 }),
-        o('ok', 'Antibiotics and admit for a scan tomorrow', 'The scan is done. She needs drainage now.'),
+        o('poor', 'Antibiotics and admit for a scan tomorrow', 'The scan is done. She needs drainage now.'),
         o('poor', 'An NSAID and discharge when the pain settles', 'She is septic.'),
         o('harm', 'Wait for the culture result before antibiotics', 'Never delay antibiotics in sepsis.')] },
       { tag: 'stone-pain', scene: 'She is still in pain. What do you give?', opts: [
@@ -92,7 +92,7 @@
         o('harm', 'An NSAID, as for any renal colic', 'It would worsen the kidney injury in sepsis.')] },
       { tag: 'stone-go', scene: 'Urology puts in a ureteric stent. Where does she go?', opts: [
         o('best', 'A monitored bed or HDU, with repeat lactate and creatinine, hourly urine output and an antibiotic plan', 'She is septic and has had a procedure.'),
-        o('ok', 'The short-stay unit', 'Too low an acuity.'),
+        o('poor', 'The short-stay unit', 'Too low an acuity.'),
         o('poor', 'Home when the pain settles', 'She is septic.'),
         o('harm', 'Stop antibiotics once the stent is in', 'She needs a full course.')] }
     ],

@@ -579,7 +579,7 @@ window.RMO_CASES = [
       "fb": "You would be pouring in what you are trying to remove. Stop the cause."
      },
      {
-      "q": "ok",
+      "q": "poor",
       "t": "Halve the rate of the saline",
       "fb": "Better, but he is overloaded: he needs none."
      }
@@ -717,7 +717,7 @@ window.RMO_CASES = [
       "fb": "You would be pouring in what you are trying to remove. Stop the cause."
      },
      {
-      "q": "ok",
+      "q": "poor",
       "t": "Halve the maintenance rate",
       "fb": "Better, but she is overloaded and the bolus order is still live. Stop both."
      }

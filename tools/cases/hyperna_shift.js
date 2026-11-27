@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'hyperna-cause', scene: 'Sodium 158, dry, confused and hypotensive. What is the first problem to fix?', opts: [
         o('best', 'The shock: 0.9% saline in measured boluses, then replace the water', 'Restore perfusion first, then replace the free water.'),
-        o('ok', 'Start glucose 5% at once', 'Perfusion first, free water second.'),
+        o('poor', 'Start glucose 5% at once', 'Perfusion first, free water second.'),
         o('poor', 'Wait until the sodium is rechecked', 'She is shocked: act now.'),
         o('harm', 'Give furosemide to clear the sodium', 'She is dry. A diuretic makes it worse.')] },
       { tag: 'hyperna-fix', scene: 'After 500 mL her BP is 110/64. How do you replace the water?', opts: [
         o('best', 'Oral or enteral water if she can drink, and glucose 5% IV if not, with the sodium checked every 4 to 6 hours', 'Replace water gradually and check often.', { sbp: 112, hr: 96 }),
-        o('ok', 'Keep giving 0.9% saline', 'It adds sodium and does not replace the free water.'),
+        o('poor', 'Keep giving 0.9% saline', 'It adds sodium and does not replace the free water.'),
         o('poor', 'Glucose 5% 3 L over 6 hours', 'Far too fast.'),
         o('harm', '3% saline to boost her pressure', 'Hypertonic saline in hypernatraemia.')] },
       { tag: 'hyperna-limit', scene: 'The sodium at 21:00 is 146 (it was 158 at 09:00). What do you do?', opts: [
         o('best', 'Slow the water, recheck in 2 hours, watch her neuro status and tell your registrar', 'A fall of 12 in 12 hours is faster than the limit.'),
-        o('ok', 'Carry on as before', 'It is already too fast.'),
+        o('poor', 'Carry on as before', 'It is already too fast.'),
         o('poor', 'Give extra water to finish the job', 'It risks cerebral oedema.'),
         o('harm', 'Stop checking, she looks better', 'You must keep watching.')] },
       { tag: 'hyperna-cause', scene: 'What else needs treating?', opts: [
         o('best', 'The urinary infection, with cultures and an antibiotic per protocol, and the reason she could not drink', 'Treat the trigger and fix access to fluid.'),
-        o('ok', 'Only the sodium', 'The infection and the drink problem will bring it back.'),
+        o('poor', 'Only the sodium', 'The infection and the drink problem will bring it back.'),
         o('poor', 'Nothing, the dipstick is not important', 'It is the likely trigger.'),
         o('harm', 'Restrict her fluids', 'The opposite of what she needs.')] }
     ],
@@ -77,22 +77,22 @@
     decisions: [
       { tag: 'hyperna-di', scene: 'A high sodium, huge dilute urine, day 1 after pituitary surgery. What is the likely diagnosis?', opts: [
         o('best', 'Central diabetes insipidus', 'High serum osmolality with inappropriately dilute urine after pituitary surgery.'),
-        o('ok', 'SIADH', 'It would give a low sodium and concentrated urine.'),
+        o('poor', 'SIADH', 'It would give a low sodium and concentrated urine.'),
         o('poor', 'Osmotic diuresis from glucose', 'The glucose is 6.4.'),
         o('harm', 'Overhydration', 'He is dry, not wet.')] },
       { tag: 'hyperna-fix', scene: 'He is drinking freely. What do you do?', opts: [
         o('best', 'Let him drink and replace water, chart the urine hourly, check the sodium every 4 hours and call your registrar', 'Replace the water and watch.'),
-        o('ok', 'Restrict his fluids', 'Never in diabetes insipidus.'),
+        o('harm', 'Restrict his fluids', 'Never in diabetes insipidus.'),
         o('poor', 'Give 0.9% saline 2 L', 'It adds sodium and does not replace the water.'),
         o('harm', 'Give furosemide to clear it', 'Worsens the dehydration.')] },
       { tag: 'hyperna-di', scene: 'The registrar suggests desmopressin. What is your role?', opts: [
         o('best', 'Agree the dose and plan with the registrar and the surgical team, then chart it and check the sodium', 'It is a senior and endocrine decision, with the dose per protocol.'),
-        o('ok', 'Give it yourself with any dose', 'A dose error can cause a dangerous low sodium.'),
+        o('harm', 'Give it yourself with any dose', 'A dose error can cause a dangerous low sodium.'),
         o('poor', 'Refuse it', 'It treats the cause.'),
         o('harm', 'Give desmopressin and stop checking the sodium', 'Sodium monitoring is essential afterwards.')] },
       { tag: 'hyperna-limit', scene: 'After treatment the sodium is 143 and the urine is 1.2 L. What now?', opts: [
         o('best', 'Keep monitoring the sodium and urine, check cortisol and sodium again in the morning, and arrange endocrine follow-up', 'Pituitary surgery can affect other hormones.'),
-        o('ok', 'Stop all monitoring', 'The condition can change after surgery.'),
+        o('poor', 'Stop all monitoring', 'The condition can change after surgery.'),
         o('poor', 'Restrict fluids now that it is controlled', 'He may need them.'),
         o('harm', 'Discharge him tonight', 'Too early.')] }
     ],

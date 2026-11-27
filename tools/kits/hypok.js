@@ -19,13 +19,13 @@ window.KIT = {
       { rx: { h: 'Do not stop at the potassium', items: ['Check magnesium and replace it: without it the potassium falls again.', 'Find the cause and fix it: review diuretics, treat the diarrhoea or the stoma output.', 'Recheck the potassium the same day and the next morning.'] } },
       { rx: { h: 'Call your registrar if', cls: 'warn', items: ['Potassium below 2.5 or ECG changes.', 'The patient is on digoxin.', 'The potassium does not rise despite replacement.'] } }] }
   ],
-  opts: [['oral', 'Oral replacement'], ['iv', 'IV on a monitor'], ['mg', 'Check and replace magnesium'], ['stop', 'Review the cause'], ['wait', 'Repeat in the morning']],
+  opts: [['oral', 'Oral replacement'], ['iv', 'IV replacement, premixed bag'], ['mg', 'Check and replace magnesium'], ['stop', 'Review the cause'], ['wait', 'Repeat in the morning']],
   items: [
     { t: 'Potassium 3.2, eating, on furosemide, normal ECG.', a: 'oral', why: 'Mild, gut working, no ECG changes: oral replacement and review the diuretic.' },
     { t: 'Potassium 2.3 with ectopics and U waves, vomiting for two days.', a: 'iv', why: 'Severe with ECG changes: IV replacement on a monitor, and tell your registrar.' },
     { t: 'Potassium keeps falling despite replacement, on a thiazide with a high-output stoma.', a: 'mg', why: 'Low magnesium makes potassium hard to correct. Check and replace it.' },
     { t: 'Potassium 3.3 and creatinine 280 and rising.', a: 'stop', why: 'In kidney failure, replace cautiously and look for the cause before pushing it up.' },
-    { t: 'Potassium 3.4, no symptoms, normal ECG, well, no risk factors.', a: 'wait', why: 'Mild and well: oral replacement and a repeat check are enough. Not a night-time emergency.' },
-    { t: 'The nurse asks to add 40 mmol to the running Hartmann bag.', a: 'iv', why: 'No. Give a premixed 10 mmol in 100 mL bag over an hour, on its own line.' }
+    { t: 'Potassium 3.4, no symptoms, normal ECG, well, no risk factors.', a: 'wait', why: 'Mild, well and no risk factors: a repeat check is enough, with oral replacement if it stays low. Not a night-time emergency.' },
+    { t: 'Potassium 2.9, vomiting, cannot keep tablets down. The nurse asks to add 40 mmol to the running Hartmann bag.', a: 'iv', why: 'IV, but never added to a running bag: give a premixed 10 mmol in 100 mL bag over an hour, on its own line.' }
   ]
 };

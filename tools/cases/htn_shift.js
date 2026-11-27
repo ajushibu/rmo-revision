@@ -83,7 +83,7 @@ facts: ["36F; GP diagnosed 'panic attacks' 3 months ago", "Spells of headache, s
 decisions: [
 { tag: "cause", scene: "Spells of headache, sweating and palpitations, BP spikes, and an adrenal mass. What are you thinking?", opts: [
 { q: "best", t: "Phaeochromocytoma until proven otherwise: the classic triad plus an adrenal mass", fb: "Headache, sweating and palpitations in spells is the classic triad. An adrenal mass is itself a reason to test for phaeochromocytoma (Medicine Today, Australia)." },
-{ q: "ok", t: "Probably a panic attack, but I will look for a cause later", fb: "Panic is possible, but with spells and an adrenal mass the cause has to be excluded first." },
+{ q: "poor", t: "Probably a panic attack, but I will look for a cause later", fb: "Panic is possible, but with spells and an adrenal mass the cause has to be excluded first." },
 { q: "poor", t: "Nothing more: she already has a diagnosis of anxiety", fb: "Same trap as before: an existing label stops you looking. Young, paroxysmal hypertension with a mass needs a secondary cause excluded." }
 ] },
 { tag: "drug", scene: "She is still 230/128 and 128 a minute. The nurse has the metoprolol ready.", opts: [
@@ -93,7 +93,7 @@ decisions: [
 ] },
 { tag: "cause", reveal: ["ECG: sinus tachycardia, no ischaemia. Troponin normal. No neurological signs. Spell settles: BP 148/88."], scene: "The spell settles. Which test confirms or excludes the diagnosis?", opts: [
 { q: "best", t: "Plasma free metanephrines (or 24-hour urine metanephrines), and refer to endocrinology", fb: "First-line in Australia: fasting plasma free metanephrines, or 24-hour urine metanephrines. Levels over three times the upper limit are rarely false positive." },
-{ q: "ok", t: "Aldosterone to renin ratio only", fb: "Worth doing in hypertension with an adrenal mass, but on its own it misses phaeochromocytoma." },
+{ q: "poor", t: "Aldosterone to renin ratio only", fb: "Worth doing in hypertension with an adrenal mass, but on its own it misses phaeochromocytoma." },
 { q: "poor", t: "No test needed: send her to the surgeons for the mass", fb: "Biochemistry first. Most adrenal masses are not phaeochromocytomas (about 5% are), and surgery without preparation is dangerous if it is one." }
 ] },
 { tag: "drug", reveal: ["Plasma metanephrines over 4 times the upper limit. Endocrinology plan surgery."], scene: "Endocrinology plan adrenalectomy. In what order do the tablets go in before theatre?", opts: [

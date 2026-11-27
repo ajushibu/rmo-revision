@@ -340,7 +340,7 @@ window.RMO_CASES = [
      "fb": "She has a normal BP and a central trachea. Not tension."
     },
     {
-     "q": "ok",
+     "q": "poor",
      "t": "Secondary, because she smokes",
      "fb": "Smoking raises the risk, but without lung disease it is still primary."
     }
@@ -469,7 +469,7 @@ window.RMO_CASES = [
      "fb": "Many COPD patients are not fit for surgery, so the team may consider other options such as a blood patch or an endobronchial valve."
     },
     {
-     "q": "ok",
+     "q": "poor",
      "t": "Wait another week and see",
      "fb": "Many leaks do settle, but day 5 is the point to involve surgeons."
     },

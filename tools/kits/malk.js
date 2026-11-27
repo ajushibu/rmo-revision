@@ -31,7 +31,7 @@ window.KIT = {
     { t: 'Potassium 2.7, hypertension on three drugs, alkalosis, urine chloride 50, not on a diuretic.', a: 'inv', why: 'Chloride-resistant: look for hyperaldosteronism with aldosterone and renin. Replace potassium meanwhile.' },
     { t: 'A heart failure patient on high-dose furosemide, bicarbonate 34, potassium 3.0, overloaded.', a: 'stop', why: 'Reduce the diuretic if the oedema allows, and replace the potassium. Saline would add to the overload.' },
     { t: 'Potassium 2.8 with alkalosis in a patient who vomits.', a: 'k', why: 'Replace potassium: the alkalosis will not correct while it is low.' },
-    { t: 'pH 7.55, bicarbonate 45, a registrar suggests giving acid.', a: 'saline', why: 'Fix the volume and chloride. Giving acid is almost never needed on a ward.' },
+    { t: 'pH 7.55, bicarbonate 45 after days of vomiting. A registrar suggests giving acid.', a: 'saline', why: 'Fix the volume and chloride. Giving acid is almost never needed on a ward.' },
     { t: 'A diuretic was given this morning and the urine chloride is 45 in a vomiting patient.', a: 'saline', why: 'The diuretic raises the urine chloride. This is still a chloride-responsive picture.' }
   ]
 };

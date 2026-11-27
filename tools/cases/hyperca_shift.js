@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'hyperca-grade', scene: 'Corrected calcium 3.4, confused, with an AKI. How do you grade it?', opts: [
         o('best', 'Moderate, but symptomatic with an AKI: treat now', 'It is in the moderate range, and confusion and AKI make it urgent.'),
-        o('ok', 'Mild, repeat tomorrow', 'He is symptomatic.'),
+        o('poor', 'Mild, repeat tomorrow', 'He is symptomatic.'),
         o('poor', 'Normal for a cancer patient', 'It is a treatable complication.'),
         o('harm', 'Ignore it, he is palliative', 'Treating it improves comfort and may avoid a bad end.')] },
       { tag: 'hyperca-fluid', scene: 'What is your first treatment?', opts: [
         o('best', '0.9% saline, aiming for 4 to 6 L over 24 hours, with a check for overload after each litre, and stop calcium and vitamin D', 'Rehydrate first. It lowers calcium by itself and helps the kidney.', { sbp: 118, hr: 96 }),
-        o('ok', 'Zoledronic acid first, fluids after', 'The drug needs a rehydrated patient and kidney function.'),
+        o('poor', 'Zoledronic acid first, fluids after', 'The drug needs a rehydrated patient and kidney function.'),
         o('poor', 'Furosemide to wash out the calcium', 'He is dry. A diuretic makes it worse.'),
-        o('harm', 'Oral calcium supplements for his bones', 'Obviously not.')] },
+        o('harm', 'Oral calcium supplements for his bones', 'Calcium tablets raise the calcium further.')] },
       { tag: 'hyperca-drug', scene: 'After 6 hours of fluid the calcium is 3.2. Next?', opts: [
         o('best', 'Zoledronic acid 4 mg over 15 minutes, dose adjusted to kidney function, with fluids continuing', 'Now rehydrated: add the bisphosphonate.'),
-        o('ok', 'Stop the fluids and watch', 'The calcium will not fall enough.'),
+        o('poor', 'Stop the fluids and watch', 'The calcium will not fall enough.'),
         o('poor', 'Give zoledronic acid as a quick push', 'It must run over at least 15 minutes.'),
         o('harm', 'Give a 40 mg dose to hurry it', 'Ten times the dose.')] },
       { tag: 'hyperca-cause', scene: 'What else should be done?', opts: [
         o('best', 'Check the PTH, tell the oncology team, and review the plan for the cancer', 'A low PTH points to cancer: the long-term fix is the cancer plan.'),
-        o('ok', 'Do nothing more once the calcium is lower', 'It will come back.'),
+        o('poor', 'Do nothing more once the calcium is lower', 'It will come back.'),
         o('poor', 'Restart calcium tablets', 'They raise the level again.'),
         o('harm', 'Cancel oncology follow-up', 'This needs oncology input.')] }
     ],
@@ -51,7 +51,7 @@
           stop_ca_vitd: N('Stop calcium and vitamin D.'), calcium: N('Calcium, albumin and phosphate.'), uec: N('Kidney function.'), mg: G('Magnesium.'),
           pth: N('PTH: low in cancer, high or normal in parathyroid disease.'), ecg: N('Short QT and rhythm.'), fbal: N('Fluid balance.'), hourly_uo: G('Urine output.'),
           weigh: G('Daily weight.'), cxr: G('Chest X-ray: overload.'), spep: G('Myeloma screen.'), haem_ref: G('Oncology input.'),
-          zoled: G('After rehydration, not before.', { d: [0], harmDose: [1, 2, 3] }),
+          zoled: S('Not yet: he is still dry. Zoledronic acid goes in once he is rehydrated (the next step).', { d: [0], harmDose: [1, 2, 3] }),
           stop_nephro: G('Review the chart for nephrotoxins.'), antiemetic: G('Nausea.', { d: [0] }),
           furo: X('He is dry.', { harmDose: [0, 1, 2, 3] }), bolus250: G('A measured bolus is fine for a dry patient.', { alt: ['bolus'] }), bolus: G('A bolus.')
         },
@@ -78,22 +78,22 @@
     decisions: [
       { tag: 'hyperca-grade', scene: 'Corrected calcium 2.9, mild symptoms. How do you grade it?', opts: [
         o('best', 'Mild: stop the drugs, oral fluids and find the cause', 'Under 3.0 is mild.'),
-        o('ok', 'Severe, give a bisphosphonate now', 'Far too strong for 2.9.'),
+        o('poor', 'Severe, give a bisphosphonate now', 'Far too strong for 2.9.'),
         o('poor', 'Normal', 'It is above the range.'),
         o('harm', 'Dangerous: start 6 L of saline', 'Not needed at this level.')] },
       { tag: 'hyperca-cause', scene: 'The PTH is raised. What does that suggest?', opts: [
         o('best', 'Primary hyperparathyroidism, with a thiazide and supplements making it worse', 'A high PTH with a high calcium points to the parathyroid.'),
-        o('ok', 'Cancer', 'Cancer lowers the PTH.'),
+        o('poor', 'Cancer', 'Cancer lowers the PTH.'),
         o('poor', 'A vitamin D overdose', 'It would suppress the PTH.'),
         o('harm', 'Nothing important', 'It matters for the long-term plan.')] },
       { tag: 'hyperca-fluid', scene: 'What do you do today?', opts: [
         o('best', 'Stop the thiazide, calcium and vitamin D, encourage oral fluids, and repeat the calcium tomorrow', 'Remove the contributors and hydrate.'),
-        o('ok', 'Continue everything and start IV zoledronic acid', 'Not for a mild rise.'),
+        o('poor', 'Continue everything and start IV zoledronic acid', 'Not for a mild rise.'),
         o('poor', 'Add prednisolone', 'Not for parathyroid disease.'),
         o('harm', 'Restrict her fluids', 'It encourages stones and a worse calcium.')] },
       { tag: 'hyperca-cause', scene: 'What is the plan before she leaves?', opts: [
         o('best', 'Endocrine or surgical follow-up for the parathyroid, a kidney ultrasound, and clear advice on fluids and drugs', 'Primary hyperparathyroidism needs a plan.'),
-        o('ok', 'Tell her to restart her tablets once home', 'The thiazide and supplements may be the problem.'),
+        o('poor', 'Tell her to restart her tablets once home', 'The thiazide and supplements may be the problem.'),
         o('poor', 'No follow-up, the calcium is mild', 'Stones and bone loss are the long-term risks.'),
         o('harm', 'Discharge on a larger vitamin D dose', 'It would raise the calcium.')] }
     ],
@@ -107,7 +107,7 @@
           stop_diuretic: N('Stop the thiazide: it raises the calcium.'), stop_ca_vitd: N('Stop calcium and vitamin D.'),
           calcium: N('Calcium, albumin and phosphate.'), pth: N('PTH.'), uec: N('Kidney function.'),
           ecg: G('ECG.'), renal_us: G('Kidney ultrasound: stones.'), endo_ref: N('Endocrine follow-up.'),
-          fbal: G('Fluid balance.'), maint: G('IV fluids only if she cannot drink.'),
+          fbal: G('Fluid balance.'), maint: S('She is drinking: oral fluids are enough.'),
           zoled: S('Not for a mild rise.', { d: [0], harmDose: [1, 2, 3] }), sal_hyd: S('Large volumes are for moderate or severe.', { d: [0], harmDose: [3] }),
           pred_ca: S('Steroids do not work for hyperparathyroidism.', { d: [0] }), furo: X('Not needed and dehydrating.', { harmDose: [0, 1, 2, 3] }),
           frestrict: X('Restricting fluids.')

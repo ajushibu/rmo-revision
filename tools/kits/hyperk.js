@@ -28,7 +28,7 @@ window.KIT = {
     { t: 'Potassium 7.2 with peaked T waves and a wide QRS.', a: 'ca', why: 'ECG changes with a high potassium: calcium gluconate first to protect the heart, then insulin with glucose.' },
     { t: 'Potassium 6.2, a normal ECG, on spironolactone and ramipril, creatinine up.', a: 'ins', why: 'Moderate: insulin with glucose, withhold the drugs, and recheck. A normal ECG does not need calcium.' },
     { t: 'Potassium 5.7, normal ECG, taking trimethoprim and ramipril.', a: 'stop', why: 'Mild: stop the drugs that raise it, find the cause, and recheck.' },
-    { t: 'A dialysis patient who missed two sessions: potassium 7.0, sine wave on the ECG.', a: 'call', why: 'Give calcium at once as well, but the real fix is dialysis. Call renal now.' },
+    { t: 'A dialysis patient who missed two sessions: potassium 7.0, sine wave on the ECG. Calcium is in and the ECG is improving.', a: 'call', why: 'Calcium protects the heart for minutes and insulin shifts potassium for hours, but only dialysis removes it. Call renal now.' },
     { t: 'Potassium 5.6 on a haemolysed sample, normal ECG, no risk factors.', a: 'hold', why: 'A haemolysed sample can read falsely high. Repeat the sample and do not treat on it alone.' },
     { t: 'Potassium 6.8, 10 mL of calcium gluconate given, ECG still has peaked T waves 10 minutes later.', a: 'ca', why: 'The ECG has not corrected: repeat the calcium and start the shift.' }
   ]

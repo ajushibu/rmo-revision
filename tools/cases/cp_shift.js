@@ -50,7 +50,7 @@ decisions: [
 ] },
 { tag: "pe", reveal: ["ECG: sinus tachycardia 114, T-wave inversion V1-V3. Troponin mildly raised."], scene: "The ECG shows sinus tachycardia and T inversion in V1-V3. What next?", opts: [
 { q: "best", t: "High probability of PE (post-op, swollen calf, tachycardic): go straight to CTPA; D-dimer adds nothing", fb: "With a high Wells score, D-dimer cannot rule PE out. Image." },
-{ q: "ok", t: "Send a D-dimer first", fb: "After surgery the D-dimer is almost always raised and does not help with high probability." },
+{ q: "poor", t: "Send a D-dimer first", fb: "After surgery the D-dimer is almost always raised and does not help with high probability." },
 { q: "poor", t: "Treat as NSTEMI", fb: "T inversion V1-V3 with tachycardia is a classic right heart strain pattern in PE." }
 ] },
 { tag: "pe", scene: "CTPA is 2 hours away. She is stable with BP 122/74. What about anticoagulation now?", opts: [
@@ -77,7 +77,7 @@ decisions: [
 ] },
 { tag: "trop", reveal: ["ECG normal. Troponin at presentation (3 hours after onset): normal."], scene: "ECG and the first troponin are normal. Is that enough?", opts: [
 { q: "best", t: "Repeat the troponin per the hospital's accelerated protocol (for example at 2 hours, with TIMI 0 and a normal ECG)", fb: "That is the ADAPT approach. A protocol-based second value makes the rule-out safe." },
-{ q: "ok", t: "Discharge now: 3 hours from onset is probably enough", fb: "Possibly true for some high-sensitivity algorithms, but follow your local protocol rather than guessing." },
+{ q: "poor", t: "Discharge now: 3 hours from onset is probably enough", fb: "Possibly true for some high-sensitivity algorithms, but follow your local protocol rather than guessing." },
 { q: "poor", t: "Admit for 24 hours of observation", fb: "Not needed for a low-risk patient with a negative protocol." }
 ] },
 { tag: "risk", reveal: ["Second troponin normal; pain gone"], scene: "The repeat troponin is normal and the pain has gone. What next?", opts: [

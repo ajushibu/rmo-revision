@@ -19,9 +19,9 @@ facts: ["74F; hypertension; HFpEF on her last echo (EF 55%)", "Admitted yesterda
 decisions: [
 { tag: "apo", scene: "She is fighting for breath with a BP of 196/108. What do you do first?", opts: [
 { q: "best", t: "Sit her up, high-flow oxygen, call for CPAP or NIV, GTN sublingual then an infusion, IV furosemide, and call your registrar", vit: { spo2: 91, sbp: 168, dbp: 96, rr: 26 }, fb: "Acute pulmonary oedema with high BP: CPAP or NIV and a vasodilator do the most, quickly. Furosemide follows." },
-{ q: "ok", t: "IV furosemide 80 mg and oxygen, then reassess in an hour", vit: { spo2: 86 }, fb: "Right drug, but she needs CPAP or NIV and GTN now. An hour is too long at 82%." },
+{ q: "poor", t: "IV furosemide 80 mg and oxygen, then reassess in an hour", vit: { spo2: 86 }, fb: "Right drug, but she needs CPAP or NIV and GTN now. An hour is too long at 82%." },
 { q: "harm", t: "IV morphine for her distress", vit: { spo2: 79, rr: 14 }, fb: "Morphine is avoided in pulmonary oedema; it can worsen breathing." },
-{ q: "harm", t: "Stop the IV fluids? No: she is septic, give another 500 mL bolus", vit: { spo2: 76 }, fb: "She is already flooded. More fluid worsens the oedema." }
+{ q: "harm", t: "Give another 500 mL bolus in case she is septic", vit: { spo2: 76 }, fb: "She is already flooded. More fluid worsens the oedema." }
 ] },
 { tag: "apo", reveal: ["On CPAP 10 cmH2O: SpO2 93%, BP 160/94"], scene: "On CPAP her saturations are 93% and BP 160/94. How do you run the GTN?", opts: [
 { q: "best", t: "GTN infusion starting around 5-10 mcg/min, increased to effect while watching the BP, and stopped if the systolic falls too far", fb: "Titrate to BP. CPAP itself lowers BP, so watch both together." },

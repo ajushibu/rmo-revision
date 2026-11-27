@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'uti-real', scene: 'Confused, afebrile, no urinary symptoms, positive dipstick. What do you think?', opts: [
         o('best', 'Probably asymptomatic bacteriuria. Look for another cause of the confusion', 'Older patients often have bacteriuria. Confusion alone is not enough.'),
-        o('ok', 'A UTI. Start antibiotics now', 'No fever or urinary symptoms: it is not enough.'),
+        o('poor', 'A UTI. Start antibiotics now', 'No fever or urinary symptoms: it is not enough.'),
         o('poor', 'Nothing is wrong, she is just old', 'The confusion is new and needs a cause.'),
         o('harm', 'Sepsis: call the MET team', 'There are no sepsis features.')] },
       { tag: 'uti-real', scene: 'What do you look for?', opts: [
         o('best', 'Glucose, a drug review (the new oxycodone), constipation, a bladder scan for retention, pain, and any infection elsewhere', 'These are the common causes of new delirium.'),
-        o('ok', 'Only the urine culture', 'It will not answer the question.'),
+        o('poor', 'Only the urine culture', 'It will not answer the question.'),
         o('poor', 'A CT head straight away', 'Not without focal signs.'),
         o('harm', 'Sedate her to settle her', 'It makes delirium worse.')] },
       { tag: 'uti-treat', scene: 'The nurse asks again about antibiotics. What do you say?', opts: [
         o('best', 'Not now: antibiotics for bacteriuria cause side effects and resistance. Review her if she gets a fever or urinary symptoms', 'Treat the real cause and watch.'),
-        o('ok', 'Give a single dose to be safe', 'There is no benefit and some harm.'),
+        o('poor', 'Give a single dose to be safe', 'There is no benefit and some harm.'),
         o('poor', 'Give a broad-spectrum antibiotic', 'It is wrong.'),
         o('harm', 'Start gentamicin', 'Nephrotoxic, and not needed.')] },
       { tag: 'uti-follow', scene: 'At 07:00 she has a temperature of 38.6, rigors and left loin tenderness. What now?', opts: [
         o('best', 'The picture has changed: cultures, then antibiotics for pyelonephritis, and fluids', 'Now she has fever, loin pain and a positive urine.'),
-        o('ok', 'Wait another day', 'She is unwell.'),
+        o('harm', 'Wait another day', 'She is unwell.'),
         o('poor', 'Only paracetamol', 'She needs treatment.'),
         o('harm', 'Discharge her back to the nursing home', 'Not while she is febrile and confused.')] }
     ],
@@ -50,7 +50,7 @@
           bsl: N('Glucose.'), bladder_scan: N('Retention is a common cause.'), drugchart: N('The new opioid, sedatives and anticholinergics.'),
           uec: G('Electrolytes and creatinine.'), fbc: G('Full blood count.'), crp: G('CRP.'), cxr: G('Chest X-ray: infection elsewhere.'),
           gcs: G('Neuro observations.'), ecg: G('ECG.'), paracet: G('Paracetamol for pain.', { d: [0] }),
-          urine_mcs: S('A culture will only grow bacteria she already has.'), urine_dip: G('You have the dipstick.'),
+          urine_mcs: S('A culture will only grow bacteria she already has.'), urine_dip: S('Already done: it is the dipstick that started this.'),
           ceftri: S('Antibiotics for a dipstick.'), amox: S('Antibiotics for a dipstick.'), trim_oral: S('Antibiotics for a dipstick.'),
           cefalexin: S('Antibiotics for a dipstick.'), nitro: S('Antibiotics for a dipstick.'), gent: X('Nephrotoxic and not indicated.'),
           midaz: X('A sedative worsens delirium.'), halo: S('Not for mild confusion.'), cthead: S('No focal signs.'),
@@ -80,7 +80,7 @@
     decisions: [
       { tag: 'uti-class', scene: 'Fever, loin pain, vomiting, positive dipstick. What do you call this?', opts: [
         o('best', 'Acute pyelonephritis, to treat with IV antibiotics because she is vomiting', 'Upper tract infection that she cannot take tablets for.'),
-        o('ok', 'Cystitis, a three-day oral course', 'It has gone up the tract.'),
+        o('poor', 'Cystitis, a three-day oral course', 'It has gone up the tract.'),
         o('poor', 'A kidney stone', 'No colicky pain.'),
         o('harm', 'Asymptomatic bacteriuria', 'She is symptomatic.')] },
       { tag: 'uti-treat', scene: 'What do you do before the first dose?', opts: [
@@ -90,12 +90,12 @@
         o('harm', 'Skip cultures: just treat', 'Cultures guide the oral switch.')] },
       { tag: 'uti-follow', scene: 'At 48 hours she is afebrile, eating, and the culture shows a sensitive E. coli. What now?', opts: [
         o('best', 'Switch to a sensitive oral antibiotic for the rest of the course, and discharge with advice and GP follow-up', 'She has responded and the sensitivities are known.'),
-        o('ok', 'Continue the IV for the full course', 'Unnecessary.'),
+        o('poor', 'Continue the IV for the full course', 'Unnecessary.'),
         o('poor', 'Stop the antibiotic', 'It is too early.'),
         o('harm', 'Switch to a drug the isolate is resistant to', 'Check the sensitivities.')] },
       { tag: 'uti-follow', scene: 'Another patient still has fever and pain at 72 hours on the right antibiotic. What now?', opts: [
         o('best', 'Image the kidneys for a stone, obstruction or abscess, and ask the seniors', 'Failure to respond means a complication until proven otherwise.'),
-        o('ok', 'Switch to a different antibiotic only', 'Look for the reason.'),
+        o('poor', 'Switch to a different antibiotic only', 'Look for the reason.'),
         o('poor', 'Wait another day', 'She is not improving.'),
         o('harm', 'Stop the antibiotic', 'No.')] }
     ],

@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Hyperkalaemia: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Hyperkalaemia: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'hk-grade', scene: 'Potassium 7.4 with a wide QRS and a heart rate of 44. How serious is this?', opts: [
         o('best', 'Life-threatening: an emergency with ECG changes', 'A potassium of 7 or more with a wide QRS is an emergency whatever else is true.'),
-        o('ok', 'Severe, but wait for a repeat first', 'The ECG changes mean you treat now. Repeat bloods later.'),
+        o('poor', 'Severe, but wait for a repeat first', 'The ECG changes mean you treat now. Repeat bloods later.'),
         o('poor', 'Mild: a missed dialysis often does this', 'This is far from mild.'),
         o('harm', 'Probably haemolysis, repeat the sample', 'With a wide QRS, assume it is real and treat.')] },
       { tag: 'hk-protect', scene: 'He is on a monitor with a cannula in. What is your first drug?', opts: [
         o('best', 'Calcium gluconate 10% 10 mL IV over 2 to 3 minutes', 'Right. It stabilises the heart within minutes. Repeat the ECG after 5 to 10 minutes.', { hr: 56 }),
-        o('ok', 'Insulin with glucose first', 'This is the second step. The heart comes first.'),
+        o('poor', 'Insulin with glucose first', 'This is the second step. The heart comes first.'),
         o('poor', 'Resonium by mouth', 'Too slow when the heart is at risk.'),
         o('harm', 'Sodium bicarbonate 100 mL as a push', 'Bicarbonate has a limited role and a push of 100 mL is wrong.')] },
       { tag: 'hk-shift', scene: 'The ECG is better. Next you shift the potassium. Which regimen?', opts: [
         o('best', '10 units of Actrapid in 50 mL of glucose 50% over 30 minutes, then glucose checks', 'Insulin shifts potassium into cells. Check the glucose before and every 30 minutes for 2 hours.', { hr: 62 }),
-        o('ok', '10 units of Actrapid IV with 50 mL of glucose 5%', 'Glucose 5% in that volume gives too little glucose. Use 50%.'),
+        o('poor', '10 units of Actrapid IV with 50 mL of glucose 5%', 'Glucose 5% in that volume gives too little glucose. Use 50%.'),
         o('poor', 'Insulin only, as the glucose is normal', 'He will drop his glucose. Always give the glucose.'),
         o('harm', '50 units of Actrapid with 50 mL of glucose 50%', 'Far too much insulin: dangerous hypoglycaemia.')] },
       { tag: 'hk-after', scene: 'Potassium is 6.3 after treatment. He is anuric. What now?', opts: [
         o('best', 'Call renal for dialysis, recheck the potassium every 2 hours, and keep the glucose checks going', 'The shift is temporary. Dialysis removes the potassium. The rebound risk is real.'),
-        o('ok', 'Give more insulin and resin and admit', 'These help but he needs dialysis.'),
+        o('poor', 'Give more insulin and resin and admit', 'These help but he needs dialysis.'),
         o('poor', 'Discharge when the ECG is normal', 'The ECG may relapse in hours without dialysis.'),
         o('harm', 'Hold dialysis until the morning', 'Waiting leaves a dangerous potassium untreated.')] }
     ],
@@ -87,17 +87,17 @@
     decisions: [
       { tag: 'hk-grade', scene: 'Potassium 6.2, ECG normal, sample not haemolysed. How do you grade it?', opts: [
         o('best', 'Moderate hyperkalaemia. Treat, with a monitored bed', '6.0 to 6.4 is moderate: treat and monitor.'),
-        o('ok', 'Mild, repeat in the morning', 'Too lax at 6.2 with a rising creatinine.'),
+        o('poor', 'Mild, repeat in the morning', 'Too lax at 6.2 with a rising creatinine.'),
         o('poor', 'Severe, give calcium now', 'Calcium is for ECG changes, and the ECG is normal.'),
         o('harm', 'Ignore it, her ECG is normal', 'A normal ECG does not make 6.2 safe in kidney injury.')] },
       { tag: 'hk-shift', scene: 'What do you give?', opts: [
         o('best', 'Insulin with glucose, withhold ramipril, spironolactone and trimethoprim, and check glucose', 'Shift and remove the cause. The ECG is normal so calcium is not needed now.'),
-        o('ok', 'Resonium alone', 'Slow. The potassium is moderate and rising, so a shift is warranted.'),
+        o('poor', 'Resonium alone', 'Slow. The potassium is moderate and rising, so a shift is warranted.'),
         o('poor', 'Calcium and a bicarbonate infusion', 'Neither is indicated by a normal ECG and no acidosis.'),
         o('harm', 'Continue all her drugs and give resonium', 'The drugs are causing it.')] },
       { tag: 'hk-after', scene: 'Four hours later the potassium is 5.4. What is the plan?', opts: [
         o('best', 'Keep the drugs off, recheck in a few hours and in the morning, and find the cause of the AKI', 'The cause is the combination plus the AKI. Recheck for rebound.'),
-        o('ok', 'Restart ramipril tomorrow', 'Not until the creatinine and potassium are stable.'),
+        o('poor', 'Restart ramipril tomorrow', 'Not until the creatinine and potassium are stable.'),
         o('poor', 'Stop monitoring', 'The potassium can rebound as insulin wears off.'),
         o('harm', 'Give potassium-containing fluids', 'Hartmann’s is fine in small amounts, but do not add potassium.')] }
     ],

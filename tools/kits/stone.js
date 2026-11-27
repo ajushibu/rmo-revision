@@ -13,13 +13,13 @@ window.KIT = {
       { rx: { h: 'Infection plus a blocked kidney is an emergency', cls: 'stop', items: ['Fever, a fast pulse, a low BP, a high white cell count or a rising creatinine with a stone and hydronephrosis.', 'IV antibiotics and fluids, blood and urine cultures, and a call to urology now to relieve the obstruction (stent or nephrostomy).', 'No NSAID if there is kidney injury or sepsis.'] } },
       { rx: { h: 'A simple stone', items: ['Small stones (about 5 mm or less) often pass: analgesia, fluids, a strainer and urology follow-up.', 'Larger than about 7 to 10 mm, or no progress, or a solitary kidney: urology referral.', 'Safety-net advice: return for fever, uncontrolled pain, vomiting or no urine.'] } }] }
   ],
-  opts: [['nsaid', 'NSAID and an antiemetic'], ['ct', 'CT KUB'], ['abx', 'IV antibiotics and call urology'], ['aaa', 'Rule out an aneurysm'], ['dc', 'Discharge with follow-up']],
+  opts: [['nsaid', 'NSAID and an antiemetic'], ['ct', 'CT KUB'], ['abx', 'IV antibiotics and call urology'], ['aaa', 'Rule out an aneurysm'], ['dc', 'Discharge with follow-up'], ['hcg', 'Pregnancy test first']],
   items: [
     { t: 'A 34-year-old man in severe loin pain, writhing, with blood on the dipstick, normal creatinine.', a: 'nsaid', why: 'NSAID plus an antiemetic, with a scan to follow. Add an opioid if it is not enough.' },
     { t: 'A 72-year-old man, first episode of loin pain, no haematuria, sweaty and pale.', a: 'aaa', why: 'A leaking aneurysm can look like colic. Get a bedside ultrasound and call your senior.' },
     { t: 'A 52-year-old woman with a stone on CT, temperature 38.9, BP 98/60, creatinine 180.', a: 'abx', why: 'An infected, blocked kidney: IV antibiotics, fluids and urgent urology. No NSAID.' },
-    { t: 'A 28-year-old woman with sudden right loin pain, her last period was 7 weeks ago.', a: 'ct', why: 'First a pregnancy test. If positive, the scan is ultrasound, not CT.' },
-    { t: 'A 30-year-old with a 4 mm stone, pain controlled on tablets, afebrile, normal creatinine, eating.', a: 'dc', why: 'He can go home with analgesia, a strainer, safety-net advice and urology follow-up.' },
-    { t: 'The same man returns with a fever of 38.5 and loin pain.', a: 'abx', why: 'Fever with a stone is an emergency until proven otherwise: antibiotics, cultures and urology.' }
+    { t: 'A 28-year-old woman with sudden right loin pain, her last period was 7 weeks ago.', a: 'hcg', why: 'Pregnancy test first: an ectopic pregnancy can look like colic. If positive, the scan is ultrasound, not CT.' },
+    { t: 'A 30-year-old man with a 4 mm stone, pain controlled on tablets, afebrile, normal creatinine, eating.', a: 'dc', why: 'He can go home with analgesia, a strainer, safety-net advice and urology follow-up.' },
+    { t: 'A man sent home yesterday with a 4 mm stone returns with a fever of 38.5 and loin pain.', a: 'abx', why: 'Fever with a stone is an emergency until proven otherwise: antibiotics, cultures and urology.' }
   ]
 };

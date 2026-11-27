@@ -45,7 +45,7 @@ decisions: [
 ] },
 { tag: "toe", scene: "He says: I start a new job tomorrow, can you shock me back into rhythm tonight?", opts: [
 { q: "best", t: "Not tonight. Over 48 hours means a TOE to exclude thrombus first, or weeks of anticoagulation. Rate control now, and plan cardioversion electively if needed", fb: "This is the 48-hour rule. Cardioversion can dislodge a clot sitting in the left atrial appendage." },
-{ q: "ok", t: "Start heparin, then shock tonight", fb: "Heparin for a few hours does not make an AF of unknown duration safe to shock. Without a TOE you need weeks of anticoagulation." },
+{ q: "poor", t: "Start heparin, then shock tonight", fb: "Heparin for a few hours does not make an AF of unknown duration safe to shock. Without a TOE you need weeks of anticoagulation." },
 { q: "poor", t: "Give one dose of apixaban and shock after the blood level rises", fb: "One dose does not replace weeks of therapeutic cover or a TOE." },
 { q: "harm", t: "Sedate him and shock him now: it usually works", fb: "It often works, and that is exactly how strokes happen around cardioversion in an under-anticoagulated patient." }
 ] },

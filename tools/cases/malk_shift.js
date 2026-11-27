@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Metabolic alkalosis: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Metabolic alkalosis: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'malk-cause', scene: 'Urine chloride is 8. What does this tell you?', opts: [
         o('best', 'Chloride-responsive: he has lost acid and volume through the tube and needs chloride', 'Under 20, no recent diuretic: nasogastric losses.'),
-        o('ok', 'Chloride-resistant: look for aldosterone', 'The urine chloride is low, not high.'),
+        o('poor', 'Chloride-resistant: look for aldosterone', 'The urine chloride is low, not high.'),
         o('poor', 'A respiratory cause', 'The CO2 is high as compensation.'),
         o('harm', 'It does not matter, the gas is what counts', 'The urine chloride tells you the treatment.')] },
       { tag: 'malk-treat', scene: 'What do you give?', opts: [
         o('best', '0.9% saline in measured boluses, potassium by the safe IV route, magnesium, and replace the nasogastric losses', 'Chloride, volume and potassium. Replace what drains.', { sbp: 114, hr: 96 }),
-        o('ok', 'Glucose 5% to hydrate', 'It dilutes the sodium and gives no chloride.'),
+        o('poor', 'Glucose 5% to hydrate', 'It dilutes the sodium and gives no chloride.'),
         o('poor', 'Furosemide to flush the bicarbonate', 'A diuretic worsens the alkalosis and the dehydration.'),
         o('harm', 'Hydrochloric acid infusion', 'Not for a ward setting.')] },
       { tag: 'malk-treat', scene: 'He is cramping and tingling. What does that suggest?', opts: [
         o('best', 'Low ionised calcium from the alkalosis: check calcium and the ECG, and treat the cause of the alkalosis', 'Alkalosis lowers ionised calcium and causes tetany.'),
-        o('ok', 'A muscle strain', 'It is tetany until proven otherwise.'),
+        o('poor', 'A muscle strain', 'It is tetany until proven otherwise.'),
         o('poor', 'High calcium', 'The opposite.'),
         o('harm', 'Ignore it', 'Tetany can lead to laryngospasm and arrhythmia.')] },
       { tag: 'malk-after', scene: 'By midday his bicarbonate is 33 and potassium 3.6. What now?', opts: [
         o('best', 'Continue replacing the losses, recheck the bloods, and ask the surgical team about the obstruction plan', 'The cause is the obstruction. Treat it as well.'),
-        o('ok', 'Stop the fluids as the bicarbonate has fallen', 'The tube is still draining.'),
+        o('poor', 'Stop the fluids as the bicarbonate has fallen', 'The tube is still draining.'),
         o('poor', 'Remove the tube to stop the losses', 'Not before surgery has decided.'),
         o('harm', 'Restart furosemide', 'It would drive the alkalosis again.')] }
     ],
@@ -77,22 +77,22 @@
     decisions: [
       { tag: 'malk-cause', scene: 'Alkalosis, low potassium, high urine chloride, high blood pressure, no diuretic. What group is this?', opts: [
         o('best', 'Chloride-resistant: look for excess aldosterone, with renin and cortisol', 'High urine chloride with hypertension and low potassium.'),
-        o('ok', 'Chloride-responsive from vomiting', 'She is not vomiting and the urine chloride is high.'),
+        o('poor', 'Chloride-responsive from vomiting', 'She is not vomiting and the urine chloride is high.'),
         o('poor', 'A respiratory problem', 'The CO2 is compensation.'),
         o('harm', 'Normal for hypertension', 'Never a normal finding.')] },
       { tag: 'malk-resist', scene: 'What do you do in the first hours?', opts: [
         o('best', 'Replace potassium, check magnesium, take aldosterone and renin before any change in drugs, and ask endocrinology', 'Replace and investigate. Saline will not fix it.'),
-        o('ok', 'Give a 2 L saline infusion', 'In this group saline does not help and can raise the BP.'),
+        o('poor', 'Give a 2 L saline infusion', 'In this group saline does not help and can raise the BP.'),
         o('poor', 'Stop the potassium to test the levels', 'She is hypokalaemic.'),
         o('harm', 'Add a diuretic to bring the BP down', 'It would lower the potassium further.')] },
       { tag: 'malk-treat', scene: 'Potassium is 2.7 with U waves. How do you replace it?', opts: [
-        o('best', 'Oral replacement per protocol if she can swallow, IV on a monitor if the ECG worsens', 'Moderate with ECG changes: a monitored bed.'),
-        o('ok', 'IV push over 5 minutes', 'Never push potassium.'),
+        o('best', 'IV potassium chloride 10 mmol in 100 mL over 1 hour on a cardiac monitor, with oral replacement alongside, and recheck', 'Low potassium with U waves: IV on a monitor, as for any ECG change. Oral can go alongside because her gut works.'),
+        o('harm', 'IV push over 5 minutes', 'Never push potassium.'),
         o('poor', 'Wait for the endocrine opinion', 'Replace it now.'),
         o('harm', 'Add potassium to the running saline', 'No, never add it to a running bag.')] },
       { tag: 'malk-after', scene: 'The aldosterone to renin ratio is high. What happens next?', opts: [
         o('best', 'Endocrinology or hypertension clinic: confirm and find the cause, with the drug choice a specialist decision', 'This is a diagnosis for specialists.'),
-        o('ok', 'Start spironolactone yourself tonight', 'A specialist decision, after the results are confirmed.'),
+        o('poor', 'Start spironolactone yourself tonight', 'A specialist decision, after the results are confirmed.'),
         o('poor', 'Discharge without follow-up', 'This needs a plan.'),
         o('harm', 'Ignore it, her BP is easy to control', 'Excess aldosterone damages the heart and kidneys.')] }
     ],
@@ -102,7 +102,7 @@
         scene: 'Potassium 2.7, bicarbonate 33, BP 178/102, urine chloride 50, U waves. What do you order?',
         first: ['kcl_oral', 'ecg'], firstWhy: 'Replace the potassium and check the heart.',
         plan: PL(['reg', ['none'], 'Tell your registrar about the potassium with ECG changes.'], ['spo2ecg', ['q15'], 'Monitor the ECG while the potassium is low.'], ['h4', ['h1', 'm20'], 'Recheck the potassium in a few hours.']),
-        orders: { kcl: S('Too vague: choose oral or IV, and the dose.'), kcl_oral: N('Oral replacement per your hospital protocol.', { d: [0], alt: ['kcl_iv'], harmDose: [1] }), kcl_iv: G('IV replacement if the ECG worsens, on a monitor.', { d: [0], harmDose: [1, 2, 3] }),
+        orders: { kcl: S('Too vague: choose oral or IV, and the dose.'), kcl_oral: G('Oral replacement alongside the IV, since her gut works.', { d: [0], harmDose: [1] }), kcl_iv: N('Potassium 2.7 with U waves: IV replacement, 10 mmol in 100 mL over an hour, on a monitor.', { d: [0], harmDose: [1, 2, 3], crit: true }),
           ecg: N('ECG for flat T waves and U waves.'), uec: N('Repeat the potassium.'), mg: N('Check magnesium.'),
           urine_lytes: G('Urine potassium helps confirm excess renal loss.'), cortisol: G('Check cortisol for Cushing syndrome.'),
           drugchart: G('Look for steroids, liquorice, and drugs that lower potassium.'), endo_ref: N('Endocrinology: check aldosterone and renin.'),

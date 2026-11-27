@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Acid-base: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Acid-base: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'ab-read', scene: 'pH 7.24, pCO2 78, bicarbonate 34. What is this?', opts: [
         o('best', 'Respiratory acidosis, acute on chronic: he retains CO2 and has been made worse', 'Low pH with high CO2. The raised bicarbonate shows he was already a retainer.'),
-        o('ok', 'Metabolic acidosis', 'The bicarbonate is high, not low.'),
+        o('poor', 'Metabolic acidosis', 'The bicarbonate is high, not low.'),
         o('poor', 'Metabolic alkalosis, from the raised bicarbonate', 'The pH is low, not high. The bicarbonate is compensating.'),
         o('harm', 'A normal gas for COPD, nothing to do', 'A pH of 7.24 with drowsiness is an emergency.')] },
       { tag: 'ab-comp', scene: 'The bicarbonate is 34. How do you interpret it?', opts: [
         o('best', 'A chronic compensation: his kidneys have kept his bicarbonate high for a long time', 'Compensation for a long-standing CO2 rise. The acute rise is what dropped the pH.'),
-        o('ok', 'A mistake in the lab', 'It makes sense in a chronic CO2 retainer.'),
+        o('poor', 'A mistake in the lab', 'It makes sense in a chronic CO2 retainer.'),
         o('poor', 'A second primary alkalosis that needs treatment', 'It is compensation, and treating it will do nothing.'),
         o('harm', 'Give acid to bring it down', 'Never. It is physiological compensation.')] },
       { tag: 'ab-act', scene: 'What is your first action?', opts: [
         o('best', 'Reduce the oxygen to a target of 88 to 92%, call your senior, and repeat the gas in 30 to 60 minutes', 'Too much oxygen drives CO2 up in a retainer. Titrate it down and check again.', { spo2: 92, rr: 14 }),
-        o('ok', 'Keep the oxygen and wait for the morning', 'The oxygen is part of the cause.'),
+        o('harm', 'Keep the oxygen and wait for the morning', 'The oxygen is part of the cause.'),
         o('poor', 'Give a sedative to calm him', 'Sedation reduces breathing drive further.'),
         o('harm', 'Turn the oxygen off altogether', 'He may be hypoxic. Reduce it, do not remove it.')] },
       { tag: 'ab-act', scene: 'An hour later the oxygen is titrated. The gas is pH 7.28, pCO2 70. He is a little brighter. What now?', opts: [
         o('best', 'Air-driven nebulisers, steroid and antibiotics, a repeat gas, and tell your senior about non-invasive ventilation if the pH stays under 7.35', 'He is improving but the pH is still low. NIV is the next step if it does not correct.'),
-        o('ok', 'Stop all monitoring now', 'The pH is still under 7.35.'),
+        o('harm', 'Stop all monitoring now', 'The pH is still under 7.35.'),
         o('poor', 'Increase the oxygen again to be safe', 'It would push the CO2 back up.'),
         o('harm', 'Sit him flat and sedate him', 'Flat and sedated makes the ventilation worse.')] }
     ],
@@ -80,22 +80,22 @@
     decisions: [
       { tag: 'ab-read', scene: 'pH 7.40, pCO2 33, bicarbonate 21, anion gap 32. What do you make of it?', opts: [
         o('best', 'A high anion gap acidosis with a hidden metabolic alkalosis from vomiting', 'The gap rose by about 20 and the bicarbonate fell by only 3. Two disorders cancel each other.'),
-        o('ok', 'A normal gas, so no concern', 'The anion gap of 32 is far from normal.'),
+        o('poor', 'A normal gas, so no concern', 'The anion gap of 32 is far from normal.'),
         o('poor', 'A pure respiratory alkalosis', 'The bicarbonate and the gap say otherwise.'),
         o('harm', 'Ignore the gap and treat the stomach pain', 'The gap tells you why he is unwell.')] },
       { tag: 'ab-gap', scene: 'The ketones are 5.2 and the glucose is 4.2. What is the cause of the gap?', opts: [
         o('best', 'Alcoholic ketoacidosis (starvation and alcohol), with a little lactate', 'Raised ketones with a normal or low glucose in a heavy drinker.'),
-        o('ok', 'Diabetic ketoacidosis', 'The glucose is low. This is alcoholic ketoacidosis.'),
+        o('poor', 'Diabetic ketoacidosis', 'The glucose is low. This is alcoholic ketoacidosis.'),
         o('poor', 'Renal failure', 'The kidney numbers are not the cause.'),
         o('harm', 'A normal fast, no problem', 'This is dangerous.')] },
       { tag: 'ab-act', scene: 'What do you give first?', opts: [
         o('best', 'Thiamine, then fluids with glucose, and replace the potassium and magnesium', 'Thiamine before glucose, to avoid precipitating Wernicke. Fix the dehydration and electrolytes.', { hr: 98 }),
-        o('ok', 'Glucose first, thiamine later', 'Thiamine goes before the glucose.'),
+        o('poor', 'Glucose first, thiamine later', 'Thiamine goes before the glucose.'),
         o('poor', 'Sodium bicarbonate to correct the pH', 'The pH is normal. Bicarbonate is wrong.'),
         o('harm', 'An insulin infusion', 'His glucose is already low: insulin risks hypoglycaemia. This is not diabetic ketoacidosis.')] },
       { tag: 'ab-act', scene: 'Four hours later the potassium is 2.6 after the fluids. What now?', opts: [
         o('best', 'Replace potassium by the safe IV route on a monitor, check and replace magnesium, and recheck', 'Fluids and ketone clearance drive potassium into cells. Replace it safely.'),
-        o('ok', 'Wait and recheck in the morning', 'The potassium is low and falling. Replace it.'),
+        o('harm', 'Wait and recheck in the morning', 'The potassium is low and falling. Replace it.'),
         o('poor', 'Stop the fluids to protect the potassium', 'Fluids are the treatment.'),
         o('harm', '40 mmol of potassium as a push', 'Never push potassium.')] }
     ],

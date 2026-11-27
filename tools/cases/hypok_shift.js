@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Hypokalaemia: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Hypokalaemia: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -23,22 +23,22 @@
     decisions: [
       { tag: 'hypok-cause', scene: 'Potassium 2.3, ectopics on the ECG, and she takes digoxin. How do you see this?', opts: [
         o('best', 'Severe and urgent: low potassium raises digoxin toxicity and arrhythmia risk', 'ECG changes plus digoxin make this an emergency.'),
-        o('ok', 'Moderate, repeat the blood test first', 'The ECG shows it is real. Treat now.'),
+        o('poor', 'Moderate, repeat the blood test first', 'The ECG shows it is real. Treat now.'),
         o('poor', 'Mild, give oral potassium', 'Too low for oral alone, with ectopics.'),
         o('harm', 'Not important, she is just dehydrated', 'This potassium can cause a fatal arrhythmia.')] },
       { tag: 'hypok-route', scene: 'What route do you use?', opts: [
         o('best', 'IV potassium chloride on a cardiac monitor', 'Severe with ECG changes, and she is vomiting: IV on a monitor.', { hr: 92 }),
-        o('ok', 'Oral potassium only, she can swallow', 'She is vomiting and the potassium is very low.'),
+        o('poor', 'Oral potassium only, she can swallow', 'She is vomiting and the potassium is very low.'),
         o('poor', 'Wait for a magnesium result before giving anything', 'Check magnesium, but start replacing the potassium now.'),
         o('harm', 'Stop all fluids and monitoring to rest her heart', 'Monitoring protects her.')] },
       { tag: 'hypok-safe', scene: 'The nurse asks how to give it. What is the order?', opts: [
         o('best', 'Potassium chloride 10 mmol in 100 mL over 1 hour, peripheral line, premixed bag', 'This is the safe ward rate. Repeat and recheck.'),
-        o('ok', '40 mmol over 1 hour to get there faster', 'Faster than 10 mmol an hour needs a monitored setting and senior sign-off.'),
+        o('harm', '40 mmol over 1 hour to get there faster', 'Faster than 10 mmol an hour needs a monitored setting and senior sign-off.'),
         o('poor', '20 mmol IV push over 5 minutes', 'Never push potassium.'),
         o('harm', 'Add 40 mmol to the running Hartmann bag', 'Never add it to a running bag: the mix is uneven and the dose uncontrolled.')] },
       { tag: 'hypok-after', scene: 'After the first bag the potassium is 2.8. What else do you do?', opts: [
         o('best', 'Check magnesium, withhold furosemide, tell your registrar about the digoxin, and recheck the potassium', 'Replace the magnesium too, fix the cause, and recheck.'),
-        o('ok', 'Give another bag and stop there', 'The cause and magnesium are still unaddressed.'),
+        o('poor', 'Give another bag and stop there', 'The cause and magnesium are still unaddressed.'),
         o('poor', 'Restart furosemide to help her kidneys', 'The diuretic is losing more potassium.'),
         o('harm', 'Stop the potassium now that it has risen', 'It is still too low.')] }
     ],
@@ -87,12 +87,12 @@
         o('harm', 'A lab error', 'The output explains it.')] },
       { tag: 'hypok-route', scene: 'He feels well and is eating. How do you replace it?', opts: [
         o('best', 'Oral potassium per protocol, and check and replace magnesium', 'Mild, working gut, normal ECG: oral. Magnesium is low as well.'),
-        o('ok', 'IV potassium 10 mmol an hour for the whole night', 'Not needed for a mild fall and a working gut.'),
+        o('poor', 'IV potassium 10 mmol an hour for the whole night', 'Not needed for a mild fall and a working gut.'),
         o('poor', 'Do nothing and repeat in a week', 'Replace it. The stoma is still losing.'),
         o('harm', '20 tablets at once to catch up', 'Large oral loads upset the gut and risk a surge.')] },
       { tag: 'hypok-after', scene: 'What else needs to change?', opts: [
         o('best', 'Review the stoma output, fluid and diet, ask the surgical team about slowing the output, replace magnesium and recheck tomorrow', 'The loss keeps going unless the output is treated.'),
-        o('ok', 'Replace the potassium and stop there', 'The stoma will undo it.'),
+        o('poor', 'Replace the potassium and stop there', 'The stoma will undo it.'),
         o('poor', 'Stop oral intake to rest the gut', 'That does not fix a high-output stoma and he may dehydrate.'),
         o('harm', 'Restrict his fluids to 500 mL', 'He will become dehydrated, and his kidneys will suffer.')] }
     ],
@@ -107,7 +107,7 @@
           uec: N('Recheck the potassium and creatinine in the morning.'), fbal: N('Strict fluid balance with the stoma output.'),
           weigh: G('Daily weight.'), ecg: G('A baseline ECG.'),
           kcl_iv: S('Not needed when the gut works and the ECG is normal.', { d: [0], harmDose: [1, 2, 3] }),
-          bolus250: G('Only if he is dry.', { alt: ['bolus'] }), bolus: S('He is not dry.'),
+          bolus250: S('He is not dry.'), bolus: S('He is not dry.'),
           frestrict: X('Restricting fluids in a high-output stoma risks dehydration and kidney injury.'),
           furo: X('More potassium loss.', { harmDose: [0, 1, 2, 3] })
         },
@@ -137,7 +137,7 @@
         o('harm', 'Give his usual thiazide tonight to control the BP', 'The thiazide is losing more potassium.')] },
       { tag: 'hypok-safe', scene: 'The nurse asks how to give the potassium. What do you write?', opts: [
         o('best', 'Potassium chloride 10 mmol in 100 mL over 1 hour, premixed, peripheral line, on a cardiac monitor; repeat and recheck', 'The safe ward rate. Faster needs a monitored setting and senior sign-off.', { hr: 88 }),
-        o('ok', '40 mmol over 1 hour to catch up', 'Too fast for a general ward line.'),
+        o('harm', '40 mmol over 1 hour to catch up', 'Too fast for a general ward line.'),
         o('poor', 'Oral potassium only', 'He is vomiting and the ECG has changed.'),
         o('harm', '20 mmol IV push', 'Never push potassium: it can stop the heart.')] },
       { tag: 'hypok-after', scene: 'The first bag is running. What else goes on the chart in this first hour?', opts: [
@@ -147,7 +147,7 @@
         o('harm', 'Furosemide for the high BP', 'A loop diuretic loses even more potassium.')] },
       { tag: 'hypok-aldo', scene: 'Next morning: vomiting stopped, potassium 3.4 after replacement, thiazide off. BP 166/100. What do you think about?', opts: [
         o('best', 'High BP with low potassium (even on a diuretic) is a reason to screen for primary aldosteronism: aldosterone and renin once the potassium is corrected, read with his drugs in mind, and follow-up with his GP or the endocrine team', 'Australian guidance lists hypertension with spontaneous or diuretic-induced low potassium as a screening reason. Low potassium can give a false negative, so correct it first.'),
-        o('ok', 'Blame the vomiting and the thiazide, and stop there', 'They explain tonight, but the BP is still high off the thiazide. Screen.'),
+        o('poor', 'Blame the vomiting and the thiazide, and stop there', 'They explain tonight, but the BP is still high off the thiazide. Screen.'),
         o('poor', 'Start spironolactone now and skip the test', 'Spironolactone upsets the aldosterone to renin ratio. Test first unless a specialist says otherwise.'),
         o('harm', 'Restart the thiazide at a higher dose', 'More potassium loss, and the cause stays hidden.')] }
     ],
@@ -206,7 +206,7 @@
         o('harm', '40 mmol added to a litre of saline running at 250 mL an hour', 'Never add potassium to a running bag; the dose is uncontrolled.')] },
       { tag: 'hypok-after', scene: 'The first bag is running. What else goes on the chart now?', opts: [
         o('best', 'Replace the magnesium (0.65), repeat the potassium after the bags, keep the monitor on until the ECG settles, and review the chart for anything that lowers potassium', 'Low magnesium keeps the kidney losing potassium. Recheck before you stop.'),
-        o('ok', 'Recheck the potassium in the morning only', 'Recheck after the bags, and replace the magnesium.'),
+        o('poor', 'Recheck the potassium in the morning only', 'Recheck after the bags, and replace the magnesium.'),
         o('poor', 'Stop the potassium after one bag if her legs feel better', 'Symptoms are not the target: the level is.'),
         o('harm', 'Salbutamol neb for her cramps', 'Salbutamol drives potassium into cells and lowers it further.')] },
       { tag: 'hypok-aldo', scene: 'Next morning: potassium 3.6 after replacement. BP 168/102. She asks why this happened.', opts: [
@@ -265,7 +265,7 @@
         o('harm', 'Give tonight\'s digoxin early to control the AF', 'More digoxin on a low potassium feeds the arrhythmia.')] },
       { tag: 'hypok-safe', scene: 'What do you order now?', opts: [
         o('best', '12-lead ECG and keep him on the monitor; hold the digoxin and the furosemide; send a digoxin level, magnesium and repeat UEC; potassium chloride 10 mmol in 100 mL over 1 hour, peripheral line; tell your registrar', 'Monitor, remove the causes, measure, replace safely, escalate.', { hr: 84 }),
-        o('ok', 'Potassium chloride 10 mmol over 1 hour and recheck, and carry on with his usual drugs', 'Right replacement, but the digoxin and the furosemide are still going in.'),
+        o('poor', 'Potassium chloride 10 mmol over 1 hour and recheck, and carry on with his usual drugs', 'Right replacement, but the digoxin and the furosemide are still going in.'),
         o('poor', 'Oral potassium in the morning', 'He has a run of VT on telemetry: IV replacement on a monitor, now.'),
         o('harm', '20 mmol potassium chloride IV push to get it up fast', 'Never push potassium.')] },
       { tag: 'hypok-dig', scene: 'The nurse says: "He has had another short run. Shall I get amiodarone ready?"', opts: [
@@ -275,7 +275,7 @@
         o('harm', 'Yes, start amiodarone now', 'It raises the digoxin level and can make the toxicity worse.')] },
       { tag: 'hypok-after', scene: 'Morning: potassium 3.9, magnesium 0.8 after replacement, no more runs. The digoxin level comes back high. What is the plan?', opts: [
         o('best', 'Keep the digoxin held, tell the treating team, and let them decide when and at what dose to restart once the level falls and his kidney function settles. Review the furosemide dose, add a plan to keep the potassium up, and recheck potassium and magnesium daily', 'A high level, a worse kidney and a doubled diuretic: all three need a plan before the digoxin restarts.'),
-        o('ok', 'Restart the digoxin at the same dose now the potassium is normal', 'The level is still high and his kidney function is worse.'),
+        o('poor', 'Restart the digoxin at the same dose now the potassium is normal', 'The level is still high and his kidney function is worse.'),
         o('poor', 'Stop monitoring: the potassium is fixed', 'Keep the monitor while the digoxin level is high.'),
         o('harm', 'Restart the doubled furosemide with no potassium plan', 'That repeats what caused the night.')] }
     ],

@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Metabolic acidosis: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Metabolic acidosis: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -21,17 +21,17 @@
     decisions: [
       { tag: 'macid-gap', scene: 'Sodium 134, chloride 97, bicarbonate 11. What is the anion gap and what does it mean?', opts: [
         o('best', 'About 26: a high-gap acidosis, here from lactate', '134 minus 97 minus 11 is 26. Lactate fits.'),
-        o('ok', 'About 10: normal gap', 'Check the sum again: 134 − 97 − 11 = 26.'),
+        o('poor', 'About 10: normal gap', 'Check the sum again: 134 − 97 − 11 = 26.'),
         o('poor', 'The gap does not matter in sepsis', 'It tells you the acid is lactate and not something else.'),
         o('harm', 'Ignore it and treat the pH', 'Treat the cause.')] },
       { tag: 'macid-cause', scene: 'What is the main treatment?', opts: [
         o('best', 'Treat the sepsis: cultures, antibiotics within the hour, fluid in measured boluses, oxygen, and call your registrar', 'Fix the sepsis and the lactate falls.', { sbp: 100, hr: 112 }),
-        o('ok', 'Fluids only, antibiotics in the morning', 'Antibiotics cannot wait.'),
+        o('harm', 'Fluids only, antibiotics in the morning', 'Antibiotics cannot wait.'),
         o('poor', 'Antibiotics only, no fluids', 'He needs both.'),
         o('harm', '100 mL of 8.4% bicarbonate as a push', 'Never a push. It does not treat lactate and drops the potassium.')] },
       { tag: 'macid-bic', scene: 'The registrar asks if you would give bicarbonate for the pH of 7.24. What do you say?', opts: [
         o('best', 'No. Treat the cause first. A pH of 7.24 from lactate does not need bicarbonate', 'Bicarbonate does not fix lactate and can cause harm.'),
-        o('ok', 'Yes, 50 mL slowly', 'Not at this pH, and not before fluid and antibiotics.'),
+        o('poor', 'Yes, 50 mL slowly', 'Not at this pH, and not before fluid and antibiotics.'),
         o('poor', 'Yes, 100 mL straight away', 'Never a push.'),
         o('harm', 'Yes, and a second 100 mL later', 'Bicarbonate overload.')] },
       { tag: 'macid-call', scene: 'After 1 L of fluid his BP is 94/56 and the lactate is 5.9. What do you do?', opts: [
@@ -80,22 +80,22 @@
     decisions: [
       { tag: 'macid-gap', scene: 'Sodium 136, chloride 112, bicarbonate 14. What does the gap tell you?', opts: [
         o('best', 'About 10: a normal gap acidosis, from losing bicarbonate in the stool', '136 − 112 − 14 = 10. Diarrhoea and chloride shift fit.'),
-        o('ok', 'A high gap from lactate', 'The lactate is normal and the gap is 10.'),
+        o('poor', 'A high gap from lactate', 'The lactate is normal and the gap is 10.'),
         o('poor', 'A pure respiratory problem', 'The pCO2 is low, as compensation.'),
         o('harm', 'The gap is irrelevant', 'It points to the cause.')] },
       { tag: 'macid-cause', scene: 'What is the plan?', opts: [
         o('best', 'Hartmann fluid for the dehydration, replace the potassium safely, stop metformin and ramipril, and send a stool culture', 'Replace what is lost, fix the potassium, and stop the drugs that harm the kidney.', { sbp: 108, hr: 100 }),
-        o('ok', 'Large volumes of 0.9% saline', 'Plenty of chloride makes the acidosis worse. Hartmann is balanced.'),
+        o('poor', 'Large volumes of 0.9% saline', 'Plenty of chloride makes the acidosis worse. Hartmann is balanced.'),
         o('poor', 'Sodium bicarbonate infusion first', 'Fluids and potassium come first.'),
         o('harm', 'Continue metformin and ramipril and give loperamide', 'Metformin and ramipril are risks in AKI and acidosis.')] },
       { tag: 'macid-bic', scene: 'The pH is 7.26. The student asks if she needs bicarbonate. What do you say?', opts: [
         o('best', 'No. Replace fluid and potassium, treat the cause, and recheck the gas', 'The acidosis improves as the losses are replaced.'),
-        o('ok', 'Yes, 50 mL slowly', 'Not needed at this pH.'),
+        o('poor', 'Yes, 50 mL slowly', 'Not needed at this pH.'),
         o('poor', 'Yes, 100 mL push to be quick', 'Never a push.'),
         o('harm', 'Yes, because the pH is below 7.35', 'The pH is not the threshold for bicarbonate.')] },
       { tag: 'macid-call', scene: 'She has C. difficile on the stool test and creatinine 190 next morning. What now?', opts: [
         o('best', 'Isolate her, start C. difficile treatment per local guidelines, keep the drugs held, and tell your registrar about the creatinine', 'Treat the cause and escalate the kidney injury.'),
-        o('ok', 'Wait and see for another day', 'The kidney injury is worsening.'),
+        o('poor', 'Wait and see for another day', 'The kidney injury is worsening.'),
         o('poor', 'Restart metformin to control glucose', 'Not while her kidneys are failing.'),
         o('harm', 'Add loperamide for comfort', 'Slowing the gut in C. difficile risks megacolon.')] }
     ],
@@ -136,7 +136,7 @@
     decisions: [
       { tag: 'macid-gap', scene: 'Sodium 137, chloride 113, bicarbonate 17. What is the gap and what does it tell you?', opts: [
         o('best', 'About 7: a normal-gap acidosis, with a high potassium', '137 − 113 − 17 = 7. Bicarbonate has been lost or acid not excreted, and chloride has risen in its place.'),
-        o('ok', 'A high-gap acidosis from kidney failure', 'Check the sum: the gap is 7. Kidney failure gives a high gap mostly when it is advanced; here something else is going on.'),
+        o('poor', 'A high-gap acidosis from kidney failure', 'Check the sum: the gap is 7. Kidney failure gives a high gap mostly when it is advanced; here something else is going on.'),
         o('poor', 'No acidosis: a bicarbonate of 17 is normal for kidney disease', 'It is low, and it comes with a high potassium. That pairing is the clue.'),
         o('harm', 'Ignore the gas, just treat the potassium', 'The gas and the potassium have the same cause.')] },
       { tag: 'macid-cause', scene: 'Normal gap, high potassium, no diarrhoea. What is the cause?', opts: [
@@ -146,12 +146,12 @@
         o('harm', 'Not enough potassium in his diet: carry on', 'Nothing about this needs more potassium.')] },
       { tag: 'macid-call', scene: 'Potassium 6.1, ECG normal. What do you do now?', opts: [
         o('best', 'Moderate high potassium: tell your registrar, ECG and monitor, withhold spironolactone and perindopril, stop the trimethoprim and choose another antibiotic, shift the potassium with insulin and glucose per your protocol with glucose checks, and recheck in 2 hours', 'Treat the level and remove the causes. The ECG is normal, so calcium is not needed now.'),
-        o('ok', 'Withhold the drugs and recheck in the morning', 'Removing the cause is right, but 6.1 needs treatment and a recheck within hours.'),
+        o('poor', 'Withhold the drugs and recheck in the morning', 'Removing the cause is right, but 6.1 needs treatment and a recheck within hours.'),
         o('poor', 'Calcium gluconate and nothing else', 'Calcium protects the heart when the ECG changes; it does not lower the potassium.'),
         o('harm', 'Carry on with the trimethoprim; it is only 3 more days', 'Trimethoprim blocks potassium excretion the same way amiloride does.')] },
       { tag: 'macid-bic', scene: 'The student asks whether to give a bicarbonate push for the bicarbonate of 17.', opts: [
         o('best', 'No. Stop the drugs and treat the potassium; the acidosis improves as aldosterone action returns. If it stays low, long-term oral bicarbonate is a decision for the renal team', 'There is no emergency here. An IV push adds sodium and fluid to a man with heart failure.'),
-        o('ok', 'Yes, 50 mL slowly to help the potassium', 'Bicarbonate is not a first-line potassium treatment; the drugs and insulin with glucose do more.'),
+        o('poor', 'Yes, 50 mL slowly to help the potassium', 'Bicarbonate is not a first-line potassium treatment; the drugs and insulin with glucose do more.'),
         o('poor', 'Yes, 100 mL push', 'Never a push.'),
         o('harm', 'Yes, an infusion until the bicarbonate is normal', 'Sodium and fluid overload in heart failure.')] }
     ],
@@ -215,7 +215,7 @@
         o('harm', 'His lactate is from alcohol; give a fluid bolus and go back to bed', 'He is bleeding. Leaving him is dangerous.')] },
       { tag: 'macid-call', scene: 'What do you do now?', opts: [
         o('best', 'Tell your registrar now. Two large-bore cannulas, group and hold (crossmatch), FBC, coags, UEC, LFT, repeat gas. Blood per your hospital protocol, measured fluid only while blood comes. Antibiotic cover per your hospital protocol. Urgent gastroenterology for endoscopy', 'An upper GI bleed in cirrhosis with a rising lactate is an emergency.'),
-        o('ok', 'Give 2 L of saline and recheck in the morning', 'He needs blood and endoscopy, not litres of saline into ascites and a dilute Hb.'),
+        o('harm', 'Give 2 L of saline and recheck in the morning', 'He needs blood and endoscopy, not litres of saline into ascites and a dilute Hb.'),
         o('poor', 'Recheck the gas in 4 hours', 'Too slow for an active bleed.'),
         o('harm', 'Start his usual enoxaparin prophylaxis', 'Anticoagulant into an active bleed.')] },
       { tag: 'macid-bic', scene: 'The nurse asks if bicarbonate would help the pH of 7.29.', opts: [

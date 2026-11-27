@@ -24,13 +24,13 @@ window.KIT = {
       { rx: { h: 'Bicarbonate is rarely first-line', cls: 'warn', items: ['It does not fix lactate or ketones, and can drop the potassium and raise the CO2.', 'Never push 100 mL. If a senior wants it, it goes in slowly, 50 mL of 8.4% over 5 to 15 minutes.', 'It is mainly considered for severe acidosis in kidney injury or with high potassium, as a senior decision.'] } },
       { rx: { h: 'Call early if', cls: 'warn', items: ['pH under 7.2, lactate above 4, or a patient who is tiring.', 'Shock that does not respond to the first boluses.', 'A high gap you cannot explain.'] } }] }
   ],
-  opts: [['sep', 'Treat the sepsis'], ['fl', 'Give balanced fluid'], ['stop', 'Stop the drug'], ['tox', 'Call Poisons and your senior'], ['bic', 'Bicarbonate']],
+  opts: [['sep', 'Treat the sepsis'], ['fl', 'Give balanced fluid'], ['stop', 'Stop the drug'], ['tox', 'Call Poisons and your senior'], ['bic', 'Treat the potassium, call renal for dialysis']],
   items: [
     { t: 'Lactate 6.8, BP 88/50, temperature 39, a chest infection.', a: 'sep', why: 'Cultures, antibiotics in the first hour, fluids in boluses, repeat the lactate.' },
     { t: 'Four days of diarrhoea, bicarbonate 14, gap 10, potassium 2.9, dry.', a: 'fl', why: 'Normal-gap acidosis from bowel loss. Replace fluid and potassium. Hartmann is balanced.' },
     { t: 'Acidosis with a creatinine rise in a patient on metformin.', a: 'stop', why: 'Stop the metformin, treat the kidney injury and the cause.' },
     { t: 'Unexplained gap of 28 with a raised osmolar gap and visual blurring.', a: 'tox', why: 'This suggests a toxic alcohol. Poisons Information 13 11 26 and a senior now.' },
-    { t: 'pH 7.18, potassium 7.6, creatinine 600, anuric.', a: 'bic', why: 'Severe acidosis with high potassium in kidney failure: bicarbonate may be a senior decision alongside dialysis.' },
+    { t: 'pH 7.18, potassium 7.6, creatinine 600, anuric.', a: 'bic', why: 'Anuric kidney failure with a dangerous potassium: calcium if the ECG changes, insulin with glucose, and call renal for dialysis, which fixes both. Bicarbonate is a senior decision on top, not instead.' },
     { t: 'pH 7.30, lactate 3, BP normal, drinking, a diarrhoeal illness.', a: 'fl', why: 'Mild: fluids and treat the cause. No bicarbonate.' }
   ]
 };

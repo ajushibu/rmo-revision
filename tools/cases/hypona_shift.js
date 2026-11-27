@@ -1,4 +1,4 @@
-/* /bin /bin.usr-is-merged /boot /container_info.json /dev /etc /home /lib /lib.usr-is-merged /lib64 /lost+found /media /mnt /nix /old_root /opt /proc /root /run /sbin /sbin.usr-is-merged /srv /sys /tmp /usr /var Hyponatraemia: concepts and cases (easy + hard) fonts/ icons/ scripts/ tools/ */
+/* Hyponatraemia: concepts and cases (easy + hard) */
 (function (w) {
   /* Easy = decisions (multiple choice). Hard = hard.steps (order sheet, ward.js). Both share the same tags, so the weak-point analysis sees one set of concepts. */
   var o = function (q, t, fb, vit) { var r = { q: q, t: t, fb: fb }; if (vit) r.vit = vit; return r; };
@@ -21,22 +21,22 @@
     decisions: [
       { tag: 'hypona-sev', scene: 'Sodium 113 and a seizure. How urgent is this?', opts: [
         o('best', 'A life-threatening emergency: severe symptoms need hypertonic saline now', 'A seizure from low sodium is severe hyponatraemia, whatever else is true.'),
-        o('ok', 'Moderate, start fluid restriction', 'Too slow. She has had a seizure.'),
+        o('poor', 'Moderate, start fluid restriction', 'Too slow. She has had a seizure.'),
         o('poor', 'Treat as epilepsy first and wait for the CT', 'The sodium is the cause.'),
         o('harm', 'Give more glucose 5% to improve her fluid status', 'Glucose 5% is free water and makes it worse.')] },
       { tag: 'hypona-treat', scene: 'What is your first treatment?', opts: [
         o('best', '3% saline 150 mL over 20 minutes, stop the glucose 5%, check glucose and call your senior', 'This is the NSW SESLHD regimen. Remove the cause as well.', { hr: 92 }),
-        o('ok', '0.9% saline 1 L', 'Too weak for severe symptoms.'),
+        o('poor', '0.9% saline 1 L', 'Too weak for severe symptoms.'),
         o('poor', 'A loading dose of an antiepileptic', 'It does not fix the sodium.'),
         o('harm', '3% saline 150 mL as a push over 2 minutes', 'Too fast: risk of overcorrection.')] },
       { tag: 'hypona-limit', scene: 'After 150 mL of 3% saline, she wakes and the sodium is 117. What next?', opts: [
         o('best', 'Check the sodium again in 20 minutes to 2 hours, repeat the bolus only if still symptomatic, and aim for about 5 mmol/L in the first hour', 'Check after every bolus. The aim is a modest first-hour rise, not a normal sodium.'),
-        o('ok', 'Give another 500 mL of 3% to normalise it', 'Far too much. She is already improving.'),
+        o('harm', 'Give another 500 mL of 3% to normalise it', 'Far too much. She is already improving.'),
         o('poor', 'Stop checking, she is awake', 'The overcorrection risk is still there.'),
         o('harm', 'Run 3% saline at 100 mL an hour overnight', 'A running infusion invites overcorrection.')] },
       { tag: 'hypona-limit', scene: 'By 08:00 the sodium is 124 and she has passed 600 mL of clear urine in 3 hours. What now?', opts: [
         o('best', 'Stop the saline, check sodium hourly, chart urine output and call your registrar about desmopressin and glucose to hold it', 'A big dilute diuresis is how overcorrection happens. A rise of 11 in 5 hours is too fast.'),
-        o('ok', 'Carry on with the same plan', 'The sodium is already rising too fast.'),
+        o('poor', 'Carry on with the same plan', 'The sodium is already rising too fast.'),
         o('poor', 'Give more furosemide to clear the fluid', 'This pushes the sodium up further.'),
         o('harm', 'Stop checking the sodium until the afternoon', 'Overcorrection is the danger now.')] }
     ],
@@ -85,17 +85,17 @@
     decisions: [
       { tag: 'hypona-sort', scene: 'Euvolaemic, concentrated urine, a high urine sodium, a chest infection. What is the likely cause?', opts: [
         o('best', 'SIADH from the pneumonia, after cortisol and thyroid are checked', 'Euvolaemic with a concentrated urine and a high urine sodium fits SIADH.'),
-        o('ok', 'Dehydration', 'He is not dry.'),
+        o('poor', 'Dehydration', 'He is not dry.'),
         o('poor', 'Heart failure', 'No oedema, no raised JVP.'),
         o('harm', 'Water intoxication from drinking too much, nothing to do', 'The urine is concentrated, so he is not just overdrinking.')] },
       { tag: 'hypona-treat', scene: 'He has mild symptoms. What do you do?', opts: [
         o('best', 'Stop the glucose 5%, start a fluid restriction, and recheck the sodium in a few hours', 'Remove free water and restrict. No hypertonic saline for mild symptoms.'),
-        o('ok', 'Start 0.9% saline 1 L', 'In SIADH he keeps the water and passes the salt: the sodium may fall.'),
+        o('poor', 'Start 0.9% saline 1 L', 'In SIADH he keeps the water and passes the salt: the sodium may fall.'),
         o('poor', '3% saline bolus, to be safe', 'It is for severe symptoms and risks overcorrection.'),
         o('harm', 'Increase his glucose 5% to correct the dehydration', 'It adds free water.')] },
       { tag: 'hypona-limit', scene: 'The next morning the sodium is 129. What now?', opts: [
         o('best', 'Continue restriction, treat the pneumonia, and recheck in 12 hours. This rise is fine', 'A rise of 5 in 14 hours is within the limit.'),
-        o('ok', 'Stop restricting and give 0.9% saline', 'It would risk another fall and hides the cause.'),
+        o('poor', 'Stop restricting and give 0.9% saline', 'It would risk another fall and hides the cause.'),
         o('poor', 'Stop checking sodium', 'Recheck until stable.'),
         o('harm', 'Give 3% saline to finish the job', 'He is improving. This risks overshoot.')] }
     ],

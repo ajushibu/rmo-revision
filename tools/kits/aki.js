@@ -21,13 +21,13 @@ window.KIT = {
       { rx: { h: 'Call your registrar and the renal team for', cls: 'stop', items: ['Potassium that stays high or ECG changes (see the hyperkalaemia kit).', 'Pulmonary oedema, or severe acidosis, or confusion or pericarditis from uraemia.', 'Blood and protein on the dipstick, or a creatinine that keeps climbing despite the first steps.', 'An infected obstructed kidney: urology and ICU at once.'] } },
       { rx: { h: 'Reasons for urgent dialysis (AEIOU)', items: ['Acidosis that will not correct, Electrolytes (potassium) that will not respond, Intoxication with a dialysable toxin, Overload with fluid that will not clear, Uraemic complications.'] } }] }
   ],
-  opts: [['dry', 'Fluid bolus, withhold the drugs, reassess'], ['scan', 'Bladder scan now, then catheter if retained'], ['call', 'Call the renal team now'], ['dip', 'Dipstick and urine microscopy, call renal'], ['wait', 'Repeat the creatinine in the morning']],
+  opts: [['dry', 'Fluid bolus, withhold the drugs, reassess'], ['scan', 'Bladder scan now, then catheter if retained'], ['call', 'Call the renal team now'], ['dip', 'Dipstick and urine microscopy, call renal'], ['wait', 'Repeat the creatinine in the morning'], ['uro', 'IV antibiotics, urgent urology to drain']],
   items: [
     { t: 'Day 2 after surgery, on ramipril and ibuprofen. BP 98/60, creatinine 190 from a baseline of 85, dry mucous membranes.', a: 'dry', why: 'Pre-renal from low volume and drugs that drop filtration pressure. Withhold ramipril and ibuprofen, give a measured bolus and reassess.' },
     { t: 'An 80-year-old man, creatinine up 3 times, passed no urine for 10 hours, lower abdomen tender and firm.', a: 'scan', why: 'Obstruction until proven otherwise. A bladder scan takes a minute and a catheter may fix it.' },
     { t: 'Creatinine rising, dipstick 3+ blood and 2+ protein, new rash and joint pain.', a: 'dip', why: 'An active urine sediment with a systemic illness suggests glomerulonephritis or vasculitis. Get microscopy and call renal early.' },
     { t: 'Creatinine 210, potassium 7.0 with peaked T waves, pulmonary oedema, on 4 L oxygen.', a: 'call', why: 'Dangerous potassium and overload: treat the potassium now and call the renal team for dialysis.' },
     { t: 'Creatinine 130 from baseline 75, eating and drinking, urine output 0.7 mL/kg/h, clinically euvolaemic.', a: 'wait', why: 'Stage 1 with no dangerous complication: remove the cause, monitor, and recheck. Do not push fluids on a euvolaemic patient.' },
-    { t: 'Flank pain, fever 39 and a creatinine rise, CT shows a 6 mm stone with hydronephrosis.', a: 'call', why: 'Infected and obstructed: antibiotics and urgent drainage by urology.' }
+    { t: 'Flank pain, fever 39 and a creatinine rise, CT shows a 6 mm stone with hydronephrosis.', a: 'uro', why: 'Infected and obstructed: antibiotics and urgent drainage by urology.' }
   ]
 };
