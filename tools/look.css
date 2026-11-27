@@ -117,3 +117,7 @@ html[data-shift] .note { font-size: calc(13px * var(--fs,1)); }
 /* no grey or blue flash when tapping on a touch screen: the pressed state is shown by the controls themselves */
 html { -webkit-tap-highlight-color: transparent; }
 * { -webkit-tap-highlight-color: transparent; }
+
+/* pressed state on touch: a light dim, so a tap is felt without the browser flash */
+button:not(:disabled):active, a[href]:active, summary:active, label:active, [role="button"]:active, [role="radio"]:active, [data-a]:active { opacity: .68; }
+@media (prefers-reduced-motion: no-preference) { button:not(:disabled):active, a[href]:active, label:active { transition: opacity .04s; } }
