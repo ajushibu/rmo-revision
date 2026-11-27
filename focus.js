@@ -70,13 +70,14 @@
     return 'Block done';
   }
   function sheet() {
-    var h = '<div class="fback" data-f="close"></div><div class="fsheet" id="fsheet" role="dialog" aria-modal="true" aria-label="Focus block" tabindex="-1"><button class="fx" data-f="close" aria-label="Close">×</button>';
+    var h = '<div class="fback" data-f="close"></div><div class="fsheet' + (!st || st.ph === 'idle' ? ' fidle' : '') + '" id="fsheet" role="dialog" aria-modal="true" aria-label="Focus block" tabindex="-1"><button class="fx" data-f="close" aria-label="Close">×</button>';
     if (!st || st.ph === 'idle') {
       var last = (st && st.last) || 25;
-      h += '<h2>Focus block</h2><p class="meta">One thing, no phone. Leaving this app is counted, and the screen stays awake.</p><div class="fseg" role="group" aria-label="Length">' +
+      h += '<p class="fsent">I will focus for <b>' + last + ' min</b> on</p><input id="fintent" class="fone" maxlength="120" placeholder="one thing, e.g. hyponatraemia, then 10 cards" autocomplete="off" aria-label="What will you do?">' +
+        '<div class="fseg" role="group" aria-label="Length">' +
         [15, 25, 45].map(function (m) { return '<button type="button" data-f="len" data-m="' + m + '" class="' + (m === last ? 'on' : '') + '" aria-pressed="' + (m === last) + '">' + m + ' min</button>'; }).join('') + '</div>' +
-        '<label class="flab">What will you do?<input id="fintent" maxlength="120" placeholder="e.g. Learn hyponatraemia, then 10 cards" autocomplete="off"></label>' +
-        '<ul class="fcheck">' + ['Phone face down and out of reach', 'Do Not Disturb is on', 'Water ready'].map(function (x, i) { return '<li><label><input type="checkbox" id="fc' + i + '"> ' + x + '</label></li>'; }).join('') + '</ul>' +
+        '<p class="fnote">One thing, no phone. Leaving this app is counted, and the screen stays awake.</p>' +
+        '<p class="fbefore">Before you start</p><ul class="fcheck">' + ['Phone face down and out of reach', 'Do Not Disturb is on', 'Water ready'].map(function (x, i) { return '<li><label><input type="checkbox" id="fc' + i + '"><span class="fdot" aria-hidden="true"></span><span>' + x + '</span></label></li>'; }).join('') + '</ul>' +
         '<button class="btn primary big" data-f="start" data-m="' + last + '">Start ' + last + ' min</button>' + (line() ? line() : '');
     } else if (st.ph === 'run') {
       h += '<h2>Focus</h2><p class="fbig" id="fbig">' + clock(remaining()) + '</p>' + (st.intent ? '<p class="meta">' + esc(st.intent) + '</p>' : '') +
