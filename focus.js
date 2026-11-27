@@ -62,6 +62,7 @@
   var host = document.createElement('div'); host.id = 'fhost';
   document.body.appendChild(toast); document.body.appendChild(host);
 
+  var ticks = [false, false, false], chk = false;
   function remaining() { return st && (st.ph === 'run' || st.ph === 'brk') ? st.end - Date.now() : 0; }
   function fabText() {
     if (!st || st.ph === 'idle') return 'Focus';
@@ -73,11 +74,14 @@
     var h = '<div class="fback" data-f="close"></div><div class="fsheet' + (!st || st.ph === 'idle' ? ' fidle' : '') + '" id="fsheet" role="dialog" aria-modal="true" aria-label="Focus block" tabindex="-1"><button class="fx" data-f="close" aria-label="Close">×</button>';
     if (!st || st.ph === 'idle') {
       var last = (st && st.last) || 25;
-      h += '<p class="fsent">I will focus for <b>' + last + ' min</b> on</p><input id="fintent" class="fone" maxlength="120" placeholder="one thing, e.g. hyponatraemia, then 10 cards" autocomplete="off" aria-label="What will you do?">' +
+      var nt = ticks.filter(Boolean).length;
+      h += '<h2>Focus block</h2><p class="meta">One thing, no phone. Leaving this app is counted, and the screen stays awake.</p>' +
+        '<div class="fstep"><button type="button" class="fround" data-f="step" data-d="-5" aria-label="5 minutes less"' + (last <= 5 ? ' disabled' : '') + '>−</button><div class="fnum" aria-live="polite"><b>' + last + '</b><span>minutes</span></div><button type="button" class="fround" data-f="step" data-d="5" aria-label="5 minutes more"' + (last >= 90 ? ' disabled' : '') + '>+</button></div>' +
         '<div class="fseg" role="group" aria-label="Length">' +
-        [15, 25, 45].map(function (m) { return '<button type="button" data-f="len" data-m="' + m + '" class="' + (m === last ? 'on' : '') + '" aria-pressed="' + (m === last) + '">' + m + ' min</button>'; }).join('') + '</div>' +
-        '<p class="fnote">One thing, no phone. Leaving this app is counted, and the screen stays awake.</p>' +
-        '<p class="fbefore">Before you start</p><ul class="fcheck">' + ['Phone face down and out of reach', 'Do Not Disturb is on', 'Water ready'].map(function (x, i) { return '<li><label><input type="checkbox" id="fc' + i + '"><span class="fdot" aria-hidden="true"></span><span>' + x + '</span></label></li>'; }).join('') + '</ul>' +
+        [15, 25, 45].map(function (m) { return '<button type="button" data-f="len" data-m="' + m + '" class="' + (m === last ? 'on' : '') + '" aria-pressed="' + (m === last) + '">' + m + '</button>'; }).join('') + '</div>' +
+        '<input id="fintent" class="fbox" maxlength="120" placeholder="What will you do? e.g. Learn hyponatraemia, then 10 cards" autocomplete="off" aria-label="What will you do?">' +
+        '<button type="button" class="ffold" data-f="fold" aria-expanded="' + chk + '"><span>Before you start <em>' + nt + ' of 3</em></span><i aria-hidden="true">' + (chk ? '⌃' : '⌄') + '</i></button>' +
+        (chk ? '<ul class="fcheck">' + ['Phone face down and out of reach', 'Do Not Disturb is on', 'Water ready'].map(function (x, i) { return '<li><label><input type="checkbox" id="fc' + i + '" data-tick="' + i + '"' + (ticks[i] ? ' checked' : '') + '><span class="fdot" aria-hidden="true"></span><span>' + x + '</span></label></li>'; }).join('') + '</ul>' : '') +
         '<button class="btn primary big" data-f="start" data-m="' + last + '">Start ' + last + ' min</button>' + (line() ? line() : '');
     } else if (st.ph === 'run') {
       h += '<h2>Focus</h2><p class="fbig" id="fbig">' + clock(remaining()) + '</p>' + (st.intent ? '<p class="meta">' + esc(st.intent) + '</p>' : '') +
@@ -119,12 +123,15 @@
   function closeSheet() { open = false; sure = false; paint(true); try { var b = document.querySelector('[data-focus]'); if (b) b.focus(); } catch (e) {} }
 
   document.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-focus]') : null; if (b) { e.preventDefault(); open ? closeSheet() : openSheet(); } });
+  host.addEventListener('change', function (e) { var t = e.target; if (t && t.getAttribute && t.getAttribute('data-tick') !== null) { ticks[+t.getAttribute('data-tick')] = t.checked; var c = host.querySelector('.ffold em'); if (c) c.textContent = ticks.filter(Boolean).length + ' of 3'; } });
   host.addEventListener('click', function (e) {
     var el = e.target.closest ? e.target.closest('[data-f]') : null; if (!el) return;
     var a = el.getAttribute('data-f');
     if (a === 'close') closeSheet();
     else if (a === 'len') { var m = +el.getAttribute('data-m'); st = st && st.ph === 'idle' ? st : { ph: 'idle' }; st.last = m; save(); paint(true); }
-    else if (a === 'start') { var it = document.getElementById('fintent'); start(+el.getAttribute('data-m') || 25, it ? it.value : ''); }
+    else if (a === 'step') { var d = +el.getAttribute('data-d'); st = st && st.ph === 'idle' ? st : { ph: 'idle' }; st.last = Math.max(5, Math.min(90, ((st.last) || 25) + d)); save(); paint(true); }
+    else if (a === 'fold') { chk = !chk; paint(true); }
+    else if (a === 'start') { ticks = [false, false, false]; chk = false; var it = document.getElementById('fintent'); start(+el.getAttribute('data-m') || 25, it ? it.value : ''); }
     else if (a === 'urge') { urgeEnd = Date.now() + URGE_MS; paint(true); var p = document.getElementById('fpark'); if (p) p.focus(); }
     else if (a === 'end') { sure = true; paint(true); }
     else if (a === 'endno') { sure = false; paint(true); }
