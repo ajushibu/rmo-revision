@@ -306,7 +306,8 @@
     for (var i = 0; i < c.steps.length; i++) h += '<i class="' + (i < S.si ? 'done' : i === S.si ? 'now' : '') + '"></i>';
     return '<span class="pips" aria-hidden="true">' + h + '</span>';
   }
-  function render() {
+  function render() { render0(); resBar(); resSave(); }
+  function render0() {
     window.scrollTo(0, 0);
     document.documentElement.setAttribute('data-mode', S.mode === 'home' ? 'home' : S.mode === 'order' ? 'decide' : S.mode);
     if (S.mode === 'home') { prog.textContent = ''; view.innerHTML = home(); return; }
@@ -442,10 +443,39 @@
     else if (e.key === 'Enter') { e.preventDefault(); if (res[S.sel]) add(res[S.sel].id); }
   });
 
+
+  /* ---------- resume: keep the case across an app update, a tab change or the page being discarded ---------- */
+  var RKEY = 'rmo-resume:' + location.pathname, RMAX = 12 * 3600 * 1000;
+  function resClear() { try { localStorage.removeItem(RKEY); } catch (e) {} }
+  function resLeave() { resClear(); S.mode = 'home'; S.step = null; render(); }
+  var resT = 0;
+  function resSoon() { clearTimeout(resT); resT = setTimeout(resSave, 0); }
+  ['click', 'change', 'input', 'keyup'].forEach(function (ev) { document.addEventListener(ev, resSoon, true); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) resSave(); });
+  window.addEventListener('pagehide', resSave);
+  document.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-a="leave"]') : null; if (b) resLeave(); });
+  function resBar() { var p = document.getElementById('progress'); if (p && S.mode !== 'home' && S.mode !== 'end' && S.mode !== 'intro') p.insertAdjacentHTML('beforeend', ' <button type="button" class="link" data-a="leave">Leave case</button>'); }
+  function resSave() {
+    try {
+      var c = CASES[S.ci];
+      if (!S.step || !c || ['order', 'check', 'result'].indexOf(S.mode) < 0) { if (S.mode === 'home' || S.mode === 'end') resClear(); return; }
+      localStorage.setItem(RKEY, JSON.stringify({ t: Date.now(), id: c.id, alt: S.step !== c.steps[S.si], S: JSON.parse(JSON.stringify(S, function (k, v) { return k === 'step' ? undefined : v; })) }));
+    } catch (e) { /* storage blocked: the case just will not resume */ }
+  }
+  function resRestore(want) {
+    try {
+      var o = JSON.parse(localStorage.getItem(RKEY) || 'null'); if (!o || Date.now() - o.t > RMAX || (want && want !== o.id)) return false;
+      var i = -1; CASES.forEach(function (c, k) { if (c.id === o.id) i = k; }); if (i < 0) return false;
+      var st = CASES[i].steps[o.S.si]; if (!st) return false;
+      for (var k in o.S) S[k] = o.S[k];
+      S.ci = i; S.step = o.alt && st.alt ? st.alt : st; render(); return true;
+    } catch (e) { return false; }
+  }
+
   function parentCases() { try { return window.parent !== window && window.parent.RMOCases ? window.parent.RMOCases : null; } catch (e) { return null; } }
   var BASE0 = DUO ? BASE : TOOL;
   var RUN = false; try { RUN = new URLSearchParams(location.search).get('run') === 'today'; } catch (e) {}
   var want = null; try { want = new URLSearchParams(location.search).get('case'); } catch (e) {}
   var ix = -1; if (want) CASES.forEach(function (c, i) { if (c.id === want) ix = i; });
-  if (ix >= 0) startCase(ix); else render();
+  if (resRestore(want)) { /* picked up where it was left */ } else if (ix >= 0) startCase(ix); else render();
 })();

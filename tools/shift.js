@@ -133,7 +133,8 @@
   }
 
   /* ---------- views ---------- */
-  function render() {
+  function render() { render0(); resBar(); resSave(); }
+  function render0() {
     var v = $('#view'), p = $('#progress');
     window.scrollTo(0, 0);
     if (S.mode === 'home') { p.textContent = ''; v.innerHTML = homeHTML(); return; }
@@ -217,9 +218,37 @@
     else if (a === 'home') { S.mode = 'home'; render(); }
 else if (a === 'star') { toggleStar(b.getAttribute('data-id')); var on2 = !!starMap()[TOOL + ':' + b.getAttribute('data-id')]; b.setAttribute('aria-pressed', String(on2)); b.textContent = on2 ? '\u2605 Starred' : '\u2606 Star this case'; }
   });
+
+  /* ---------- resume: keep the case across an app update, a tab change or the page being discarded ---------- */
+  var RKEY = 'rmo-resume:' + location.pathname, RMAX = 12 * 3600 * 1000;
+  function resClear() { try { localStorage.removeItem(RKEY); } catch (e) {} }
+  function resLeave() { resClear(); S.mode = 'home';  render(); }
+  var resT = 0;
+  function resSoon() { clearTimeout(resT); resT = setTimeout(resSave, 0); }
+  ['click', 'change', 'input', 'keyup'].forEach(function (ev) { document.addEventListener(ev, resSoon, true); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) resSave(); });
+  window.addEventListener('pagehide', resSave);
+  document.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[data-a="leave"]') : null; if (b) resLeave(); });
+  function resBar() { var p = document.getElementById('progress'); if (p && S.mode === 'decide' || S.mode === 'caseend') p.insertAdjacentHTML('beforeend', ' <button type="button" class="link" data-a="leave">Leave case</button>'); }
+  function resSave() {
+    try {
+      var c = CASES[S.run[S.ci]];
+      if (!c || ['decide', 'caseend'].indexOf(S.mode) < 0) { if (S.mode === 'home' || S.mode === 'debrief') resClear(); return; }
+      localStorage.setItem(RKEY, JSON.stringify({ t: Date.now(), id: c.id, S: JSON.parse(JSON.stringify(S)) }));
+    } catch (e) { /* storage blocked: the case just will not resume */ }
+  }
+  function resRestore(want) {
+    try {
+      var o = JSON.parse(localStorage.getItem(RKEY) || 'null'); if (!o || Date.now() - o.t > RMAX || (want && want !== o.id)) return false;
+      var c = CASES[(o.S.run || [])[o.S.ci]]; if (!c || c.id !== o.id || !c.decisions[o.S.di]) return false;
+      for (var k in o.S) S[k] = o.S[k];
+      render(); return true;
+    } catch (e) { return false; }
+  }
   (function () { // opened from Today's "New on-call cases": go straight into that case
     var want = null; try { want = new URLSearchParams(location.search).get('case'); } catch (e) {}
     var ix = -1; if (want) for (var k = 0; k < CASES.length; k++) if (CASES[k].id === want) ix = k;
+    if (resRestore(want)) return;
     if (ix >= 0) start([ix]); else render();
   })();
 })();
