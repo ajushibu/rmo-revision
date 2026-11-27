@@ -113,3 +113,7 @@ html[data-shift] .note { font-size: calc(13px * var(--fs,1)); }
   html[data-shift] .opt { font-size: calc(18px * var(--fs,1)); padding: 16px 20px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* no grey or blue flash when tapping on a touch screen: the pressed state is shown by the controls themselves */
+html { -webkit-tap-highlight-color: transparent; }
+* { -webkit-tap-highlight-color: transparent; }

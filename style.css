@@ -538,3 +538,7 @@ html[data-side="off"] .main { padding-top: 78px; }
 .optsheet textarea { width: 100%; box-sizing: border-box; }
 @media (max-width: 420px) { .obtn .kh { display: none !important; } }
 @media (max-width: 420px) { .obtn { font-size: calc(11px * min(var(--fs,1), 1.15)); letter-spacing: -.01em; } .optbar { padding: 5px 4px; } }
+
+/* no grey or blue flash when tapping on a touch screen: the pressed state is shown by the controls themselves */
+html { -webkit-tap-highlight-color: transparent; }
+* { -webkit-tap-highlight-color: transparent; }
