@@ -1,0 +1,50 @@
+name: Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/android.yml']
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Fetch the saved signing key (keeps updates installable over the old app)
+        run: |
+          mkdir -p ~/.android out
+          if git ls-remote --exit-code --heads origin apk-build >/dev/null 2>&1; then
+            git fetch origin apk-build && git show origin/apk-build:debug.keystore > ~/.android/debug.keystore || true
+          fi
+      - name: Build
+        run: |
+          set -o pipefail
+          (
+          mkdir wrap && cd wrap
+          npm init -y >/dev/null
+          npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          mkdir www && echo '<!doctype html><title>RMO Revision</title>' > www/index.html
+          cat > capacitor.config.json <<'EOF'
+          {"appId":"app.rmorevision.study","appName":"RMO Revision","webDir":"www","server":{"url":"https://rmo-revision-app.vercel.app","androidScheme":"https"},"backgroundColor":"#0D1518"}
+          EOF
+          npx cap add android
+          R=android/app/src/main/res
+          rm -f $R/mipmap-anydpi-v26/ic_launcher*.xml $R/drawable-v24/ic_launcher_foreground.xml $R/drawable/ic_launcher_background.xml
+          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            n=${d%%:*}; s=${d##*:}
+            for f in ic_launcher ic_launcher_round ic_launcher_foreground; do convert ../icons/icon-512.png -resize ${s}x${s} $R/mipmap-$n/$f.png; done
+          done
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          ) 2>&1 | tee out/build.log
+      - name: Publish to apk-build branch
+        if: always()
+        run: |
+          cp wrap/android/app/build/outputs/apk/debug/app-debug.apk out/rmo-revision.apk 2>/dev/null || true
+          cp ~/.android/debug.keystore out/debug.keystore 2>/dev/null || true
+          if [ ! -f out/debug.keystore ]; then keytool -genkey -v -keystore out/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" >/dev/null 2>&1 || true; fi
+          cd out && git init -q && git checkout -q -b apk-build && git config user.name ci && git config user.email ci@example.com
+          git add -A && git commit -qm "APK build" && git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" apk-build
