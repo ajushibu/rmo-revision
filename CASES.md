@@ -12,6 +12,7 @@ The on-call case pages (`tools/*_shift.html`) report every finished case to the 
 
 ## Rules agreed with the user
 
+- Hard-case running orders: orders carried from the last step continue silently. Only a carried order that the new step lists as `skip` or `harm` is put to the user as Keep or Stop. An order missed last step that the new step lists as `need` or `good` is started for the user (right dose) and is not scored again. So list an order as `skip`/`harm` in a later step only when stopping or changing it is the lesson.
 - Hard-case plans: `plan` (call, monitor, review) on a step is the keyed answer. The page asks for it only when someone must be called and the keyed answer changed since the last plan step (or it is critical). The user types one line, then ticks which of the three key points it contained (self-check, 1 point each, no negatives). Write each `why` so it reads as the point to tick: who and why, how you watch, when you look again.
 
 - The first try at a case counts most; replays show whether the lesson stuck.

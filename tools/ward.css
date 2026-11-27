@@ -130,3 +130,6 @@
 .chk input:focus-visible + .ckb { outline: 2px solid var(--ink); outline-offset: 2px; }
 .ckt { display: flex; flex-direction: column; gap: 2px; font-size: calc(15px * var(--fs,1)); line-height: 1.4; }
 .ckt span { color: var(--muted); }
+
+.running { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 10px; padding: 10px 14px; border-radius: 12px; background: var(--n-tint); font-size: calc(14px * var(--fs,1)); line-height: 1.45; color: var(--muted); }
+.running b { color: var(--ink); }

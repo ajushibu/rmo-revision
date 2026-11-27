@@ -77,6 +77,15 @@
     S.facts = S.facts.concat(S.newFacts); S.newFacts = (S.step.reveal || []).slice();
     if (S.step.vit) S.vit = merge(S.vit, S.step.vit);
     S.carry = S.step.heads ? [] : (S.active || []).map(function (a) { return { id: a.id, dose: a.dose, time: a.time, dec: null, reord: false }; });
+    if (!S.step.heads) {
+      var g2 = S.step.orders || {}, have = {};
+      S.carry.forEach(function (p) { have[p.id] = 1; var q = g2[p.id] && g2[p.id].q; if (q !== 'skip' && q !== 'harm') { p.dec = 'keep'; p.auto = true; } });   // only a running order that should now stop or change is put to the doctor
+      // an order missed last step that is still wanted starts running now: the feedback has been seen, so no retyping and no second penalty
+      if (S.last && S.last.miss) S.last.miss.forEach(function (m) {
+        var d = g2[m.id], o = BY[m.id]; if (!o || have[m.id] || !d || (d.q !== 'need' && d.q !== 'good')) return;
+        have[m.id] = 1; S.carry.push({ id: m.id, dose: o.doses ? (d.d && d.d.length ? d.d[0] : o.doses.length === 1 ? 0 : null) : null, time: CASES[S.ci].steps[S.si - 1] ? CASES[S.ci].steps[S.si - 1].time : '', dec: 'keep', auto: true, added: true, reord: false });
+      });
+    }
     S.placed = []; S.plan = { text: '' }; S.hint = false; S.scope = null; S.askPlan = false; S.pending = null;
     // the plan is asked only where it matters: someone has to be called, and the right answer changed since the last plan step (or it is critical)
     if (S.step.plan) {
@@ -99,9 +108,11 @@
     return { 'Drugs': 'treat', 'Fluids': 'treat', 'Oxygen and breathing': 'treat', 'Bloods': 'test', 'Imaging and ECG': 'test', 'Bedside': 'mon', 'Calls and plans': 'call' }[o.c] || 'treat';
   }
   function grade() {
-    var st = S.step, g = st.orders || {}, lines = [], pts = 0, max = 0, miss = [], pass = true, act = liveCarry(), ids = placedIds().concat(act.map(function (p) { return p.id; })), covered = {}, stoppedIds = {};
+    var st = S.step, g = st.orders || {}, lines = [], pts = 0, max = 0, miss = [], pass = true, act = liveCarry(), addedIds = {}, ids = placedIds().concat(act.map(function (p) { return p.id; })), covered = {}, stoppedIds = {};
+    act.forEach(function (p) { if (p.added) addedIds[p.id] = 1; });
     Object.keys(g).forEach(function (id) {
       if (g[id].q !== 'need' && g[id].q !== 'good') return;
+      if (addedIds[id]) return;
       // an order that is only an alternative to a need (e.g. ICU for a MET call) does not add to the maximum
       var isAltOnly = Object.keys(g).some(function (k) { return g[k].q === 'need' && (g[k].alt || []).indexOf(id) >= 0; });
       if (!isAltOnly) max += PTS[g[id].q];
@@ -115,6 +126,7 @@
       if (a) covered[a] = k;
     });
     S.placed.concat(act.map(function (p) { return merge(p, { carried: true }); })).forEach(function (p) {
+      if (p.added) { lines.push({ id: p.id, q: 'cont', why: 'Started for you after the last step, since you missed it. No points either way.', dose: p.dose, doseOk: true, rightDose: null, carried: p.time, kept: true }); return; }
       var r = g[p.id], o = BY[p.id], q = r ? r.q : 'none', why = r ? r.why : 'Not needed at this point.', doseOk = true, got = 0;
       if (covered[p.id]) { q = 'need'; why = g[covered[p.id]].why; r = merge(r || {}, { d: r && r.d ? r.d : g[covered[p.id]].d }); }
       if (r && o.doses && r.d) doseOk = p.dose !== null && r.d.indexOf(p.dose) >= 0;
@@ -269,7 +281,9 @@
   }
   function drawCarry() {
     var ul = $('#carry'); if (!ul) return;
-    ul.innerHTML = (S.carry || []).map(function (p) {
+    var run = $('#running'), auto = (S.carry || []).filter(function (p) { return p.auto && !p.reord; });
+    if (run) { var started = auto.filter(function (p) { return p.added; }), going = auto.filter(function (p) { return !p.added; }); run.innerHTML = (going.length ? '<span><b>Still running:</b> ' + going.map(function (p) { return esc(BY[p.id].n); }).join(', ') + '.</span>' : '') + (started.length ? '<span><b>Started for you</b> (you missed ' + (started.length > 1 ? 'them' : 'it') + ' last step): ' + started.map(function (p) { return esc(BY[p.id].n); }).join(', ') + '.</span>' : ''); run.hidden = !auto.length; }
+    ul.innerHTML = (S.carry || []).filter(function (p) { return !p.auto; }).map(function (p) {
       var o = BY[p.id], meta = 'Since ' + p.time + (o.doses && p.dose !== null && p.dose !== undefined ? ' · ' + o.doses[p.dose] : '');
       if (p.reord) return '<li class="po carried off"><b class="pon">' + esc(o.n) + '</b><span class="pmeta">Ordered again below</span></li>';
       return '<li class="po carried' + (p.dec === 'stop' ? ' off' : '') + '" data-cid="' + p.id + '"><b class="pon">' + esc(o.n) + '</b>' +
@@ -309,7 +323,7 @@
       view.innerHTML = '<div class="grid"><div class="col">' + monitor(c) + chart() + '</div><div class="col"><div class="card order">' +
         (S.last && S.si > 0 ? '<p class="happened">' + esc((S.last.pass ? CASES[S.ci].steps[S.si - 1].ok : (CASES[S.ci].steps[S.si - 1].miss || CASES[S.ci].steps[S.si - 1].ok)).text) + '</p>' : '') +
         '<p class="when">' + esc(st.time + ' · ' + st.window) + '</p><p class="scene">' + esc(st.scene) + '</p>' +
-        (S.carry && S.carry.length ? '<h3 class="acth">Running orders <em id="carryleft"></em><span>Keep what should carry on, stop what no longer fits. You score for each call.</span></h3><ul id="carry" class="placed"></ul>' : '') +
+        (S.carry && S.carry.length ? '<p id="running" class="running" hidden></p>' : '') + (S.carry && S.carry.some(function (p) { return !p.auto; }) ? '<h3 class="acth">Running orders to decide <em id="carryleft"></em><span>The patient has changed. Keep or stop each one. You score for each call.</span></h3>' : '') + (S.carry && S.carry.length ? '<ul id="carry" class="placed"></ul>' : '') +
         '<div class="osearch"><label for="q">' + (S.carry && S.carry.length ? 'Anything new?' : 'Place an order') + ' <span id="scopechip" class="scopechip" hidden></span></label><input id="q" type="text" placeholder="Type a test, drug or action" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="ores" aria-expanded="false"><ul id="ores" role="listbox" hidden></ul></div>' +
         '<p class="browse"><button type="button" class="link" data-a="browse">' + (S.hint ? 'Browse orders (hint used)' : 'Stuck on a name? Browse orders (counts as a hint)') + '</button></p>' +
         '<h3 id="ocount"></h3>' + (st.heads ? '<p class="hnote">Discharge planning. Your orders file under these headings: fill every heading.</p>' : '') + '<ul id="placed" class="placed"></ul>' +
