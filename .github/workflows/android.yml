@@ -20,6 +20,8 @@ jobs:
           if git ls-remote --exit-code --heads origin apk-build >/dev/null 2>&1; then
             git fetch origin apk-build && git show origin/apk-build:debug.keystore > ~/.android/debug.keystore || true
           fi
+      - name: Image tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
       - name: Build
         run: |
           set -o pipefail
