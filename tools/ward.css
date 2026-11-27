@@ -1,14 +1,14 @@
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .lead, .howto { max-width: 62ch; color: var(--muted); }
-.happened { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--n-tint); font-size: calc(15px * var(--fs,1)); }
+.happened { margin: 0 0 12px; padding: 10px 14px; border-radius: 14px; background: var(--n-tint); font-size: calc(15px * var(--fs,1)); }
 .when { margin: 0 0 4px; font-size: calc(13px * var(--fs,1)); font-weight: 700; color: var(--muted); }
 .pager p { margin: 6px 0 0; }
 .osearch { position: relative; margin-top: 4px; }
 .osearch label { display: block; font-size: calc(14px * var(--fs,1)); font-weight: 700; margin-bottom: 6px; }
-.osearch input { width: 100%; min-height: 50px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: calc(17px * var(--fs,1)); }
+.osearch input { width: 100%; min-height: 50px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: calc(17px * var(--fs,1)); }
 .osearch input:focus { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px var(--n-tint); }
-#ores { list-style: none; margin: 6px 0 0; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px rgba(0,0,0,.18); position: absolute; left: 0; right: 0; z-index: 7; max-height: 320px; overflow-y: auto; }
-#ores li { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 46px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+#ores { list-style: none; margin: 6px 0 0; padding: 4px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 12px 32px rgba(0,0,0,.18); position: absolute; left: 0; right: 0; z-index: 7; max-height: 320px; overflow-y: auto; }
+#ores li { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 46px; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
 #ores li span { font-size: calc(13px * var(--fs,1)); color: var(--muted); white-space: nowrap; }
 #ores li.on, #ores li:hover { background: var(--n-tint); }
 #ores li.none { cursor: default; color: var(--muted); font-size: calc(14px * var(--fs,1)); }
@@ -16,10 +16,10 @@
 .browse .link { background: none; border: 0; padding: 6px 0; color: var(--muted); font: inherit; font-size: calc(14px * var(--fs,1)); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 #ocount { margin: 16px 0 8px; font-size: calc(15px * var(--fs,1)); }
 .placed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.po { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px 8px; padding: 8px 8px 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.po { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px 8px; padding: 8px 8px 10px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
 .po.isfirst { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--ink); }
 .pon { min-width: 0; }
-.po select { grid-column: 1 / -1; width: 100%; min-height: 40px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: calc(15px * var(--fs,1)); }
+.po select { grid-column: 1 / -1; width: 100%; min-height: 40px; padding: 6px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: calc(15px * var(--fs,1)); }
 .po select.need { border-color: var(--harm); box-shadow: 0 0 0 3px var(--harm-t); }
 .pfirst { flex: none; min-height: 40px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--muted); font: inherit; font-size: calc(13px * var(--fs,1)); font-weight: 600; cursor: pointer; }
 .pfirst[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
@@ -30,11 +30,11 @@
 .rhead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; color: var(--muted); font-weight: 600; }
 .rscore { font-family: var(--mono); font-size: calc(40px * var(--fs,1)); font-weight: 700; color: var(--ink); letter-spacing: -.03em; }
 .rscore i { font-style: normal; font-size: calc(18px * var(--fs,1)); color: var(--muted); }
-.fline { margin: 0 0 8px; padding: 10px 14px; border-radius: 12px; font-size: calc(15px * var(--fs,1)); }
+.fline { margin: 0 0 8px; padding: 10px 14px; border-radius: 14px; font-size: calc(15px * var(--fs,1)); }
 .fline.ok { background: var(--best-t); } .fline.bad { background: var(--poor-t); }
 .result h3 { margin: 16px 0 6px; font-size: calc(15px * var(--fs,1)); }
 .rlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.rl { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 12px; border-left: 4px solid var(--line); background: var(--n-tint); }
+.rl { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 14px; border-left: 4px solid var(--line); background: var(--n-tint); }
 .rl.ok { border-left-color: var(--best); } .rl.skip { border-left-color: var(--ok); } .rl.none { border-left-color: var(--line); }
 .rl.also { border-left-color: var(--line); }
 .rl.harm { border-left-color: var(--harm); background: var(--harm-t); } .rl.miss { border-left-color: var(--poor); background: var(--poor-t); }
@@ -43,7 +43,7 @@
 .rdose { font-size: calc(14px * var(--fs,1)); } .rdose.bad { color: var(--harm); font-weight: 600; }
 .rw { font-size: calc(14px * var(--fs,1)); color: var(--muted); }
 .teach { margin: 14px 0 0; }
-.out { margin: 16px 0 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); }
+.out { margin: 16px 0 14px; padding: 12px 14px; border-radius: 16px; border: 1px solid var(--line); }
 .out.bad { border-color: var(--harm); }
 .out p { margin: 4px 0 0; }
 .endc .steps { list-style: none; padding: 0; margin: 14px 0; display: flex; flex-direction: column; gap: 10px; }
@@ -77,8 +77,8 @@
 .hgrp span { font-size: calc(13px * var(--fs,1)); color: var(--muted); }
 .hgrp.empty b { color: var(--muted); font-weight: 600; }
 @media (max-width: 760px) {
-  html[data-shift][data-mode="decide"] .signrow .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: calc(17px * var(--fs,1)); border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
-  html[data-shift][data-mode="result"] .result .btns .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: calc(17px * var(--fs,1)); border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  html[data-shift][data-mode="decide"] .signrow .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: calc(17px * var(--fs,1)); border-radius: 999px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+  html[data-shift][data-mode="result"] .result .btns .btn.primary { position: fixed; left: 14px; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 6; min-height: 54px; font-size: calc(17px * var(--fs,1)); border-radius: 999px; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
   html[data-shift][data-mode="result"] body { padding-bottom: 112px; }
   .endc .steps li { grid-template-columns: minmax(0, 1fr) 56px; } .endc .steps .meter { grid-column: 1 / -1; order: 3; }
 }
@@ -131,5 +131,7 @@
 .ckt { display: flex; flex-direction: column; gap: 2px; font-size: calc(15px * var(--fs,1)); line-height: 1.4; }
 .ckt span { color: var(--muted); }
 
-.running { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 10px; padding: 10px 14px; border-radius: 12px; background: var(--n-tint); font-size: calc(14px * var(--fs,1)); line-height: 1.45; color: var(--muted); }
+.running { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 10px; padding: 10px 14px; border-radius: 14px; background: var(--n-tint); font-size: calc(14px * var(--fs,1)); line-height: 1.45; color: var(--muted); }
 .running b { color: var(--ink); }
+
+@media (max-width: 560px) { .plh { flex-direction: column; align-items: flex-start; gap: 2px; } }

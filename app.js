@@ -399,7 +399,7 @@
   function newCasesHTML() {
     var l = newCaseList(); if (!l.length) return '';
     var shown = caseAll ? l : l.slice(0, 3);
-    return '<section class="ncases" aria-label="New on-call cases"><div class="nchead"><h2>New on-call cases <span class="n nc">' + l.length + '</span></h2>' + (l.length > 1 ? '<a class="btn small" href="' + caseHref(l[0]) + '">Play all ' + l.length + '</a>' : '') + '</div><p class="meta">Short refreshers written from your weak points. About 5 minutes each.</p><ul class="list">' + shown.map(function (c) {
+    return '<section class="ncases" aria-label="New on&#8209;call cases"><div class="nchead"><h2>New on-call cases <span class="n nc">' + l.length + '</span></h2>' + (l.length > 1 ? '<a class="btn small" href="' + caseHref(l[0]) + '">Play all ' + l.length + '</a>' : '') + '</div><p class="meta">Short refreshers written from your weak points. About 5 minutes each.</p><ul class="list">' + shown.map(function (c) {
       return '<li class="ncase"><div class="nct"><span class="ncm">' + esc(c.topic.name) + (c.where ? ' · ' + esc(c.where) : '') + '</span><b>' + esc(c.title) + '</b>' + (c.blurb ? '<span class="ncb">' + esc(c.blurb) + '</span>' : '') + '</div>' +
         '<div class="ncbtn"><a class="btn primary small" href="' + caseHref(c) + '">Play</a><button class="link" data-skipcase="' + esc(c.f + ':' + c.id) + '">Skip</button></div></li>';
     }).join('') + '</ul>' + (l.length > shown.length ? '<p><button class="link" data-act="allcases">Show ' + (l.length - shown.length) + ' more</button></p>' : '') + '</section>';
@@ -516,6 +516,10 @@
   var rtBusy = false;
   ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, rtActive, { passive: true, capture: true }); });
   window.addEventListener('scroll', rtActive, { passive: true });
+  /* the answer bar shows its top shadow only while it floats over the card (stuck), not when it sits in place at the end */
+  function rbStuck() { var rb = document.querySelector('.flash .ratebar'), e = rb && rb.nextElementSibling; if (rb && e) rb.classList.toggle('stuck', e.getBoundingClientRect().top > rb.getBoundingClientRect().bottom + 1); }
+  window.addEventListener('scroll', rbStuck, { passive: true }); window.addEventListener('resize', rbStuck);
+  new MutationObserver(function () { rbStuck(); }).observe(document.body, { childList: true, subtree: true });
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { rtTick(true); rtLast = null; var hs = rtLoad(); if (hs.owner === rtTab) { hs.beat = 0; rtSave(hs); } rtPublish(false); if (sess) syncNow(); } else { rtLast = performance.now(); rtActive(); } });
   window.addEventListener('pagehide', function () { rtTick(true); rtLast = null; var ps = rtLoad(); if (ps.owner === rtTab) { ps.beat = 0; rtSave(ps); } rtPublish(false); });
   setInterval(function () { rtTick(false); }, 1000);
@@ -594,7 +598,7 @@
         var c = by[tid]; return row('#/t/' + tid, esc(byId(tid).name), '<span class="tags">' + (c.due ? '<span class="tag due">' + c.due + ' due</span>' : '') + (c.fresh ? '<span class="tag">' + c.fresh + ' new</span>' : '') + '</span>');
       }).join('') + '</ul></section>';
     }
-    if (!mainc) mainc = '<section><h2>No new cases today</h2><p class="meta">New on-call cases appear here after each refresh. Every topic\'s cases are under its Study tools.</p></section>';
+    if (!mainc) mainc = '<section><h2>No new cases today</h2><p class="meta">New on&#8209;call cases appear here after each refresh. Every topic\'s cases are under its Study tools.</p></section>';
     h += '<div class="today"><aside class="tside">' + side + '</aside><div class="tmain">' + mainc + '</div></div>';
     h += '<h2 class="phone-only">Systems</h2><ul class="list phone-only">' + SYS.map(function (s) { return row('#/s/' + s.id, esc(s.name), '<span class="tag">' + TOP.filter(function (t) { return t.system === s.id; }).length + '</span>', '', s.id); }).join('') + '</ul>';
     h += '<p class="fine">Study aid, not a clinical decision tool. Check every dose against eTG and your hospital guideline.</p>';
@@ -750,8 +754,8 @@
     rtShown = x.it.id; if (optFor !== x.it.id) { optFor = x.it.id; optOpen = false; }
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p>' + (function () { var q = qSplit(x.it.t); return q.a.length ? '<h2 class="qh">' + esc(q.h) + '</h2><ul class="asks">' + q.a.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '<h2>' + esc(q.h) + '</h2>'; })();
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
-    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><div class="ratebar">' + optBar(x, q, false) + '</div>';
-    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + optLines(x) + '<div class="ratebar">' + rateButtons(x.it.id, true) + optBar(x, q, true) + '</div>';
+    if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><div class="ratebar">' + optBar(x, q, false) + '</div><i class="rbend"></i>';
+    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + optLines(x) + '<div class="ratebar">' + rateButtons(x.it.id, true) + optBar(x, q, true) + '</div><i class="rbend"></i>';
     if (optOpen) h += optSheet(x);
     h += '</section>';
     return shell(h, { page: 'revise' });
