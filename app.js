@@ -22,7 +22,14 @@
 
   /* ---------- helpers ---------- */
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var SRCLN = /^\(Sources?:\s*/;
+  function ksrc(k) { return String(k || '').split('\n').filter(function (l) { return SRCLN.test(l); }).map(function (l) { var t = l.replace(SRCLN, '').replace(/\)\s*$/, ''); return t.charAt(0).toUpperCase() + t.slice(1); }); }
+  function srcInfo(it) {
+    var li = ksrc(it.k).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+    return '<div class="srcw"><button type="button" class="srci" data-srci aria-expanded="false" aria-label="Sources" title="Sources (I)">i</button><div class="srcp" hidden>' + (li ? '<ul>' + li + '</ul>' : '') + '<p class="src">' + SRC[it.s || 'p'] + '</p></div></div>';
+  }
   function kfmt(k) {
+    k = String(k).split('\n').filter(function (l) { return !SRCLN.test(l); }).join('\n');
     var lines = String(k).split('\n'), many = lines.filter(function (l) { return !/^\(/.test(l); }).length >= 2, under = false;
     return lines.map(function (ln, i) {
       var note = /^\(/.test(ln), sub = /^\s*→/.test(ln), t = ln.trim(), s, ar, cls = '';
@@ -662,7 +669,7 @@
   function itemRow(x) {
     var it = x.it, st = itState(it.id), op = !!openSet[it.id];
     var h = '<li class="item' + (op ? ' open' : '') + '"><button class="row" data-rv="' + it.id + '" aria-expanded="' + op + '"><span class="t"><span>' + esc(qSplit(it.t).h) + '</span>' + (qSplit(it.t).a.length ? '<em class="qa">' + esc(qSplit(it.t).a.join(' · ')) + '</em>' : '') + (function () { var bits = []; if (it.p === 1) bits.push('<b class="must">Must know</b>'); if (x.mine) bits.push('added by you'); if (it.from) bits.push('from your highlight'); if (noteOf(it.id)) bits.push('has your note'); return bits.length ? '<small>' + bits.join(', ') + '</small>' : ''; })() + '</span>' + (skipped(it.id) ? '<span class="tag">Not in Revise</span>' : tagFor(st, it.id)) + '</button>';
-    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[it.s || 'p'] + '</p>' + kitLink(it.id, x.tid, 't') + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
+    if (op) h += '<div class="ans">' + (noteOf(it.id) ? '<p class="mynote"><b>Your note:</b> ' + esc(noteOf(it.id)) + '</p>' : '') + '<div class="kbody">' + (it.k ? kfmt(it.k) : 'No key point written for this item.') + '</div>' + srcInfo(it) + kitLink(it.id, x.tid, 't') + noteBox(it.id, 'Your note') + ctxBlock(it.id, x.tid) + rateButtons(it.id) + (x.mine ? '<button class="link danger" data-delitem="' + it.id + '" data-tp="' + x.tid + '">Delete this item</button>' : '') + '</div>';
     return h + '</li>';
   }
   function topic(id) {
@@ -755,7 +762,7 @@
     h += '<section class="flash" aria-live="polite"><p class="ctx"><a href="#/t/' + x.tid + '">' + esc(t.name) + '</a><span>' + SECT[x.it.g || 'Y'] + (x.it.p === 1 ? ', must know' : '') + (st.k === 'new' ? ', first time' : '') + '</span></p>' + (function () { var q = qSplit(x.it.t); return q.a.length ? '<h2 class="qh">' + esc(q.h) + '</h2><ul class="asks">' + q.a.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : '<h2>' + esc(q.h) + '</h2>'; })();
     if (noteOf(x.it.id)) h += '<p class="mynote"><b>Your note from last time:</b> ' + esc(noteOf(x.it.id)) + '</p>';
     if (!revealed) h += '<p class="meta">Say the answer to yourself first.</p><button class="btn primary big" data-act="reveal">Show answer' + KH('Space') + '</button><div class="ratebar">' + optBar(x, q, false) + '</div><i class="rbend"></i>';
-    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div><p class="src">' + SRC[x.it.s || 'p'] + '</p>' + optLines(x) + '<div class="ratebar">' + rateButtons(x.it.id, true) + optBar(x, q, true) + '</div><i class="rbend"></i>';
+    else h += '<div class="answer kbody">' + (x.it.k ? kfmt(x.it.k) : 'No key point written for this item.') + '</div>' + srcInfo(x.it) + optLines(x) + '<div class="ratebar">' + rateButtons(x.it.id, true) + optBar(x, q, true) + '</div><i class="rbend"></i>';
     if (optOpen) h += optSheet(x);
     h += '</section>';
     return shell(h, { page: 'revise' });
@@ -999,6 +1006,7 @@
   app.addEventListener('click', function (e) {
     var el;
     if (Date.now() < lockUntil && e.target.closest('[data-rate],[data-rv],[data-act=reveal]')) { e.preventDefault(); return; }
+    if ((el = e.target.closest('[data-srci]'))) { var sp = el.nextElementSibling, sh = sp.hidden; sp.hidden = !sh; el.setAttribute('aria-expanded', String(sh)); return; }
     if ((el = e.target.closest('[data-opt]'))) {
       var ov = el.getAttribute('data-opt'), nb0 = document.querySelector('.optsheet [data-note]'), cx0 = document.querySelector('.optsheet [data-ctx]');
       if (nb0) setNote(nb0.getAttribute('data-note'), nb0.value); if (cx0) setCtx(cx0.getAttribute('data-ctx'), cx0.value); if (nb0 || cx0) save();
@@ -1099,6 +1107,7 @@
     if (k === 'n') { e.preventDefault(); pick('.optbar [data-opt="note"]'); return; }
     if (k === 'c') { e.preventDefault(); pick('.optbar [data-opt="ctx"]'); return; }
     if (k === 'm') { e.preventDefault(); pick('.optbar [data-mkcase]'); return; }
+    if (k === 'i') { var si = document.querySelector('.flash [data-srci], [data-srci]'); if (si) { e.preventDefault(); si.click(); } return; }
     if (k === 'r') { e.preventDefault(); pick('.optbar [data-skiprev]'); return; }
     if (k === 'space') el = document.querySelector('[data-act="reveal"]');
     else if (k === 'j' || k === '1') el = document.querySelector('.flash [data-rate="again"]');

@@ -193,6 +193,14 @@ a.row:hover, button.row:hover { background: var(--hover); }
 .ans { padding: 6px 18px 18px; background: var(--raise); }
 .ans p { margin: 0 0 6px; max-width: 64ch; }
 .src { color: var(--mut); font-size: calc(14px * var(--fs,1)); }
+.srcw { margin: 10px 0 4px; }
+.srci { width: 30px; height: 30px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--mut); font: italic 700 calc(15px * var(--fs,1)) / 1 Georgia, 'Times New Roman', serif; cursor: pointer; display: inline-grid; place-items: center; padding: 0; -webkit-tap-highlight-color: transparent; }
+.srci[aria-expanded="true"] { background: var(--n-tint, var(--raise)); color: var(--ink); }
+.srci:active { opacity: .68; }
+.srcp { margin-top: 8px; padding: 10px 14px; border-radius: 14px; background: color-mix(in srgb, var(--raise) 70%, transparent); border: 1px solid var(--line); color: var(--mut); font-size: calc(14px * var(--fs,1)); }
+.srcp ul { margin: 0 0 6px; padding-left: 18px; }
+.srcp li { margin: 2px 0; }
+.srcp .src { margin: 0; font-size: calc(13px * var(--fs,1)); }
 .rate { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 460px; margin: 14px 0 6px; }
 .rate .b { min-height: 52px; border-radius: 14px; border: 1px solid transparent; font-weight: 700; font-size: calc(16px * var(--fs,1)); cursor: pointer; transition: filter .12s, transform .06s; }
 .rate .got { background: var(--good-t); color: var(--good); border-color: color-mix(in srgb, var(--good) 28%, transparent); }
