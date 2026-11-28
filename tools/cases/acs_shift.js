@@ -1,6 +1,6 @@
 /* Cases for acs_shift. Retire a case with retired: true; add new ones with a unique id. */
 window.RMO_CONCEPTS = {
-stemi: { n: "Reading the STEMI", tab: "1", r: "ST elevation 1 mm or more in two contiguous leads (V2-V3: 2 mm men, 1.5 mm women). Inferior STEMI: always do V4R." },
+stemi: { n: "Reading the STEMI", tab: "1", r: "ST elevation 1 mm or more in two contiguous leads (V2-V4: 2.5 mm men under 40, 2 mm men 40 and over, 1.5 mm women). Inferior STEMI: always do V4R." },
 reperf: { n: "PCI or fibrinolysis", tab: "2", r: "Within 12 hours: primary PCI if possible within 120 minutes of first contact, otherwise fibrinolysis. ST resolution 50% or less at 60-90 minutes: rescue PCI." },
 drugs: { n: "Drugs at the door", tab: "3", r: "Aspirin 300 mg; ticagrelor or prasugrel (clopidogrel with lysis or anticoagulation); heparin or enoxaparin; oxygen only if saturations under 93%; GTN unless low BP, RV infarct or PDE-5 inhibitor." },
 rv: { n: "RV infarct", tab: "6", r: "Inferior STEMI with low BP, raised JVP and clear lungs: fluid, and no GTN or other vasodilator." },
