@@ -194,7 +194,8 @@ td:first-child { font-weight: 500; width: 34%; }
 <div class="card" data-card="pe10" style="margin-top:14px"><h2>What the ECG shows</h2><ul><li>Normal in 20%</li><li>Tachycardia is commonest (28%)</li><li>T-wave inversion V1-V4</li><li>S1Q3T3 (about 8%), new RBBB</li><li>ST elevation in aVR</li></ul><p class="hint">From the US template; not checked against an Australian source.</p></div>
 </section>
 <section class="panel" id="p-lysis" role="tabpanel" aria-labelledby="t-lysis" hidden>
-<div class="card">
+<div class="card" data-card="pe16"><h2>Doses for reference (eTG): a senior decision</h2><ul><li><b>Alteplase, high-risk PE:</b> 10 mg IV, then 90 mg over 2 hours (65 kg or more; less if lighter, check eTG)</li><li><b>Alteplase in cardiac arrest from PE:</b> 50 mg IV, a further 50 mg after 15 to 30 minutes if no return of circulation</li><li><b>Tenecteplase:</b> weight-based (30 to 50 mg), not TGA-approved for PE</li><li><b>Unfractionated heparin:</b> 18 units/kg/hour IV, adjusted to APTT; eTG says a loading dose is not needed. Preferred over LMWH in severe kidney impairment or when rapid reversal may be needed</li></ul><p class="hint">From eTG Venous thromboembolism treatment (2023, amended 2026), as quoted in the Malleus deck, not read in eTG itself. Follow your hospital protocol.</p></div>
+<div class="card" style="margin-top:14px">
 <h2>Thrombolysis contraindications: absolute or relative?</h2>
 <p class="hint">15 items from the template. Wrong answers come back in a second round. The list is not exhaustive.</p>
 <div class="drill" id="lysis-box" aria-live="polite" style="margin-top:14px"></div>
@@ -308,11 +309,11 @@ show(location.hash.slice(1));
 var risk = { a: 0, b: 1, c: 1 };
 var CLASSES = [
 { k: 'high', n: 'High risk (massive)', d: 'Cardiac arrest, or SBP under 90 not due to low volume or arrhythmia. PESI IV or above.',
-m: ['Call your senior, ICU and the PE response team now', 'Heparin bolus and infusion; thrombolysis or thrombectomy is the decision to make', 'Respect the RV: small fluid bolus only, noradrenaline if needed, avoid intubation', 'Crash cart and pads at the bedside'] },
+m: ['Call your senior, ICU and the PE response team now', 'Heparin infusion (unfractionated, 18 units/kg/hour, adjusted to APTT); thrombolysis or thrombectomy is the decision to make. Doses are on the Lysis tab', 'Respect the RV: small fluid bolus only, noradrenaline if needed, avoid intubation', 'Crash cart and pads at the bedside'] },
 { k: 'ih', n: 'Intermediate-high risk (submassive)', d: 'RV strain and raised troponin, no hypotension.',
-m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin', 'Monitored bed with continuous telemetry', 'Thrombolysis is a senior decision: trials show more major bleeding and limited long-term benefit', 'Escalate to your senior and the PE team if BP falls or oxygen needs rise'] },
+m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin (unfractionated, 18 units/kg/hour IV, adjusted to APTT)', 'Monitored bed with continuous telemetry', 'Thrombolysis is a senior decision: trials show more major bleeding and limited long-term benefit', 'Escalate to your senior and the PE team if BP falls or oxygen needs rise'] },
 { k: 'il', n: 'Intermediate-low risk', d: 'RV strain or raised troponin, but not both. No hypotension.',
-m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin', 'Admit with telemetry; follow troponin, NT-proBNP, echo and leg dopplers'] },
+m: ['Anticoagulate: LMWH if no renal impairment, otherwise heparin (unfractionated, 18 units/kg/hour IV, adjusted to APTT)', 'Admit with telemetry; follow troponin, NT-proBNP, echo and leg dopplers'] },
 { k: 'low', n: 'Low risk (non-massive)', d: 'No RV strain and no hypotension. PESI I-II.',
 m: ['Anticoagulate unless contraindicated (a subsegmental PE with low recurrence risk may not need it)', 'Check the PESI score; any early discharge follows your local pathway'] }
 ];

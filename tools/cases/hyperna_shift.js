@@ -52,7 +52,7 @@
           uec: N('Repeat the sodium and creatinine every 4 to 6 hours.'), bcult: G('Blood cultures.'), urine_mcs: N('Urine culture.'),
           bsl: G('Glucose.'), fbal: N('Strict fluid balance.'), hourly_uo: G('Urine output.'), weigh: G('Weight.'),
           ceftri: G('An antibiotic per protocol.', { alt: [] }), serum_osm: G('Serum osmolality.'),
-          hyp_saline: X('Hypertonic saline in a patient with a high sodium.', { harmDose: [0, 1, 2, 3] }),
+          hyp_saline: X('Hypertonic saline in a patient with a high sodium.', { harmDose: [0, 1, 2, 3, 4] }),
           furo: X('She is dry.', { harmDose: [0, 1, 2, 3] }), frestrict: X('Restricting fluids in a dry patient.')
         },
         ok: { text: 'After 500 mL of saline her BP is 112/64. By 21:00 the sodium is 148 and she is brighter.', vit: { sbp: 112, dbp: 64, hr: 96 }, facts: ['Sodium 148 at 21:00'] },
@@ -63,7 +63,7 @@
         orders: {
           uec: N('Recheck the sodium in 2 to 4 hours.', { crit: true }), gcs: N('Neuro observations: cerebral oedema risk.'),
           fbal: G('Fluid balance.'), freewater: S('The fall is already fast: slow the water.', { d: [0] }),
-          bolus: S('She is not shocked now.'), hyp_saline: X('Hypertonic saline would overshoot the other way.', { harmDose: [0, 1, 2, 3] })
+          bolus: S('She is not shocked now.'), hyp_saline: X('Hypertonic saline would overshoot the other way.', { harmDose: [0, 1, 2, 3, 4] })
         },
         ok: { text: 'You slow the water. By morning the sodium is 143 and she is alert.' }, miss: { text: 'Overnight the sodium falls to 138 and she has a seizure.' } }
     ] }
@@ -107,7 +107,7 @@
           uec: N('Sodium every 4 hours.'), fbal: N('Strict fluid balance.'), freewater: N('Let him drink; glucose 5% IV if he cannot.', { d: [0], harmDose: [1, 2] }),
           endo_ref: N('Endocrine input on desmopressin.'), desmo: G('A senior decision. Agree it with your registrar and the surgical team.'),
           bsl: G('Glucose.'), cortisol: G('Cortisol: pituitary surgery can affect it.'), weigh: G('Daily weight.'),
-          frestrict: X('Restricting fluids in diabetes insipidus.'), hyp_saline: X('Hypertonic saline.', { harmDose: [0, 1, 2, 3] }),
+          frestrict: X('Restricting fluids in diabetes insipidus.'), hyp_saline: X('Hypertonic saline.', { harmDose: [0, 1, 2, 3, 4] }),
           bolus: S('He is not shocked and saline adds sodium.'), furo: X('A diuretic worsens it.', { harmDose: [0, 1, 2, 3] })
         },
         ok: { text: 'The registrar agrees a desmopressin dose. By 21:00 his urine is 120 mL an hour and the sodium is 146.', facts: ['Sodium 146 at 21:00'] },
@@ -117,7 +117,7 @@
         plan: PL(['none', ['reg'], 'Stable. A handover to the endocrine team.'], ['routine', ['q15'], 'Routine.'], ['h4', ['am'], 'Recheck the sodium regularly today.']),
         orders: {
           uec: N('Sodium every 4 to 6 hours today.'), hourly_uo: G('Keep the urine chart.'), fbal: G('Fluid balance.'), endo_ref: N('Endocrine follow-up.'),
-          cortisol: G('Check the cortisol result.'), weigh: G('Daily weight.'), frestrict: X('Restricting fluids.'), hyp_saline: X('Hypertonic saline.', { harmDose: [0, 1, 2, 3] })
+          cortisol: G('Check the cortisol result.'), weigh: G('Daily weight.'), frestrict: X('Restricting fluids.'), hyp_saline: X('Hypertonic saline.', { harmDose: [0, 1, 2, 3, 4] })
         },
         ok: { text: 'He is stable and the endocrine team sets a follow-up plan.' }, miss: { text: 'The sodium creeps up again overnight.' } }
     ] }

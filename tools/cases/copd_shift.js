@@ -13,7 +13,7 @@ window.RMO_CONCEPTS = {
  "drug": {
   "n": "Drugs",
   "tab": "3",
-  "r": "Bronchodilators with a spacer or nebuliser; prednisolone 40 to 50 mg daily; antibiotic for purulent sputum per eTG."
+  "r": "Bronchodilators with a spacer or nebuliser; prednisolone 30 to 50 mg daily for 5 days; amoxicillin or doxycycline for 5 days if the sputum is purulent (eTG)."
  },
  "niv": {
   "n": "NIV",
@@ -189,7 +189,7 @@ window.RMO_CASES = [
     "opts": [
      {
       "q": "best",
-      "t": "Salbutamol and ipratropium by spacer or nebuliser, oral prednisolone 40 to 50 mg daily, and an antibiotic per eTG for purulent sputum",
+      "t": "Salbutamol and ipratropium by spacer or nebuliser, oral prednisolone 30 to 50 mg daily for 5 days, and amoxicillin or doxycycline for purulent sputum",
       "fb": "These are the core treatments for a flare with purulent sputum.",
       "vit": {
        "rr": 22

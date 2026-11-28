@@ -1,7 +1,7 @@
 /* Cases for acs_shift. Retire a case with retired: true; add new ones with a unique id. */
 window.RMO_CONCEPTS = {
 stemi: { n: "Reading the STEMI", tab: "1", r: "ST elevation 1 mm or more in two contiguous leads (V2-V3: 2 mm men, 1.5 mm women). Inferior STEMI: always do V4R." },
-reperf: { n: "PCI or fibrinolysis", tab: "2", r: "Within 12 hours: primary PCI if possible within 90 minutes of first contact, otherwise fibrinolysis. ST resolution 50% or less at 60-90 minutes: rescue PCI." },
+reperf: { n: "PCI or fibrinolysis", tab: "2", r: "Within 12 hours: primary PCI if possible within 120 minutes of first contact, otherwise fibrinolysis. ST resolution 50% or less at 60-90 minutes: rescue PCI." },
 drugs: { n: "Drugs at the door", tab: "3", r: "Aspirin 300 mg; ticagrelor or prasugrel (clopidogrel with lysis or anticoagulation); heparin or enoxaparin; oxygen only if saturations under 93%; GTN unless low BP, RV infarct or PDE-5 inhibitor." },
 rv: { n: "RV infarct", tab: "6", r: "Inferior STEMI with low BP, raised JVP and clear lungs: fluid, and no GTN or other vasodilator." },
 nste: { n: "NSTEACS timing", tab: "4", r: "Very high risk: within 2 hours. High (GRACE over 140, dynamic changes, troponin rise): within 24 hours. Intermediate: within 72 hours." },
@@ -25,7 +25,7 @@ decisions: [
 { q: "poor", t: "High-flow oxygen for everyone with chest pain", fb: "Australian guidance: oxygen only if saturations are under 93%." }
 ] },
 { tag: "reperf", scene: "PCI is 3 hours away. He has no contraindications to fibrinolysis. What is the plan?", opts: [
-{ q: "best", t: "Fibrinolysis now with clopidogrel and an anticoagulant, then arrange transfer", vit: { hr: 66, sbp: 104, dbp: 66 }, fb: "PCI cannot happen within 90 minutes of first contact, and he is within 12 hours: fibrinolysis." },
+{ q: "best", t: "Fibrinolysis now with clopidogrel and an anticoagulant, then arrange transfer", vit: { hr: 66, sbp: 104, dbp: 66 }, fb: "PCI cannot happen within 120 minutes of first contact, and he is within 12 hours: fibrinolysis, with aspirin and clopidogrel 300 mg." },
 { q: "poor", t: "Transfer for primary PCI without lysis", fb: "A 3-hour delay loses heart muscle when lysis is available now." },
 { q: "poor", t: "Ticagrelor 180 mg with fibrinolysis", fb: "With fibrinolysis, Australian guidance uses clopidogrel." }
 ] },

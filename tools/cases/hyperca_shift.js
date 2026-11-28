@@ -53,7 +53,7 @@
           weigh: G('Daily weight.'), cxr: G('Chest X-ray: overload.'), spep: G('Myeloma screen.'), haem_ref: G('Oncology input.'),
           zoled: S('Not yet: he is still dry. Zoledronic acid goes in once he is rehydrated (the next step).', { d: [0], harmDose: [1, 2, 3] }),
           stop_nephro: G('Review the chart for nephrotoxins.'), antiemetic: G('Nausea.', { d: [0] }),
-          furo: X('He is dry.', { harmDose: [0, 1, 2, 3] }), bolus250: G('A measured bolus is fine for a dry patient.', { alt: ['bolus'] }), bolus: G('A bolus.')
+          furo: X('He is dry.', { harmDose: [0, 1, 2, 3] }), maint: S('Hartmann’s contains calcium. Use 0.9% saline.'), bolus250: G('A measured bolus is fine for a dry patient.', { alt: ['bolus'] }), bolus: G('A bolus.')
         },
         ok: { text: 'After 3 L of saline he is clearer and the calcium is 3.2. Urine output is 60 mL an hour.', vit: { hr: 94, sbp: 118 }, facts: ['Calcium 3.2'] },
         miss: { text: 'By evening the calcium is 3.6 and he is hard to wake. Creatinine is 190.', vit: { hr: 112, sbp: 98 }, facts: ['Calcium 3.6', 'Creatinine 190'] } },

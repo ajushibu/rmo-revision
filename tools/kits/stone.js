@@ -1,7 +1,7 @@
 window.KIT = {
   title: 'Kidney stones and renal colic',
   lede: 'Pain control first, then a scan, then ask one question: is the kidney blocked and infected? If yes, it is an emergency. Press Next.',
-  flag: '<b>How far to trust this.</b> This is standard teaching, not checked against an Australian source here. NSAID, opioid and antibiotic doses are left to your hospital protocol: the orders in the practice cases do not fix a dose except for IV morphine and ondansetron.',
+  flag: '<b>How far to trust this.</b> The stone sizes, referral rules, tamsulosin, prevention and imaging are from eTG (Kidney and ureteric stones in adults, 2026), as quoted in the Malleus deck, not read in eTG itself. The rest is standard teaching. NSAID, opioid and antibiotic doses are left to your hospital protocol: the orders in the practice cases do not fix a dose except for IV morphine and ondansetron.',
   steps: [
     { h: 'Recognise it, and do not miss the others', blocks: [
       { rx: { h: 'The usual picture', items: ['Sudden loin pain that spreads to the groin, comes in waves, and makes him writhe. Nausea and vomiting. Blood in the urine.', 'A urine dipstick with blood in a man with this pain makes a stone very likely.'] } },
@@ -11,7 +11,7 @@ window.KIT = {
       { rx: { h: 'Tests', items: ['Urine dipstick and culture, electrolytes and creatinine, full blood count, CRP.', 'CT KUB without contrast is the usual scan. Ultrasound in pregnancy or when you want to avoid radiation.', 'Strain the urine to catch the stone.'] } }] },
     { h: 'The emergency, and where he goes next', blocks: [
       { rx: { h: 'Infection plus a blocked kidney is an emergency', cls: 'stop', items: ['Fever, a fast pulse, a low BP, a high white cell count or a rising creatinine with a stone and hydronephrosis.', 'IV antibiotics and fluids, blood and urine cultures, and a call to urology now to relieve the obstruction (stent or nephrostomy).', 'No NSAID if there is kidney injury or sepsis.'] } },
-      { rx: { h: 'A simple stone', items: ['Small stones (about 5 mm or less) often pass: analgesia, fluids, a strainer and urology follow-up.', 'Larger than about 7 to 10 mm, or no progress, or a solitary kidney: urology referral.', 'Safety-net advice: return for fever, uncontrolled pain, vomiting or no urine.'] } }] }
+      { rx: { h: 'A simple stone', items: ['Stones up to 6 mm: analgesia and normal fluids, a strainer and follow-up. Most pass within a month (up to 2 mm in about a week, 4 to 6 mm in up to 3 weeks).', 'Refer to urology if larger than 6 mm, pain for more than 2 weeks, or reduced kidney function. Same-day ED or urology: fever or UTI, severe pain, pregnancy, or a single kidney.', 'Distal ureteric stone: tamsulosin 400 micrograms modified-release orally daily for up to 4 weeks may help (evidence conflicting, not TGA-approved for this, can cause postural hypotension). Ask urology first if over 6 mm; refer if not passed by 4 weeks.', 'Prevention: drink at least 2.5 L a day, and do not restrict dietary calcium.', 'Safety-net advice: return for fever, uncontrolled pain, vomiting or no urine.'] } }] }
   ],
   opts: [['nsaid', 'NSAID and an antiemetic'], ['ct', 'CT KUB'], ['abx', 'IV antibiotics and call urology'], ['aaa', 'Rule out an aneurysm'], ['dc', 'Discharge with follow-up'], ['hcg', 'Pregnancy test first']],
   items: [

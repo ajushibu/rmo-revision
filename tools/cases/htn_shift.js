@@ -2,7 +2,7 @@
 window.RMO_CONCEPTS = {
 which: { n: "Urgency or emergency", tab: "1", r: "Organ damage makes it an emergency, not the number. Urgency: re-measure, treat the cause, oral drugs." },
 organ: { n: "Looking for organ damage", tab: "2", r: "Brain, eyes, heart, aorta, kidneys, blood, pregnancy. ECG, troponin, creatinine, urinalysis, fundoscopy, CT when indicated." },
-speed: { n: "How fast to lower", tab: "3", r: "Most emergencies: no more than 25% in the first hour. Dissection: systolic under 120 within an hour. ACS or pulmonary oedema: under 140." },
+speed: { n: "How fast to lower", tab: "3", r: "Most emergencies: no more than 25% in the first 2 hours (eTG). Dissection: systolic under 120 within an hour. ACS or pulmonary oedema: under 140." },
 drug: { n: "Drug for the emergency", tab: "4", r: "Dissection: beta-blocker first. ACS and pulmonary oedema: GTN, no beta-blocker. Stimulants: benzodiazepines first." },
 cause: { n: "Secondary causes", tab: "6", r: "Drugs, sleep apnoea, renal artery stenosis, primary aldosteronism, phaeochromocytoma, thyroid, Cushing, coarctation." }
 };
@@ -40,12 +40,12 @@ decisions: [
 { q: "poor", t: "Urgency: oral captopril and home", fb: "Confusion and papilloedema are organ damage." }
 ] },
 { tag: "speed", reveal: ["CT head: no bleed; changes in the occipital lobes (possible PRES)"], scene: "How fast should the BP come down?", opts: [
-{ q: "best", t: "IV agent in HDU or ICU with an arterial line, no more than 25% lower in the first hour, then to about 160/100 over the next hours", vit: { sbp: 186, dbp: 108 }, fb: "Controlled lowering protects the brain and kidneys." },
+{ q: "best", t: "IV infusion in HDU or ICU with an arterial line, no more than 25% lower in the first 2 hours, first target set with a senior", vit: { sbp: 186, dbp: 108 }, fb: "Controlled lowering protects the brain and kidneys." },
 { q: "harm", t: "Normalise it within the hour", vit: { sbp: 118, dbp: 70 }, fb: "Rapid lowering can cause watershed stroke and worsen the kidney injury." }
 ] },
 { tag: "drug", scene: "Which IV option is reasonable here?", opts: [
-{ q: "best", t: "A titratable infusion your hospital uses (for example labetalol), with ICU or HDU input", fb: "Titratable infusions are safest. Check what your hospital stocks." },
-{ q: "poor", t: "Repeated IV hydralazine boluses", fb: "Response and duration are unpredictable." }
+{ q: "best", t: "A titratable infusion your hospital uses (for example nitroprusside or labetalol), with ICU or HDU input", fb: "Titratable infusions are safest; eTG lists sodium nitroprusside first, otherwise esmolol, GTN or labetalol. Check what your hospital stocks." },
+{ q: "poor", t: "Repeated IV hydralazine boluses", fb: "eTG uses small doses (1 mg IV every minute, up to 10 mg) only as a bridge while the infusion is set up, on a monitor. On their own, repeated boluses are hard to control." }
 ] },
 { tag: "cause", scene: "He is 46 and had a crisis. What do you plan for later?", opts: [
 { q: "best", t: "Look for secondary causes: aldosterone to renin ratio, metanephrines, renal artery imaging, sleep apnoea, drugs", fb: "Young age and a crisis are triggers to look for a cause." },

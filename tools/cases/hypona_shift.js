@@ -25,12 +25,12 @@
         o('poor', 'Treat as epilepsy first and wait for the CT', 'The sodium is the cause.'),
         o('harm', 'Give more glucose 5% to improve her fluid status', 'Glucose 5% is free water and makes it worse.')] },
       { tag: 'hypona-treat', scene: 'What is your first treatment?', opts: [
-        o('best', '3% saline 150 mL over 20 minutes, stop the glucose 5%, check glucose and call your senior', 'This is the NSW SESLHD regimen. Remove the cause as well.', { hr: 92 }),
+        o('best', '3% saline 100 mL over 10 minutes, stop the glucose 5%, check glucose and call your senior', 'This is the eTG regimen (some hospitals use 150 mL over 20 minutes). Remove the cause as well.', { hr: 92 }),
         o('poor', '0.9% saline 1 L', 'Too weak for severe symptoms.'),
         o('poor', 'A loading dose of an antiepileptic', 'It does not fix the sodium.'),
         o('harm', '3% saline 150 mL as a push over 2 minutes', 'Too fast: risk of overcorrection.')] },
-      { tag: 'hypona-limit', scene: 'After 150 mL of 3% saline, she wakes and the sodium is 117. What next?', opts: [
-        o('best', 'Check the sodium again in 20 minutes to 2 hours, repeat the bolus only if still symptomatic, and aim for about 5 mmol/L in the first hour', 'Check after every bolus. The aim is a modest first-hour rise, not a normal sodium.'),
+      { tag: 'hypona-limit', scene: 'After the first 100 mL of 3% saline, she wakes and the sodium is 117. What next?', opts: [
+        o('best', 'Check the sodium again in 20 minutes to 2 hours, repeat the bolus only if still symptomatic (up to 3 doses), and aim for about 5 mmol/L in the first hour', 'Check after every bolus. The aim is a modest first-hour rise, not a normal sodium.'),
         o('harm', 'Give another 500 mL of 3% to normalise it', 'Far too much. She is already improving.'),
         o('poor', 'Stop checking, she is awake', 'The overcorrection risk is still there.'),
         o('harm', 'Run 3% saline at 100 mL an hour overnight', 'A running infusion invites overcorrection.')] },
@@ -47,7 +47,7 @@
         first: ['hyp_saline'], firstWhy: 'A seizure from low sodium: hypertonic saline is the treatment.',
         plan: PL(['met', ['reg', 'icu'], 'Seizure from a very low sodium: call for senior and critical care help now.', true], ['spo2ecg', ['q15'], 'Close observation with continuous monitoring.'], ['m20', ['m5', 'h1'], 'Recheck the sodium after each bolus.']),
         orders: {
-          hyp_saline: N('150 mL over 20 minutes, check the sodium after each bolus.', { d: [0], crit: true, harmDose: [2, 3] }),
+          hyp_saline: N('100 mL over 10 minutes, recheck the sodium, repeat if still symptomatic (up to 3 doses). Some hospitals use 150 mL over 20 minutes.', { d: [0, 4], crit: true, harmDose: [2, 3] }),
           fluids_stop: N('Stop the glucose 5% maintenance: it is free water.'),
           bsl: N('Glucose in any seizure.'), uec: N('Repeat the sodium after each bolus.'), serum_osm: G('Confirm a true low-sodium state.'),
           urine_lytes: G('Urine osmolality and sodium, before the saline if you can.'), gcs: G('Neuro observations.'),
@@ -107,7 +107,7 @@
         plan: PL(['reg', ['none'], 'Tell your registrar: a new sodium of 124 with symptoms.'], ['routine', ['q15'], 'Routine observations.'], ['h4', ['h1', 'm20'], 'Recheck the sodium within 4 to 6 hours.']),
         orders: {
           fluids_stop: N('Stop the glucose 5%: it is free water.', { crit: true }),
-          frestrict_hn: N('Fluid restriction. The volume is a protocol decision.', { d: [1, 2] }),
+          frestrict_hn: N('Fluid restriction, about 500 to 1000 mL a day.', { d: [0, 1, 2] }),
           serum_osm: N('Confirm a true low state.'), urine_lytes: G('Urine osmolality and sodium: the SIADH test.'),
           tft: G('Check thyroid before calling it SIADH.'), cortisol: G('Check cortisol: adrenal insufficiency looks like SIADH.'),
           uec: N('Recheck the sodium within 4 to 6 hours.'), fbal: G('Fluid balance.'), weigh: G('Daily weight.'),
@@ -122,7 +122,7 @@
         scene: 'Sodium 129, better, still on the restriction, pneumonia on treatment. What is the plan?',
         plan: PL(['none', ['reg'], 'Improving: no call needed.'], ['routine', ['q15'], 'Routine.'], ['h4', ['am'], 'Recheck the sodium today and tomorrow.']),
         orders: {
-          frestrict_hn: N('Continue restriction.', { d: [1, 2] }), uec: N('Recheck today and tomorrow.'), weigh: G('Daily weight.'), fbal: G('Fluid balance.'),
+          frestrict_hn: N('Continue restriction.', { d: [0, 1, 2] }), uec: N('Recheck today and tomorrow.'), weigh: G('Daily weight.'), fbal: G('Fluid balance.'),
           hyp_saline: X('He is improving; this would overshoot.', { harmDose: [0, 1, 2, 3] }), bolus: S('Not helpful in SIADH.'),
           freewater: X('Free water.', { harmDose: [0, 1, 2] })
         },

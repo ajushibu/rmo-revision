@@ -18,7 +18,7 @@ window.RMO_CONCEPTS = {
  "abx": {
   "n": "Antibiotics",
   "tab": "4",
-  "r": "Mild: amoxicillin 1 g 8-hourly. Moderate: IV benzylpenicillin plus doxycycline. Severe: ceftriaxone plus azithromycin. Check eTG."
+  "r": "Mild: amoxicillin 1 g 8-hourly. Moderate: oral amoxicillin plus oral doxycycline. Severe: ceftriaxone plus azithromycin IV (eTG 2025)."
  },
  "comp": {
   "n": "Complications",
@@ -146,11 +146,16 @@ window.RMO_CASES = [
     "opts": [
      {
       "q": "best",
-      "t": "IV benzylpenicillin plus doxycycline, as per the current eTG and your hospital protocol, with oxygen if SpO2 is under 92%",
-      "fb": "Moderate CAP regimen from the 2011 summary: check the current eTG.",
+      "t": "Oral amoxicillin plus oral doxycycline, with oxygen if SpO2 is under 92%",
+      "fb": "RR 24 and HR 104 make this moderate. eTG 2025 uses oral amoxicillin plus oral doxycycline for moderate CAP when he can take tablets.",
       "vit": {
        "spo2": 94
       }
+     },
+     {
+      "q": "ok",
+      "t": "IV benzylpenicillin plus doxycycline",
+      "fb": "The older regimen. eTG 2025 no longer uses IV benzylpenicillin first line for moderate CAP when he can take tablets."
      },
      {
       "q": "poor",
@@ -165,13 +170,13 @@ window.RMO_CASES = [
     "opts": [
      {
       "q": "best",
-      "t": "Switch to oral amoxicillin when clinically improving and plan the total course",
-      "fb": "Step down when improving."
+      "t": "Keep to oral treatment and plan the total course: 5 days if clearly better by day 2 to 3, otherwise 7",
+      "fb": "eTG 2025 duration for CAP that is settling."
      },
      {
       "q": "poor",
-      "t": "Continue IV antibiotics for the full course",
-      "fb": "Unnecessary."
+      "t": "Change to IV antibiotics for the full course",
+      "fb": "Unnecessary: he is improving on oral treatment."
      }
     ]
    }

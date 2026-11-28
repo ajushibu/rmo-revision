@@ -62,7 +62,7 @@
         scene: 'Temperature 38.6, rigors, left loin tenderness, HR 108, BP 112/64. What do you order?',
         plan: PL(['reg', ['none'], 'A new febrile illness in an older patient with retention: tell your registrar.'], ['routine', ['q15'], 'Routine observations with a low threshold to escalate: she is febrile but her BP is holding.'], ['h1', ['m20'], 'Review after the first bolus and the antibiotic.']),
         orders: {
-          bcult: N('Blood cultures.'), urine_mcs: N('Urine culture before antibiotics.'), ceftri: N('An IV antibiotic, per protocol and local resistance.', { alt: ['gent', 'amp'] }),
+          bcult: N('Blood cultures.'), urine_mcs: N('Urine culture before antibiotics.'), ceftri: N('An IV antibiotic: gentamicin (no more than 48 hours) or ceftriaxone if IV is likely to run past 72 hours (eTG).', { alt: ['gent', 'amp'] }),
           gent: G('A weight-based dose per protocol, with a creatinine check.'), amp: G('Per protocol.'),
           bolus250: N('A measured bolus.', { alt: ['bolus'] }), bolus: G('A bolus.'), uec: N('Creatinine.'), lactate: G('Lactate.'), fbc: G('Full blood count.'),
           renal_us: G('Ultrasound if she does not improve, to look for obstruction.'), fbal: G('Fluid balance.'), idc: G('A catheter to relieve retention and measure urine.'),
@@ -108,7 +108,7 @@
         orders: {
           bhcg: N('A pregnancy test.', { crit: true }), urine_mcs: N('Urine culture before antibiotics.'), bcult: N('Blood cultures.'),
           uec: N('Creatinine.'), fbc: G('Full blood count.'), crp: G('CRP.'), lactate: G('Lactate if she is unwell.'),
-          ceftri: N('An IV antibiotic, because she is vomiting.', { alt: ['gent', 'amp'] }), gent: G('Per protocol with a creatinine check.'), amp: G('Per protocol.'),
+          ceftri: N('An IV antibiotic, because she is vomiting: gentamicin (no more than 48 hours) or ceftriaxone (eTG).', { alt: ['gent', 'amp'] }), gent: G('eTG prefers gentamicin for no more than 48 hours, weight-based, with a creatinine check.'), amp: G('Per protocol.'),
           bolus250: G('A measured bolus if she is dry.', { alt: ['bolus'] }), bolus: G('A bolus.'), antiemetic: N('Ondansetron.', { d: [0] }), paracet: G('Paracetamol.', { d: [0] }),
           fbal: G('Fluid balance.'), renal_us: S('Not needed yet. Image if she does not respond in 48 to 72 hours.'),
           nitro: S('Oral drug when she is vomiting.'), trim_oral: S('Oral drug when she is vomiting.'), cefalexin: S('Oral drug when she is vomiting.'),

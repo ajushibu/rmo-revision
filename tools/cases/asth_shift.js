@@ -13,7 +13,7 @@ window.RMO_CONCEPTS = {
  "steroid": {
   "n": "Steroids and magnesium",
   "tab": "3",
-  "r": "Oral prednisolone early (Australian Prescriber: 50 mg then 25 mg twice daily). Magnesium is a senior decision with a dose from your protocol."
+  "r": "Oral prednisolone early (Australian Prescriber: 50 mg then 25 mg twice daily). Magnesium is a senior decision: 0.2 mmol/kg IV over 20 minutes, maximum 10 mmol (Asthma Handbook)."
  },
  "esc": {
   "n": "Escalation",
@@ -221,7 +221,7 @@ window.RMO_CASES = [
     "opts": [
      {
       "q": "best",
-      "t": "Oral or IV steroid, senior and ICU decision on magnesium (dose per protocol), and an experienced operator ready for intubation if she tires further",
+      "t": "Oral or IV steroid, senior and ICU decision on IV magnesium (0.2 mmol/kg, maximum 10 mmol, over 20 minutes), and an experienced operator ready for intubation if she tires further",
       "fb": "A senior decides on magnesium; plan the airway early."
      },
      {

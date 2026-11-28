@@ -35,7 +35,7 @@
         o('poor', 'A CT with contrast and delayed phases', 'Not needed for a stone, with more radiation.'),
         o('harm', 'No imaging, discharge him', 'The first episode needs imaging.')] },
       { tag: 'stone-go', scene: 'CT: a 5 mm stone in the lower ureter, mild hydronephrosis. He is afebrile, the creatinine is normal and the pain is controlled. What now?', opts: [
-        o('best', 'Discharge with analgesia, a strainer, safety-net advice and urology follow-up', 'A stone this size often passes. Tell him when to return.'),
+        o('best', 'Discharge with analgesia, a strainer, safety-net advice and urology follow-up', 'Up to 6 mm, most pass within a month; tamsulosin may help a distal stone (eTG). Tell him when to return.'),
         o('poor', 'Admit and give antibiotics', 'No infection.'),
         o('poor', 'Discharge without advice', 'He needs return advice.'),
         o('harm', 'Book him for theatre tonight', 'Not needed.')] }
@@ -62,7 +62,7 @@
         plan: PL(['none', ['reg'], 'A stable stone: discuss with your registrar if you want, but no urgent call.'], ['routine', ['q15'], 'Routine.'], ['am', ['h4'], 'Follow-up in the clinic.']),
         orders: {
           urology_ref: N('Urology follow-up for the stone.'), strain: N('A strainer to catch the stone.'), nsaid_colic: G('A short oral NSAID course, as kidney function is normal.'),
-          paracet: G('Paracetamol.', { d: [0] }), dc_now: G('Discharge once pain-free and eating, with return advice: fever, uncontrolled pain, vomiting, no urine.'), gp: G('GP follow-up.'),
+          paracet: G('Paracetamol.', { d: [0] }), tamsulosin: G('A distal stone: tamsulosin 400 micrograms daily for up to 4 weeks may help (eTG; evidence conflicting).'), dc_now: G('Discharge once pain-free and eating, with return advice: fever, uncontrolled pain, vomiting, no urine.'), gp: G('GP follow-up.'),
           ceftri: S('No infection.'), urology_urgent: S('Not urgent: no infection, no obstruction with kidney injury.')
         },
         ok: { text: 'He goes home with a strainer and a clear plan. He passes the stone in two days.' }, miss: { text: 'He returns the next day with a fever of 38.5, vomiting and no urine.' } }

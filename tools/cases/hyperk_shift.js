@@ -99,7 +99,7 @@
         o('best', 'Keep the drugs off, recheck in a few hours and in the morning, and find the cause of the AKI', 'The cause is the combination plus the AKI. Recheck for rebound.'),
         o('poor', 'Restart ramipril tomorrow', 'Not until the creatinine and potassium are stable.'),
         o('poor', 'Stop monitoring', 'The potassium can rebound as insulin wears off.'),
-        o('harm', 'Give potassium-containing fluids', 'Hartmann’s is fine in small amounts, but do not add potassium.')] }
+        o('harm', 'Give potassium-containing fluids', 'Avoid Hartmann’s while the potassium is high: it contains potassium. Use 0.9% saline if fluid is needed (Queensland Health).')] }
     ],
     ends: { hi: 'The drugs are stopped and the potassium falls to 4.9 the next day without a rebound.', mid: 'The potassium settles, but you gave more treatment than she needed.', lo: 'The potassium rebounds overnight.' },
     hard: { debrief: 'No ECG change means no calcium. Withhold the drugs, shift with insulin and glucose, and recheck for rebound.', steps: [

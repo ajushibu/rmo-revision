@@ -3,7 +3,7 @@
    d = acceptable dose indexes (see orders.js). harmDose = dose indexes that count as harmful. alt = other orders that satisfy this one.
    crit = missing it sends the patient down the worse path (step.miss, and the next step's alt).
    Sources: Australian Asthma Handbook adult ED page (severity, salbutamol, ipratropium, oxygen), Australian Prescriber (prednisolone 50 mg),
-   TSANZ via MJA 2015 (oxygen targets), NSW ACI COPD page and a COPD-X summary (controlled oxygen, bronchodilators, prednisolone 40-50 mg, NIV),
+   TSANZ via MJA 2015 (oxygen targets), NSW ACI COPD page and a COPD-X summary (controlled oxygen, bronchodilators, NIV), eTG 2022 via the Malleus deck (prednisolone 30-50 mg for 5 days),
    eMedSA ED handbook (furosemide 80 mg IV or usual dose IV; GTN sublingual then infusion; avoid morphine).
    heads: true = a discharge step: orders show under five fixed headings (see DH in ward.js).
    plan = the three fixed questions (call, monitor, review): best and ok are option keys (see PQ in ward.js); crit = a wrong call sends the patient down the worse path.
@@ -93,7 +93,7 @@ window.WARD = {
             ipra_neb: { q: 'need', d: [1], why: 'With ipratropium 500 micrograms every 20 minutes for the first hour.' },
             o2: { q: 'need', d: [1], why: 'Oxygen to 92 to 96%.' },
             vbg: { q: 'good', alt: ['abg'], why: 'A gas now: a normal or rising CO2 means he is tiring.' }, abg: { q: 'good', why: 'A gas now: a normal or rising CO2 means he is tiring.' },
-            mgso4: { q: 'good', why: 'IV magnesium is reasonable here, as a senior or ICU decision (dose per protocol).' },
+            mgso4: { q: 'good', why: 'IV magnesium is reasonable here, as a senior or ICU decision: 0.2 mmol/kg over 20 minutes, maximum 10 mmol (Asthma Handbook).' },
             hydrocort: { q: 'good', d: [0], why: 'IV steroid if he cannot swallow.' },
             midaz: { q: 'harm', why: 'Sedation can stop his breathing.' }, morph: { q: 'harm', why: 'Opioids can stop his breathing.' },
             cxr: { q: 'skip', why: 'Not now, unless one side is silent (pneumothorax).' }
@@ -174,7 +174,7 @@ window.WARD = {
           limits: { q: 'need', why: 'Before NIV: if it fails, is he for intubation? Decide now, with him if he can.' },
           salb_neb: { q: 'need', d: [2], why: 'Bronchodilator, driven by air with prong oxygen alongside, so you do not give him high oxygen through the neb.' },
           ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms nebulised.' },
-          pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily (NSW ACI).' },
+          pred: { q: 'need', d: [2], why: 'Prednisolone 30 to 50 mg daily for 5 days (eTG; NSW ACI 40 to 50 mg).' },
           abg: { q: 'good', alt: ['vbg'], why: 'Repeat the gas about an hour after starting NIV.' },
           o2: { q: 'good', d: [0, 2], harmDose: [3, 4], why: 'Keep oxygen at 88 to 92%.' },
           cpap: { q: 'skip', why: 'CPAP does not help him blow off CO2. BiPAP does.' },
@@ -397,7 +397,7 @@ window.WARD = {
             ipra_neb: { q: 'need', d: [1], why: 'With ipratropium 500 micrograms every 20 minutes for the first hour (Asthma Handbook).' },
             o2: { q: 'need', d: [1], why: 'Oxygen to 92 to 96%.' },
             vbg: { q: 'good', alt: ['abg'], why: 'A gas now: a normal or rising CO2 means she is tiring.' }, abg: { q: 'good', why: 'A gas now: a normal or rising CO2 means she is tiring.' },
-            mgso4: { q: 'good', why: 'IV magnesium is reasonable here, as a senior or ICU decision (dose per protocol).' },
+            mgso4: { q: 'good', why: 'IV magnesium is reasonable here, as a senior or ICU decision: 0.2 mmol/kg over 20 minutes, maximum 10 mmol (Asthma Handbook).' },
             hydrocort: { q: 'good', d: [0], why: 'IV steroid if she cannot swallow.' },
             stop_bb: { q: 'good', why: 'Make sure no more timolol goes in.' },
             midaz: { q: 'harm', why: 'Sedation can stop her breathing.' }, morph: { q: 'harm', why: 'Opioids can stop her breathing.' },
@@ -452,7 +452,7 @@ window.WARD = {
           salb_neb: { q: 'need', d: [2], why: 'Keep the bronchodilator, but drive the neb with air and run prong oxygen alongside, so she is not given 8 L of oxygen every 2 hours.' },
           ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms, also driven by air.' },
           salb_mdi: { q: 'good', why: 'A puffer and spacer avoids the driving-gas problem altogether, if she can use it.' },
-          pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily for a COPD flare (COPD-X, NSW ACI). None is charted yet.' },
+          pred: { q: 'need', d: [2], why: 'Prednisolone 30 to 50 mg daily for 5 days for a COPD flare (eTG, COPD-X). None is charted yet.' },
           abg: { q: 'need', alt: ['vbg'], why: 'Repeat the gas about 30 minutes after the oxygen is back in range: it decides on NIV.' },
           vbg: { q: 'good', why: 'Shows the pH and CO2 trend; an arterial gas is the usual standard.' },
           gcs: { q: 'good', why: 'Track her conscious level.' },
@@ -480,7 +480,7 @@ window.WARD = {
           limits: { q: 'need', why: 'Before NIV: if it fails, is she for intubation and ICU? Ask her now, while she can answer.' },
           salb_neb: { q: 'need', d: [2], why: 'Keep the bronchodilator going, air-driven. On NIV it can go in-line or between sessions.' },
           ipra_neb: { q: 'good', d: [1], why: 'Ipratropium 500 micrograms.' },
-          pred: { q: 'need', d: [2], why: 'Prednisolone 40 to 50 mg daily.' },
+          pred: { q: 'need', d: [2], why: 'Prednisolone 30 to 50 mg daily for 5 days (eTG).' },
           abg: { q: 'good', alt: ['vbg'], why: 'Repeat the gas about an hour after starting NIV.' },
           o2: { q: 'good', d: [0, 2], harmDose: [3, 4], why: 'Oxygen into the NIV circuit, still to 88 to 92%.' },
           cpap: { q: 'skip', why: 'CPAP does not help her blow off CO2. BiPAP does.' },
@@ -518,7 +518,7 @@ window.WARD = {
           review: { best: ['am'], ok: ['h4'], why: 'The discharge review tomorrow.' }
         },
         orders: {
-          pred_home: { q: 'need', why: 'Finish the prednisolone with a stop date; many units use about 5 days (follow your protocol).' },
+          pred_home: { q: 'need', why: 'Finish the prednisolone with a stop date: 5 days in total (eTG).' },
           technique: { q: 'need', why: 'Check her inhaler technique: a spacer can replace the nebulisers at home.' },
           co2alert: { q: 'need', why: 'Write a CO2 retention alert, so the next ED gives target-range oxygen.' },
           o2rx: { q: 'need', why: 'Write that her oxygen target is 88 to 92% and that nebulisers must be driven by air: that is what went wrong this time.' },
