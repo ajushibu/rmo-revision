@@ -20,6 +20,7 @@ jobs:
           if git ls-remote --exit-code --heads origin apk-build >/dev/null 2>&1; then
             git fetch origin apk-build && git show origin/apk-build:debug.keystore > ~/.android/debug.keystore || true
           fi
+          [ -s ~/.android/debug.keystore ] || keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
       - name: Image tools
         run: sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
       - name: Build
@@ -48,6 +49,10 @@ jobs:
           done
           printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<resources>' '  <color name="ic_launcher_background">#2F6DB5</color>' '</resources>' > $R/values/ic_launcher_background.xml
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          # Re-sign with the saved key so every build installs over the last one
+          BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
+          $BT/apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias androiddebugkey --key-pass pass:android app/build/outputs/apk/debug/app-debug.apk
+          $BT/apksigner verify --print-certs app/build/outputs/apk/debug/app-debug.apk | grep -i sha-256
           ) 2>&1 | tee out/build.log
       - name: Publish to apk-build branch
         if: always()
