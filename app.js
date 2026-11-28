@@ -22,11 +22,12 @@
 
   /* ---------- helpers ---------- */
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var VST = { e: 'Checked against eTG, as quoted in the Malleus deck (sources above).', a: 'Checked against an Australian source (above).', o: 'Checked only against a non-Australian source (above).', n: 'Not checked: neither eTG nor an Australian source covers this in the Malleus deck. Standard teaching.' };
   var SRCLN = /^\((Sources?|Victoria):\s*/;
-  function ksrc(k) { return String(k || '').split('\n').filter(function (l) { return SRCLN.test(l); }).map(function (l) { var lab = SRCLN.exec(l)[1], t = l.replace(SRCLN, '').replace(/\)\s*$/, ''); t = t.charAt(0).toUpperCase() + t.slice(1); return /^Source/.test(lab) ? t : lab + ': ' + t; }); }
+  function ksrc(k) { return String(k || '').split('\n').filter(function (l) { return SRCLN.test(l); }).map(function (l) { var lab = SRCLN.exec(l)[1], t = l.replace(SRCLN, '').replace(/\)\s*$/, ''); if (!/^e[A-Z]/.test(t)) t = t.charAt(0).toUpperCase() + t.slice(1); return /^Source/.test(lab) ? t : lab + ': ' + t; }); }
   function srcInfo(it) {
     var li = ksrc(it.k).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
-    return '<div class="srcw"><button type="button" class="srci" data-srci aria-expanded="false" aria-label="Sources" title="Sources (I)">i</button><div class="srcp" hidden>' + (li ? '<ul>' + li + '</ul>' : '') + '<p class="src">' + SRC[it.s || 'p'] + '</p></div></div>';
+    return '<div class="srcw"><button type="button" class="srci" data-srci aria-expanded="false" aria-label="Sources" title="Sources (I)">i</button><div class="srcp" hidden>' + (li ? '<ul>' + li + '</ul>' : '') + '<p class="src">' + (VST[it.v] || SRC[it.s || 'p']) + '</p></div></div>';
   }
   function kfmt(k) {
     k = String(k).split('\n').filter(function (l) { return !SRCLN.test(l); }).join('\n');

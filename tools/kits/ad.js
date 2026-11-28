@@ -112,9 +112,9 @@ window.KIT = {
      "rx": {
       "h": "Heart rate and BP: targets and the drug order",
       "items": [
-       "<b>Targets:</b> HR under 60, SBP 100-120",
-       "<b>First:</b> IV labetalol or esmolol",
-       "SBP still over 120 → add nitroprusside or nicardipine",
+       "<b>Targets:</b> HR under 60, SBP about 100 (eTG; other sources say 100-120)",
+       "<b>First:</b> IV esmolol (eTG: short acting, easiest to titrate) or labetalol",
+       "BP still high → add sodium nitroprusside (nicardipine elsewhere)",
        "Never a vasodilator without a beta-blocker → reflex tachycardia raises wall stress"
       ],
       "cls": "stop"
@@ -135,8 +135,8 @@ window.KIT = {
      "rx": {
       "h": "Pain",
       "items": [
-       "IV morphine",
-       "The page gives no dose → use your protocol"
+       "IV morphine, titrated: 2.5 to 5 mg (fentanyl is an alternative)",
+       "Pain relief lowers sympathetic drive → lower HR and BP (Marshall and Ruedy)"
       ]
      }
     },
@@ -212,7 +212,7 @@ window.KIT = {
   {
    "t": "Back pain, flap starts beyond the left subclavian artery, BP 170/95, no organ problems.",
    "a": "b",
-   "why": "Descending only and uncomplicated: type B, medical. Beta-blocker first to HR under 60, then SBP 100-120."
+   "why": "Descending only and uncomplicated: type B, medical. Beta-blocker first to HR under 60, then SBP about 100 (eTG)."
   },
   {
    "t": "Type B dissection, urine output falling and creatinine rising.",

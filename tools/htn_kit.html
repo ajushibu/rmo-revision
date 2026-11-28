@@ -117,7 +117,7 @@ svg text{font-size:calc(13px * var(--fs,1))}
   var STEPS = [
     { h: 'Urgency or emergency?', body: function () { return '<p class="say">A very high number alone is not an emergency. <b>Damage to an organ</b> is what makes it one.</p>' +
       '<div class="scroll"><table><thead><tr><th></th><th>Urgency</th><th>Emergency</th></tr></thead><tbody>' +
-      '<tr><td>BP</td><td>Over 180/120</td><td>Over 180/120 (often)</td></tr>' +
+      '<tr><td>BP</td><td>180/110 or more (eTG: severely raised); the US page says 180/120</td><td>Organ damage, at any level; eTG calls 220/140 or more an emergency even without it</td></tr>' +
       '<tr><td>Organ damage</td><td>None</td><td>Present</td></tr>' +
       '<tr><td>Symptoms</td><td>Mild headache or dizziness allowed</td><td>Confusion, seizure, chest pain, breathlessness, visual loss</td></tr>' +
       '<tr><td>Where</td><td>Ward or home, oral drugs</td><td>ICU or HDU, IV drugs, arterial line</td></tr>' +
@@ -134,12 +134,12 @@ svg text{font-size:calc(13px * var(--fs,1))}
     { h: 'How fast to bring it down', body: function () { return '<div class="rx stop"><h3>Too fast is dangerous</h3><p>The brain and kidneys have adapted to the high pressure. Dropping it quickly can cause a stroke or kidney injury.</p></div>' +
       '<div class="scroll"><table><thead><tr><th>Situation</th><th>Target</th></tr></thead><tbody>' +
       '<tr><td>Most emergencies</td><td>No more than 25% lower in the first 2 hours (eTG); set the first target with a senior. Arterial line, or a BP at least every 5 minutes if there is none. Then towards about 160/100 over the next hours and normal over days (US page)</td></tr>' +
-      '<tr><td>Aortic dissection</td><td><b>Systolic under 120 within an hour</b>, heart rate under 60 (US page)</td></tr>' +
+      '<tr><td>Aortic dissection</td><td><b>Heart rate under 60, systolic about 100</b> (eTG); the US page says systolic under 120 within an hour</td></tr>' +
       '<tr><td>ACS or pulmonary oedema</td><td>Systolic under 140 within an hour (US page)</td></tr>' +
       '<tr><td>Urgency</td><td>Systolic under 180 over hours (eTG; the US page says under 160/100), then lower over days</td></tr></tbody></table></div>' +
       '<p class="hint">Stroke and pre-eclampsia have their own targets: follow the stroke team and obstetrics.</p>'; } },
     { h: 'Which drug for which emergency', body: function () { return '<div class="scroll"><table><thead><tr><th>Emergency</th><th>Choice</th><th>Avoid</th></tr></thead><tbody>' +
-      '<tr><td>Aortic dissection</td><td>Beta-blocker first (labetalol or esmolol), then a vasodilator</td><td>Vasodilator alone</td></tr>' +
+      '<tr><td>Aortic dissection</td><td>Beta-blocker first (labetalol or esmolol; eTG prefers esmolol), then a vasodilator (sodium nitroprusside)</td><td>Vasodilator alone</td></tr>' +
       '<tr><td>ACS</td><td>GTN</td><td>Beta-blocker if heart failure or shock</td></tr>' +
       '<tr><td>Pulmonary oedema</td><td>GTN or nitroprusside (with CPAP)</td><td>Beta-blocker</td></tr>' +
       '<tr><td>Cocaine, amphetamines, phaeochromocytoma</td><td>Benzodiazepines first; phentolamine for an adrenergic crisis, hydralazine meanwhile (eTG)</td><td>Beta-blocker alone</td></tr>' +
@@ -156,7 +156,7 @@ svg text{font-size:calc(13px * var(--fs,1))}
   var OPTS = [['oral', 'Urgency: treat the cause, oral drugs'], ['bb', 'Beta-blocker first, then vasodilator'], ['gtn', 'GTN'], ['benzo', 'Benzodiazepine first'], ['slow', 'Lower by no more than 25% in the first 2 hours'], ['obs', 'Call obstetrics']];
   var ITEMS = [
     { t: 'Ward patient, BP 198/104, mild headache, in pain after surgery, missed evening tablets, no organ damage.', a: 'oral', why: 'Urgency: treat pain, give the usual tablets, recheck. No IV drugs.' },
-    { t: 'BP 210/120 with tearing back pain and an arm BP difference.', a: 'bb', why: 'Dissection: beta-blocker first to rate under 60 and systolic under 120 within an hour.' },
+    { t: 'BP 210/120 with tearing back pain and an arm BP difference.', a: 'bb', why: 'Dissection: beta-blocker first (esmolol) to a heart rate under 60, then systolic about 100 (eTG).' },
     { t: 'BP 220/120, breathless, frothy sputum, crackles everywhere.', a: 'gtn', why: 'Pulmonary oedema: GTN with CPAP. Avoid beta-blockers.' },
     { t: 'BP 200/115, agitated, sweating, dilated pupils after amphetamines.', a: 'benzo', why: 'Sympathomimetic toxicity: benzodiazepines first; avoid a beta-blocker alone.' },
     { t: 'BP 230/130, confused, papilloedema, creatinine rising; no dissection or pregnancy.', a: 'slow', why: 'Hypertensive emergency: IV infusion in HDU or ICU, no more than 25% reduction in the first 2 hours.' },

@@ -5,8 +5,8 @@ window.KIT = {
   steps: [
     { h: 'How low, and why', blocks: [
       { table: { head: ['Potassium (mmol/L)', 'Grade', 'What to do'], aus: 1, rows: [
-        ['3.0 to 3.4', 'Mild', 'Usually oral replacement. Find the cause.'],
-        ['2.5 to 2.9', 'Moderate', 'Oral or IV. ECG. Check magnesium.'],
+        ['3.1 to 3.5', 'Mild', 'Usually oral replacement. Find the cause.'],
+        ['2.5 to 3.0', 'Moderate', 'Oral and IV (Queensland Health). ECG; below 3.0 arrhythmias can occur, so consider a monitor. Check magnesium.'],
         ['Below 2.5, or any ECG change or symptoms', 'Severe', 'IV replacement on a monitor. Call your registrar.']] } },
       { rx: { h: 'Causes: ask about these', items: ['Gut losses: vomiting, diarrhoea, a high-output stoma.', 'Kidney losses: furosemide, thiazides, high-dose steroid.', 'Shift into cells: insulin, salbutamol, alkalosis.', 'Low magnesium makes the potassium hard to correct.'] } },
       { rx: { h: 'ECG changes of low potassium', items: ['Flat T waves, ST depression, prominent U waves.', 'Ectopics, then atrial and ventricular arrhythmias, including torsades.', 'Digoxin makes all of this worse: low potassium raises the risk of toxicity.'] } },

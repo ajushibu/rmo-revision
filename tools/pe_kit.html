@@ -152,9 +152,9 @@ td:first-child { font-weight: 500; width: 34%; }
 <p class="hint" style="margin-top:10px">Every class: oxygen to keep saturation above 90%, high-flow nasal oxygen if needed, and avoid positive-pressure ventilation.</p>
 </div>
 </div>
-<div class="card" data-card="pe8" style="margin-top:14px"><h2>Anticoagulation: apixaban dose and how long</h2><ul><li><b>Dose:</b> apixaban 10 mg twice daily for 7 days → then 5 mg twice daily</li><li>Provoked → 3 months</li><li>Unprovoked with low bleeding risk → indefinite</li><li>Cancer → indefinite</li></ul><p class="hint">From the US template; not checked against an Australian source.</p></div>
-<div class="card" data-card="pe14" style="margin-top:14px"><h2>Special situations</h2><ul><li>Cancer → LMWH beats warfarin (CLOT)</li><li>Malabsorption or BMI over 40 → DOACs less reliable</li><li>Subsegmental PE, low recurrence risk → no anticoagulation</li><li>Negative leg Doppler → does not rule out PE</li></ul><p class="hint">From the US template; not checked against an Australian source.</p></div>
-<div class="card" data-card="pe13" style="margin-top:14px"><h2>Unprovoked PE: recurrence and follow-up</h2><ul><li><b>Recurrence off treatment:</b> about 10% in year 1 → then 5% a year</li><li><b>Do:</b> age-appropriate cancer screening</li><li><b>Do not:</b> thrombophilia testing in the acute phase (exception: high concern for antiphospholipid syndrome)</li></ul><p class="hint">From the US template; not checked against an Australian source.</p></div>
+<div class="card" data-card="pe8" style="margin-top:14px"><h2>Anticoagulation: apixaban dose and how long</h2><ul><li><b>Dose:</b> apixaban 10 mg twice daily for 7 days → then 5 mg twice daily</li><li>Provoked → 3 months (eTG: a DOAC such as apixaban)</li><li>First unprovoked → beyond 3 months is a shared decision (bleeding risk, patient preference)</li><li>Two or more unprovoked → extended treatment, often at a lower dose</li><li>Active cancer → LMWH preferred, at least 6 months</li></ul><p class="hint">Durations: eTG Venous thromboembolism treatment 2023 and the THANZ Australian VTE guideline, as quoted in the Malleus deck. The US template said indefinite for unprovoked and cancer. The apixaban loading dose is not in the deck.</p></div>
+<div class="card" data-card="pe14" style="margin-top:14px"><h2>Special situations</h2><ul><li>Cancer → LMWH beats warfarin (CLOT)</li><li>Malabsorption or BMI over 40 → DOACs less reliable</li><li>Subsegmental PE, low recurrence risk → no anticoagulation</li><li>Negative leg Doppler → does not rule out PE</li><li>Severe liver impairment → no DOAC (warfarin or heparin instead)</li></ul><p class="hint">LMWH in cancer and the liver rule: THANZ Australian VTE guideline, as quoted in the Malleus deck. The rest is from the US template.</p></div>
+<div class="card" data-card="pe13" style="margin-top:14px"><h2>Unprovoked PE: recurrence and follow-up</h2><ul><li><b>Recurrence off treatment:</b> about 10% in year 1 → then 5% a year</li><li><b>Do:</b> age-appropriate cancer screening</li><li><b>Do not:</b> thrombophilia testing in the acute phase (exception: high concern for antiphospholipid syndrome)</li><li>Unprovoked → think antiphospholipid syndrome and hidden cancer</li></ul><p class="hint">The last line is from the THANZ Australian VTE guideline, as quoted in the Malleus deck; the recurrence figures are from the US template.</p></div>
 </section>
 <section class="panel" id="p-test" role="tabpanel" aria-labelledby="t-test" hidden>
 <div class="split">
@@ -197,7 +197,7 @@ td:first-child { font-weight: 500; width: 34%; }
 <div class="card" data-card="pe16"><h2>Doses for reference (eTG): a senior decision</h2><ul><li><b>Alteplase, high-risk PE:</b> 10 mg IV, then 90 mg over 2 hours (65 kg or more; less if lighter, check eTG)</li><li><b>Alteplase in cardiac arrest from PE:</b> 50 mg IV, a further 50 mg after 15 to 30 minutes if no return of circulation</li><li><b>Tenecteplase:</b> weight-based (30 to 50 mg), not TGA-approved for PE</li><li><b>Unfractionated heparin:</b> 18 units/kg/hour IV, adjusted to APTT; eTG says a loading dose is not needed. Preferred over LMWH in severe kidney impairment or when rapid reversal may be needed</li></ul><p class="hint">From eTG Venous thromboembolism treatment (2023, amended 2026), as quoted in the Malleus deck, not read in eTG itself. Follow your hospital protocol.</p></div>
 <div class="card" style="margin-top:14px">
 <h2>Thrombolysis contraindications: absolute or relative?</h2>
-<p class="hint">15 items from the template. Wrong answers come back in a second round. The list is not exhaustive.</p>
+<p class="hint">15 items. The absolute ones follow the eTG fibrinolysis list (as quoted in the Malleus deck); the relative ones are from the US template. Wrong answers come back in a second round. The list is not exhaustive.</p>
 <div class="drill" id="lysis-box" aria-live="polite" style="margin-top:14px"></div>
 </div>
 <details class="card">
@@ -406,13 +406,13 @@ $('#age').addEventListener('input', updateTest);
 $('#dd').addEventListener('input', updateTest);
 updateTest();
 var ITEMS = [
-{ t: 'Haemorrhagic stroke', abs: 1 },
-{ t: 'Ischaemic stroke in the last 3 months', abs: 1 },
-{ t: 'Known arteriovenous malformation', abs: 1 },
-{ t: 'Recent brain or spinal surgery', abs: 1 },
-{ t: 'Recent head trauma with fracture or brain injury (last 3 weeks)', abs: 1 },
-{ t: 'Serious active bleeding', abs: 1 },
-{ t: 'CNS tumour', abs: 0 },
+{ t: 'Any prior intracranial haemorrhage', abs: 1 },
+{ t: 'Ischaemic stroke in the last 3 months (except acute stroke within 4.5 hours)', abs: 1 },
+{ t: 'Known arteriovenous malformation or malignant brain tumour', abs: 1 },
+{ t: 'Brain or spinal surgery in the last 2 months', abs: 1 },
+{ t: 'Significant head or face trauma in the last 3 months', abs: 1 },
+{ t: 'Suspected aortic dissection', abs: 1 },
+{ t: 'Active bleeding or a bleeding disorder', abs: 1 },
 { t: 'Major non-CNS surgery in the last 2-3 weeks', abs: 0 },
 { t: 'Platelets below 100 (x10^9/L)', abs: 0 },
 { t: 'INR above 1.7', abs: 0 },
