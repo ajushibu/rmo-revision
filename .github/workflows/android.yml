@@ -36,10 +36,17 @@ jobs:
           npx cap add android
           R=android/app/src/main/res
           rm -f $R/mipmap-anydpi-v26/ic_launcher*.xml $R/drawable-v24/ic_launcher_foreground.xml $R/drawable/ic_launcher_background.xml
-          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
-            n=${d%%:*}; s=${d##*:}
-            for f in ic_launcher ic_launcher_round ic_launcher_foreground; do convert ../icons/icon-512.png -resize ${s}x${s} $R/mipmap-$n/$f.png; done
+          # Legacy square icon (Android 7 and older) plus adaptive layers (Android 8+): blue background, ECG line in the safe zone
+          for d in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432; do
+            IFS=: read n s f <<< "$d"
+            for x in ic_launcher ic_launcher_round; do convert ../icons/icon-512.png -resize ${s}x${s} $R/mipmap-$n/$x.png; done
+            convert -background none ../icons/adaptive-fg-432.png -resize ${f}x${f} $R/mipmap-$n/ic_launcher_foreground.png
           done
+          mkdir -p $R/mipmap-anydpi-v26 $R/values
+          for x in ic_launcher ic_launcher_round; do
+            printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">' '  <background android:drawable="@color/ic_launcher_background"/>' '  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>' '  <monochrome android:drawable="@mipmap/ic_launcher_foreground"/>' '</adaptive-icon>' > $R/mipmap-anydpi-v26/$x.xml
+          done
+          printf '%s\n' '<?xml version="1.0" encoding="utf-8"?>' '<resources>' '  <color name="ic_launcher_background">#2F6DB5</color>' '</resources>' > $R/values/ic_launcher_background.xml
           cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
           ) 2>&1 | tee out/build.log
       - name: Publish to apk-build branch
