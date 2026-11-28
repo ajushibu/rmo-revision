@@ -22,8 +22,8 @@
 
   /* ---------- helpers ---------- */
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  var SRCLN = /^\(Sources?:\s*/;
-  function ksrc(k) { return String(k || '').split('\n').filter(function (l) { return SRCLN.test(l); }).map(function (l) { var t = l.replace(SRCLN, '').replace(/\)\s*$/, ''); return t.charAt(0).toUpperCase() + t.slice(1); }); }
+  var SRCLN = /^\((Sources?|Victoria):\s*/;
+  function ksrc(k) { return String(k || '').split('\n').filter(function (l) { return SRCLN.test(l); }).map(function (l) { var lab = SRCLN.exec(l)[1], t = l.replace(SRCLN, '').replace(/\)\s*$/, ''); t = t.charAt(0).toUpperCase() + t.slice(1); return /^Source/.test(lab) ? t : lab + ': ' + t; }); }
   function srcInfo(it) {
     var li = ksrc(it.k).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
     return '<div class="srcw"><button type="button" class="srci" data-srci aria-expanded="false" aria-label="Sources" title="Sources (I)">i</button><div class="srcp" hidden>' + (li ? '<ul>' + li + '</ul>' : '') + '<p class="src">' + SRC[it.s || 'p'] + '</p></div></div>';
